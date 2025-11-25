@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
   Home, Briefcase, Users, Crown, User, Menu, X, 
-  Shield, Rss, LogOut, MessageCircle
+  Shield, Rss, LogOut, MessageCircle, Newspaper
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -43,7 +43,7 @@ export default function Layout({ children, currentPageName }) {
   const navItems = [
     { name: 'Home', icon: Home, page: 'Home' },
     { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-    { name: 'Feed', icon: Rss, page: 'Feed' },
+    { name: 'Notícias', icon: Newspaper, page: 'News' },
     { name: 'Comunidade', icon: MessageCircle, page: 'Community' },
     { name: 'Grupos', icon: Users, page: 'Groups' },
     { name: 'Planos', icon: Crown, page: 'Subscription' },

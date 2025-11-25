@@ -9,6 +9,8 @@ import Admin from './pages/Admin';
 import Feed from './pages/Feed';
 import Community from './pages/Community';
 import PendingAccess from './pages/PendingAccess';
+import News from './pages/News';
+import NewsDetail from './pages/NewsDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -24,6 +26,8 @@ export const PAGES = {
     "Feed": Feed,
     "Community": Community,
     "PendingAccess": PendingAccess,
+    "News": News,
+    "NewsDetail": NewsDetail,
 }
 
 export const pagesConfig = {
