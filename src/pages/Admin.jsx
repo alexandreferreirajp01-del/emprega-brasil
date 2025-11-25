@@ -67,9 +67,11 @@ export default function Admin() {
     requirements: '',
     additional_info: '',
     application_link: '',
+    image_url: '',
     is_premium: false,
     is_featured: false
   });
+  const [uploadingJobImage, setUploadingJobImage] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -295,6 +297,7 @@ export default function Admin() {
       requirements: '',
       additional_info: '',
       application_link: '',
+      image_url: '',
       is_premium: false,
       is_featured: false
     });
@@ -315,6 +318,7 @@ export default function Admin() {
       requirements: job.requirements || '',
       additional_info: job.additional_info || '',
       application_link: job.application_link || '',
+      image_url: job.image_url || '',
       is_premium: job.is_premium || false,
       is_featured: job.is_featured || false
     });
@@ -382,7 +386,7 @@ export default function Admin() {
         }
       });
 
-      // Preencher o formulário com os dados extraídos
+      // Preencher o formulário com os dados extraídos + salvar a imagem
       if (extractedData) {
         setJobForm(prev => ({
           ...prev,
@@ -395,9 +399,10 @@ export default function Admin() {
           requirements: extractedData.requirements || prev.requirements,
           additional_info: extractedData.contact ? 
             `Contato: ${extractedData.contact}\n${extractedData.additional_info || ''}` : 
-            extractedData.additional_info || prev.additional_info
+            extractedData.additional_info || prev.additional_info,
+          image_url: fileUrl
         }));
-        showToast('Dados extraídos da imagem com sucesso!');
+        showToast('Dados e imagem extraídos com sucesso!');
       }
     } catch (error) {
       console.error('Erro ao processar imagem:', error);
@@ -745,6 +750,46 @@ export default function Admin() {
                             placeholder="https://... ou instruções"
                             className="rounded-lg"
                           />
+                        </div>
+
+                        {/* Job Image Upload */}
+                        <div className="space-y-2">
+                          <Label>Imagem da Vaga</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              value={jobForm.image_url}
+                              onChange={(e) => setJobForm({...jobForm, image_url: e.target.value})}
+                              placeholder="URL da imagem ou faça upload"
+                              className="rounded-lg flex-1"
+                            />
+                            <label className="cursor-pointer">
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  setUploadingJobImage(true);
+                                  try {
+                                    const result = await base44.integrations.Core.UploadFile({ file });
+                                    setJobForm(prev => ({...prev, image_url: result.file_url}));
+                                    showToast('Imagem carregada!');
+                                  } catch (err) {
+                                    showToast('Erro ao carregar imagem', 'error');
+                                  } finally {
+                                    setUploadingJobImage(false);
+                                  }
+                                }}
+                              />
+                              <Button type="button" variant="outline" disabled={uploadingJobImage} className="rounded-lg">
+                                {uploadingJobImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                              </Button>
+                            </label>
+                          </div>
+                          {jobForm.image_url && (
+                            <img src={jobForm.image_url} alt="Preview" className="w-32 h-24 object-cover rounded-lg mt-2" />
+                          )}
                         </div>
 
                         <div className="flex flex-wrap gap-6 pt-4 border-t">
