@@ -4,11 +4,17 @@ import { Briefcase, ArrowRight, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
+import { base44 } from "@/api/base44Client";
 
 export default function Splash() {
   const handleVisitorAccess = () => {
     localStorage.setItem('workly_visitor_mode', 'true');
     window.location.href = createPageUrl('Home');
+  };
+
+  const handleLogin = () => {
+    localStorage.removeItem('workly_visitor_mode');
+    base44.auth.redirectToLogin(createPageUrl('Home'));
   };
 
   return (
@@ -47,23 +53,13 @@ export default function Splash() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="space-y-4"
         >
-          <Link to={createPageUrl('Login')} className="block">
-            <Button 
-              className="w-full h-14 text-lg font-semibold bg-white text-[#0056ff] hover:bg-white/90 rounded-2xl shadow-xl transition-all duration-300 hover:scale-[1.02]"
-            >
-              Entrar
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </Link>
-          
-          <Link to={createPageUrl('Register')} className="block">
-            <Button 
-              variant="outline"
-              className="w-full h-14 text-lg font-semibold bg-transparent border-2 border-white/30 text-white hover:bg-white/10 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
-            >
-              Criar Conta
-            </Button>
-          </Link>
+          <Button 
+            onClick={handleLogin}
+            className="w-full h-14 text-lg font-semibold bg-white text-[#0056ff] hover:bg-white/90 rounded-2xl shadow-xl transition-all duration-300 hover:scale-[1.02]"
+          >
+            Entrar / Criar Conta
+            <ArrowRight className="ml-2 w-5 h-5" />
+          </Button>
 
           <Button 
             variant="ghost"

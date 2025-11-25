@@ -8,6 +8,7 @@ import Subscription from './pages/Subscription';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import Feed from './pages/Feed';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -26,4 +27,5 @@ export const PAGES = {
 export const pagesConfig = {
     mainPage: "Splash",
     Pages: PAGES,
+    Layout: __Layout,
 };
