@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
-  Shield, Calendar, Loader2, CheckCircle
+  Shield, Calendar, Loader2, CheckCircle, Clock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -63,7 +63,7 @@ export default function Profile() {
   };
 
   const getSubscriptionBadge = () => {
-    if (user?.role === 'admin' || user?.subscription_type === 'admin') {
+    if (user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin') {
       return (
         <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1">
           <Shield className="w-4 h-4 mr-2" />
@@ -71,11 +71,27 @@ export default function Profile() {
         </Badge>
       );
     }
-    if (user?.subscription_type === 'member') {
+    if (user?.subscription_type === 'premium') {
       return (
         <Badge className="bg-green-100 text-green-700 border-0 px-4 py-1">
           <Crown className="w-4 h-4 mr-2" />
           Membro Premium
+        </Badge>
+      );
+    }
+    if (user?.subscription_type === 'basic') {
+      return (
+        <Badge className="bg-blue-100 text-blue-700 border-0 px-4 py-1">
+          <User className="w-4 h-4 mr-2" />
+          Membro Básico
+        </Badge>
+      );
+    }
+    if (user?.access_status === 'pending') {
+      return (
+        <Badge className="bg-amber-100 text-amber-700 border-0 px-4 py-1">
+          <Clock className="w-4 h-4 mr-2" />
+          Aguardando Aprovação
         </Badge>
       );
     }
@@ -196,11 +212,11 @@ export default function Profile() {
 
               {/* Actions */}
               <div className="space-y-3">
-                {user?.subscription_type !== 'member' && user?.role !== 'admin' && (
+                {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.role !== 'admin' && user?.email !== 'alexandreferreirajp01@gmail.com' && (
                   <Link to={createPageUrl('Subscription')} className="block">
                     <Button className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
                       <Crown className="w-5 h-5 mr-2" />
-                      Assinar Plano Premium
+                      {user?.subscription_type === 'basic' ? 'Fazer Upgrade para Premium' : 'Assinar um Plano'}
                     </Button>
                   </Link>
                 )}
