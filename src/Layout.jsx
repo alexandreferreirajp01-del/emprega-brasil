@@ -58,13 +58,13 @@ export default function Layout({ children, currentPageName }) {
       {/* Top Navigation */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-24">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#0056ff] rounded-xl flex items-center justify-center">
-                <Briefcase className="w-7 h-7 text-white" />
+              <div className="w-14 h-14 bg-[#0056ff] rounded-xl flex items-center justify-center">
+                <Briefcase className="w-8 h-8 text-white" />
               </div>
-              <span className="text-2xl font-bold text-slate-800">Workly</span>
+              <span className="text-3xl font-bold text-slate-800">Workly</span>
             </Link>
 
             {/* Desktop Navigation */}
