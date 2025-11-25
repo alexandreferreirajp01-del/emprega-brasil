@@ -189,18 +189,26 @@ export default function Jobs() {
                   <MapPin className="w-4 h-4 mr-2 text-slate-400" />
                   <SelectValue placeholder="Cidade" />
                 </SelectTrigger>
-                <SelectContent className="max-h-80">
-                  <div className="p-2 sticky top-0 bg-white">
-                    <Input
-                      placeholder="Pesquisar cidade..."
-                      value={citySearch}
-                      onChange={(e) => setCitySearch(e.target.value)}
-                      className="h-8"
-                    />
+                <SelectContent className="max-h-96">
+                  <div className="p-2 sticky top-0 bg-white z-10 border-b">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        placeholder="Pesquisar cidade..."
+                        value={citySearch}
+                        onChange={(e) => setCitySearch(e.target.value)}
+                        className="h-9 pl-8 text-sm"
+                      />
+                    </div>
                   </div>
-                  <ScrollArea className="h-64">
-                    <SelectItem value="all">Todas as cidades</SelectItem>
-                    {filteredCities.map(city => (
+                  <ScrollArea className="h-72">
+                    <SelectItem value="all" className="font-medium">Todas as cidades</SelectItem>
+                    <div className="px-2 py-1 text-xs font-semibold text-slate-500 bg-slate-50">Principais</div>
+                    {filteredCities.filter(c => ['João Pessoa', 'Cabedelo', 'Bayeux', 'Santa Rita', 'Campina Grande'].includes(c.name)).map(city => (
+                      <SelectItem key={city.id} value={city.name} className="font-medium text-[#0056ff]">{city.name}</SelectItem>
+                    ))}
+                    <div className="px-2 py-1 text-xs font-semibold text-slate-500 bg-slate-50 mt-1">Outras cidades</div>
+                    {filteredCities.filter(c => !['João Pessoa', 'Cabedelo', 'Bayeux', 'Santa Rita', 'Campina Grande'].includes(c.name)).map(city => (
                       <SelectItem key={city.id} value={city.name}>{city.name}</SelectItem>
                     ))}
                   </ScrollArea>
