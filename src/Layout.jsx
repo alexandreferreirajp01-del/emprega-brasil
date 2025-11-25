@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
   Home, Briefcase, Users, Crown, User, Menu, X, 
-  Shield, Rss, LogOut
+  Shield, Rss, LogOut, MessageCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -44,6 +44,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Home', icon: Home, page: 'Home' },
     { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
     { name: 'Feed', icon: Rss, page: 'Feed' },
+    { name: 'Comunidade', icon: MessageCircle, page: 'Community' },
     { name: 'Grupos', icon: Users, page: 'Groups' },
     { name: 'Planos', icon: Crown, page: 'Subscription' },
   ];
