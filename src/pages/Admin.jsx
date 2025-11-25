@@ -262,15 +262,23 @@ export default function Admin() {
 
   // Upload e extração de dados da imagem
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
+
+    // Reset input para permitir upload do mesmo arquivo novamente
+    e.target.value = '';
 
     setUploadingImage(true);
     setExtractingData(true);
 
     try {
       // Upload da imagem
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const uploadResult = await base44.integrations.Core.UploadFile({ file });
+      const fileUrl = uploadResult?.file_url;
+
+      if (!fileUrl) {
+        throw new Error('Falha no upload da imagem');
+      }
 
       // Extrair dados da imagem usando LLM
       const extractedData = await base44.integrations.Core.InvokeLLM({
@@ -286,7 +294,7 @@ export default function Admin() {
         - Informações adicionais
         
         Se alguma informação não estiver disponível, deixe em branco.`,
-        file_urls: [file_url],
+        file_urls: [fileUrl],
         response_json_schema: {
           type: "object",
           properties: {
@@ -304,23 +312,25 @@ export default function Admin() {
       });
 
       // Preencher o formulário com os dados extraídos
-      setJobForm(prev => ({
-        ...prev,
-        title: extractedData.title || prev.title,
-        company: extractedData.company || prev.company,
-        city: extractedData.city || prev.city,
-        salary_range: extractedData.salary_range || prev.salary_range,
-        job_type: extractedData.job_type || prev.job_type,
-        description: extractedData.description || prev.description,
-        requirements: extractedData.requirements || prev.requirements,
-        additional_info: extractedData.contact ? 
-          `Contato: ${extractedData.contact}\n${extractedData.additional_info || ''}` : 
-          extractedData.additional_info || prev.additional_info
-      }));
-
-      showToast('Dados extraídos da imagem com sucesso!');
+      if (extractedData) {
+        setJobForm(prev => ({
+          ...prev,
+          title: extractedData.title || prev.title,
+          company: extractedData.company || prev.company,
+          city: extractedData.city || prev.city,
+          salary_range: extractedData.salary_range || prev.salary_range,
+          job_type: extractedData.job_type || prev.job_type,
+          description: extractedData.description || prev.description,
+          requirements: extractedData.requirements || prev.requirements,
+          additional_info: extractedData.contact ? 
+            `Contato: ${extractedData.contact}\n${extractedData.additional_info || ''}` : 
+            extractedData.additional_info || prev.additional_info
+        }));
+        showToast('Dados extraídos da imagem com sucesso!');
+      }
     } catch (error) {
-      showToast('Erro ao processar imagem', 'error');
+      console.error('Erro ao processar imagem:', error);
+      showToast('Erro ao processar imagem. Tente novamente.', 'error');
     } finally {
       setUploadingImage(false);
       setExtractingData(false);

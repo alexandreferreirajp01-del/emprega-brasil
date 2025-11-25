@@ -7,12 +7,12 @@ import { motion } from "framer-motion";
 
 export default function Subscription() {
   const handleSubscribeBasic = () => {
-    const message = encodeURIComponent("Olá! Quero adquirir o plano BÁSICO da Workly.");
+    const message = encodeURIComponent("Olá! Quero adquirir o plano BÁSICO do Vagas Abertas Paraíba.");
     window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
   };
 
   const handleSubscribePremium = () => {
-    const message = encodeURIComponent("Olá! Quero adquirir o plano PREMIUM vitalício da Workly.");
+    const message = encodeURIComponent("Olá! Quero adquirir o plano PREMIUM vitalício do Vagas Abertas Paraíba.");
     window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
   };
 

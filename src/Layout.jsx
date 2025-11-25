@@ -65,7 +65,10 @@ export default function Layout({ children, currentPageName }) {
               <div className="w-14 h-14 bg-[#0056ff] rounded-xl flex items-center justify-center">
                 <Briefcase className="w-8 h-8 text-white" />
               </div>
-              <span className="text-3xl font-bold text-slate-800">Workly</span>
+              <div className="flex flex-col">
+                <span className="text-xl md:text-2xl font-bold text-slate-800 leading-tight">Vagas Abertas</span>
+                <span className="text-sm text-[#0056ff] font-medium">Paraíba</span>
+              </div>
             </Link>
 
             {/* Desktop Navigation */}

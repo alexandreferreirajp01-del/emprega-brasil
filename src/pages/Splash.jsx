@@ -42,7 +42,8 @@ export default function Splash() {
           <div className="inline-flex items-center justify-center w-32 h-32 bg-white rounded-3xl shadow-2xl mb-6">
             <Briefcase className="w-16 h-16 text-[#0056ff]" />
           </div>
-          <h1 className="text-5xl font-bold text-white tracking-tight">Workly</h1>
+          <h1 className="text-4xl font-bold text-white tracking-tight">Vagas Abertas</h1>
+          <p className="text-2xl font-semibold text-white/90 mt-1">Paraíba</p>
           <p className="text-white/70 mt-3 text-lg">Encontre sua próxima oportunidade</p>
         </motion.div>
 
