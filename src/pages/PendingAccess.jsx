@@ -31,7 +31,7 @@ export default function PendingAccess() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('workly_visitor_mode');
+    localStorage.removeItem('vagas_abertas_visitor_mode');
     base44.auth.logout(createPageUrl('Splash'));
   };
 

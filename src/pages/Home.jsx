@@ -20,7 +20,7 @@ export default function Home() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const visitorMode = localStorage.getItem('workly_visitor_mode');
+      const visitorMode = localStorage.getItem('vagas_abertas_visitor_mode');
       if (visitorMode === 'true') {
         setIsVisitor(true);
         return;
