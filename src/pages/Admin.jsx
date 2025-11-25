@@ -95,27 +95,62 @@ export default function Admin() {
 
   const { data: jobs = [] } = useQuery({
     queryKey: ['admin-jobs'],
-    queryFn: () => base44.entities.Job.list('-created_date', 500),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Job.list('-created_date', 500) || [];
+      } catch (e) {
+        console.error('Erro ao carregar vagas:', e);
+        return [];
+      }
+    },
   });
 
   const { data: cities = [] } = useQuery({
     queryKey: ['cities'],
-    queryFn: () => base44.entities.City.list('name', 500),
+    queryFn: async () => {
+      try {
+        return await base44.entities.City.list('name', 500) || [];
+      } catch (e) {
+        console.error('Erro ao carregar cidades:', e);
+        return [];
+      }
+    },
   });
 
   const { data: users = [] } = useQuery({
     queryKey: ['admin-users'],
-    queryFn: () => base44.entities.User.list('-created_date', 500),
+    queryFn: async () => {
+      try {
+        return await base44.entities.User.list('-created_date', 500) || [];
+      } catch (e) {
+        console.error('Erro ao carregar usuários:', e);
+        return [];
+      }
+    },
   });
 
   const { data: posts = [] } = useQuery({
     queryKey: ['admin-posts'],
-    queryFn: () => base44.entities.Post.list('-created_date', 500),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Post.list('-created_date', 500) || [];
+      } catch (e) {
+        console.error('Erro ao carregar posts:', e);
+        return [];
+      }
+    },
   });
 
   const { data: comments = [] } = useQuery({
     queryKey: ['admin-comments'],
-    queryFn: () => base44.entities.Comment.list('-created_date', 500),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Comment.list('-created_date', 500) || [];
+      } catch (e) {
+        console.error('Erro ao carregar comentários:', e);
+        return [];
+      }
+    },
   });
 
   // Job Mutations

@@ -38,12 +38,26 @@ export default function Home() {
 
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ['jobs'],
-    queryFn: () => base44.entities.Job.list('-created_date', 50),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Job.list('-created_date', 50) || [];
+      } catch (e) {
+        console.error('Erro ao carregar vagas:', e);
+        return [];
+      }
+    },
   });
 
   const { data: cities = [] } = useQuery({
     queryKey: ['cities'],
-    queryFn: () => base44.entities.City.list('name', 300),
+    queryFn: async () => {
+      try {
+        return await base44.entities.City.list('name', 300) || [];
+      } catch (e) {
+        console.error('Erro ao carregar cidades:', e);
+        return [];
+      }
+    },
   });
 
   const featuredJobs = jobs.filter(job => job.is_featured).slice(0, 5);

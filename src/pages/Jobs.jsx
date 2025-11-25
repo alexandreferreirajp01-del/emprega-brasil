@@ -69,12 +69,26 @@ export default function Jobs() {
 
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ['jobs'],
-    queryFn: () => base44.entities.Job.list('-created_date', 500),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Job.list('-created_date', 500) || [];
+      } catch (e) {
+        console.error('Erro ao carregar vagas:', e);
+        return [];
+      }
+    },
   });
 
   const { data: cities = [] } = useQuery({
     queryKey: ['cities'],
-    queryFn: () => base44.entities.City.list('name', 300),
+    queryFn: async () => {
+      try {
+        return await base44.entities.City.list('name', 300) || [];
+      } catch (e) {
+        console.error('Erro ao carregar cidades:', e);
+        return [];
+      }
+    },
   });
 
   const userIsPremium = user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin' || user?.email === 'alexandreferreirajp01@gmail.com';

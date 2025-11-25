@@ -47,19 +47,38 @@ export default function Community() {
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['community-posts'],
     queryFn: async () => {
-      const allPosts = await base44.entities.Post.filter({ status: 'approved' }, '-created_date', 100);
-      return allPosts;
+      try {
+        const allPosts = await base44.entities.Post.filter({ status: 'approved' }, '-created_date', 100);
+        return allPosts || [];
+      } catch (e) {
+        console.error('Erro ao carregar posts:', e);
+        return [];
+      }
     },
   });
 
   const { data: comments = [] } = useQuery({
     queryKey: ['comments'],
-    queryFn: () => base44.entities.Comment.filter({ status: 'approved' }, '-created_date', 500),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Comment.filter({ status: 'approved' }, '-created_date', 500) || [];
+      } catch (e) {
+        console.error('Erro ao carregar comentários:', e);
+        return [];
+      }
+    },
   });
 
   const { data: likes = [] } = useQuery({
     queryKey: ['likes'],
-    queryFn: () => base44.entities.Like.list(),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Like.list() || [];
+      } catch (e) {
+        console.error('Erro ao carregar likes:', e);
+        return [];
+      }
+    },
   });
 
   const createPostMutation = useMutation({

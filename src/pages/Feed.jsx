@@ -35,7 +35,14 @@ export default function Feed() {
 
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ['feed-jobs'],
-    queryFn: () => base44.entities.Job.list('-created_date', 100),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Job.list('-created_date', 100) || [];
+      } catch (e) {
+        console.error('Erro ao carregar vagas:', e);
+        return [];
+      }
+    },
   });
 
   const userIsPremium = user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin' || user?.email === 'alexandreferreirajp01@gmail.com';
