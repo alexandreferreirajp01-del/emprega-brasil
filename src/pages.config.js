@@ -5,6 +5,9 @@ import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
 import Groups from './pages/Groups';
 import Subscription from './pages/Subscription';
+import Profile from './pages/Profile';
+import Admin from './pages/Admin';
+import Feed from './pages/Feed';
 
 
 export const PAGES = {
@@ -15,6 +18,9 @@ export const PAGES = {
     "JobDetail": JobDetail,
     "Groups": Groups,
     "Subscription": Subscription,
+    "Profile": Profile,
+    "Admin": Admin,
+    "Feed": Feed,
 }
 
 export const pagesConfig = {

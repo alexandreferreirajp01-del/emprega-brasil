@@ -1,0 +1,223 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  User, Mail, Phone, Crown, Camera, LogOut, 
+  Shield, Calendar, Loader2, CheckCircle
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { base44 } from "@/api/base44Client";
+import { createPageUrl } from "@/utils";
+import { Link } from "react-router-dom";
+
+export default function Profile() {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+      } catch (e) {
+        window.location.href = createPageUrl('Splash');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadUser();
+  }, []);
+
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsSaving(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.auth.updateMe({ profile_photo: file_url });
+      setUser(prev => ({ ...prev, profile_photo: file_url }));
+      showToast('Foto atualizada com sucesso!');
+    } catch (e) {
+      showToast('Erro ao atualizar foto', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('workly_visitor_mode');
+    base44.auth.logout(createPageUrl('Splash'));
+  };
+
+  const getSubscriptionBadge = () => {
+    if (user?.role === 'admin' || user?.subscription_type === 'admin') {
+      return (
+        <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1">
+          <Shield className="w-4 h-4 mr-2" />
+          Administrador
+        </Badge>
+      );
+    }
+    if (user?.subscription_type === 'member') {
+      return (
+        <Badge className="bg-green-100 text-green-700 border-0 px-4 py-1">
+          <Crown className="w-4 h-4 mr-2" />
+          Membro Premium
+        </Badge>
+      );
+    }
+    return (
+      <Badge className="bg-slate-100 text-slate-600 border-0 px-4 py-1">
+        <User className="w-4 h-4 mr-2" />
+        Visitante
+      </Badge>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 pb-20">
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -50, scale: 0.9 }}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl ${
+              toast.type === 'error' 
+                ? 'bg-gradient-to-r from-red-500 to-red-600 text-white' 
+                : 'bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <CheckCircle className="w-5 h-5" />
+              <span className="font-medium">{toast.message}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-8 pb-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
+        </div>
+      </div>
+
+      {/* Profile Card */}
+      <div className="max-w-2xl mx-auto px-4 -mt-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <Card className="shadow-xl rounded-3xl overflow-hidden">
+            <CardContent className="p-8">
+              {/* Avatar Section */}
+              <div className="flex flex-col items-center mb-8">
+                <div className="relative mb-4">
+                  <Avatar className="w-28 h-28 border-4 border-white shadow-lg">
+                    <AvatarImage src={user?.profile_photo} />
+                    <AvatarFallback className="bg-[#0056ff] text-white text-3xl">
+                      {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <label className="absolute bottom-0 right-0 w-10 h-10 bg-[#0056ff] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#0044cc] transition-colors">
+                    <Camera className="w-5 h-5 text-white" />
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={handlePhotoChange}
+                      disabled={isSaving}
+                    />
+                  </label>
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">
+                  {user?.full_name || 'Usuário'}
+                </h2>
+                {getSubscriptionBadge()}
+              </div>
+
+              {/* User Info */}
+              <div className="space-y-4 mb-8">
+                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                  <Mail className="w-5 h-5 text-slate-400" />
+                  <div>
+                    <p className="text-sm text-slate-500">E-mail</p>
+                    <p className="font-medium text-slate-800">{user?.email || 'Não informado'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                  <Phone className="w-5 h-5 text-slate-400" />
+                  <div>
+                    <p className="text-sm text-slate-500">Telefone</p>
+                    <p className="font-medium text-slate-800">{user?.phone || 'Não informado'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                  <Calendar className="w-5 h-5 text-slate-400" />
+                  <div>
+                    <p className="text-sm text-slate-500">Membro desde</p>
+                    <p className="font-medium text-slate-800">
+                      {user?.created_date 
+                        ? new Date(user.created_date).toLocaleDateString('pt-BR', { 
+                            day: '2-digit', 
+                            month: 'long', 
+                            year: 'numeric' 
+                          })
+                        : 'Não informado'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="space-y-3">
+                {user?.subscription_type !== 'member' && user?.role !== 'admin' && (
+                  <Link to={createPageUrl('Subscription')} className="block">
+                    <Button className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
+                      <Crown className="w-5 h-5 mr-2" />
+                      Assinar Plano Premium
+                    </Button>
+                  </Link>
+                )}
+
+                <Button 
+                  variant="outline" 
+                  className="w-full h-12 rounded-xl text-red-600 border-red-200 hover:bg-red-50"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="w-5 h-5 mr-2" />
+                  Sair da Conta
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
