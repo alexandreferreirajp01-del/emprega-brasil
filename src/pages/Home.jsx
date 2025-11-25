@@ -49,11 +49,11 @@ export default function Home() {
   const featuredJobs = jobs.filter(job => job.is_featured).slice(0, 5);
   const recentJobs = jobs.slice(0, 6);
 
-  const userIsMember = user?.subscription_type === 'member' || user?.subscription_type === 'admin' || user?.role === 'admin';
+  const userIsPremium = user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin' || user?.email === 'alexandreferreirajp01@gmail.com';
 
   const canViewJob = (job) => {
     if (!job.is_premium) return true;
-    if (userIsMember) return true;
+    if (userIsPremium) return true;
     return false;
   };
 

@@ -38,11 +38,11 @@ export default function Feed() {
     queryFn: () => base44.entities.Job.list('-created_date', 100),
   });
 
-  const userIsMember = user?.subscription_type === 'member' || user?.subscription_type === 'admin' || user?.role === 'admin';
+  const userIsPremium = user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin' || user?.email === 'alexandreferreirajp01@gmail.com';
 
   const canViewJob = (job) => {
     if (!job.is_premium) return true;
-    if (userIsMember) return true;
+    if (userIsPremium) return true;
     return false;
   };
 
