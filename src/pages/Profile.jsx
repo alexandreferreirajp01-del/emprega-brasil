@@ -83,7 +83,7 @@ export default function Profile() {
       return (
         <Badge className="bg-blue-100 text-blue-700 border-0 px-4 py-1">
           <User className="w-4 h-4 mr-2" />
-          Membro Básico
+          Membro Básico (Grátis)
         </Badge>
       );
     }

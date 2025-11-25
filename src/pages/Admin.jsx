@@ -579,10 +579,11 @@ export default function Admin() {
                           <p className="text-sm text-slate-600 mb-3">
                             Carregue uma imagem de vaga para extrair dados automaticamente
                           </p>
-                          <label className="cursor-pointer">
+                          <label className="cursor-pointer inline-block">
                             <input 
                               type="file" 
-                              accept="image/*" 
+                              accept="image/*,application/pdf" 
+                              capture="environment"
                               className="hidden" 
                               onChange={handleImageUpload}
                               disabled={uploadingImage}
@@ -590,7 +591,7 @@ export default function Admin() {
                             <Button 
                               type="button" 
                               variant="outline" 
-                              className="rounded-xl"
+                              className="rounded-xl pointer-events-none"
                               disabled={uploadingImage}
                             >
                               {uploadingImage ? (
@@ -606,6 +607,9 @@ export default function Admin() {
                               )}
                             </Button>
                           </label>
+                          <p className="text-xs text-slate-400 mt-2">
+                            Suporta JPG, PNG, GIF, WEBP, PDF
+                          </p>
                         </div>
                       </div>
 
