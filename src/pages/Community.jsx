@@ -199,7 +199,7 @@ export default function Community() {
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-8 px-4">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold text-white mb-1">Comunidade</h1>
-          <p className="text-white/70">Compartilhe e conecte-se com outros profissionais</p>
+          <p className="text-white/70">Vagas Abertas Paraíba - Conecte-se com outros profissionais</p>
         </div>
       </div>
 
