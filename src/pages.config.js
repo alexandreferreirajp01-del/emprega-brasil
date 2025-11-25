@@ -1,5 +1,4 @@
 import Splash from './pages/Splash';
-import Register from './pages/Register';
 import Home from './pages/Home';
 import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
@@ -13,7 +12,6 @@ import __Layout from './Layout.jsx';
 
 export const PAGES = {
     "Splash": Splash,
-    "Register": Register,
     "Home": Home,
     "Jobs": Jobs,
     "JobDetail": JobDetail,
