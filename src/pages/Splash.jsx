@@ -8,12 +8,12 @@ import { base44 } from "@/api/base44Client";
 
 export default function Splash() {
   const handleVisitorAccess = () => {
-    localStorage.setItem('workly_visitor_mode', 'true');
+    localStorage.setItem('vagas_abertas_visitor_mode', 'true');
     window.location.href = createPageUrl('Home');
   };
 
   const handleLogin = () => {
-    localStorage.removeItem('workly_visitor_mode');
+    localStorage.removeItem('vagas_abertas_visitor_mode');
     base44.auth.redirectToLogin(createPageUrl('Home'));
   };
 

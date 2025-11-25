@@ -18,7 +18,7 @@ export default function Layout({ children, currentPageName }) {
   
   useEffect(() => {
     const checkAuth = async () => {
-      const visitorMode = localStorage.getItem('workly_visitor_mode');
+      const visitorMode = localStorage.getItem('vagas_abertas_visitor_mode');
       if (visitorMode === 'true') {
         setIsVisitor(true);
         return;
@@ -41,7 +41,7 @@ export default function Layout({ children, currentPageName }) {
   const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
 
   const navItems = [
-    { name: 'Home', icon: Home, page: 'Home' },
+    { name: 'Início', icon: Home, page: 'Home' },
     { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
     { name: 'Notícias', icon: Newspaper, page: 'News' },
     { name: 'Comunidade', icon: MessageCircle, page: 'Community' },
@@ -50,7 +50,7 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('workly_visitor_mode');
+    localStorage.removeItem('vagas_abertas_visitor_mode');
     window.location.href = createPageUrl('Splash');
   };
 
