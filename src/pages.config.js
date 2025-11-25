@@ -7,6 +7,8 @@ import Subscription from './pages/Subscription';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import Feed from './pages/Feed';
+import Community from './pages/Community';
+import PendingAccess from './pages/PendingAccess';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +22,8 @@ export const PAGES = {
     "Profile": Profile,
     "Admin": Admin,
     "Feed": Feed,
+    "Community": Community,
+    "PendingAccess": PendingAccess,
 }
 
 export const pagesConfig = {
