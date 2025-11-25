@@ -2,27 +2,28 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Shield, Zap, Star, MessageCircle, Users } from "lucide-react";
+import { Check, Crown, Shield, Zap, Star, MessageCircle, Users, UserPlus } from "lucide-react";
+import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 
 export default function Subscription() {
-  const handleSubscribeBasic = () => {
-    const message = encodeURIComponent("Olá! Quero adquirir o plano BÁSICO do Vagas Abertas Paraíba.");
-    window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
-  };
-
   const handleSubscribePremium = () => {
     const message = encodeURIComponent("Olá! Quero adquirir o plano PREMIUM vitalício do Vagas Abertas Paraíba.");
     window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
   };
 
+  const handleCreateAccount = () => {
+    localStorage.removeItem('workly_visitor_mode');
+    window.location.href = createPageUrl('Splash');
+  };
+
   const basicFeatures = [
+    "100% Gratuito",
     "Acesso às vagas gratuitas",
     "Participar da comunidade",
     "Postar e comentar",
     "Acesso aos grupos",
-    "Pagamento único - acesso vitalício",
-    "Garantia de reembolso de 7 dias"
+    "Basta criar uma conta"
   ];
 
   const premiumFeatures = [
@@ -78,8 +79,8 @@ export default function Subscription() {
               
               <CardContent className="p-6">
                 <div className="text-center mb-6">
-                  <span className="text-3xl font-bold text-slate-800">R$ 9,90</span>
-                  <p className="text-slate-500 text-sm">Pagamento único</p>
+                  <span className="text-3xl font-bold text-green-600">GRÁTIS</span>
+                  <p className="text-slate-500 text-sm">Apenas crie sua conta</p>
                 </div>
 
                 <div className="space-y-3 mb-6">
@@ -94,12 +95,12 @@ export default function Subscription() {
                 </div>
 
                 <Button 
-                  onClick={handleSubscribeBasic}
+                  onClick={handleCreateAccount}
                   variant="outline"
                   className="w-full h-12 font-semibold rounded-xl border-blue-500 text-blue-600 hover:bg-blue-50"
                 >
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  Assinar Básico
+                  <UserPlus className="w-5 h-5 mr-2" />
+                  Criar Conta Grátis
                 </Button>
               </CardContent>
             </Card>
@@ -186,9 +187,19 @@ export default function Subscription() {
         <div className="space-y-4">
           <Card className="rounded-xl">
             <CardContent className="p-6">
-              <h3 className="font-semibold text-slate-800 mb-2">Como funciona o pagamento?</h3>
+              <h3 className="font-semibold text-slate-800 mb-2">Qual a diferença entre Visitante e Básico?</h3>
               <p className="text-slate-600">
-                Ao clicar em "Assinar via WhatsApp", você será redirecionado para conversar conosco. 
+                O visitante pode apenas visualizar o aplicativo. Já o membro Básico (gratuito) pode participar 
+                da comunidade, postar, comentar e acessar os grupos. Basta criar uma conta!
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-xl">
+            <CardContent className="p-6">
+              <h3 className="font-semibold text-slate-800 mb-2">Como funciona o pagamento Premium?</h3>
+              <p className="text-slate-600">
+                Ao clicar em "Assinar Premium", você será redirecionado para conversar conosco via WhatsApp. 
                 O pagamento é feito de forma segura e seu acesso é liberado imediatamente após a confirmação.
               </p>
             </CardContent>
