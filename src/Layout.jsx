@@ -38,7 +38,7 @@ export default function Layout({ children, currentPageName }) {
     return children;
   }
 
-  const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
+  const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
 
   const navItems = [
     { name: 'Home', icon: Home, page: 'Home' },
