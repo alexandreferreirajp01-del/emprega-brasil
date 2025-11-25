@@ -48,6 +48,11 @@ export default function Admin() {
   const [userSearch, setUserSearch] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [extractingData, setExtractingData] = useState(false);
+  const [showNewsForm, setShowNewsForm] = useState(false);
+  const [newsForm, setNewsForm] = useState({
+    title: '', subtitle: '', content: '', image_url: '', video_url: '', category: 'Geral', author_name: '', is_featured: false
+  });
+  const [uploadingNewsImage, setUploadingNewsImage] = useState(false);
   const queryClient = useQueryClient();
 
   const [jobForm, setJobForm] = useState({
@@ -153,6 +158,18 @@ export default function Admin() {
     },
   });
 
+  const { data: newsList = [] } = useQuery({
+    queryKey: ['admin-news'],
+    queryFn: async () => {
+      try {
+        return await base44.entities.News.list('-created_date', 100) || [];
+      } catch (e) {
+        console.error('Erro ao carregar notícias:', e);
+        return [];
+      }
+    },
+  });
+
   // Job Mutations
   const createJobMutation = useMutation({
     mutationFn: (data) => base44.entities.Job.create(data),
@@ -243,6 +260,25 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-comments'] });
       showToast('Comentário excluído!');
+    },
+  });
+
+  // News Mutations
+  const createNewsMutation = useMutation({
+    mutationFn: (data) => base44.entities.News.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-news'] });
+      setNewsForm({ title: '', subtitle: '', content: '', image_url: '', video_url: '', category: 'Geral', author_name: '', is_featured: false });
+      setShowNewsForm(false);
+      showToast('Notícia publicada!');
+    },
+  });
+
+  const deleteNewsMutation = useMutation({
+    mutationFn: (id) => base44.entities.News.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-news'] });
+      showToast('Notícia excluída!');
     },
   });
 
@@ -501,7 +537,11 @@ export default function Admin() {
               <MapPin className="w-4 h-4 mr-2" />
               Cidades
             </TabsTrigger>
-          </TabsList>
+            <TabsTrigger value="news" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Notícias
+            </TabsTrigger>
+            </TabsList>
 
           {/* Jobs Tab */}
           <TabsContent value="jobs" className="space-y-6">
@@ -1071,6 +1111,208 @@ export default function Admin() {
                           variant="ghost"
                           size="sm"
                           onClick={() => deletePostMutation.mutate(post.id)}
+                          className="text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* News Tab */}
+          <TabsContent value="news" className="space-y-6">
+            {!showNewsForm && (
+              <Button 
+                onClick={() => setShowNewsForm(true)}
+                className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Nova Notícia
+              </Button>
+            )}
+
+            <AnimatePresence>
+              {showNewsForm && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                >
+                  <Card className="shadow-lg rounded-2xl">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle>Nova Notícia</CardTitle>
+                      <Button variant="ghost" size="icon" onClick={() => setShowNewsForm(false)}>
+                        <X className="w-5 h-5" />
+                      </Button>
+                    </CardHeader>
+                    <CardContent>
+                      <form onSubmit={(e) => { e.preventDefault(); createNewsMutation.mutate(newsForm); }} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Título</Label>
+                            <Input
+                              value={newsForm.title}
+                              onChange={(e) => setNewsForm({...newsForm, title: e.target.value})}
+                              placeholder="Título da notícia"
+                              className="rounded-lg"
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Categoria</Label>
+                            <Select value={newsForm.category} onValueChange={(v) => setNewsForm({...newsForm, category: v})}>
+                              <SelectTrigger className="rounded-lg">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Mercado de Trabalho">Mercado de Trabalho</SelectItem>
+                                <SelectItem value="Dicas de Emprego">Dicas de Emprego</SelectItem>
+                                <SelectItem value="Economia">Economia</SelectItem>
+                                <SelectItem value="Cursos">Cursos</SelectItem>
+                                <SelectItem value="Eventos">Eventos</SelectItem>
+                                <SelectItem value="Geral">Geral</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Subtítulo</Label>
+                          <Input
+                            value={newsForm.subtitle}
+                            onChange={(e) => setNewsForm({...newsForm, subtitle: e.target.value})}
+                            placeholder="Subtítulo (opcional)"
+                            className="rounded-lg"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Conteúdo</Label>
+                          <Textarea
+                            value={newsForm.content}
+                            onChange={(e) => setNewsForm({...newsForm, content: e.target.value})}
+                            placeholder="Escreva o conteúdo da notícia..."
+                            className="rounded-lg min-h-[200px]"
+                            required
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Imagem</Label>
+                            <div className="flex gap-2">
+                              <Input
+                                value={newsForm.image_url}
+                                onChange={(e) => setNewsForm({...newsForm, image_url: e.target.value})}
+                                placeholder="URL da imagem ou faça upload"
+                                className="rounded-lg flex-1"
+                              />
+                              <label className="cursor-pointer">
+                                <input 
+                                  type="file" 
+                                  accept="image/*" 
+                                  className="hidden" 
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    setUploadingNewsImage(true);
+                                    try {
+                                      const result = await base44.integrations.Core.UploadFile({ file });
+                                      setNewsForm(prev => ({...prev, image_url: result.file_url}));
+                                      showToast('Imagem carregada!');
+                                    } catch (err) {
+                                      showToast('Erro ao carregar imagem', 'error');
+                                    } finally {
+                                      setUploadingNewsImage(false);
+                                    }
+                                  }}
+                                />
+                                <Button type="button" variant="outline" disabled={uploadingNewsImage} className="rounded-lg">
+                                  {uploadingNewsImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                                </Button>
+                              </label>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Vídeo (YouTube)</Label>
+                            <Input
+                              value={newsForm.video_url}
+                              onChange={(e) => setNewsForm({...newsForm, video_url: e.target.value})}
+                              placeholder="URL do vídeo do YouTube"
+                              className="rounded-lg"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Autor</Label>
+                            <Input
+                              value={newsForm.author_name}
+                              onChange={(e) => setNewsForm({...newsForm, author_name: e.target.value})}
+                              placeholder="Nome do autor"
+                              className="rounded-lg"
+                            />
+                          </div>
+                          <div className="flex items-center space-x-3 pt-6">
+                            <Switch
+                              checked={newsForm.is_featured}
+                              onCheckedChange={(v) => setNewsForm({...newsForm, is_featured: v})}
+                            />
+                            <Label>Notícia em Destaque</Label>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-3 pt-4">
+                          <Button 
+                            type="submit" 
+                            className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
+                            disabled={createNewsMutation.isPending}
+                          >
+                            {createNewsMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
+                            Publicar
+                          </Button>
+                          <Button type="button" variant="outline" onClick={() => setShowNewsForm(false)} className="rounded-xl">
+                            Cancelar
+                          </Button>
+                        </div>
+                      </form>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* News List */}
+            <Card className="rounded-xl">
+              <CardHeader>
+                <CardTitle className="text-lg">Notícias Publicadas ({newsList.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-3">
+                    {newsList.map((item) => (
+                      <div key={item.id} className="flex items-start justify-between p-4 bg-slate-50 rounded-xl">
+                        <div className="flex items-start gap-3">
+                          {item.image_url && (
+                            <img src={item.image_url} alt="" className="w-16 h-12 object-cover rounded-lg" />
+                          )}
+                          <div>
+                            <p className="font-medium text-slate-800 line-clamp-1">{item.title}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs">{item.category}</Badge>
+                              {item.is_featured && <Badge className="bg-red-100 text-red-700 text-xs">Destaque</Badge>}
+                            </div>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteNewsMutation.mutate(item.id)}
                           className="text-red-500"
                         >
                           <Trash2 className="w-4 h-4" />
