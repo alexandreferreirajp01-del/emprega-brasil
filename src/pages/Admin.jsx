@@ -9,9 +9,11 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  Plus, Briefcase, MapPin, Trash2, Edit, Save, 
-  X, Loader2, CheckCircle, Shield, Search, Building2
+  Plus, Briefcase, MapPin, Trash2, Edit, Save, X, Loader2, CheckCircle, 
+  Shield, Search, Building2, Users, MessageSquare, Image, Upload, 
+  Check, XCircle, Eye, Clock, Crown, UserCheck, UserX
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -43,6 +45,9 @@ export default function Admin() {
   const [newCity, setNewCity] = useState('');
   const [citySearch, setCitySearch] = useState('');
   const [functionSearch, setFunctionSearch] = useState('');
+  const [userSearch, setUserSearch] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [extractingData, setExtractingData] = useState(false);
   const queryClient = useQueryClient();
 
   const [jobForm, setJobForm] = useState({
@@ -70,7 +75,11 @@ export default function Admin() {
     const checkAdmin = async () => {
       try {
         const currentUser = await base44.auth.me();
-        if (currentUser.role !== 'admin' && currentUser.subscription_type !== 'admin') {
+        // Permitir apenas o email específico ou role admin
+        const isAdmin = currentUser.email === 'alexandreferreirajp01@gmail.com' || 
+                        currentUser.role === 'admin' || 
+                        currentUser.subscription_type === 'admin';
+        if (!isAdmin) {
           window.location.href = createPageUrl('Home');
           return;
         }
@@ -94,6 +103,22 @@ export default function Admin() {
     queryFn: () => base44.entities.City.list('name', 500),
   });
 
+  const { data: users = [] } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: () => base44.entities.User.list('-created_date', 500),
+  });
+
+  const { data: posts = [] } = useQuery({
+    queryKey: ['admin-posts'],
+    queryFn: () => base44.entities.Post.list('-created_date', 500),
+  });
+
+  const { data: comments = [] } = useQuery({
+    queryKey: ['admin-comments'],
+    queryFn: () => base44.entities.Comment.list('-created_date', 500),
+  });
+
+  // Job Mutations
   const createJobMutation = useMutation({
     mutationFn: (data) => base44.entities.Job.create(data),
     onSuccess: () => {
@@ -123,6 +148,7 @@ export default function Admin() {
     onError: () => showToast('Erro ao excluir vaga', 'error')
   });
 
+  // City Mutations
   const createCityMutation = useMutation({
     mutationFn: (name) => base44.entities.City.create({ name, state: 'PB' }),
     onSuccess: () => {
@@ -140,6 +166,49 @@ export default function Admin() {
       showToast('Cidade removida com sucesso!');
     },
     onError: () => showToast('Erro ao remover cidade', 'error')
+  });
+
+  // User Mutations
+  const updateUserMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.User.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      showToast('Usuário atualizado com sucesso!');
+    },
+    onError: () => showToast('Erro ao atualizar usuário', 'error')
+  });
+
+  // Post/Comment Mutations
+  const updatePostMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Post.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-posts'] });
+      showToast('Post atualizado!');
+    },
+  });
+
+  const deletePostMutation = useMutation({
+    mutationFn: (id) => base44.entities.Post.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-posts'] });
+      showToast('Post excluído!');
+    },
+  });
+
+  const updateCommentMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Comment.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-comments'] });
+      showToast('Comentário atualizado!');
+    },
+  });
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: (id) => base44.entities.Comment.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-comments'] });
+      showToast('Comentário excluído!');
+    },
   });
 
   const resetJobForm = () => {
@@ -191,6 +260,91 @@ export default function Admin() {
     }
   };
 
+  // Upload e extração de dados da imagem
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    setExtractingData(true);
+
+    try {
+      // Upload da imagem
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+
+      // Extrair dados da imagem usando LLM
+      const extractedData = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analise esta imagem de vaga de emprego e extraia as seguintes informações em português:
+        - Título/Cargo da vaga
+        - Nome da empresa
+        - Cidade/Localização
+        - Faixa salarial (se mencionado)
+        - Tipo de contrato (CLT, Estágio, Home Office, etc)
+        - Descrição da vaga
+        - Requisitos
+        - Contato (email ou telefone)
+        - Informações adicionais
+        
+        Se alguma informação não estiver disponível, deixe em branco.`,
+        file_urls: [file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            title: { type: "string" },
+            company: { type: "string" },
+            city: { type: "string" },
+            salary_range: { type: "string" },
+            job_type: { type: "string" },
+            description: { type: "string" },
+            requirements: { type: "string" },
+            contact: { type: "string" },
+            additional_info: { type: "string" }
+          }
+        }
+      });
+
+      // Preencher o formulário com os dados extraídos
+      setJobForm(prev => ({
+        ...prev,
+        title: extractedData.title || prev.title,
+        company: extractedData.company || prev.company,
+        city: extractedData.city || prev.city,
+        salary_range: extractedData.salary_range || prev.salary_range,
+        job_type: extractedData.job_type || prev.job_type,
+        description: extractedData.description || prev.description,
+        requirements: extractedData.requirements || prev.requirements,
+        additional_info: extractedData.contact ? 
+          `Contato: ${extractedData.contact}\n${extractedData.additional_info || ''}` : 
+          extractedData.additional_info || prev.additional_info
+      }));
+
+      showToast('Dados extraídos da imagem com sucesso!');
+    } catch (error) {
+      showToast('Erro ao processar imagem', 'error');
+    } finally {
+      setUploadingImage(false);
+      setExtractingData(false);
+    }
+  };
+
+  const approveUser = (userId, subscriptionType = 'basic') => {
+    updateUserMutation.mutate({
+      id: userId,
+      data: {
+        access_status: 'approved',
+        subscription_type: subscriptionType,
+        subscription_date: new Date().toISOString()
+      }
+    });
+  };
+
+  const rejectUser = (userId) => {
+    updateUserMutation.mutate({
+      id: userId,
+      data: { access_status: 'rejected' }
+    });
+  };
+
   const filteredCities = cities.filter(city =>
     city.name?.toLowerCase().includes(citySearch.toLowerCase())
   );
@@ -198,6 +352,15 @@ export default function Admin() {
   const filteredFunctions = JOB_FUNCTIONS.filter(func =>
     func.toLowerCase().includes(functionSearch.toLowerCase())
   );
+
+  const filteredUsers = users.filter(u =>
+    u.full_name?.toLowerCase().includes(userSearch.toLowerCase()) ||
+    u.email?.toLowerCase().includes(userSearch.toLowerCase())
+  );
+
+  const pendingUsers = users.filter(u => u.access_status === 'pending' || !u.access_status);
+  const pendingPosts = posts.filter(p => p.status === 'pending');
+  const pendingComments = comments.filter(c => c.status === 'pending');
 
   if (isLoading) {
     return (
@@ -237,17 +400,57 @@ export default function Admin() {
             <Shield className="w-6 h-6 text-white" />
             <h1 className="text-2xl font-bold text-white">Painel Administrativo</h1>
           </div>
-          <p className="text-white/70">Gerencie vagas e cidades</p>
+          <p className="text-white/70">Gerencie vagas, usuários e comunidade</p>
+          
+          {/* Quick Stats */}
+          <div className="flex flex-wrap gap-4 mt-4">
+            {pendingUsers.length > 0 && (
+              <Badge className="bg-amber-500 text-white border-0 px-3 py-1">
+                <Clock className="w-3 h-3 mr-1" />
+                {pendingUsers.length} usuário(s) pendente(s)
+              </Badge>
+            )}
+            {pendingPosts.length > 0 && (
+              <Badge className="bg-purple-500 text-white border-0 px-3 py-1">
+                <MessageSquare className="w-3 h-3 mr-1" />
+                {pendingPosts.length} post(s) pendente(s)
+              </Badge>
+            )}
+            {pendingComments.length > 0 && (
+              <Badge className="bg-pink-500 text-white border-0 px-3 py-1">
+                <MessageSquare className="w-3 h-3 mr-1" />
+                {pendingComments.length} comentário(s) pendente(s)
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <Tabs defaultValue="jobs" className="space-y-6">
-          <TabsList className="bg-white shadow-sm rounded-xl p-1">
+          <TabsList className="bg-white shadow-sm rounded-xl p-1 flex-wrap">
             <TabsTrigger value="jobs" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
               <Briefcase className="w-4 h-4 mr-2" />
               Vagas
+            </TabsTrigger>
+            <TabsTrigger value="users" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <Users className="w-4 h-4 mr-2" />
+              Usuários
+              {pendingUsers.length > 0 && (
+                <Badge className="ml-2 bg-amber-500 text-white border-0 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {pendingUsers.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="community" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Comunidade
+              {(pendingPosts.length + pendingComments.length) > 0 && (
+                <Badge className="ml-2 bg-purple-500 text-white border-0 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {pendingPosts.length + pendingComments.length}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="cities" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
               <MapPin className="w-4 h-4 mr-2" />
@@ -257,18 +460,18 @@ export default function Admin() {
 
           {/* Jobs Tab */}
           <TabsContent value="jobs" className="space-y-6">
-            {/* Add Job Button */}
             {!showJobForm && (
-              <Button 
-                onClick={() => setShowJobForm(true)}
-                className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Nova Vaga
-              </Button>
+              <div className="flex gap-3">
+                <Button 
+                  onClick={() => setShowJobForm(true)}
+                  className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Nova Vaga
+                </Button>
+              </div>
             )}
 
-            {/* Job Form */}
             <AnimatePresence>
               {showJobForm && (
                 <motion.div
@@ -284,6 +487,43 @@ export default function Admin() {
                       </Button>
                     </CardHeader>
                     <CardContent>
+                      {/* Image Upload for Data Extraction */}
+                      <div className="mb-6 p-4 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
+                        <div className="text-center">
+                          <Image className="w-10 h-10 text-slate-400 mx-auto mb-2" />
+                          <p className="text-sm text-slate-600 mb-3">
+                            Carregue uma imagem de vaga para extrair dados automaticamente
+                          </p>
+                          <label className="cursor-pointer">
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="hidden" 
+                              onChange={handleImageUpload}
+                              disabled={uploadingImage}
+                            />
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              className="rounded-xl"
+                              disabled={uploadingImage}
+                            >
+                              {uploadingImage ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  {extractingData ? 'Extraindo dados...' : 'Carregando...'}
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="w-4 h-4 mr-2" />
+                                  Carregar Imagem
+                                </>
+                              )}
+                            </Button>
+                          </label>
+                        </div>
+                      </div>
+
                       <form onSubmit={handleSubmitJob} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
@@ -399,11 +639,11 @@ export default function Admin() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Informações Adicionais</Label>
+                          <Label>Informações Adicionais (Contato, Benefícios, etc)</Label>
                           <Textarea
                             value={jobForm.additional_info}
                             onChange={(e) => setJobForm({...jobForm, additional_info: e.target.value})}
-                            placeholder="Benefícios, horários, etc..."
+                            placeholder="Contato, benefícios, horários, etc..."
                             className="rounded-lg"
                           />
                         </div>
@@ -425,7 +665,8 @@ export default function Admin() {
                               onCheckedChange={(v) => setJobForm({...jobForm, is_premium: v})}
                             />
                             <Label className="cursor-pointer">
-                              Apenas para Membros
+                              <Crown className="w-4 h-4 inline mr-1 text-purple-600" />
+                              Apenas para Membros Premium
                             </Label>
                           </div>
                           <div className="flex items-center space-x-3">
@@ -471,10 +712,13 @@ export default function Admin() {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <h4 className="font-semibold text-slate-800">{job.title || 'Não informado'}</h4>
                           {job.is_premium && (
-                            <Badge className="bg-purple-100 text-purple-700 border-0 text-xs">Premium</Badge>
+                            <Badge className="bg-purple-100 text-purple-700 border-0 text-xs">
+                              <Crown className="w-3 h-3 mr-1" />
+                              Premium
+                            </Badge>
                           )}
                           {job.is_featured && (
                             <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs">Destaque</Badge>
@@ -510,18 +754,292 @@ export default function Admin() {
                   </CardContent>
                 </Card>
               ))}
-              {jobs.length === 0 && (
-                <div className="text-center py-12">
-                  <Briefcase className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                  <p className="text-slate-500">Nenhuma vaga cadastrada</p>
-                </div>
-              )}
             </div>
+          </TabsContent>
+
+          {/* Users Tab */}
+          <TabsContent value="users" className="space-y-6">
+            {/* Pending Users */}
+            {pendingUsers.length > 0 && (
+              <Card className="rounded-xl border-amber-200 bg-amber-50">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2 text-amber-800">
+                    <Clock className="w-5 h-5" />
+                    Usuários Pendentes ({pendingUsers.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {pendingUsers.map((u) => (
+                    <div key={u.id} className="flex items-center justify-between p-4 bg-white rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage src={u.profile_photo} />
+                          <AvatarFallback className="bg-amber-200 text-amber-700">
+                            {u.full_name?.[0] || u.email?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-slate-800">{u.full_name || 'Sem nome'}</p>
+                          <p className="text-sm text-slate-500">{u.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Select onValueChange={(type) => approveUser(u.id, type)}>
+                          <SelectTrigger className="w-40 rounded-lg">
+                            <SelectValue placeholder="Aprovar como..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="visitor">Visitante</SelectItem>
+                            <SelectItem value="basic">Membro Básico</SelectItem>
+                            <SelectItem value="premium">Membro Premium</SelectItem>
+                            <SelectItem value="admin">Administrador</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          onClick={() => rejectUser(u.id)}
+                          className="rounded-lg text-red-600 hover:bg-red-50"
+                        >
+                          <UserX className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Search Users */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Input
+                placeholder="Pesquisar usuário..."
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                className="pl-10 rounded-xl"
+              />
+            </div>
+
+            {/* All Users */}
+            <Card className="rounded-xl">
+              <CardHeader>
+                <CardTitle className="text-lg">Todos os Usuários ({users.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-3">
+                    {filteredUsers.map((u) => (
+                      <div key={u.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage src={u.profile_photo} />
+                            <AvatarFallback className="bg-[#0056ff] text-white">
+                              {u.full_name?.[0] || u.email?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium text-slate-800">{u.full_name || 'Sem nome'}</p>
+                            <p className="text-sm text-slate-500">{u.email}</p>
+                            <div className="flex gap-2 mt-1">
+                              <Badge className={
+                                u.subscription_type === 'admin' ? 'bg-purple-100 text-purple-700' :
+                                u.subscription_type === 'premium' ? 'bg-green-100 text-green-700' :
+                                u.subscription_type === 'basic' ? 'bg-blue-100 text-blue-700' :
+                                'bg-slate-100 text-slate-600'
+                              }>
+                                {u.subscription_type === 'admin' ? 'Admin' :
+                                 u.subscription_type === 'premium' ? 'Premium' :
+                                 u.subscription_type === 'basic' ? 'Básico' :
+                                 'Visitante'}
+                              </Badge>
+                              <Badge className={
+                                u.access_status === 'approved' ? 'bg-green-100 text-green-700' :
+                                u.access_status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                'bg-amber-100 text-amber-700'
+                              }>
+                                {u.access_status === 'approved' ? 'Aprovado' :
+                                 u.access_status === 'rejected' ? 'Rejeitado' :
+                                 'Pendente'}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <Select 
+                          value={u.subscription_type || 'visitor'}
+                          onValueChange={(type) => updateUserMutation.mutate({ 
+                            id: u.id, 
+                            data: { 
+                              subscription_type: type,
+                              access_status: 'approved'
+                            } 
+                          })}
+                        >
+                          <SelectTrigger className="w-36 rounded-lg">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="visitor">Visitante</SelectItem>
+                            <SelectItem value="basic">Básico</SelectItem>
+                            <SelectItem value="premium">Premium</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Community Tab */}
+          <TabsContent value="community" className="space-y-6">
+            {/* Pending Posts */}
+            {pendingPosts.length > 0 && (
+              <Card className="rounded-xl border-purple-200 bg-purple-50">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2 text-purple-800">
+                    <Clock className="w-5 h-5" />
+                    Posts Pendentes ({pendingPosts.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {pendingPosts.map((post) => (
+                    <div key={post.id} className="p-4 bg-white rounded-xl">
+                      <div className="flex items-start gap-3 mb-3">
+                        <Avatar>
+                          <AvatarImage src={post.author_photo} />
+                          <AvatarFallback className="bg-purple-200 text-purple-700">
+                            {post.author_name?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="font-medium text-slate-800">{post.author_name}</p>
+                          <p className="text-sm text-slate-500">{post.author_email}</p>
+                        </div>
+                      </div>
+                      <p className="text-slate-700 mb-4">{post.content}</p>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm"
+                          onClick={() => updatePostMutation.mutate({ id: post.id, data: { status: 'approved' } })}
+                          className="bg-green-600 hover:bg-green-700 rounded-lg"
+                        >
+                          <Check className="w-4 h-4 mr-1" />
+                          Aprovar
+                        </Button>
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updatePostMutation.mutate({ id: post.id, data: { status: 'rejected' } })}
+                          className="rounded-lg text-red-600 hover:bg-red-50"
+                        >
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Rejeitar
+                        </Button>
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          onClick={() => deletePostMutation.mutate(post.id)}
+                          className="rounded-lg"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Pending Comments */}
+            {pendingComments.length > 0 && (
+              <Card className="rounded-xl border-pink-200 bg-pink-50">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2 text-pink-800">
+                    <Clock className="w-5 h-5" />
+                    Comentários Pendentes ({pendingComments.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {pendingComments.map((comment) => (
+                    <div key={comment.id} className="p-4 bg-white rounded-xl">
+                      <div className="flex items-start gap-3 mb-3">
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={comment.author_photo} />
+                          <AvatarFallback className="bg-pink-200 text-pink-700 text-xs">
+                            {comment.author_name?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="font-medium text-sm text-slate-800">{comment.author_name}</p>
+                          <p className="text-slate-700">{comment.content}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm"
+                          onClick={() => updateCommentMutation.mutate({ id: comment.id, data: { status: 'approved' } })}
+                          className="bg-green-600 hover:bg-green-700 rounded-lg"
+                        >
+                          <Check className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          onClick={() => deleteCommentMutation.mutate(comment.id)}
+                          className="rounded-lg text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* All Posts */}
+            <Card className="rounded-xl">
+              <CardHeader>
+                <CardTitle className="text-lg">Posts Aprovados ({posts.filter(p => p.status === 'approved').length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-3">
+                    {posts.filter(p => p.status === 'approved').map((post) => (
+                      <div key={post.id} className="flex items-start justify-between p-4 bg-slate-50 rounded-xl">
+                        <div className="flex items-start gap-3">
+                          <Avatar>
+                            <AvatarImage src={post.author_photo} />
+                            <AvatarFallback className="bg-[#0056ff] text-white">
+                              {post.author_name?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium text-sm text-slate-800">{post.author_name}</p>
+                            <p className="text-slate-600 text-sm line-clamp-2">{post.content}</p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deletePostMutation.mutate(post.id)}
+                          className="text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Cities Tab */}
           <TabsContent value="cities" className="space-y-6">
-            {/* Add City */}
             <Card className="rounded-xl">
               <CardContent className="p-4">
                 <div className="flex gap-3">
@@ -543,7 +1061,6 @@ export default function Admin() {
               </CardContent>
             </Card>
 
-            {/* Search Cities */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input
@@ -554,7 +1071,6 @@ export default function Admin() {
               />
             </div>
 
-            {/* Cities List */}
             <Card className="rounded-xl">
               <CardHeader>
                 <CardTitle className="text-lg">Cidades Cadastradas ({cities.length})</CardTitle>
