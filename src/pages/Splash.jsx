@@ -79,7 +79,7 @@ export default function Splash() {
           transition={{ duration: 0.5, delay: 0.8 }}
           className="mt-12 text-white/50 text-sm"
         >
-          © 2024 Workly. Todos os direitos reservados.
+          © 2024 Vagas Abertas Paraíba. Todos os direitos reservados.
         </motion.p>
       </motion.div>
     </div>

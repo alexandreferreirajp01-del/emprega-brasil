@@ -68,8 +68,11 @@ export default function Home() {
             className="text-center mb-8"
           >
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
-              Encontre sua próxima oportunidade
+              Vagas Abertas Paraíba
             </h1>
+            <p className="text-xl text-white/90 mb-2">
+              Encontre sua próxima oportunidade
+            </p>
             <p className="text-white/70 text-lg">
               Milhares de vagas esperando por você
             </p>
