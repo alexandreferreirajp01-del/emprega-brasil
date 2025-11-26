@@ -39,8 +39,12 @@ export default function Splash() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-12"
         >
-          <div className="inline-flex items-center justify-center w-32 h-32 bg-white rounded-3xl shadow-2xl mb-6">
-            <Briefcase className="w-16 h-16 text-[#0056ff]" />
+          <div className="inline-flex items-center justify-center w-32 h-32 bg-white rounded-3xl shadow-2xl mb-6 overflow-hidden p-2">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/fa9709690_61fe3815-e2d1-427a-8627-9d2e4ef71897-removebg-preview.png" 
+              alt="Vagas Abertas Paraíba" 
+              className="w-full h-full object-contain"
+            />
           </div>
           <h1 className="text-4xl font-bold text-white tracking-tight">Vagas Abertas</h1>
           <p className="text-2xl font-semibold text-white/90 mt-1">Paraíba</p>

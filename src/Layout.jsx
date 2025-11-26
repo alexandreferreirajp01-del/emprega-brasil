@@ -64,8 +64,12 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-24">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
-              <div className="w-14 h-14 bg-[#0056ff] rounded-xl flex items-center justify-center">
-                <Briefcase className="w-8 h-8 text-white" />
+              <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center overflow-hidden p-1 border border-slate-100">
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/fa9709690_61fe3815-e2d1-427a-8627-9d2e4ef71897-removebg-preview.png" 
+                  alt="Vagas Abertas Paraíba" 
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl md:text-2xl font-bold text-slate-800 leading-tight">Vagas Abertas</span>
