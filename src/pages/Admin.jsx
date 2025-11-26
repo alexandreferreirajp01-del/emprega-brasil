@@ -359,31 +359,42 @@ export default function Admin() {
 
       // Extrair dados da imagem usando LLM
       const extractedData = await base44.integrations.Core.InvokeLLM({
-        prompt: `Você é um assistente que extrai informações de imagens de vagas de emprego.
-Analise esta imagem e extraia as informações abaixo em português brasileiro.
+        prompt: `Você é um especialista em extrair informações de imagens de vagas de emprego no Brasil.
 
-INSTRUÇÕES:
-1. Extraia o título/cargo da vaga
-2. Extraia o nome da empresa (se visível)
-3. Extraia a cidade ou bairro. Se for um bairro da Paraíba, informe também a cidade. Exemplos: Mangabeira = João Pessoa, Intermares = Cabedelo
-4. Extraia a faixa salarial se mencionada
-5. Identifique o tipo de contrato: CLT, Estágio, Home Office, Jovem Aprendiz, Temporário, Freelancer ou PJ
-6. Crie uma descrição completa incluindo: requisitos, benefícios, horário de trabalho, informações de contato, e qualquer outra informação relevante
+TAREFA: Analise cuidadosamente esta imagem e extraia TODAS as informações visíveis sobre a vaga de emprego.
 
-Se alguma informação não estiver visível ou clara, deixe o campo vazio (string vazia).
-Retorne os dados no formato JSON solicitado.`,
-        file_urls: fileUrl,
+CAMPOS A EXTRAIR:
+1. TÍTULO/CARGO: O nome da vaga ou função (ex: Vendedor, Auxiliar Administrativo, Recepcionista)
+2. EMPRESA: Nome da empresa contratante (se visível)
+3. LOCALIZAÇÃO: Cidade, bairro ou região. Se for bairro da Paraíba, identifique a cidade:
+   - Mangabeira, Manaíra, Tambaú, Bancários, Cristo = João Pessoa
+   - Intermares, Camboinha = Cabedelo
+   - Catolé, Bodocongó = Campina Grande
+4. SALÁRIO: Valor ou faixa salarial mencionada
+5. TIPO DE CONTRATO: Identifique entre: CLT, Estágio, Home Office, Jovem Aprendiz, Temporário, Freelancer, PJ
+6. DESCRIÇÃO: Transcreva TODAS as informações da vaga incluindo:
+   - Requisitos e qualificações
+   - Benefícios oferecidos
+   - Horário de trabalho
+   - Informações de contato (telefone, email, WhatsApp)
+   - Qualquer outra informação relevante
+
+IMPORTANTE:
+- Seja preciso e extraia exatamente o que está escrito na imagem
+- Se não conseguir identificar algum campo, deixe vazio
+- Para a descrição, inclua TODO o texto visível na imagem
+- Números de telefone devem ser extraídos corretamente`,
+        file_urls: [fileUrl],
         response_json_schema: {
           type: "object",
           properties: {
-            title: { type: "string", description: "Título ou cargo da vaga" },
-            company: { type: "string", description: "Nome da empresa" },
-            city: { type: "string", description: "Cidade ou localização" },
-            salary_range: { type: "string", description: "Faixa salarial" },
-            job_type: { type: "string", description: "Tipo de contrato" },
-            description: { type: "string", description: "Descrição completa com requisitos, benefícios e contato" }
-          },
-          required: ["title", "description"]
+            title: { type: "string" },
+            company: { type: "string" },
+            city: { type: "string" },
+            salary_range: { type: "string" },
+            job_type: { type: "string" },
+            description: { type: "string" }
+          }
         }
       });
 

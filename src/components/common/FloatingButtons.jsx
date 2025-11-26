@@ -41,10 +41,6 @@ export default function FloatingButtons() {
 
   const canUseChat = user && (user.subscription_type === 'basic' || user.subscription_type === 'premium' || user.subscription_type === 'admin' || user.role === 'admin');
 
-  const handleWhatsApp = () => {
-    window.open('https://wa.me/5583991971320?text=Olá! Vim pelo Vagas Abertas Paraíba e gostaria de mais informações.', '_blank');
-  };
-
   const handleSendMessage = async () => {
     if (!message.trim() || sending) return;
 
@@ -82,15 +78,6 @@ Mensagem do usuário: ${userMessage}`,
 
   return (
     <>
-      {/* Botão WhatsApp */}
-      <button
-        onClick={handleWhatsApp}
-        className="fixed bottom-24 md:bottom-6 right-4 z-50 w-14 h-14 bg-[#25D366] hover:bg-[#20bd5a] rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110"
-        aria-label="Contato WhatsApp"
-      >
-        <WhatsAppIcon className="w-7 h-7 text-white" />
-      </button>
-
       {/* Botão Chat */}
       {canUseChat && (
         <button

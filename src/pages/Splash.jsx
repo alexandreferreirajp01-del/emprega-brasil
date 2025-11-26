@@ -39,7 +39,7 @@ export default function Splash() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-12"
         >
-          <div className="inline-flex items-center justify-center w-32 h-32 bg-white rounded-3xl shadow-2xl mb-6 overflow-hidden">
+          <div className="inline-flex items-center justify-center w-32 h-32 rounded-3xl shadow-2xl mb-6 overflow-hidden">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/258d99bd9_ced9ff9c-9d9c-48e1-84bb-4a70d3d27556.jpeg" 
               alt="Vagas Abertas Paraíba" 
