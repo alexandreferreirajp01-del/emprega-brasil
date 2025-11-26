@@ -354,7 +354,7 @@ function JobCard({ job, canView }) {
               <div className="flex flex-wrap gap-2">
                 <Badge variant="secondary" className="rounded-full text-xs">
                   <MapPin className="w-3 h-3 mr-1" />
-                  {job.city || 'Não informado'}
+                  {formatLocationWithCity(job.city)}
                 </Badge>
                 <Badge variant="secondary" className="rounded-full text-xs">
                   {job.job_type || 'Não informado'}
@@ -369,7 +369,7 @@ function JobCard({ job, canView }) {
             <div className="text-right">
               <p className="text-sm text-slate-500 flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                {formatDate(job.created_date)}
+                Postado em {formatDate(job.created_date)}
               </p>
               {job.salary_range && (
                 <p className="font-semibold text-green-600 mt-1">{job.salary_range}</p>
