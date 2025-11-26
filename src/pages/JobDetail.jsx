@@ -205,7 +205,9 @@ export default function JobDetail() {
                 <div className="mb-8">
                   <h2 className="text-lg font-semibold text-slate-800 mb-4">Descrição da Vaga</h2>
                   <div className="prose prose-slate max-w-none">
-                    <p className="text-slate-600 whitespace-pre-line">{job.description}</p>
+                    <p className="text-slate-600 whitespace-pre-line">
+                      <ClickableText text={job.description} />
+                    </p>
                   </div>
                 </div>
               )}
@@ -216,7 +218,9 @@ export default function JobDetail() {
               {job.additional_info && (
                 <div className="mb-8">
                   <h2 className="text-lg font-semibold text-slate-800 mb-4">Informações Adicionais</h2>
-                  <p className="text-slate-600 whitespace-pre-line">{job.additional_info}</p>
+                  <p className="text-slate-600 whitespace-pre-line">
+                    <ClickableText text={job.additional_info} />
+                  </p>
                 </div>
               )}
 
