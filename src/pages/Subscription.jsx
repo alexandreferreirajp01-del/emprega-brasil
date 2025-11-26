@@ -13,7 +13,7 @@ export default function Subscription() {
   };
 
   const handleCreateAccount = () => {
-    localStorage.removeItem('workly_visitor_mode');
+    localStorage.removeItem('vagas_abertas_visitor_mode');
     window.location.href = createPageUrl('Splash');
   };
 
