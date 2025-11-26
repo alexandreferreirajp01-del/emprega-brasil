@@ -11,6 +11,9 @@ import Community from './pages/Community';
 import PendingAccess from './pages/PendingAccess';
 import News from './pages/News';
 import NewsDetail from './pages/NewsDetail';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import About from './pages/About';
 import __Layout from './Layout.jsx';
 
 
@@ -28,6 +31,9 @@ export const PAGES = {
     "PendingAccess": PendingAccess,
     "News": News,
     "NewsDetail": NewsDetail,
+    "Privacy": Privacy,
+    "Terms": Terms,
+    "About": About,
 }
 
 export const pagesConfig = {
