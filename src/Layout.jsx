@@ -64,11 +64,11 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-24">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
-              <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center overflow-hidden p-1 border border-slate-100">
+              <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center overflow-hidden border border-slate-100">
                 <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/fa9709690_61fe3815-e2d1-427a-8627-9d2e4ef71897-removebg-preview.png" 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/258d99bd9_ced9ff9c-9d9c-48e1-84bb-4a70d3d27556.jpeg" 
                   alt="Vagas Abertas Paraíba" 
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="flex flex-col">

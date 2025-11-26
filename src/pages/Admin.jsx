@@ -349,44 +349,48 @@ export default function Admin() {
       const fileUrl = uploadResult?.file_url;
 
       if (!fileUrl) {
-        throw new Error('Falha no upload da imagem');
+        showToast('Erro no upload da imagem', 'error');
+        return;
       }
+
+      // Salvar a imagem imediatamente
+      setJobForm(prev => ({ ...prev, image_url: fileUrl }));
+      showToast('Imagem carregada! Extraindo dados...');
 
       // Extrair dados da imagem usando LLM
       const extractedData = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analise esta imagem de vaga de emprego e extraia as seguintes informações em português:
-        - Título/Cargo da vaga
-        - Nome da empresa
-        - Cidade/Localização (se for apenas bairro, identifique a cidade da Paraíba correspondente)
-        - Faixa salarial (se mencionado)
-        - Tipo de contrato (CLT, Estágio, Home Office, Jovem Aprendiz, Temporário, Freelancer, PJ)
-        - Descrição completa da vaga (inclua TUDO: requisitos, benefícios, horário, contato, etc)
-        
-        IMPORTANTE: Coloque TODAS as informações no campo description. Não separe requisitos.
-        Se alguma informação não estiver disponível, deixe em branco.`,
-        file_urls: [fileUrl],
+        prompt: `Você é um assistente que extrai informações de imagens de vagas de emprego.
+Analise esta imagem e extraia as informações abaixo em português brasileiro.
+
+INSTRUÇÕES:
+1. Extraia o título/cargo da vaga
+2. Extraia o nome da empresa (se visível)
+3. Extraia a cidade ou bairro. Se for um bairro da Paraíba, informe também a cidade. Exemplos: Mangabeira = João Pessoa, Intermares = Cabedelo
+4. Extraia a faixa salarial se mencionada
+5. Identifique o tipo de contrato: CLT, Estágio, Home Office, Jovem Aprendiz, Temporário, Freelancer ou PJ
+6. Crie uma descrição completa incluindo: requisitos, benefícios, horário de trabalho, informações de contato, e qualquer outra informação relevante
+
+Se alguma informação não estiver visível ou clara, deixe o campo vazio (string vazia).
+Retorne os dados no formato JSON solicitado.`,
+        file_urls: fileUrl,
         response_json_schema: {
           type: "object",
           properties: {
-            title: { type: "string" },
-            company: { type: "string" },
-            city: { type: "string" },
-            salary_range: { type: "string" },
-            job_type: { type: "string" },
-            description: { type: "string" },
-            contact: { type: "string" }
-          }
+            title: { type: "string", description: "Título ou cargo da vaga" },
+            company: { type: "string", description: "Nome da empresa" },
+            city: { type: "string", description: "Cidade ou localização" },
+            salary_range: { type: "string", description: "Faixa salarial" },
+            job_type: { type: "string", description: "Tipo de contrato" },
+            description: { type: "string", description: "Descrição completa com requisitos, benefícios e contato" }
+          },
+          required: ["title", "description"]
         }
       });
 
-      // Preencher o formulário com os dados extraídos + salvar a imagem
-      if (extractedData) {
-        // Montar descrição completa
-        let fullDescription = extractedData.description || '';
-        if (extractedData.contact) {
-          fullDescription += `\n\nContato: ${extractedData.contact}`;
-        }
+      console.log('Dados extraídos:', extractedData);
 
+      // Preencher o formulário com os dados extraídos
+      if (extractedData) {
         setJobForm(prev => ({
           ...prev,
           title: extractedData.title || prev.title,
@@ -394,14 +398,16 @@ export default function Admin() {
           city: extractedData.city || prev.city,
           salary_range: extractedData.salary_range || prev.salary_range,
           job_type: extractedData.job_type || prev.job_type,
-          description: fullDescription || prev.description,
+          description: extractedData.description || prev.description,
           image_url: fileUrl
         }));
-        showToast('Dados e imagem extraídos com sucesso!');
+        showToast('Dados extraídos com sucesso!');
+      } else {
+        showToast('Imagem salva, mas não foi possível extrair dados automaticamente.');
       }
     } catch (error) {
       console.error('Erro ao processar imagem:', error);
-      showToast('Erro ao processar imagem. Tente novamente.', 'error');
+      showToast('Erro ao extrair dados. A imagem foi salva.', 'error');
     } finally {
       setUploadingImage(false);
       setExtractingData(false);
