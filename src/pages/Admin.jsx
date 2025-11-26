@@ -762,27 +762,34 @@ export default function Admin() {
                               placeholder="URL da imagem ou faça upload"
                               className="rounded-lg flex-1"
                             />
-                            <label className="cursor-pointer">
+                            <label className="cursor-pointer inline-block">
                               <input 
                                 type="file" 
-                                accept="image/*" 
+                                accept="image/*"
+                                capture="environment"
                                 className="hidden" 
                                 onChange={async (e) => {
                                   const file = e.target.files?.[0];
                                   if (!file) return;
+                                  e.target.value = '';
                                   setUploadingJobImage(true);
                                   try {
                                     const result = await base44.integrations.Core.UploadFile({ file });
-                                    setJobForm(prev => ({...prev, image_url: result.file_url}));
-                                    showToast('Imagem carregada!');
+                                    if (result?.file_url) {
+                                      setJobForm(prev => ({...prev, image_url: result.file_url}));
+                                      showToast('Imagem carregada!');
+                                    } else {
+                                      throw new Error('URL não retornada');
+                                    }
                                   } catch (err) {
+                                    console.error('Erro upload:', err);
                                     showToast('Erro ao carregar imagem', 'error');
                                   } finally {
                                     setUploadingJobImage(false);
                                   }
                                 }}
                               />
-                              <Button type="button" variant="outline" disabled={uploadingJobImage} className="rounded-lg">
+                              <Button type="button" variant="outline" disabled={uploadingJobImage} className="rounded-lg pointer-events-none">
                                 {uploadingJobImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                               </Button>
                             </label>
@@ -1260,27 +1267,34 @@ export default function Admin() {
                                 placeholder="URL da imagem ou faça upload"
                                 className="rounded-lg flex-1"
                               />
-                              <label className="cursor-pointer">
+                              <label className="cursor-pointer inline-block">
                                 <input 
                                   type="file" 
-                                  accept="image/*" 
+                                  accept="image/*"
+                                  capture="environment"
                                   className="hidden" 
                                   onChange={async (e) => {
                                     const file = e.target.files?.[0];
                                     if (!file) return;
+                                    e.target.value = '';
                                     setUploadingNewsImage(true);
                                     try {
                                       const result = await base44.integrations.Core.UploadFile({ file });
-                                      setNewsForm(prev => ({...prev, image_url: result.file_url}));
-                                      showToast('Imagem carregada!');
+                                      if (result?.file_url) {
+                                        setNewsForm(prev => ({...prev, image_url: result.file_url}));
+                                        showToast('Imagem carregada!');
+                                      } else {
+                                        throw new Error('URL não retornada');
+                                      }
                                     } catch (err) {
+                                      console.error('Erro upload:', err);
                                       showToast('Erro ao carregar imagem', 'error');
                                     } finally {
                                       setUploadingNewsImage(false);
                                     }
                                   }}
                                 />
-                                <Button type="button" variant="outline" disabled={uploadingNewsImage} className="rounded-lg">
+                                <Button type="button" variant="outline" disabled={uploadingNewsImage} className="rounded-lg pointer-events-none">
                                   {uploadingNewsImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                                 </Button>
                               </label>

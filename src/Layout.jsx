@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
   Home, Briefcase, Users, Crown, User, Menu, X, 
-  Shield, Rss, LogOut, MessageCircle, Newspaper
+  Shield, Rss, LogOut, MessageCircle, Newspaper, Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -192,9 +193,46 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
-        {children}
+      <main className="flex-1 pb-nav">
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </main>
+
+      {/* Footer - Desktop Only */}
+      <footer className="hidden md:block bg-slate-800 text-white py-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Briefcase className="w-6 h-6 text-[#0056ff]" />
+                <span className="font-bold">Vagas Abertas Paraíba</span>
+              </div>
+              <p className="text-slate-400 text-sm">
+                Conectando talentos e oportunidades no estado da Paraíba.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Links Úteis</h4>
+              <div className="space-y-2 text-sm">
+                <Link to={createPageUrl('About')} className="block text-slate-400 hover:text-white">Sobre Nós</Link>
+                <Link to={createPageUrl('Terms')} className="block text-slate-400 hover:text-white">Termos de Uso</Link>
+                <Link to={createPageUrl('Privacy')} className="block text-slate-400 hover:text-white">Política de Privacidade</Link>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Contato</h4>
+              <div className="space-y-2 text-sm text-slate-400">
+                <p>WhatsApp: (83) 99197-1320</p>
+                <p>E-mail: alexandreferreirajp01@gmail.com</p>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-slate-700 mt-8 pt-6 text-center text-sm text-slate-400">
+            © {new Date().getFullYear()} Vagas Abertas Paraíba. Todos os direitos reservados.
+          </div>
+        </div>
+      </footer>
 
       {/* Bottom Navigation (Mobile) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom">
