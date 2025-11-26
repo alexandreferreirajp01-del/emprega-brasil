@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { formatLocationWithCity } from "@/components/common/NeighborhoodCityMap";
+import { formatRelativeDate, ClickableText } from "@/components/common/ClickableContent";
 
 export default function JobDetail() {
   const [user, setUser] = useState(null);

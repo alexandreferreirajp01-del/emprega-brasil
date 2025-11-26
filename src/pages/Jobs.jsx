@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { formatLocationWithCity } from "@/components/common/NeighborhoodCityMap";
+import { formatRelativeDate } from "@/components/common/ClickableContent";
 
 const JOB_FUNCTIONS = [
   "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
@@ -310,15 +311,6 @@ export default function Jobs() {
 }
 
 function JobCard({ job, canView }) {
-  const formatDate = (dateStr) => {
-    if (!dateStr) return 'Não informado';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
 
   if (!canView) {
     return (
@@ -369,7 +361,7 @@ function JobCard({ job, canView }) {
             <div className="text-right">
               <p className="text-sm text-slate-500 flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                Postado em {formatDate(job.created_date)}
+                {formatRelativeDate(job.created_date)}
               </p>
               {job.salary_range && (
                 <p className="font-semibold text-green-600 mt-1">{job.salary_range}</p>
@@ -424,7 +416,7 @@ function JobCard({ job, canView }) {
             <div className="text-right">
               <p className="text-sm text-slate-500 flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                Postado em {formatDate(job.created_date)}
+                {formatRelativeDate(job.created_date)}
               </p>
               {job.salary_range && (
                 <p className="font-semibold text-green-600 mt-1">{job.salary_range}</p>
