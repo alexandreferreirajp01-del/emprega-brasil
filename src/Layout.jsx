@@ -197,18 +197,18 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       {/* Bottom Navigation (Mobile) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40">
-        <div className="flex items-center justify-around h-16">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom">
+        <div className="flex items-center justify-around h-16 pb-safe">
           {navItems.slice(0, 5).map((item) => (
             <Link 
               key={item.page} 
               to={createPageUrl(item.page)}
-              className={`flex flex-col items-center justify-center flex-1 h-full ${
+              className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 ${
                 currentPageName === item.page ? 'text-[#0056ff]' : 'text-slate-500'
               }`}
             >
-              <item.icon className="w-5 h-5 mb-1" />
-              <span className="text-xs">{item.name}</span>
+              <item.icon className="w-5 h-5 mb-0.5 flex-shrink-0" />
+              <span className="text-[10px] truncate max-w-full">{item.name}</span>
             </Link>
           ))}
         </div>
