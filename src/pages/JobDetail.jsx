@@ -11,6 +11,7 @@ import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { formatLocationWithCity } from "@/components/common/NeighborhoodCityMap";
 
 export default function JobDetail() {
   const [user, setUser] = useState(null);
@@ -181,7 +182,7 @@ export default function JobDetail() {
               <div className="flex flex-wrap gap-3 mb-8">
                 <Badge className="bg-[#0056ff]/10 text-[#0056ff] border-0 px-4 py-2 text-sm rounded-full">
                   <MapPin className="w-4 h-4 mr-2" />
-                  {job.city || 'Não informado'}
+                  {formatLocationWithCity(job.city)}
                 </Badge>
                 <Badge className="bg-slate-100 text-slate-700 border-0 px-4 py-2 text-sm rounded-full">
                   <Briefcase className="w-4 h-4 mr-2" />
@@ -208,15 +209,7 @@ export default function JobDetail() {
                 </div>
               )}
 
-              {/* Requirements */}
-              {job.requirements && (
-                <div className="mb-8">
-                  <h2 className="text-lg font-semibold text-slate-800 mb-4">Requisitos</h2>
-                  <div className="bg-slate-50 rounded-xl p-6">
-                    <p className="text-slate-600 whitespace-pre-line">{job.requirements}</p>
-                  </div>
-                </div>
-              )}
+
 
               {/* Additional Info */}
               {job.additional_info && (
