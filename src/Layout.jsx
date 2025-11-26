@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import FloatingButtons from "@/components/common/FloatingButtons";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -251,6 +252,9 @@ export default function Layout({ children, currentPageName }) {
           ))}
         </div>
       </nav>
+
+      {/* Floating Buttons */}
+      <FloatingButtons />
     </div>
   );
 }
