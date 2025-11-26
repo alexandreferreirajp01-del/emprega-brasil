@@ -64,7 +64,6 @@ export default function Admin() {
     job_function: '',
     category: '',
     description: '',
-    requirements: '',
     additional_info: '',
     application_link: '',
     image_url: '',
@@ -294,7 +293,6 @@ export default function Admin() {
       job_function: '',
       category: '',
       description: '',
-      requirements: '',
       additional_info: '',
       application_link: '',
       image_url: '',
@@ -315,7 +313,6 @@ export default function Admin() {
       job_function: job.job_function || '',
       category: job.category || '',
       description: job.description || '',
-      requirements: job.requirements || '',
       additional_info: job.additional_info || '',
       application_link: job.application_link || '',
       image_url: job.image_url || '',
@@ -360,14 +357,12 @@ export default function Admin() {
         prompt: `Analise esta imagem de vaga de emprego e extraia as seguintes informações em português:
         - Título/Cargo da vaga
         - Nome da empresa
-        - Cidade/Localização
+        - Cidade/Localização (se for apenas bairro, identifique a cidade da Paraíba correspondente)
         - Faixa salarial (se mencionado)
-        - Tipo de contrato (CLT, Estágio, Home Office, etc)
-        - Descrição da vaga
-        - Requisitos
-        - Contato (email ou telefone)
-        - Informações adicionais
+        - Tipo de contrato (CLT, Estágio, Home Office, Jovem Aprendiz, Temporário, Freelancer, PJ)
+        - Descrição completa da vaga (inclua TUDO: requisitos, benefícios, horário, contato, etc)
         
+        IMPORTANTE: Coloque TODAS as informações no campo description. Não separe requisitos.
         Se alguma informação não estiver disponível, deixe em branco.`,
         file_urls: [fileUrl],
         response_json_schema: {
@@ -379,15 +374,19 @@ export default function Admin() {
             salary_range: { type: "string" },
             job_type: { type: "string" },
             description: { type: "string" },
-            requirements: { type: "string" },
-            contact: { type: "string" },
-            additional_info: { type: "string" }
+            contact: { type: "string" }
           }
         }
       });
 
       // Preencher o formulário com os dados extraídos + salvar a imagem
       if (extractedData) {
+        // Montar descrição completa
+        let fullDescription = extractedData.description || '';
+        if (extractedData.contact) {
+          fullDescription += `\n\nContato: ${extractedData.contact}`;
+        }
+
         setJobForm(prev => ({
           ...prev,
           title: extractedData.title || prev.title,
@@ -395,11 +394,7 @@ export default function Admin() {
           city: extractedData.city || prev.city,
           salary_range: extractedData.salary_range || prev.salary_range,
           job_type: extractedData.job_type || prev.job_type,
-          description: extractedData.description || prev.description,
-          requirements: extractedData.requirements || prev.requirements,
-          additional_info: extractedData.contact ? 
-            `Contato: ${extractedData.contact}\n${extractedData.additional_info || ''}` : 
-            extractedData.additional_info || prev.additional_info,
+          description: fullDescription || prev.description,
           image_url: fileUrl
         }));
         showToast('Dados e imagem extraídos com sucesso!');
@@ -713,22 +708,12 @@ export default function Admin() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Descrição</Label>
+                          <Label>Descrição da Vaga (inclua requisitos, benefícios, contato, etc)</Label>
                           <Textarea
                             value={jobForm.description}
                             onChange={(e) => setJobForm({...jobForm, description: e.target.value})}
-                            placeholder="Descreva a vaga..."
-                            className="rounded-lg min-h-[120px]"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Requisitos</Label>
-                          <Textarea
-                            value={jobForm.requirements}
-                            onChange={(e) => setJobForm({...jobForm, requirements: e.target.value})}
-                            placeholder="Liste os requisitos..."
-                            className="rounded-lg min-h-[100px]"
+                            placeholder="Descreva a vaga completa: requisitos, benefícios, horário, contato..."
+                            className="rounded-lg min-h-[200px]"
                           />
                         </div>
 
