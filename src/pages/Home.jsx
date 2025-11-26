@@ -14,6 +14,8 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { formatRelativeDate } from "@/components/common/ClickableContent";
 
+const LOGO_PRETO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg";
+
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);

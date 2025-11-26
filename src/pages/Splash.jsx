@@ -39,15 +39,15 @@ export default function Splash() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-12"
         >
-          <div className="inline-flex items-center justify-center w-32 h-32 rounded-3xl shadow-2xl mb-6 overflow-hidden">
+          <div className="inline-flex items-center justify-center w-32 h-32 mb-6">
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/258d99bd9_ced9ff9c-9d9c-48e1-84bb-4a70d3d27556.jpeg" 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/cbc7940a6_logoembranco.png" 
               alt="Vagas Abertas Paraíba" 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
-          <h1 className="text-4xl font-bold text-white tracking-tight">Vagas Abertas</h1>
-          <p className="text-2xl font-semibold text-white/90 mt-1">Paraíba</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Bem-vindo a</h1>
+          <h2 className="text-4xl font-bold text-white tracking-tight mt-1">Vagas Abertas Paraíba</h2>
           <p className="text-white/70 mt-3 text-lg">Encontre sua próxima oportunidade</p>
         </motion.div>
 
