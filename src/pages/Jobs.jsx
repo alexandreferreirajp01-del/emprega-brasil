@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Filter, Lock, Star, ChevronDown, X
+  Filter, Lock, Star, ChevronDown, X, Eye
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -91,6 +91,24 @@ export default function Jobs() {
         return [];
       }
     },
+  });
+
+  // Buscar contagem de visualizações
+  const { data: allViews = [] } = useQuery({
+    queryKey: ['all-job-views'],
+    queryFn: async () => {
+      try {
+        return await base44.entities.JobView.list('-created_date', 5000) || [];
+      } catch (e) {
+        return [];
+      }
+    },
+  });
+
+  // Criar mapa de contagem de visualizações
+  const viewsCountMap = {};
+  allViews.forEach(v => {
+    viewsCountMap[v.job_id] = (viewsCountMap[v.job_id] || 0) + 1;
   });
 
   const userIsPremium = user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin' || user?.email === 'alexandreferreirajp01@gmail.com';
@@ -291,7 +309,7 @@ export default function Jobs() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.03 }}
                 >
-                  <JobCard job={job} canView={canViewJob(job)} />
+                  <JobCard job={job} canView={canViewJob(job)} viewCount={viewsCountMap[job.id] || 0} />
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -310,7 +328,7 @@ export default function Jobs() {
   );
 }
 
-function JobCard({ job, canView }) {
+function JobCard({ job, canView, viewCount = 0 }) {
 
   if (!canView) {
     return (
@@ -417,6 +435,10 @@ function JobCard({ job, canView }) {
               <p className="text-sm text-slate-500 flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 {formatRelativeDate(job.created_date)}
+              </p>
+              <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
+                <Eye className="w-3 h-3" />
+                {viewCount} visualizações
               </p>
               {job.salary_range && (
                 <p className="font-semibold text-green-600 mt-1">{job.salary_range}</p>
