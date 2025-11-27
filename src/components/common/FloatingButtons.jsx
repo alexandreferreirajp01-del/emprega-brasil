@@ -82,7 +82,7 @@ Mensagem do usuário: ${userMessage}`,
       {canUseChat && (
         <button
           onClick={() => setChatOpen(!chatOpen)}
-          className="fixed bottom-24 md:bottom-6 right-20 z-50 w-14 h-14 bg-[#0056ff] hover:bg-[#0044cc] rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110"
+          className="fixed bottom-20 md:bottom-6 right-4 z-40 w-14 h-14 bg-[#0056ff] hover:bg-[#0044cc] rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110"
           aria-label="Chat de suporte"
         >
           {chatOpen ? <X className="w-6 h-6 text-white" /> : <MessageCircle className="w-6 h-6 text-white" />}
@@ -96,7 +96,7 @@ Mensagem do usuário: ${userMessage}`,
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-40 md:bottom-24 right-4 z-50 w-80 md:w-96 bg-white rounded-2xl shadow-2xl overflow-hidden"
+            className="fixed bottom-36 md:bottom-24 right-4 z-40 w-[calc(100%-2rem)] md:w-96 max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden"
           >
             {/* Header */}
             <div className="bg-[#0056ff] p-4 text-white">
