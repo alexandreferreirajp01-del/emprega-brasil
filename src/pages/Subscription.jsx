@@ -8,8 +8,7 @@ import { motion } from "framer-motion";
 
 export default function Subscription() {
   const handleSubscribePremium = () => {
-    const message = encodeURIComponent("Olá! Quero adquirir o plano PREMIUM vitalício do Vagas Abertas Paraíba.");
-    window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
+    window.location.href = createPageUrl('Payment');
   };
 
   const handleCreateAccount = () => {

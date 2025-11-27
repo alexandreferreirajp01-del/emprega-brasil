@@ -14,6 +14,7 @@ import NewsDetail from './pages/NewsDetail';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import About from './pages/About';
+import Payment from './pages/Payment';
 import __Layout from './Layout.jsx';
 
 
@@ -34,6 +35,7 @@ export const PAGES = {
     "Privacy": Privacy,
     "Terms": Terms,
     "About": About,
+    "Payment": Payment,
 }
 
 export const pagesConfig = {
