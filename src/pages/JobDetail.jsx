@@ -4,13 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, MapPin, Calendar, Building2, Briefcase, 
-  DollarSign, ExternalLink, Lock, Clock, CheckCircle
+  DollarSign, ExternalLink, Lock, Clock, CheckCircle, Eye
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { formatLocationWithCity } from "@/components/common/NeighborhoodCityMap";
 import { formatRelativeDate, ClickableText } from "@/components/common/ClickableContent";
 
@@ -47,6 +47,82 @@ export default function JobDetail() {
     },
     enabled: !!jobId,
   });
+
+  // Buscar visualizações da vaga
+  const { data: viewsData = [] } = useQuery({
+    queryKey: ['job-views', jobId],
+    queryFn: async () => {
+      try {
+        return await base44.entities.JobView.filter({ job_id: jobId }) || [];
+      } catch (e) {
+        return [];
+      }
+    },
+    enabled: !!jobId,
+  });
+
+  const viewCount = viewsData.length;
+
+  // Registrar visualização
+  const registerViewMutation = useMutation({
+    mutationFn: async () => {
+      // Gerar ID único do visualizador
+      const viewerId = `${navigator.userAgent}-${Date.now().toString(36)}`;
+      const storedViewerId = localStorage.getItem('vagas_viewer_id') || viewerId;
+      if (!localStorage.getItem('vagas_viewer_id')) {
+        localStorage.setItem('vagas_viewer_id', viewerId);
+      }
+      
+      // Verificar se já visualizou
+      const existingViews = await base44.entities.JobView.filter({ 
+        job_id: jobId, 
+        viewer_id: storedViewerId 
+      });
+      
+      if (existingViews.length > 0) return;
+      
+      // Detectar dispositivo
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isTablet = /iPad|Android/i.test(navigator.userAgent) && !(/Mobile/i.test(navigator.userAgent));
+      const deviceType = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop';
+      
+      // Tentar obter localização via IP
+      let geoData = {};
+      try {
+        const geoResponse = await fetch('https://ipapi.co/json/');
+        if (geoResponse.ok) {
+          const geo = await geoResponse.json();
+          geoData = {
+            city: geo.city || '',
+            state: geo.region || '',
+            country: geo.country_name || 'Brasil',
+            latitude: geo.latitude,
+            longitude: geo.longitude,
+            ip_address: geo.ip
+          };
+        }
+      } catch (e) {
+        console.log('Não foi possível obter localização');
+      }
+      
+      // Registrar visualização
+      await base44.entities.JobView.create({
+        job_id: jobId,
+        viewer_id: storedViewerId,
+        user_email: user?.email || '',
+        device_type: deviceType,
+        referrer: document.referrer || '',
+        ...geoData
+      });
+    }
+  });
+
+  // Registrar visualização ao carregar
+  useEffect(() => {
+    if (job && jobId && canViewJob()) {
+      registerViewMutation.mutate();
+    }
+  }, [job, jobId]);
 
   const userIsPremium = user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin' || user?.email === 'alexandreferreirajp01@gmail.com';
 
@@ -197,6 +273,10 @@ export default function JobDetail() {
                 <Badge variant="outline" className="px-4 py-2 text-sm rounded-full">
                   <Calendar className="w-4 h-4 mr-2" />
                   Publicado em {formatDate(job.created_date)}
+                </Badge>
+                <Badge className="bg-amber-100 text-amber-700 border-0 px-4 py-2 text-sm rounded-full">
+                  <Eye className="w-4 h-4 mr-2" />
+                  {viewCount} visualizações
                 </Badge>
               </div>
 
