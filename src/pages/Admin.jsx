@@ -13,12 +13,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Plus, Briefcase, MapPin, Trash2, Edit, Save, X, Loader2, CheckCircle, 
   Shield, Search, Building2, Users, MessageSquare, Image, Upload, 
-  Check, XCircle, Eye, Clock, Crown, UserCheck, UserX
+  Check, XCircle, Eye, Clock, Crown, UserCheck, UserX, BarChart3, 
+  Key, CreditCard, Globe
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
+import ViewsMap from "@/components/admin/ViewsMap";
+import PremiumCodesManager from "@/components/admin/PremiumCodesManager";
+import PaymentsManager from "@/components/admin/PaymentsManager";
 
 const JOB_FUNCTIONS = [
   "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
@@ -557,6 +562,22 @@ IMPORTANTE:
             <TabsTrigger value="news" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
               <MessageSquare className="w-4 h-4 mr-2" />
               Notícias
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="map" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <Globe className="w-4 h-4 mr-2" />
+              Mapa
+            </TabsTrigger>
+            <TabsTrigger value="codes" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <Key className="w-4 h-4 mr-2" />
+              Códigos
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <CreditCard className="w-4 h-4 mr-2" />
+              Pagamentos
             </TabsTrigger>
             </TabsList>
 
@@ -1450,6 +1471,26 @@ IMPORTANTE:
                 </ScrollArea>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <AnalyticsDashboard />
+          </TabsContent>
+
+          {/* Map Tab */}
+          <TabsContent value="map">
+            <ViewsMap />
+          </TabsContent>
+
+          {/* Premium Codes Tab */}
+          <TabsContent value="codes">
+            <PremiumCodesManager showToast={showToast} />
+          </TabsContent>
+
+          {/* Payments Tab */}
+          <TabsContent value="payments">
+            <PaymentsManager showToast={showToast} />
           </TabsContent>
         </Tabs>
       </div>
