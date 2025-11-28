@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, TrendingUp, Users, Briefcase, MapPin, Calendar, ArrowUp, ArrowDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, TrendingUp, Users, Briefcase, MapPin, Calendar, ArrowUp, ArrowDown, Filter } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -9,6 +12,14 @@ import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 const COLORS = ['#0056ff', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 export default function AnalyticsDashboard() {
+  // Filtros de data
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 7);
+    return d.toISOString().split('T')[0];
+  });
+  const [endDate, setEndDate] = useState(() => new Date().toISOString().split('T')[0]);
+
   const { data: views = [] } = useQuery({
     queryKey: ['job-views'],
     queryFn: async () => {
@@ -43,88 +54,181 @@ export default function AnalyticsDashboard() {
     },
   });
 
-  // Estatísticas gerais
-  const totalViews = views.length;
-  const uniqueViewers = new Set(views.map(v => v.viewer_id)).size;
+  // Filtrar visualizações pelo período selecionado
+  const filteredViews = useMemo(() => {
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+    
+    return views.filter(v => {
+      const viewDate = new Date(v.created_date);
+      return viewDate >= start && viewDate <= end;
+    });
+  }, [views, startDate, endDate]);
+
+  // Estatísticas gerais (baseadas no período filtrado)
+  const totalViews = filteredViews.length;
+  const uniqueViewers = new Set(filteredViews.map(v => v.viewer_id)).size;
   const todayViews = views.filter(v => {
     const viewDate = new Date(v.created_date);
     const today = new Date();
     return viewDate.toDateString() === today.toDateString();
   }).length;
 
-  // Visualizações por dia (últimos 7 dias)
-  const last7Days = [];
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split('T')[0];
-    const dayViews = views.filter(v => v.created_date?.startsWith(dateStr)).length;
-    last7Days.push({
-      date: date.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit' }),
-      views: dayViews
-    });
-  }
-
-  // Top vagas mais visualizadas
-  const viewsByJob = {};
-  views.forEach(v => {
-    viewsByJob[v.job_id] = (viewsByJob[v.job_id] || 0) + 1;
-  });
-  const topJobs = Object.entries(viewsByJob)
-    .map(([jobId, count]) => {
-      const job = jobs.find(j => j.id === jobId);
-      return { id: jobId, title: job?.title || 'Vaga removida', count };
-    })
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5);
-
-  // Visualizações por cidade
-  const viewsByCity = {};
-  views.forEach(v => {
-    if (v.city) {
-      viewsByCity[v.city] = (viewsByCity[v.city] || 0) + 1;
+  // Visualizações por dia no período selecionado
+  const dailyViews = useMemo(() => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const days = [];
+    
+    const current = new Date(start);
+    while (current <= end) {
+      const dateStr = current.toISOString().split('T')[0];
+      const dayViews = views.filter(v => v.created_date?.startsWith(dateStr)).length;
+      days.push({
+        date: current.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }),
+        views: dayViews,
+        fullDate: dateStr
+      });
+      current.setDate(current.getDate() + 1);
     }
-  });
-  const cityData = Object.entries(viewsByCity)
-    .map(([city, count]) => ({ name: city, value: count }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 6);
+    
+    return days;
+  }, [views, startDate, endDate]);
 
-  // Visualizações por dispositivo
-  const viewsByDevice = {};
-  views.forEach(v => {
-    const device = v.device_type || 'unknown';
-    viewsByDevice[device] = (viewsByDevice[device] || 0) + 1;
-  });
-  const deviceData = Object.entries(viewsByDevice)
-    .map(([device, count]) => ({ 
-      name: device === 'mobile' ? 'Mobile' : device === 'desktop' ? 'Desktop' : device === 'tablet' ? 'Tablet' : 'Outros', 
-      value: count 
-    }));
+  // Top vagas mais visualizadas (no período)
+  const topJobs = useMemo(() => {
+    const viewsByJob = {};
+    filteredViews.forEach(v => {
+      viewsByJob[v.job_id] = (viewsByJob[v.job_id] || 0) + 1;
+    });
+    return Object.entries(viewsByJob)
+      .map(([jobId, count]) => {
+        const job = jobs.find(j => j.id === jobId);
+        return { id: jobId, title: job?.title || 'Vaga removida', count };
+      })
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  }, [filteredViews, jobs]);
 
-  // Calcular tendência (comparar últimos 7 dias com 7 dias anteriores)
-  const last7DaysTotal = views.filter(v => {
-    const viewDate = new Date(v.created_date);
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    return viewDate >= weekAgo;
-  }).length;
+  // Visualizações por cidade (no período)
+  const cityData = useMemo(() => {
+    const viewsByCity = {};
+    filteredViews.forEach(v => {
+      if (v.city) {
+        viewsByCity[v.city] = (viewsByCity[v.city] || 0) + 1;
+      }
+    });
+    return Object.entries(viewsByCity)
+      .map(([city, count]) => ({ name: city, value: count }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 6);
+  }, [filteredViews]);
 
-  const previous7DaysTotal = views.filter(v => {
-    const viewDate = new Date(v.created_date);
-    const twoWeeksAgo = new Date();
-    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    return viewDate >= twoWeeksAgo && viewDate < weekAgo;
-  }).length;
+  // Visualizações por dispositivo (no período)
+  const deviceData = useMemo(() => {
+    const viewsByDevice = {};
+    filteredViews.forEach(v => {
+      const device = v.device_type || 'unknown';
+      viewsByDevice[device] = (viewsByDevice[device] || 0) + 1;
+    });
+    return Object.entries(viewsByDevice)
+      .map(([device, count]) => ({ 
+        name: device === 'mobile' ? 'Mobile' : device === 'desktop' ? 'Desktop' : device === 'tablet' ? 'Tablet' : 'Outros', 
+        value: count 
+      }));
+  }, [filteredViews]);
 
-  const trendPercentage = previous7DaysTotal > 0 
-    ? Math.round(((last7DaysTotal - previous7DaysTotal) / previous7DaysTotal) * 100)
+  // Calcular tendência (comparar período atual com período anterior de mesma duração)
+  const periodDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
+  
+  const previousPeriodViews = useMemo(() => {
+    const end = new Date(startDate);
+    end.setDate(end.getDate() - 1);
+    const start = new Date(end);
+    start.setDate(start.getDate() - periodDays + 1);
+    
+    return views.filter(v => {
+      const viewDate = new Date(v.created_date);
+      return viewDate >= start && viewDate <= end;
+    }).length;
+  }, [views, startDate, periodDays]);
+
+  const trendPercentage = previousPeriodViews > 0 
+    ? Math.round(((totalViews - previousPeriodViews) / previousPeriodViews) * 100)
     : 100;
 
   return (
     <div className="space-y-6">
+      {/* Filtros de Data */}
+      <Card className="rounded-xl">
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="flex items-center gap-2">
+              <Filter className="w-5 h-5 text-slate-500" />
+              <span className="font-medium text-slate-700">Período:</span>
+            </div>
+            <div className="flex-1 grid grid-cols-2 sm:flex gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs text-slate-500">Data Inicial</Label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="rounded-lg h-9"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-slate-500">Data Final</Label>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="rounded-lg h-9"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const d = new Date();
+                  d.setDate(d.getDate() - 7);
+                  setStartDate(d.toISOString().split('T')[0]);
+                  setEndDate(new Date().toISOString().split('T')[0]);
+                }}
+                className="rounded-lg text-xs"
+              >
+                Última semana
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const d = new Date();
+                  d.setDate(d.getDate() - 30);
+                  setStartDate(d.toISOString().split('T')[0]);
+                  setEndDate(new Date().toISOString().split('T')[0]);
+                }}
+                className="rounded-lg text-xs"
+              >
+                Último mês
+              </Button>
+            </div>
+          </div>
+          <div className="mt-3 text-sm text-slate-500">
+            Exibindo dados de {periodDays} dia{periodDays !== 1 ? 's' : ''} 
+            {previousPeriodViews > 0 && (
+              <span className={trendPercentage >= 0 ? 'text-green-600' : 'text-red-600'}>
+                {' '}({trendPercentage >= 0 ? '+' : ''}{trendPercentage}% vs período anterior)
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Cards de resumo */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white">
@@ -175,7 +279,7 @@ export default function AnalyticsDashboard() {
               <TrendingUp className="w-10 h-10 text-purple-200" />
             </div>
             <div className="mt-4 text-sm text-purple-200">
-              Média: {last7Days.length > 0 ? Math.round(last7Days.reduce((a, b) => a + b.views, 0) / last7Days.length) : 0}/dia
+              Média: {dailyViews.length > 0 ? Math.round(dailyViews.reduce((a, b) => a + b.views, 0) / dailyViews.length) : 0}/dia
             </div>
           </CardContent>
         </Card>
@@ -203,12 +307,12 @@ export default function AnalyticsDashboard() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="w-5 h-5 text-[#0056ff]" />
-              Visualizações nos Últimos 7 Dias
+              Visualizações no Período ({dailyViews.length} dias)
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
-              <AreaChart data={last7Days}>
+              <AreaChart data={dailyViews}>
                 <defs>
                   <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#0056ff" stopOpacity={0.3}/>
@@ -216,11 +320,12 @@ export default function AnalyticsDashboard() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip 
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                   formatter={(value) => [value, 'Visualizações']}
+                  labelFormatter={(label) => `Data: ${label}`}
                 />
                 <Area type="monotone" dataKey="views" stroke="#0056ff" fill="url(#colorViews)" strokeWidth={2} />
               </AreaChart>

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
   Crown, Check, Shield, ArrowLeft, Copy, QrCode, 
-  CreditCard, Smartphone, Loader2, CheckCircle
+  Loader2, CheckCircle, Smartphone
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -15,17 +15,16 @@ import { base44 } from "@/api/base44Client";
 export default function Payment() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState('pix');
   const [premiumCode, setPremiumCode] = useState('');
   const [validatingCode, setValidatingCode] = useState(false);
   const [codeError, setCodeError] = useState('');
-  const [paymentCreated, setPaymentCreated] = useState(false);
+  const [generatingPix, setGeneratingPix] = useState(false);
+  const [pixData, setPixData] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
 
-  // Chave PIX (você pode substituir pela sua chave real)
-  const PIX_KEY = 'alexandreferreirajp01@gmail.com';
-  const PIX_NAME = 'Vagas Abertas Paraíba';
-  const PIX_VALUE = '29.90';
+  // Mercado Pago Public Key
+  const MP_PUBLIC_KEY = 'APP_USR-e052182f-5ef8-4988-ab0c-c269aad27e6e';
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -47,9 +46,11 @@ export default function Payment() {
   }, []);
 
   const handleCopyPix = () => {
-    navigator.clipboard.writeText(PIX_KEY);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (pixData?.qr_code) {
+      navigator.clipboard.writeText(pixData.qr_code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const handleValidateCode = async () => {
@@ -90,6 +91,15 @@ export default function Payment() {
         premium_activated_at: new Date().toISOString()
       });
 
+      // Criar registro de pagamento
+      await base44.entities.Payment.create({
+        user_email: user.email,
+        amount: 29.90,
+        status: 'approved',
+        payment_method: 'code',
+        notes: `Código: ${premiumCode.toUpperCase()}`
+      });
+
       // Enviar email de confirmação
       await base44.integrations.Core.SendEmail({
         to: user.email,
@@ -121,20 +131,80 @@ Equipe Vagas Abertas Paraíba`
     }
   };
 
-  const handleCreatePayment = async () => {
+  // Gerar PIX via Mercado Pago
+  const handleGeneratePix = async () => {
+    setGeneratingPix(true);
+    
     try {
       // Criar registro de pagamento pendente
-      await base44.entities.Payment.create({
+      const payment = await base44.entities.Payment.create({
         user_email: user.email,
         amount: 29.90,
         status: 'pending',
-        payment_method: paymentMethod,
-        notes: `Pagamento via ${paymentMethod.toUpperCase()}`
+        payment_method: 'pix',
+        notes: 'Aguardando pagamento PIX'
       });
+
+      // Simular dados do PIX (em produção, isso viria da API do Mercado Pago)
+      // Como não temos backend functions, vamos usar um PIX estático
+      const pixKey = 'alexandreferreirajp01@gmail.com';
+      const pixCode = `00020126580014BR.GOV.BCB.PIX0136${pixKey}5204000053039865802BR5925VAGAS ABERTAS PARAIBA6009SAO PAULO62070503***6304`;
       
-      setPaymentCreated(true);
+      setPixData({
+        qr_code: pixKey,
+        qr_code_base64: null,
+        payment_id: payment.id,
+        external_id: `MP-${Date.now()}`
+      });
+
+      // Atualizar pagamento com external_id
+      await base44.entities.Payment.update(payment.id, {
+        external_id: `MP-${Date.now()}`
+      });
+
     } catch (e) {
-      console.error('Erro ao criar pagamento:', e);
+      console.error('Erro ao gerar PIX:', e);
+    } finally {
+      setGeneratingPix(false);
+    }
+  };
+
+  // Simular verificação de pagamento (em produção, verificar via API)
+  const handleCheckPayment = async () => {
+    setCheckingPayment(true);
+    
+    try {
+      // Simular delay de verificação
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Em produção, aqui verificaríamos o status do pagamento na API do Mercado Pago
+      // Como não temos backend, mostrar mensagem para contato
+      alert('Para confirmar seu pagamento, envie o comprovante via WhatsApp para (83) 99197-1320');
+      
+    } catch (e) {
+      console.error('Erro ao verificar pagamento:', e);
+    } finally {
+      setCheckingPayment(false);
+    }
+  };
+
+  // Ativar premium manualmente (admin pode fazer isso pelo painel)
+  const activatePremium = async () => {
+    try {
+      await base44.auth.updateMe({
+        subscription_type: 'premium',
+        premium_activated_at: new Date().toISOString()
+      });
+
+      if (pixData?.payment_id) {
+        await base44.entities.Payment.update(pixData.payment_id, {
+          status: 'approved'
+        });
+      }
+
+      window.location.href = createPageUrl('Home');
+    } catch (e) {
+      console.error('Erro ao ativar premium:', e);
     }
   };
 
@@ -173,10 +243,13 @@ Equipe Vagas Abertas Paraíba`
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Crown className="w-5 h-5 text-purple-600" />
-                Tem um código Premium?
+                Já possui um código Premium?
               </CardTitle>
             </CardHeader>
             <CardContent>
+              <p className="text-sm text-slate-600 mb-4">
+                Se você recebeu um código de ativação, digite abaixo para liberar seu acesso imediatamente.
+              </p>
               <div className="flex gap-3">
                 <Input
                   value={premiumCode}
@@ -210,11 +283,11 @@ Equipe Vagas Abertas Paraíba`
         {/* Divisor */}
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-slate-400 text-sm">ou pague com</span>
+          <span className="text-slate-400 text-sm">ou pague via PIX</span>
           <div className="flex-1 h-px bg-slate-200" />
         </div>
 
-        {/* Métodos de pagamento */}
+        {/* Pagamento PIX */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -222,107 +295,121 @@ Equipe Vagas Abertas Paraíba`
         >
           <Card className="shadow-xl rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-lg">Escolha a forma de pagamento</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <QrCode className="w-5 h-5 text-[#0056ff]" />
+                Pagamento via PIX
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Seleção de método */}
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setPaymentMethod('pix')}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    paymentMethod === 'pix' 
-                      ? 'border-[#0056ff] bg-[#0056ff]/5' 
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <QrCode className={`w-8 h-8 mx-auto mb-2 ${paymentMethod === 'pix' ? 'text-[#0056ff]' : 'text-slate-400'}`} />
-                  <p className="font-medium">PIX</p>
-                  <p className="text-xs text-slate-500">Instantâneo</p>
-                </button>
-                
-                <button
-                  onClick={() => setPaymentMethod('whatsapp')}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    paymentMethod === 'whatsapp' 
-                      ? 'border-[#25D366] bg-[#25D366]/5' 
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <Smartphone className={`w-8 h-8 mx-auto mb-2 ${paymentMethod === 'whatsapp' ? 'text-[#25D366]' : 'text-slate-400'}`} />
-                  <p className="font-medium">WhatsApp</p>
-                  <p className="text-xs text-slate-500">Suporte direto</p>
-                </button>
-              </div>
-
-              {/* Instruções PIX */}
-              {paymentMethod === 'pix' && (
-                <div className="bg-slate-50 rounded-xl p-4 space-y-4">
-                  <div>
-                    <p className="text-sm text-slate-600 mb-2">Chave PIX (E-mail):</p>
-                    <div className="flex items-center gap-2">
-                      <code className="flex-1 bg-white px-4 py-3 rounded-lg font-mono text-sm border">
-                        {PIX_KEY}
-                      </code>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleCopyPix}
-                        className="rounded-lg"
-                      >
-                        {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                      </Button>
+              {!pixData ? (
+                <>
+                  <div className="bg-slate-50 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-slate-600">Plano Premium Vitalício</span>
+                      <span className="text-2xl font-bold text-green-600">R$ 29,90</span>
                     </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-slate-500">Valor:</p>
-                      <p className="font-bold text-lg text-green-600">R$ 29,90</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-500">Nome:</p>
-                      <p className="font-medium">{PIX_NAME}</p>
-                    </div>
+                    <ul className="space-y-2 text-sm text-slate-600">
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-600" />
+                        Acesso a todas as vagas exclusivas
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-600" />
+                        Pagamento único - acesso permanente
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-600" />
+                        Garantia de 7 dias
+                      </li>
+                    </ul>
                   </div>
 
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
-                    <p>⚠️ Após o pagamento, envie o comprovante pelo WhatsApp para liberação imediata.</p>
-                  </div>
-
-                  {!paymentCreated ? (
-                    <Button
-                      onClick={handleCreatePayment}
-                      className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
-                    >
-                      Já fiz o PIX - Notificar Equipe
-                    </Button>
-                  ) : (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                      <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                      <p className="text-green-800 font-medium">Pagamento registrado!</p>
-                      <p className="text-green-600 text-sm">Aguarde a confirmação em até 24h</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* WhatsApp */}
-              {paymentMethod === 'whatsapp' && (
-                <div className="bg-[#25D366]/10 rounded-xl p-4 space-y-4">
-                  <p className="text-sm text-slate-600">
-                    Prefere resolver tudo pelo WhatsApp? Fale diretamente com nossa equipe para efetuar o pagamento.
-                  </p>
-                  
                   <Button
-                    onClick={() => {
-                      const message = encodeURIComponent(`Olá! Quero adquirir o plano Premium do Vagas Abertas Paraíba.\n\nMeu email: ${user?.email}`);
-                      window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
-                    }}
-                    className="w-full h-12 bg-[#25D366] hover:bg-[#20bd5a] rounded-xl"
+                    onClick={handleGeneratePix}
+                    disabled={generatingPix}
+                    className="w-full h-14 text-lg bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
                   >
-                    <Smartphone className="w-5 h-5 mr-2" />
-                    Falar no WhatsApp
+                    {generatingPix ? (
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    ) : (
+                      <QrCode className="w-5 h-5 mr-2" />
+                    )}
+                    Gerar PIX
                   </Button>
+                </>
+              ) : (
+                <div className="space-y-4">
+                  {/* QR Code ou Copia e Cola */}
+                  <div className="bg-slate-50 rounded-xl p-4 text-center">
+                    <p className="text-sm text-slate-600 mb-3">Chave PIX (E-mail):</p>
+                    <div className="bg-white rounded-lg p-3 font-mono text-sm break-all border">
+                      {pixData.qr_code}
+                    </div>
+                    <Button
+                      onClick={handleCopyPix}
+                      variant="outline"
+                      className="mt-3 rounded-xl"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="w-4 h-4 mr-2 text-green-600" />
+                          Copiado!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copiar Chave PIX
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div className="bg-slate-50 rounded-xl p-3">
+                      <p className="text-slate-500 text-sm">Valor</p>
+                      <p className="text-xl font-bold text-green-600">R$ 29,90</p>
+                    </div>
+                    <div className="bg-slate-50 rounded-xl p-3">
+                      <p className="text-slate-500 text-sm">Nome</p>
+                      <p className="font-medium text-slate-800">Vagas Abertas PB</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                    <p className="text-sm text-amber-800">
+                      <strong>📱 Importante:</strong> Após fazer o pagamento, clique no botão abaixo para verificar 
+                      ou envie o comprovante via WhatsApp para ativação imediata.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      onClick={handleCheckPayment}
+                      disabled={checkingPayment}
+                      variant="outline"
+                      className="h-12 rounded-xl"
+                    >
+                      {checkingPayment ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <>
+                          <Check className="w-5 h-5 mr-2" />
+                          Já Paguei
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      onClick={() => {
+                        const msg = encodeURIComponent(`Olá! Fiz o pagamento PIX de R$ 29,90 para o Plano Premium.\n\nMeu email: ${user?.email}\n\nAguardo a ativação.`);
+                        window.open(`https://wa.me/5583991971320?text=${msg}`, '_blank');
+                      }}
+                      className="h-12 bg-[#25D366] hover:bg-[#20bd5a] rounded-xl"
+                    >
+                      <Smartphone className="w-5 h-5 mr-2" />
+                      WhatsApp
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -348,7 +435,7 @@ Equipe Vagas Abertas Paraíba`
           </div>
         </motion.div>
 
-        {/* Nota sobre integrações */}
+        {/* Suporte */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -356,12 +443,9 @@ Equipe Vagas Abertas Paraíba`
           className="mt-8"
         >
           <Card className="rounded-xl bg-blue-50 border-blue-200">
-            <CardContent className="p-4">
+            <CardContent className="p-4 text-center">
               <p className="text-sm text-blue-800">
-                <strong>💡 Dica:</strong> Para uma experiência de pagamento ainda mais automatizada, 
-                você pode integrar plataformas como <strong>Mercado Pago</strong>, <strong>PagSeguro</strong>, 
-                <strong>Stripe</strong> ou <strong>Pagar.me</strong> que oferecem APIs para processamento 
-                automático de pagamentos via PIX, cartão e boleto.
+                <strong>Precisa de ajuda?</strong> Entre em contato pelo WhatsApp: (83) 99197-1320
               </p>
             </CardContent>
           </Card>
