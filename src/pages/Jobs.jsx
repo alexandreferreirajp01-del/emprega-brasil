@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Filter, Lock, Star, X, Eye, ChevronRight
+  Filter, Lock, Star, X, Eye, ChevronDown
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -14,7 +14,19 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { formatLocationWithCity } from "@/components/common/NeighborhoodCityMap";
 import { formatRelativeDate } from "@/components/common/ClickableContent";
-import FloatingSearchKeyboard from "@/components/common/FloatingSearchKeyboard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const JOB_FUNCTIONS = [
   "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
@@ -37,10 +49,12 @@ export default function Jobs() {
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedFunction, setSelectedFunction] = useState('all');
-  const [showCityKeyboard, setShowCityKeyboard] = useState(false);
-  const [showFunctionKeyboard, setShowFunctionKeyboard] = useState(false);
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
+  const [showCityDialog, setShowCityDialog] = useState(false);
+  const [showFunctionDialog, setShowFunctionDialog] = useState(false);
+  const [citySearch, setCitySearch] = useState('');
+  const [functionSearch, setFunctionSearch] = useState('');
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -144,7 +158,13 @@ export default function Jobs() {
     return (a.name || '').localeCompare(b.name || '', 'pt-BR');
   });
 
-  const cityNames = sortedCities.map(c => c.name).filter(Boolean);
+  const filteredCities = sortedCities.filter(c => 
+    c.name?.toLowerCase().includes(citySearch.toLowerCase())
+  );
+
+  const filteredFunctions = JOB_FUNCTIONS.filter(f => 
+    f.toLowerCase().includes(functionSearch.toLowerCase())
+  );
 
   const clearFilters = () => {
     setSearchTerm('');
@@ -171,10 +191,6 @@ export default function Jobs() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="h-11 pl-10 rounded-lg border-0 bg-slate-50"
-                autoComplete="off"
-                autoFocus={false}
-                inputMode="search"
-                enterKeyHint="search"
               />
             </div>
           </div>
@@ -196,50 +212,55 @@ export default function Jobs() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {/* City Filter - Floating Keyboard */}
-              <button
-                onClick={() => setShowCityKeyboard(true)}
-                className="h-10 px-3 rounded-lg border border-slate-200 bg-white flex items-center justify-between hover:border-[#0056ff] transition-colors text-left"
+              {/* City Filter */}
+              <Button
+                variant="outline"
+                onClick={() => setShowCityDialog(true)}
+                className="h-10 justify-between rounded-lg"
               >
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-slate-400" />
                   <span className={selectedCity === 'all' ? 'text-slate-500' : 'text-slate-800'}>
-                    {selectedCity === 'all' ? 'Cidade' : selectedCity}
+                    {selectedCity === 'all' ? 'Todas as cidades' : selectedCity}
                   </span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </button>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </Button>
 
               {/* Type Filter */}
-              <div className="flex flex-wrap gap-2">
-                {['all', 'CLT', 'Home Office', 'Estágio', 'Jovem Aprendiz'].map((type) => (
-                  <button
-                    key={type}
-                    onClick={() => setSelectedType(type)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      selectedType === type
-                        ? 'bg-[#0056ff] text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    {type === 'all' ? 'Todos' : type}
-                  </button>
-                ))}
-              </div>
+              <Select value={selectedType} onValueChange={setSelectedType}>
+                <SelectTrigger className="h-10 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-slate-400" />
+                    <SelectValue placeholder="Tipo de vaga" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
+                  <SelectItem value="CLT">CLT</SelectItem>
+                  <SelectItem value="Home Office">Home Office</SelectItem>
+                  <SelectItem value="Estágio">Estágio</SelectItem>
+                  <SelectItem value="Temporário">Temporário</SelectItem>
+                  <SelectItem value="Jovem Aprendiz">Jovem Aprendiz</SelectItem>
+                  <SelectItem value="Freelancer">Freelancer</SelectItem>
+                  <SelectItem value="PJ">PJ</SelectItem>
+                </SelectContent>
+              </Select>
 
-              {/* Function Filter - Floating Keyboard */}
-              <button
-                onClick={() => setShowFunctionKeyboard(true)}
-                className="h-10 px-3 rounded-lg border border-slate-200 bg-white flex items-center justify-between hover:border-[#0056ff] transition-colors text-left"
+              {/* Function Filter */}
+              <Button
+                variant="outline"
+                onClick={() => setShowFunctionDialog(true)}
+                className="h-10 justify-between rounded-lg"
               >
                 <div className="flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-slate-400" />
-                  <span className={selectedFunction === 'all' ? 'text-slate-500' : 'text-slate-800'}>
-                    {selectedFunction === 'all' ? 'Função' : selectedFunction}
+                  <span className={`${selectedFunction === 'all' ? 'text-slate-500' : 'text-slate-800'} truncate max-w-[150px]`}>
+                    {selectedFunction === 'all' ? 'Todas as funções' : selectedFunction}
                   </span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </button>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -289,26 +310,99 @@ export default function Jobs() {
         )}
       </div>
 
-      {/* Floating Keyboards */}
-      <FloatingSearchKeyboard
-        isOpen={showCityKeyboard}
-        onClose={() => setShowCityKeyboard(false)}
-        title="Selecionar Cidade"
-        placeholder="Pesquisar cidade..."
-        options={cityNames}
-        onSelect={(city) => setSelectedCity(city)}
-        icon={MapPin}
-      />
+      {/* City Selection Dialog */}
+      <Dialog open={showCityDialog} onOpenChange={setShowCityDialog}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-[#0056ff]" />
+              Selecionar Cidade
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Pesquisar cidade..."
+              value={citySearch}
+              onChange={(e) => setCitySearch(e.target.value)}
+              className="pl-10 rounded-lg"
+            />
+          </div>
+          
+          <div className="overflow-y-auto flex-1 -mx-6 px-6">
+            <button
+              onClick={() => { setSelectedCity('all'); setShowCityDialog(false); setCitySearch(''); }}
+              className={`w-full p-3 text-left rounded-lg mb-1 flex items-center gap-3 ${
+                selectedCity === 'all' ? 'bg-[#0056ff] text-white' : 'hover:bg-slate-100'
+              }`}
+            >
+              <MapPin className="w-4 h-4" />
+              Todas as cidades
+            </button>
+            
+            {filteredCities.map((city) => (
+              <button
+                key={city.id}
+                onClick={() => { setSelectedCity(city.name); setShowCityDialog(false); setCitySearch(''); }}
+                className={`w-full p-3 text-left rounded-lg mb-1 flex items-center gap-3 ${
+                  selectedCity === city.name ? 'bg-[#0056ff] text-white' : 'hover:bg-slate-100'
+                }`}
+              >
+                <MapPin className="w-4 h-4" />
+                {city.name}
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
 
-      <FloatingSearchKeyboard
-        isOpen={showFunctionKeyboard}
-        onClose={() => setShowFunctionKeyboard(false)}
-        title="Selecionar Função"
-        placeholder="Pesquisar função..."
-        options={JOB_FUNCTIONS}
-        onSelect={(func) => setSelectedFunction(func)}
-        icon={Briefcase}
-      />
+      {/* Function Selection Dialog */}
+      <Dialog open={showFunctionDialog} onOpenChange={setShowFunctionDialog}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-[#0056ff]" />
+              Selecionar Função
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Pesquisar função..."
+              value={functionSearch}
+              onChange={(e) => setFunctionSearch(e.target.value)}
+              className="pl-10 rounded-lg"
+            />
+          </div>
+          
+          <div className="overflow-y-auto flex-1 -mx-6 px-6">
+            <button
+              onClick={() => { setSelectedFunction('all'); setShowFunctionDialog(false); setFunctionSearch(''); }}
+              className={`w-full p-3 text-left rounded-lg mb-1 flex items-center gap-3 ${
+                selectedFunction === 'all' ? 'bg-[#0056ff] text-white' : 'hover:bg-slate-100'
+              }`}
+            >
+              <Briefcase className="w-4 h-4" />
+              Todas as funções
+            </button>
+            
+            {filteredFunctions.map((func, index) => (
+              <button
+                key={index}
+                onClick={() => { setSelectedFunction(func); setShowFunctionDialog(false); setFunctionSearch(''); }}
+                className={`w-full p-3 text-left rounded-lg mb-1 flex items-center gap-3 ${
+                  selectedFunction === func ? 'bg-[#0056ff] text-white' : 'hover:bg-slate-100'
+                }`}
+              >
+                <Briefcase className="w-4 h-4" />
+                {func}
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -330,47 +424,7 @@ function JobCard({ job, canView, viewCount = 0 }) {
           </Link>
         </div>
         <CardContent className="p-6 filter blur-sm">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-semibold text-lg text-slate-800">
-                  {job.title || 'Não informado'}
-                </h3>
-                {job.is_featured && (
-                  <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs">
-                    <Star className="w-3 h-3 mr-1" /> Destaque
-                  </Badge>
-                )}
-              </div>
-              <p className="text-slate-500 flex items-center gap-1 mb-3">
-                <Building2 className="w-4 h-4" />
-                {job.company || 'Empresa confidencial'}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="rounded-full text-xs">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {formatLocationWithCity(job.city)}
-                </Badge>
-                <Badge variant="secondary" className="rounded-full text-xs">
-                  {job.job_type || 'Não informado'}
-                </Badge>
-                {job.job_function && (
-                  <Badge variant="outline" className="rounded-full text-xs">
-                    {job.job_function}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-slate-500 flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                {formatRelativeDate(job.created_date)}
-              </p>
-              {job.salary_range && (
-                <p className="font-semibold text-green-600 mt-1">{job.salary_range}</p>
-              )}
-            </div>
-          </div>
+          <JobCardContent job={job} viewCount={viewCount} />
         </CardContent>
       </Card>
     );
@@ -380,58 +434,64 @@ function JobCard({ job, canView, viewCount = 0 }) {
     <Link to={createPageUrl('JobDetail') + `?id=${job.id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
         <CardContent className="p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-semibold text-lg text-slate-800 group-hover:text-[#0056ff] transition-colors">
-                  {job.title || 'Não informado'}
-                </h3>
-                {job.is_featured && (
-                  <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs">
-                    <Star className="w-3 h-3 mr-1" /> Destaque
-                  </Badge>
-                )}
-                {job.is_premium && (
-                  <Badge className="bg-purple-100 text-purple-700 border-0 text-xs">
-                    Premium
-                  </Badge>
-                )}
-              </div>
-              <p className="text-slate-500 flex items-center gap-1 mb-3">
-                <Building2 className="w-4 h-4" />
-                {job.company || 'Empresa confidencial'}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="rounded-full text-xs">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {formatLocationWithCity(job.city)}
-                </Badge>
-                <Badge variant="secondary" className="rounded-full text-xs">
-                  {job.job_type || 'Não informado'}
-                </Badge>
-                {job.job_function && (
-                  <Badge variant="outline" className="rounded-full text-xs">
-                    {job.job_function}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-slate-500 flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                {formatRelativeDate(job.created_date)}
-              </p>
-              <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
-                <Eye className="w-3 h-3" />
-                {viewCount} visualizações
-              </p>
-              {job.salary_range && (
-                <p className="font-semibold text-green-600 mt-1">{job.salary_range}</p>
-              )}
-            </div>
-          </div>
+          <JobCardContent job={job} viewCount={viewCount} />
         </CardContent>
       </Card>
     </Link>
+  );
+}
+
+function JobCardContent({ job, viewCount }) {
+  return (
+    <div className="flex items-start justify-between">
+      <div className="flex-1">
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
+          <h3 className="font-semibold text-lg text-slate-800 group-hover:text-[#0056ff] transition-colors">
+            {job.title || 'Não informado'}
+          </h3>
+          {job.is_featured && (
+            <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs">
+              <Star className="w-3 h-3 mr-1" /> Destaque
+            </Badge>
+          )}
+          {job.is_premium && (
+            <Badge className="bg-purple-100 text-purple-700 border-0 text-xs">
+              Premium
+            </Badge>
+          )}
+        </div>
+        <p className="text-slate-500 flex items-center gap-1 mb-3">
+          <Building2 className="w-4 h-4" />
+          {job.company || 'Empresa confidencial'}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="secondary" className="rounded-full text-xs">
+            <MapPin className="w-3 h-3 mr-1" />
+            {formatLocationWithCity(job.city)}
+          </Badge>
+          <Badge variant="secondary" className="rounded-full text-xs">
+            {job.job_type || 'Não informado'}
+          </Badge>
+          {job.job_function && (
+            <Badge variant="outline" className="rounded-full text-xs">
+              {job.job_function}
+            </Badge>
+          )}
+        </div>
+      </div>
+      <div className="text-right ml-4">
+        <p className="text-sm text-slate-500 flex items-center gap-1">
+          <Calendar className="w-4 h-4" />
+          {formatRelativeDate(job.created_date)}
+        </p>
+        <p className="text-xs text-slate-400 flex items-center gap-1 mt-1 justify-end">
+          <Eye className="w-3 h-3" />
+          {viewCount} visualizações
+        </p>
+        {job.salary_range && (
+          <p className="font-semibold text-green-600 mt-1">{job.salary_range}</p>
+        )}
+      </div>
+    </div>
   );
 }
