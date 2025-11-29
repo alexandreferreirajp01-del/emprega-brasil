@@ -1081,8 +1081,6 @@ IMPORTANTE:
                 </ScrollArea>
               </CardContent>
             </Card>
-          </TabsContent>
-
               </TabsContent>
 
               {/* News Sub-Tab */}
@@ -1292,8 +1290,6 @@ IMPORTANTE:
                 </ScrollArea>
               </CardContent>
             </Card>
-          </TabsContent>
-
               </TabsContent>
 
               {/* Chat Sub-Tab in Communication */}
@@ -1391,8 +1387,6 @@ IMPORTANTE:
                 </ScrollArea>
               </CardContent>
             </Card>
-          </TabsContent>
-
               </TabsContent>
             </Tabs>
           </TabsContent>
