@@ -101,16 +101,27 @@ export default function Layout({ children, currentPageName }) {
         .pb-safe { padding-bottom: max(1rem, var(--sab)); }
         .pb-nav { padding-bottom: calc(4rem + var(--sab)); }
         
-        /* Esconder elementos Base44 */
+        /* Esconder elementos Base44 - FORÇADO */
         [data-base44-edit],
         .base44-edit-button,
         button[class*="base44"],
         div[class*="base44-widget"],
-        iframe[src*="base44"] {
+        div[class*="base44"],
+        iframe[src*="base44"],
+        [class*="Edit with"],
+        div[style*="position: fixed"][style*="bottom"],
+        .fixed.bottom-0 button:has(svg),
+        div:has(> button:contains("Edit")),
+        [data-testid*="base44"],
+        #base44-widget,
+        .base44-floating-button {
           display: none !important;
           visibility: hidden !important;
           opacity: 0 !important;
           pointer-events: none !important;
+          height: 0 !important;
+          width: 0 !important;
+          overflow: hidden !important;
         }
         
         /* Mobile optimizations */

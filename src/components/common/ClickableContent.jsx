@@ -6,8 +6,20 @@ export function formatRelativeDate(dateStr) {
   
   const date = new Date(dateStr);
   const now = new Date();
-  const diffMs = now - date;
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  // Calcular diferença em milissegundos
+  const diffMs = now.getTime() - date.getTime();
+  
+  // Calcular diferenças em diferentes unidades
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  
+  // Calcular diferença em dias (considerando apenas a data, não o horário)
+  const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const postDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffDays = Math.floor((nowDate.getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24));
+  
   const diffMonths = Math.floor(diffDays / 30);
   const diffYears = Math.floor(diffDays / 365);
   
@@ -17,15 +29,22 @@ export function formatRelativeDate(dateStr) {
     year: 'numeric'
   });
 
-  if (diffDays === 0) return `Hoje ${formattedDate}`;
-  if (diffDays === 1) return `Ontem ${formattedDate}`;
-  if (diffDays < 7) return `${diffDays} dias atrás ${formattedDate}`;
-  if (diffDays < 14) return `1 semana atrás ${formattedDate}`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} semanas atrás ${formattedDate}`;
-  if (diffMonths === 1) return `1 mês atrás ${formattedDate}`;
-  if (diffMonths < 12) return `${diffMonths} meses atrás ${formattedDate}`;
-  if (diffYears === 1) return `1 ano atrás ${formattedDate}`;
-  return `${diffYears} anos atrás ${formattedDate}`;
+  // Se for hoje
+  if (diffDays === 0) {
+    if (diffMinutes < 1) return `Agora mesmo`;
+    if (diffMinutes < 60) return `Há ${diffMinutes} minuto${diffMinutes > 1 ? 's' : ''}`;
+    if (diffHours < 24) return `Há ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+    return `Hoje • ${formattedDate}`;
+  }
+  
+  if (diffDays === 1) return `Ontem • ${formattedDate}`;
+  if (diffDays < 7) return `${diffDays} dias atrás • ${formattedDate}`;
+  if (diffDays < 14) return `1 semana atrás • ${formattedDate}`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} semanas atrás • ${formattedDate}`;
+  if (diffMonths === 1) return `1 mês atrás • ${formattedDate}`;
+  if (diffMonths < 12) return `${diffMonths} meses atrás • ${formattedDate}`;
+  if (diffYears === 1) return `1 ano atrás • ${formattedDate}`;
+  return `${diffYears} anos atrás • ${formattedDate}`;
 }
 
 // Regex patterns
