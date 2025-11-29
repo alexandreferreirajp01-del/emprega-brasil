@@ -1,25 +1,39 @@
+css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Safe area for iOS/Android */
+/* PWA e Mobile Otimizações */
 :root {
-  --sat: env(safe-area-inset-top);
-  --sar: env(safe-area-inset-right);
-  --sab: env(safe-area-inset-bottom);
-  --sal: env(safe-area-inset-left);
+  --safe-area-inset-top: env(safe-area-inset-top);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  --safe-area-inset-left: env(safe-area-inset-left);
+  --safe-area-inset-right: env(safe-area-inset-right);
+}
+
+/* Prevenir seleção e zoom indesejados em mobile */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
 }
 
 /* Base styles */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   background-color: #f8fafc;
   overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Safe area classes */
+/* Animações suaves (font smoothing moved from body to general *) */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Safe Area para dispositivos com notch */
 .safe-area-top {
   padding-top: env(safe-area-inset-top);
 }
@@ -29,29 +43,19 @@ body {
 }
 
 .pb-safe {
-  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .pt-safe {
-  padding-top: max(env(safe-area-inset-top), 0px);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* Mobile optimizations */
-* {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-}
-
-input, textarea, select, button {
+/* Inputs não devem dar zoom em iOS */
+input, textarea, select {
   font-size: 16px !important; /* Prevents zoom on iOS */
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Hide scrollbar but allow scroll */
+/* Hide scrollbar but allow scroll (original class) */
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -59,6 +63,25 @@ html {
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Scrollbar customizada (new global scrollbar styles) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* PWA/App styles */
@@ -110,15 +133,9 @@ html {
   height: 250px;
 }
 
-/* Fix for bottom nav overlap */
+/* Navigation bottom spacing (updated .pb-nav) */
 .pb-nav {
-  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
-}
-
-@media (min-width: 768px) {
-  .pb-nav {
-    padding-bottom: 0;
-  }
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* Loading states */
@@ -149,4 +166,36 @@ nav {
 .min-h-screen-safe {
   min-height: 100vh;
   min-height: -webkit-fill-available;
+}
+
+/* Esconder botão Base44 (new) */
+[data-base44-edit], 
+.base44-edit-button,
+#base44-floating-button,
+button[aria-label*="base44" i],
+button[aria-label*="Edit with" i] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* PWA Splash Screen (new) */
+@media (display-mode: standalone) {
+  body {
+    background-color: #0056ff;
+  }
+}
+
+/* Melhorias de acessibilidade (new) */
+:focus-visible {
+  outline: 2px solid #0056ff;
+  outline-offset: 2px;
+}
+
+/* Status bar iOS (new) */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .status-bar-spacing {
+    padding-top: env(safe-area-inset-top);
+  }
 }
