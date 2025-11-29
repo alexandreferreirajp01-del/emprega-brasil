@@ -16,6 +16,7 @@ import Terms from './pages/Terms';
 import About from './pages/About';
 import Payment from './pages/Payment';
 import Parcerias from './pages/Parcerias';
+import PostarVaga from './pages/PostarVaga';
 import __Layout from './Layout.jsx';
 
 
@@ -38,6 +39,7 @@ export const PAGES = {
     "About": About,
     "Payment": Payment,
     "Parcerias": Parcerias,
+    "PostarVaga": PostarVaga,
 }
 
 export const pagesConfig = {
