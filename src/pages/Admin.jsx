@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Plus, Briefcase, MapPin, Trash2, Edit, X, Loader2, CheckCircle, 
-  Shield, Search, Building2, Users, MessageSquare, 
+  Shield, Search, Building2, Users, MessageSquare, Upload, Save,
   Check, XCircle, Clock, Crown, UserX, BarChart3, 
   Key, CreditCard, Globe
 } from "lucide-react";
@@ -50,6 +52,7 @@ export default function Admin() {
   const [showJobForm, setShowJobForm] = useState(false);
   const [newCity, setNewCity] = useState('');
   const [userSearch, setUserSearch] = useState('');
+  const [citySearch, setCitySearch] = useState('');
   const [showNewsForm, setShowNewsForm] = useState(false);
   const [newsForm, setNewsForm] = useState({
     title: '', subtitle: '', content: '', image_url: '', video_url: '', category: 'Geral', author_name: '', is_featured: false
@@ -301,6 +304,10 @@ export default function Admin() {
   const filteredUsers = users.filter(u =>
     u.full_name?.toLowerCase().includes(userSearch.toLowerCase()) ||
     u.email?.toLowerCase().includes(userSearch.toLowerCase())
+  );
+
+  const filteredCities = cities.filter(city =>
+    city.name?.toLowerCase().includes(citySearch.toLowerCase())
   );
 
   const pendingUsers = users.filter(u => u.access_status === 'pending' || !u.access_status);
