@@ -24,6 +24,7 @@ import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import ViewsMap from "@/components/admin/ViewsMap";
 import PremiumCodesManager from "@/components/admin/PremiumCodesManager";
 import PaymentsManager from "@/components/admin/PaymentsManager";
+import ChatManager from "@/components/admin/ChatManager";
 
 const JOB_FUNCTIONS = [
   "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
@@ -328,12 +329,21 @@ export default function Admin() {
     setShowJobForm(true);
   };
 
-  const handleSubmitJob = (e) => {
+  const handleSubmitJob = async (e) => {
     e.preventDefault();
+    
+    // Preparar dados - remover campos vazios
+    const jobData = {};
+    Object.entries(jobForm).forEach(([key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        jobData[key] = value;
+      }
+    });
+
     if (editingJob) {
-      updateJobMutation.mutate({ id: editingJob.id, data: jobForm });
+      updateJobMutation.mutate({ id: editingJob.id, data: jobData });
     } else {
-      createJobMutation.mutate(jobForm);
+      createJobMutation.mutate(jobData);
     }
   };
 
@@ -578,6 +588,10 @@ IMPORTANTE:
             <TabsTrigger value="payments" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
               <CreditCard className="w-4 h-4 mr-2" />
               Pagamentos
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Chat
             </TabsTrigger>
             </TabsList>
 
@@ -1491,6 +1505,11 @@ IMPORTANTE:
           {/* Payments Tab */}
           <TabsContent value="payments">
             <PaymentsManager showToast={showToast} />
+          </TabsContent>
+
+          {/* Chat Tab */}
+          <TabsContent value="chat">
+            <ChatManager showToast={showToast} />
           </TabsContent>
         </Tabs>
       </div>
