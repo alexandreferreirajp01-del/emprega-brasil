@@ -18,25 +18,61 @@ export default function Layout({ children, currentPageName }) {
   // Pages that don't need layout
   const noLayoutPages = ['Splash', 'Login', 'Register'];
 
-  // Esconder botão Base44 edit no modo produção/APK
+  // Esconder botão Base44 edit no modo produção/APK - FORÇADO
   useEffect(() => {
     const hideBase44Button = () => {
-      const buttons = document.querySelectorAll('[data-base44-edit], .base44-edit-button, [class*="base44"]');
-      buttons.forEach(btn => {
-        if (btn.textContent?.includes('Edit') || btn.textContent?.includes('Base44')) {
-          btn.style.display = 'none';
+      // Buscar TODOS os elementos que possam ser do Base44
+      const selectors = [
+        '[data-base44-edit]',
+        '.base44-edit-button',
+        '[class*="base44"]',
+        'iframe[src*="base44"]',
+        '#base44-widget'
+      ];
+      
+      selectors.forEach(selector => {
+        document.querySelectorAll(selector).forEach(el => {
+          el.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; height: 0 !important; width: 0 !important;';
+        });
+      });
+      
+      // Buscar por texto "Edit with Base44"
+      document.querySelectorAll('button, div, span, a').forEach(el => {
+        if (el.textContent?.includes('Edit') && el.textContent?.includes('Base44')) {
+          el.style.cssText = 'display: none !important; visibility: hidden !important;';
+          if (el.parentElement) {
+            el.parentElement.style.cssText = 'display: none !important; visibility: hidden !important;';
+          }
         }
       });
-      // Esconder iframe de edição se existir
-      const iframes = document.querySelectorAll('iframe[src*="base44"]');
-      iframes.forEach(iframe => iframe.style.display = 'none');
+      
+      // Esconder botões fixos no bottom que não são do app
+      document.querySelectorAll('div[style*="position: fixed"]').forEach(el => {
+        if (el.textContent?.includes('Base44') || el.textContent?.includes('Edit with')) {
+          el.style.cssText = 'display: none !important;';
+        }
+      });
     };
     
+    // Executar imediatamente
     hideBase44Button();
-    const observer = new MutationObserver(hideBase44Button);
-    observer.observe(document.body, { childList: true, subtree: true });
     
-    return () => observer.disconnect();
+    // Executar após um delay para pegar elementos carregados depois
+    setTimeout(hideBase44Button, 500);
+    setTimeout(hideBase44Button, 1000);
+    setTimeout(hideBase44Button, 2000);
+    
+    // Observer para mudanças no DOM
+    const observer = new MutationObserver(hideBase44Button);
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    
+    // Interval como backup
+    const interval = setInterval(hideBase44Button, 3000);
+    
+    return () => {
+      observer.disconnect();
+      clearInterval(interval);
+    };
   }, []);
   
   useEffect(() => {
