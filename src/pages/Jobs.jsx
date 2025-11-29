@@ -57,26 +57,7 @@ const CIDADES_PB = [
   "Tacima", "Taperoá", "Tavares", "Teixeira", "Tenório", "Triunfo", "Uiraúna",
   "Umbuzeiro", "Várzea", "Vieirópolis", "Vista Serrana", "Zabelê"
 ];
-// Função de data local para evitar dependências
-const formatRelativeDate = (dateStr) => {
-  if (!dateStr) return 'Não informado';
-  try {
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return 'Data inválida';
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const diffTime = todayStart.getTime() - dateStart.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const formattedDate = date.toLocaleDateString('pt-BR');
-    if (diffDays === 0) return 'Hoje';
-    if (diffDays === 1) return 'Ontem';
-    if (diffDays < 7) return `${diffDays} dias`;
-    return formattedDate;
-  } catch (e) {
-    return 'Data inválida';
-  }
-};
+import TimeAgo, { getTimeAgo } from "@/components/common/TimeAgo";
 import {
   Select,
   SelectContent,
@@ -374,7 +355,7 @@ function JobCard({ job, canView, viewCount = 0 }) {
   if (!canView) {
     return (
       <Card className="overflow-hidden relative">
-        <CardContent className="p-6 filter blur-sm">
+        <CardContent className="p-6">
           <JobCardContent job={job} viewCount={viewCount} />
         </CardContent>
         {/* Indicadores de vaga premium bloqueada */}
@@ -449,7 +430,7 @@ function JobCardContent({ job, viewCount }) {
       <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-1 text-right">
         <p className="text-sm text-slate-500 flex items-center gap-1">
           <Calendar className="w-4 h-4" />
-          {formatRelativeDate(job.created_date)}
+          <TimeAgo date={job.created_date} />
         </p>
         <p className="text-xs text-slate-400 flex items-center gap-1">
           <Eye className="w-3 h-3" />

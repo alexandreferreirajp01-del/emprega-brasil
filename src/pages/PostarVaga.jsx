@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
-import { Camera, Loader2, Save, X, CheckCircle, Phone, Mail, Briefcase, Search, Crown, Star } from "lucide-react";
+import { Camera, Loader2, Save, X, CheckCircle, Phone, Mail, Briefcase, Search, Crown, Star, Globe } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 
@@ -82,7 +82,8 @@ export default function PostarVaga() {
     contact_email: '',
     image_url: '',
     is_premium: false,
-    is_featured: false
+    is_featured: false,
+    website: ''
   });
   const [citySearch, setCitySearch] = useState('');
   const [funcSearch, setFuncSearch] = useState('');
@@ -164,7 +165,8 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
                 description: { type: "string", description: "Descrição completa com requisitos e benefícios" },
                 salary_range: { type: "string", description: "Salário ou faixa salarial" },
                 contact_phone: { type: "string", description: "Telefone/WhatsApp" },
-                contact_email: { type: "string", description: "Email de contato" }
+                contact_email: { type: "string", description: "Email de contato" },
+                website: { type: "string", description: "Site ou link de candidatura" }
               }
             }
           });
@@ -187,6 +189,7 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
               salary_range: result.salary_range || prev.salary_range,
               contact_phone: (result.contact_phone || '').replace(/\D/g, '') || prev.contact_phone,
               contact_email: result.contact_email || prev.contact_email,
+              website: result.website || prev.website,
               image_url: uploadResult.file_url
             }));
             showToast('Dados extraídos com sucesso!');
@@ -217,6 +220,16 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
         if (formData.contact_email) description += `\nEmail: ${formData.contact_email}`;
       }
 
+      // Determinar link de candidatura (prioridade: site > whatsapp > email)
+      let applicationLink = '';
+      if (formData.website) {
+        applicationLink = formData.website.startsWith('http') ? formData.website : `https://${formData.website}`;
+      } else if (formData.contact_phone) {
+        applicationLink = `https://wa.me/${formData.contact_phone.replace(/\D/g, '')}`;
+      } else if (formData.contact_email) {
+        applicationLink = `mailto:${formData.contact_email}`;
+      }
+
       await base44.entities.Job.create({
         title: formData.title,
         job_function: formData.job_function,
@@ -226,17 +239,13 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
         description: description,
         is_premium: formData.is_premium,
         is_featured: formData.is_featured,
-        application_link: formData.contact_phone 
-          ? `https://wa.me/${formData.contact_phone.replace(/\D/g, '')}` 
-          : formData.contact_email 
-            ? `mailto:${formData.contact_email}` 
-            : ''
+        application_link: applicationLink
       });
 
       setFormData({
         title: '', job_function: '', city: '', description: '',
         salary_range: '', contact_phone: '', contact_email: '', image_url: '',
-        is_premium: false, is_featured: false
+        is_premium: false, is_featured: false, website: ''
       });
       showToast('Vaga publicada!');
     } catch (err) {
@@ -438,7 +447,16 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
                 </div>
               </div>
 
-              {(formData.contact_phone || formData.contact_email) && (
+              <div>
+                <Label>Site / Link de Candidatura</Label>
+                <Input
+                  value={formData.website}
+                  onChange={(e) => updateField('website', e.target.value)}
+                  placeholder="https://exemplo.com/vagas"
+                />
+              </div>
+
+              {(formData.contact_phone || formData.contact_email || formData.website) && (
                 <div className="flex flex-wrap gap-2">
                   {formData.contact_phone && (
                     <a 
@@ -456,6 +474,16 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
                       className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm"
                     >
                       <Mail className="w-3 h-3" /> Email
+                    </a>
+                  )}
+                  {formData.website && (
+                    <a 
+                      href={formData.website.startsWith('http') ? formData.website : `https://${formData.website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-sm"
+                    >
+                      <Globe className="w-3 h-3" /> Site
                     </a>
                   )}
                 </div>
