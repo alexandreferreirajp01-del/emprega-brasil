@@ -175,25 +175,25 @@ export default function Home() {
               </div>
 
       {/* Main Content Grid */}
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Featured Jobs */}
-            <Card className="rounded-2xl border-0 shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Star className="w-5 h-5 text-yellow-300" />
+            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-3 sm:p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" />
                   </div>
                   <div>
-                    <h2 className="font-bold text-white text-lg">Vagas em Destaque</h2>
-                    <p className="text-white/70 text-sm">Oportunidades selecionadas</p>
+                    <h2 className="font-bold text-white text-sm sm:text-lg">Vagas em Destaque</h2>
+                    <p className="text-white/70 text-xs sm:text-sm">Oportunidades selecionadas</p>
                   </div>
                 </div>
                 <Link to={createPageUrl('Jobs')}>
-                  <Button variant="ghost" className="text-white hover:bg-white/10 rounded-xl">
-                    Ver Todas <ChevronRight className="w-4 h-4 ml-1" />
+                  <Button variant="ghost" className="text-white hover:bg-white/10 rounded-lg sm:rounded-xl text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4">
+                    Ver Todas <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                   </Button>
                 </Link>
               </div>
