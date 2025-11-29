@@ -11,9 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  Plus, Briefcase, MapPin, Trash2, Edit, Save, X, Loader2, CheckCircle, 
-  Shield, Search, Building2, Users, MessageSquare, Image, Upload, 
-  Check, XCircle, Eye, Clock, Crown, UserCheck, UserX, BarChart3, 
+  Plus, Briefcase, MapPin, Trash2, Edit, X, Loader2, CheckCircle, 
+  Shield, Search, Building2, Users, MessageSquare, 
+  Check, XCircle, Clock, Crown, UserX, BarChart3, 
   Key, CreditCard, Globe
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -50,11 +50,7 @@ export default function Admin() {
   const [editingJob, setEditingJob] = useState(null);
   const [showJobForm, setShowJobForm] = useState(false);
   const [newCity, setNewCity] = useState('');
-  const [citySearch, setCitySearch] = useState('');
-  const [functionSearch, setFunctionSearch] = useState('');
   const [userSearch, setUserSearch] = useState('');
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [extractingData, setExtractingData] = useState(false);
   const [showNewsForm, setShowNewsForm] = useState(false);
   const [newsForm, setNewsForm] = useState({
     title: '', subtitle: '', content: '', image_url: '', video_url: '', category: 'Geral', author_name: '', is_featured: false
@@ -62,22 +58,7 @@ export default function Admin() {
   const [uploadingNewsImage, setUploadingNewsImage] = useState(false);
   const queryClient = useQueryClient();
 
-  const [jobForm, setJobForm] = useState({
-    title: '',
-    company: '',
-    city: '',
-    salary_range: '',
-    job_type: 'CLT',
-    job_function: '',
-    category: '',
-    description: '',
-    additional_info: '',
-    application_link: '',
-    image_url: '',
-    is_premium: false,
-    is_featured: false
-  });
-  const [uploadingJobImage, setUploadingJobImage] = useState(false);
+
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
