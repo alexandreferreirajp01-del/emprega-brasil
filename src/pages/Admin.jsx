@@ -552,30 +552,18 @@ IMPORTANTE:
               <Briefcase className="w-4 h-4 mr-2" />
               Vagas
             </TabsTrigger>
-            <TabsTrigger value="community" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+            <TabsTrigger value="communication" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
               <MessageSquare className="w-4 h-4 mr-2" />
-              Comunidade
+              Comunicação
               {(pendingPosts.length + pendingComments.length) > 0 && (
                 <Badge className="ml-2 bg-purple-500 text-white border-0 h-5 w-5 p-0 flex items-center justify-center text-xs">
                   {pendingPosts.length + pendingComments.length}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="cities" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <MapPin className="w-4 h-4 mr-2" />
-              Cidades
-            </TabsTrigger>
-            <TabsTrigger value="news" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Notícias
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+            <TabsTrigger value="analytics-internal" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
               <BarChart3 className="w-4 h-4 mr-2" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="map" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <Globe className="w-4 h-4 mr-2" />
-              Mapa
+              Análises Internas
             </TabsTrigger>
             <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
               <Shield className="w-4 h-4 mr-2" />
@@ -680,12 +668,14 @@ IMPORTANTE:
                                 <SelectValue placeholder="Selecione" />
                               </SelectTrigger>
                               <SelectContent className="max-h-80">
-                                <div className="p-2 sticky top-0 bg-white">
-                                  <Input
+                                <div className="p-2 sticky top-0 bg-white z-10 border-b">
+                                  <input
+                                    type="text"
                                     placeholder="Pesquisar..."
                                     value={citySearch}
                                     onChange={(e) => setCitySearch(e.target.value)}
-                                    className="h-8"
+                                    className="w-full h-8 px-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0056ff]"
+                                    onKeyDown={(e) => e.stopPropagation()}
                                   />
                                 </div>
                                 <ScrollArea className="h-64">
@@ -729,12 +719,14 @@ IMPORTANTE:
                                 <SelectValue placeholder="Selecione" />
                               </SelectTrigger>
                               <SelectContent className="max-h-80">
-                                <div className="p-2 sticky top-0 bg-white">
-                                  <Input
+                                <div className="p-2 sticky top-0 bg-white z-10 border-b">
+                                  <input
+                                    type="text"
                                     placeholder="Pesquisar..."
                                     value={functionSearch}
                                     onChange={(e) => setFunctionSearch(e.target.value)}
-                                    className="h-8"
+                                    className="w-full h-8 px-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0056ff]"
+                                    onKeyDown={(e) => e.stopPropagation()}
                                   />
                                 </div>
                                 <ScrollArea className="h-64">
@@ -923,8 +915,31 @@ IMPORTANTE:
             </div>
           </TabsContent>
 
-          {/* Community Tab */}
-          <TabsContent value="community" className="space-y-6">
+          {/* Communication Tab - Contains Community, News, Chat */}
+          <TabsContent value="communication" className="space-y-6">
+            <Tabs defaultValue="community" className="space-y-4">
+              <TabsList className="bg-slate-100 rounded-xl p-1">
+                <TabsTrigger value="community" className="rounded-lg">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Comunidade
+                  {(pendingPosts.length + pendingComments.length) > 0 && (
+                    <Badge className="ml-2 bg-purple-500 text-white border-0 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                      {pendingPosts.length + pendingComments.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="news" className="rounded-lg">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Notícias
+                </TabsTrigger>
+                <TabsTrigger value="chat" className="rounded-lg">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Chat
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Community Sub-Tab */}
+              <TabsContent value="community" className="space-y-6">
             {/* Pending Posts */}
             {pendingPosts.length > 0 && (
               <Card className="rounded-xl border-purple-200 bg-purple-50">
@@ -1068,8 +1083,10 @@ IMPORTANTE:
             </Card>
           </TabsContent>
 
-          {/* News Tab */}
-          <TabsContent value="news" className="space-y-6">
+              </TabsContent>
+
+              {/* News Sub-Tab */}
+              <TabsContent value="news" className="space-y-6">
             {!showNewsForm && (
               <Button 
                 onClick={() => setShowNewsForm(true)}
@@ -1277,8 +1294,45 @@ IMPORTANTE:
             </Card>
           </TabsContent>
 
-          {/* Cities Tab */}
-          <TabsContent value="cities" className="space-y-6">
+              </TabsContent>
+
+              {/* Chat Sub-Tab in Communication */}
+              <TabsContent value="chat">
+                <ChatManager showToast={showToast} />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+
+          {/* Analytics Internal Tab - Contains Cities, Analytics, Map */}
+          <TabsContent value="analytics-internal" className="space-y-6">
+            <Tabs defaultValue="analytics" className="space-y-4">
+              <TabsList className="bg-slate-100 rounded-xl p-1">
+                <TabsTrigger value="analytics" className="rounded-lg">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Analytics
+                </TabsTrigger>
+                <TabsTrigger value="map" className="rounded-lg">
+                  <Globe className="w-4 h-4 mr-2" />
+                  Mapa
+                </TabsTrigger>
+                <TabsTrigger value="cities" className="rounded-lg">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Cidades
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Analytics Sub-Tab */}
+              <TabsContent value="analytics">
+                <AnalyticsDashboard />
+              </TabsContent>
+
+              {/* Map Sub-Tab */}
+              <TabsContent value="map">
+                <ViewsMap />
+              </TabsContent>
+
+              {/* Cities Sub-Tab */}
+              <TabsContent value="cities" className="space-y-6">
             <Card className="rounded-xl">
               <CardContent className="p-4">
                 <div className="flex gap-3">
@@ -1339,17 +1393,11 @@ IMPORTANTE:
             </Card>
           </TabsContent>
 
-          {/* Analytics Tab */}
-          <TabsContent value="analytics">
-            <AnalyticsDashboard />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
-          {/* Map Tab */}
-          <TabsContent value="map">
-            <ViewsMap />
-          </TabsContent>
-
-          {/* Settings Tab - Contains Users, Codes, Payments, Chat */}
+          {/* Settings Tab - Contains Users, Codes, Payments */}
           <TabsContent value="settings" className="space-y-6">
             <Tabs defaultValue="users" className="space-y-4">
               <TabsList className="bg-slate-100 rounded-xl p-1">
@@ -1369,10 +1417,6 @@ IMPORTANTE:
                 <TabsTrigger value="payments" className="rounded-lg">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Pagamentos
-                </TabsTrigger>
-                <TabsTrigger value="chat" className="rounded-lg">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Chat
                 </TabsTrigger>
               </TabsList>
 
@@ -1520,11 +1564,6 @@ IMPORTANTE:
               {/* Payments Sub-Tab */}
               <TabsContent value="payments">
                 <PaymentsManager showToast={showToast} />
-              </TabsContent>
-
-              {/* Chat Sub-Tab */}
-              <TabsContent value="chat">
-                <ChatManager showToast={showToast} />
               </TabsContent>
             </Tabs>
           </TabsContent>

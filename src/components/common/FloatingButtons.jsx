@@ -83,17 +83,13 @@ Responda de forma breve, amigável e útil. Foque em ajudar com:
 - Como usar a plataforma
 - Informações sobre planos (básico gratuito e premium R$29,90 vitalício)
 - Dicas de emprego
+- Contato WhatsApp: (83) 99197-1320
 
-Mensagem do usuário: ${userMessage}`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            response: { type: "string" }
-          }
-        }
+Nome do usuário: ${user?.full_name || 'Usuário'}
+Mensagem: ${userMessage}`
       });
 
-      const botResponse = response.response || 'Desculpe, não consegui processar sua mensagem.';
+      const botResponse = (typeof response === 'string' ? response : response?.response) || 'Olá! Como posso ajudar você hoje? Para dúvidas sobre vagas ou planos, estou à disposição. Você também pode entrar em contato via WhatsApp: (83) 99197-1320.';
       setMessages(prev => [...prev, { role: 'assistant', content: botResponse }]);
 
       // Salvar resposta do bot

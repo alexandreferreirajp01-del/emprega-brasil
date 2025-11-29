@@ -217,11 +217,13 @@ export default function Jobs() {
                   <div className="p-2 sticky top-0 bg-white z-10 border-b">
                     <div className="relative">
                       <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <Input
+                      <input
+                        type="text"
                         placeholder="Pesquisar cidade..."
                         value={citySearch}
                         onChange={(e) => setCitySearch(e.target.value)}
-                        className="h-9 pl-8 text-sm"
+                        className="w-full h-9 pl-8 pr-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0056ff]"
+                        onKeyDown={(e) => e.stopPropagation()}
                       />
                     </div>
                   </div>
@@ -264,12 +266,14 @@ export default function Jobs() {
                   <SelectValue placeholder="Função" />
                 </SelectTrigger>
                 <SelectContent className="max-h-80">
-                  <div className="p-2 sticky top-0 bg-white">
-                    <Input
+                  <div className="p-2 sticky top-0 bg-white z-10 border-b">
+                    <input
+                      type="text"
                       placeholder="Pesquisar função..."
                       value={functionSearch}
                       onChange={(e) => setFunctionSearch(e.target.value)}
-                      className="h-8"
+                      className="w-full h-8 px-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0056ff]"
+                      onKeyDown={(e) => e.stopPropagation()}
                     />
                   </div>
                   <ScrollArea className="h-64">

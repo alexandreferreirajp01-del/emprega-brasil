@@ -48,6 +48,7 @@ export default function Layout({ children, currentPageName }) {
             { name: 'Notícias', icon: Newspaper, page: 'News' },
             { name: 'Comunidade', icon: MessageCircle, page: 'Community' },
             { name: 'Grupos', icon: Users, page: 'Groups' },
+            { name: 'Parcerias', icon: Handshake, page: 'Parcerias' },
           ];
 
       // Mostrar Planos apenas para visitantes e básicos
