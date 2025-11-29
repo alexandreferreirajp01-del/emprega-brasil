@@ -293,14 +293,7 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsEditing(true)}
-                    className="w-full rounded-xl"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Editar Perfil
-                  </Button>
+
                 </div>
               )}
 
