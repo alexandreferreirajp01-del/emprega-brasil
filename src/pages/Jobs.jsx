@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Filter, Lock, Star, ChevronDown, X, Eye, ChevronRight
+  Filter, Lock, Star, X, Eye, ChevronRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -15,7 +14,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { formatLocationWithCity } from "@/components/common/NeighborhoodCityMap";
 import { formatRelativeDate } from "@/components/common/ClickableContent";
-import FloatingSearchModal from "@/components/common/FloatingSearchModal";
+import FloatingSearchKeyboard from "@/components/common/FloatingSearchKeyboard";
 
 const JOB_FUNCTIONS = [
   "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
@@ -38,10 +37,10 @@ export default function Jobs() {
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedFunction, setSelectedFunction] = useState('all');
+  const [showCityKeyboard, setShowCityKeyboard] = useState(false);
+  const [showFunctionKeyboard, setShowFunctionKeyboard] = useState(false);
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
-  const [showCityModal, setShowCityModal] = useState(false);
-  const [showFunctionModal, setShowFunctionModal] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -139,13 +138,9 @@ export default function Jobs() {
     const aIndex = priorityCities.indexOf(a.name);
     const bIndex = priorityCities.indexOf(b.name);
     
-    // Se ambas são prioritárias, ordenar pela ordem da lista
     if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-    // Se apenas a é prioritária, a vem primeiro
     if (aIndex !== -1) return -1;
-    // Se apenas b é prioritária, b vem primeiro
     if (bIndex !== -1) return 1;
-    // Se nenhuma é prioritária, ordenar alfabeticamente
     return (a.name || '').localeCompare(b.name || '', 'pt-BR');
   });
 
@@ -201,49 +196,50 @@ export default function Jobs() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {/* City Filter - Floating Modal */}
-              <Button
-                variant="outline"
-                onClick={() => setShowCityModal(true)}
-                className="h-10 rounded-lg justify-start font-normal"
+              {/* City Filter - Floating Keyboard */}
+              <button
+                onClick={() => setShowCityKeyboard(true)}
+                className="h-10 px-3 rounded-lg border border-slate-200 bg-white flex items-center justify-between hover:border-[#0056ff] transition-colors text-left"
               >
-                <MapPin className="w-4 h-4 mr-2 text-slate-400" />
-                <span className="flex-1 text-left truncate">
-                  {selectedCity === 'all' ? 'Todas as cidades' : selectedCity}
-                </span>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-slate-400" />
+                  <span className={selectedCity === 'all' ? 'text-slate-500' : 'text-slate-800'}>
+                    {selectedCity === 'all' ? 'Cidade' : selectedCity}
+                  </span>
+                </div>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
-              </Button>
+              </button>
 
-              {/* Type Filter - Simple Select */}
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const types = ['all', 'CLT', 'Home Office', 'Estágio', 'Jovem Aprendiz', 'Temporário', 'Freelancer', 'PJ'];
-                  const currentIndex = types.indexOf(selectedType);
-                  const nextIndex = (currentIndex + 1) % types.length;
-                  setSelectedType(types[nextIndex]);
-                }}
-                className="h-10 rounded-lg justify-start font-normal"
-              >
-                <Briefcase className="w-4 h-4 mr-2 text-slate-400" />
-                <span className="flex-1 text-left truncate">
-                  {selectedType === 'all' ? 'Todos os tipos' : selectedType}
-                </span>
-                <ChevronDown className="w-4 h-4 text-slate-400" />
-              </Button>
+              {/* Type Filter */}
+              <div className="flex flex-wrap gap-2">
+                {['all', 'CLT', 'Home Office', 'Estágio', 'Jovem Aprendiz'].map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setSelectedType(type)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      selectedType === type
+                        ? 'bg-[#0056ff] text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {type === 'all' ? 'Todos' : type}
+                  </button>
+                ))}
+              </div>
 
-              {/* Function Filter - Floating Modal */}
-              <Button
-                variant="outline"
-                onClick={() => setShowFunctionModal(true)}
-                className="h-10 rounded-lg justify-start font-normal"
+              {/* Function Filter - Floating Keyboard */}
+              <button
+                onClick={() => setShowFunctionKeyboard(true)}
+                className="h-10 px-3 rounded-lg border border-slate-200 bg-white flex items-center justify-between hover:border-[#0056ff] transition-colors text-left"
               >
-                <Building2 className="w-4 h-4 mr-2 text-slate-400" />
-                <span className="flex-1 text-left truncate">
-                  {selectedFunction === 'all' ? 'Todas as funções' : selectedFunction}
-                </span>
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-slate-400" />
+                  <span className={selectedFunction === 'all' ? 'text-slate-500' : 'text-slate-800'}>
+                    {selectedFunction === 'all' ? 'Função' : selectedFunction}
+                  </span>
+                </div>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
-              </Button>
+              </button>
             </div>
           </CardContent>
         </Card>
@@ -292,33 +288,6 @@ export default function Jobs() {
           </div>
         )}
       </div>
-
-      {/* Floating Search Modals */}
-      <FloatingSearchModal
-        isOpen={showCityModal}
-        onClose={() => setShowCityModal(false)}
-        title="Selecionar Cidade"
-        placeholder="Pesquisar cidade..."
-        items={cityNames}
-        selectedValue={selectedCity}
-        onSelect={setSelectedCity}
-        icon={MapPin}
-        showAllOption={true}
-        allOptionLabel="Todas as cidades"
-      />
-
-      <FloatingSearchModal
-        isOpen={showFunctionModal}
-        onClose={() => setShowFunctionModal(false)}
-        title="Selecionar Função"
-        placeholder="Pesquisar função..."
-        items={JOB_FUNCTIONS}
-        selectedValue={selectedFunction}
-        onSelect={setSelectedFunction}
-        icon={Briefcase}
-        showAllOption={true}
-        allOptionLabel="Todas as funções"
-      />
     </div>
   );
 }
