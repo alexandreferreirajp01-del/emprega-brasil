@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, Loader2, Save, X, CheckCircle, Phone, Mail, Briefcase } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Camera, Loader2, Save, X, CheckCircle, Phone, Mail, Briefcase, Search } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 
@@ -18,13 +19,57 @@ const JOB_FUNCTIONS = [
   "Estoquista", "Auxiliar de serviços gerais", "Porteiro", "Segurança", "Outros"
 ];
 
+const CIDADES_PB = [
+  "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
+  "Água Branca", "Aguiar", "Alagoa Grande", "Alagoa Nova", "Alagoinha", "Alcantil",
+  "Algodão de Jandaíra", "Alhandra", "Amparo", "Aparecida", "Araçagi", "Arara",
+  "Araruna", "Areia", "Areia de Baraúnas", "Areial", "Aroeiras", "Assunção",
+  "Baía da Traição", "Bananeiras", "Baraúna", "Barra de Santa Rosa", "Barra de Santana",
+  "Barra de São Miguel", "Belém", "Belém do Brejo do Cruz", "Bernardino Batista",
+  "Boa Ventura", "Boa Vista", "Bom Jesus", "Bom Sucesso", "Bonito de Santa Fé",
+  "Boqueirão", "Borborema", "Brejo do Cruz", "Brejo dos Santos", "Caaporã",
+  "Cabaceiras", "Cachoeira dos Índios", "Cacimba de Areia", "Cacimba de Dentro",
+  "Cacimbas", "Caiçara", "Caldas Brandão", "Camalaú", "Capim", "Caraúbas",
+  "Carrapateira", "Casserengue", "Catingueira", "Catolé do Rocha", "Caturité",
+  "Conceição", "Condado", "Conde", "Congo", "Coremas", "Coxixola",
+  "Cruz do Espírito Santo", "Cubati", "Cuité", "Cuité de Mamanguape", "Cuitegi",
+  "Curral de Cima", "Curral Velho", "Damião", "Desterro", "Diamante", "Dona Inês",
+  "Duas Estradas", "Emas", "Esperança", "Fagundes", "Frei Martinho", "Gado Bravo",
+  "Guarabira", "Gurinhém", "Gurjão", "Ibiara", "Igaracy", "Imaculada", "Ingá",
+  "Itabaiana", "Itaporanga", "Itapororoca", "Itatuba", "Jacaraú", "Jericó",
+  "Joca Claudino", "Juarez Távora", "Juazeirinho", "Junco do Seridó", "Juripiranga",
+  "Juru", "Lagoa", "Lagoa de Dentro", "Lagoa Seca", "Lastro", "Livramento",
+  "Logradouro", "Lucena", "Mãe d'Água", "Malta", "Mamanguape", "Manaíra",
+  "Marcação", "Mari", "Marizópolis", "Massaranduba", "Mataraca", "Matinhas",
+  "Mato Grosso", "Maturéia", "Mogeiro", "Montadas", "Monte Horebe", "Monteiro",
+  "Mulungu", "Natuba", "Nazarezinho", "Nova Floresta", "Nova Olinda", "Nova Palmeira",
+  "Olho d'Água", "Olivedos", "Ouro Velho", "Parari", "Passagem", "Patos", "Paulista",
+  "Pedra Branca", "Pedra Lavrada", "Pedras de Fogo", "Pedro Régis", "Piancó", "Picuí",
+  "Pilar", "Pilões", "Pilõezinhos", "Pirpirituba", "Pitimbu", "Pocinhos",
+  "Poço Dantas", "Poço de José de Moura", "Pombal", "Prata", "Princesa Isabel",
+  "Puxinanã", "Queimadas", "Quixaba", "Remígio", "Riachão", "Riachão do Bacamarte",
+  "Riachão do Poço", "Riacho de Santo Antônio", "Riacho dos Cavalos", "Rio Tinto",
+  "Salgadinho", "Salgado de São Félix", "Santa Cecília", "Santa Cruz", "Santa Helena",
+  "Santa Inês", "Santa Luzia", "Santa Teresinha", "Santana de Mangueira",
+  "Santana dos Garrotes", "Santarém", "Santo André", "São Bentinho", "São Bento",
+  "São Domingos", "São Domingos do Cariri", "São Francisco", "São João do Cariri",
+  "São João do Rio do Peixe", "São João do Tigre", "São José da Lagoa Tapada",
+  "São José de Caiana", "São José de Espinharas", "São José de Piranhas",
+  "São José de Princesa", "São José do Bonfim", "São José do Brejo do Cruz",
+  "São José do Sabugi", "São José dos Cordeiros", "São José dos Ramos", "São Mamede",
+  "São Miguel de Taipu", "São Sebastião de Lagoa de Roça", "São Sebastião do Umbuzeiro",
+  "Sapé", "Serra Branca", "Serra da Raiz", "Serra Grande", "Serra Redonda", "Serraria",
+  "Sertãozinho", "Sobrado", "Solânea", "Soledade", "Sossego", "Sousa", "Sumé",
+  "Tacima", "Taperoá", "Tavares", "Teixeira", "Tenório", "Triunfo", "Uiraúna",
+  "Umbuzeiro", "Várzea", "Vieirópolis", "Vista Serrana", "Zabelê"
+];
+
 export default function PostarVaga() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [toast, setToast] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [cities, setCities] = useState([]);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -36,6 +81,7 @@ export default function PostarVaga() {
     contact_email: '',
     image_url: ''
   });
+  const [citySearch, setCitySearch] = useState('');
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -64,10 +110,6 @@ export default function PostarVaga() {
         }
 
         setIsAuthorized(true);
-
-        // Carregar cidades
-        const citiesData = await base44.entities.City.list('name', 200);
-        setCities(citiesData || []);
       } catch (e) {
         console.error('Erro:', e);
         window.location.href = createPageUrl('Home');
@@ -97,38 +139,57 @@ export default function PostarVaga() {
         // Tentar extrair dados com IA
         try {
           const result = await base44.integrations.Core.InvokeLLM({
-            prompt: `Analise esta imagem de vaga de emprego e extraia: título, função, cidade, descrição, salário, telefone e email. Retorne dados encontrados, string vazia se não encontrar.`,
+            prompt: `Analise esta imagem de vaga de emprego brasileira e extraia TODAS as informações visíveis:
+
+1. TÍTULO: O cargo/função da vaga
+2. FUNÇÃO: Categoria (Vendedor, Administrativo, Atendente, etc)
+3. CIDADE: Cidade da Paraíba. Se mencionar bairros como Mangabeira, Manaíra, Tambaú, Bancários = João Pessoa. Se Intermares = Cabedelo.
+4. DESCRIÇÃO: Transcreva TODOS os requisitos, benefícios, horário, informações
+5. SALÁRIO: Valor ou faixa salarial
+6. TELEFONE: Números com DDD (formato: 83999999999)
+7. EMAIL: Endereços de email
+
+IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, retorne string vazia.`,
             file_urls: [uploadResult.file_url],
             response_json_schema: {
               type: "object",
               properties: {
-                title: { type: "string" },
-                job_function: { type: "string" },
-                city: { type: "string" },
-                description: { type: "string" },
-                salary_range: { type: "string" },
-                contact_phone: { type: "string" },
-                contact_email: { type: "string" }
+                title: { type: "string", description: "Título/cargo da vaga" },
+                job_function: { type: "string", description: "Função/categoria" },
+                city: { type: "string", description: "Cidade" },
+                description: { type: "string", description: "Descrição completa com requisitos e benefícios" },
+                salary_range: { type: "string", description: "Salário ou faixa salarial" },
+                contact_phone: { type: "string", description: "Telefone/WhatsApp" },
+                contact_email: { type: "string", description: "Email de contato" }
               }
             }
           });
 
           if (result && typeof result === 'object') {
+            // Encontrar cidade na lista
+            let foundCity = '';
+            if (result.city) {
+              const cityLower = result.city.toLowerCase();
+              foundCity = CIDADES_PB.find(c => c.toLowerCase() === cityLower) || 
+                          CIDADES_PB.find(c => cityLower.includes(c.toLowerCase())) || '';
+            }
+
             setFormData(prev => ({
               ...prev,
               title: result.title || prev.title,
               job_function: result.job_function || prev.job_function,
-              city: result.city || prev.city,
+              city: foundCity || prev.city,
               description: result.description || prev.description,
               salary_range: result.salary_range || prev.salary_range,
               contact_phone: (result.contact_phone || '').replace(/\D/g, '') || prev.contact_phone,
               contact_email: result.contact_email || prev.contact_email,
               image_url: uploadResult.file_url
             }));
-            showToast('Dados extraídos!');
+            showToast('Dados extraídos com sucesso!');
           }
         } catch (err) {
-          console.log('IA não disponível, preencha manualmente');
+          console.log('IA não disponível:', err);
+          showToast('Imagem carregada. Preencha manualmente.');
         }
       }
     } catch (err) {
@@ -287,9 +348,27 @@ export default function PostarVaga() {
               <div>
                 <Label>Cidade</Label>
                 <Select value={formData.city} onValueChange={(v) => updateField('city', v)}>
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Selecione a cidade" /></SelectTrigger>
                   <SelectContent>
-                    {cities.map(c => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
+                    <div className="p-2 border-b sticky top-0 bg-white z-10">
+                      <div className="relative">
+                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input
+                          placeholder="Buscar cidade..."
+                          value={citySearch}
+                          onChange={(e) => setCitySearch(e.target.value)}
+                          className="h-9 pl-8 text-base"
+                          autoComplete="off"
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+                    <ScrollArea className="h-[200px]">
+                      {CIDADES_PB.filter(c => c.toLowerCase().includes(citySearch.toLowerCase())).map(c => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </ScrollArea>
                   </SelectContent>
                 </Select>
               </div>
