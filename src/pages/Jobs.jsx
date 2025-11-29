@@ -38,10 +38,10 @@ export default function Jobs() {
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedFunction, setSelectedFunction] = useState('all');
-  const [citySearch, setCitySearch] = useState('');
-  const [functionSearch, setFunctionSearch] = useState('');
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
+  const [showCityModal, setShowCityModal] = useState(false);
+  const [showFunctionModal, setShowFunctionModal] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
