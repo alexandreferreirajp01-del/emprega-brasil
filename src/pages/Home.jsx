@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Search, MapPin, Calendar, Briefcase, TrendingUp, 
-  Clock, ChevronRight, Star, Building2, Users, Crown,
-  Newspaper, MessageCircle, ArrowRight, Lock
+  Search, MapPin, TrendingUp, Users, Crown,
+  Newspaper, MessageCircle, ArrowRight, Briefcase,
+  CheckCircle, Star, Shield, Zap, ChevronRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -36,13 +36,12 @@ export default function Home() {
     checkAuth();
   }, []);
 
-  const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ['jobs'],
+  const { data: jobs = [] } = useQuery({
+    queryKey: ['jobs-count'],
     queryFn: async () => {
       try {
-        return await base44.entities.Job.list('-created_date', 50) || [];
+        return await base44.entities.Job.list('-created_date', 100) || [];
       } catch (e) {
-        console.error('Erro ao carregar vagas:', e);
         return [];
       }
     },
@@ -60,7 +59,7 @@ export default function Home() {
   });
 
   const { data: cities = [] } = useQuery({
-    queryKey: ['cities'],
+    queryKey: ['cities-count'],
     queryFn: async () => {
       try {
         return await base44.entities.City.list('name', 300) || [];
@@ -70,22 +69,10 @@ export default function Home() {
     },
   });
 
-  const featuredJobs = jobs.filter(job => job.is_featured).slice(0, 4);
-  const recentJobs = jobs.filter(job => !job.is_featured).slice(0, 4);
-
-  const userIsPremium = user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin';
-
-  const canViewJob = (job) => {
-    if (!job.is_premium) return true;
-    if (userIsPremium) return true;
-    return false;
-  };
-
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-8 pb-20 px-4 relative overflow-hidden">
-        {/* Background Effects */}
+      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-10 pb-24 px-4 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
           <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
@@ -95,348 +82,239 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8"
+            className="text-center"
           >
-            <Badge className="bg-white/20 text-white border-0 mb-4 px-4 py-1">
+            <Badge className="bg-white/20 text-white border-0 mb-6 px-4 py-2 text-sm">
               🚀 A maior plataforma de vagas da Paraíba
             </Badge>
-            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+            
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
               Encontre sua próxima
-              <span className="block text-white/90">oportunidade de emprego</span>
+              <span className="block">oportunidade</span>
             </h1>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto">
+            
+            <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-10">
               Milhares de vagas atualizadas diariamente nas principais cidades da Paraíba
             </p>
-          </motion.div>
 
-          {/* Search CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto"
-          >
-            <Link to={createPageUrl('Jobs')} className="flex-1">
-              <Button className="w-full h-14 text-lg bg-white text-[#0056ff] hover:bg-white/90 rounded-xl shadow-xl">
-                <Search className="w-5 h-5 mr-2" />
-                Buscar Vagas
-              </Button>
-            </Link>
-            <Link to={createPageUrl('Subscription')}>
-              <Button variant="outline" className="w-full sm:w-auto h-14 text-lg border-white/30 text-white hover:bg-white/10 rounded-xl">
-                <Crown className="w-5 h-5 mr-2" />
-                Ver Planos
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+              <Link to={createPageUrl('Jobs')} className="flex-1">
+                <Button className="w-full h-14 text-lg bg-white text-[#0056ff] hover:bg-white/90 rounded-xl shadow-xl font-semibold">
+                  <Search className="w-5 h-5 mr-2" />
+                  Buscar Vagas
+                </Button>
+              </Link>
+              <Link to={createPageUrl('Subscription')}>
+                <Button variant="outline" className="w-full h-14 text-lg border-white/40 text-white hover:bg-white/10 rounded-xl font-semibold">
+                  <Crown className="w-5 h-5 mr-2" />
+                  Ver Planos
+                </Button>
+              </Link>
+            </div>
           </motion.div>
 
           {/* Stats */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="flex justify-center gap-8 md:gap-16 mt-12"
+            className="flex justify-center gap-12 md:gap-20 mt-16"
           >
             <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">{jobs.length}+</p>
-              <p className="text-white/70 text-sm">Vagas Ativas</p>
+              <p className="text-4xl md:text-5xl font-bold text-white">{jobs.length}+</p>
+              <p className="text-white/70 text-sm mt-1">Vagas Ativas</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">{cities.length}+</p>
-              <p className="text-white/70 text-sm">Cidades</p>
+              <p className="text-4xl md:text-5xl font-bold text-white">{cities.length}+</p>
+              <p className="text-white/70 text-sm mt-1">Cidades</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">24h</p>
-              <p className="text-white/70 text-sm">Atualizações</p>
+              <p className="text-4xl md:text-5xl font-bold text-white">24h</p>
+              <p className="text-white/70 text-sm mt-1">Atualizações</p>
             </div>
           </motion.div>
         </div>
       </div>
 
-      {/* Quick Categories */}
-      <div className="max-w-6xl mx-auto px-4 -mt-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl shadow-lg p-6"
-        >
-          <h3 className="text-sm font-medium text-slate-500 mb-4 text-center">Buscar por tipo de vaga</h3>
-          <div className="flex flex-wrap gap-3 justify-center">
-            {['CLT', 'Estágio', 'Home Office', 'Jovem Aprendiz', 'Temporário', 'PJ'].map((type) => (
-              <Link key={type} to={createPageUrl('Jobs') + `?type=${type}`}>
-                <Badge 
-                  variant="outline" 
-                  className="px-4 py-2 text-sm cursor-pointer hover:bg-[#0056ff] hover:text-white hover:border-[#0056ff] transition-all rounded-full"
-                >
-                  {type}
-                </Badge>
-              </Link>
-            ))}
-          </div>
-        </motion.div>
+      {/* Quick Access Cards */}
+      <div className="max-w-6xl mx-auto px-4 -mt-12 relative z-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Link to={createPageUrl('Jobs')}>
+            <Card className="bg-white shadow-lg hover:shadow-xl transition-all cursor-pointer group">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="w-14 h-14 bg-[#0056ff]/10 rounded-2xl flex items-center justify-center group-hover:bg-[#0056ff] transition-colors">
+                  <Briefcase className="w-7 h-7 text-[#0056ff] group-hover:text-white transition-colors" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-slate-800">Vagas de Emprego</h3>
+                  <p className="text-slate-500 text-sm">Encontre oportunidades</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          
+          <Link to={createPageUrl('Community')}>
+            <Card className="bg-white shadow-lg hover:shadow-xl transition-all cursor-pointer group">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center group-hover:bg-purple-500 transition-colors">
+                  <MessageCircle className="w-7 h-7 text-purple-600 group-hover:text-white transition-colors" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-slate-800">Comunidade</h3>
+                  <p className="text-slate-500 text-sm">Troque experiências</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          
+          <Link to={createPageUrl('News')}>
+            <Card className="bg-white shadow-lg hover:shadow-xl transition-all cursor-pointer group">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center group-hover:bg-green-500 transition-colors">
+                  <Newspaper className="w-7 h-7 text-green-600 group-hover:text-white transition-colors" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-slate-800">Notícias</h3>
+                  <p className="text-slate-500 text-sm">Mercado de trabalho</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
       </div>
 
-      {/* Featured Jobs */}
-      {featuredJobs.length > 0 && (
-        <div className="max-w-6xl mx-auto px-4 py-12">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Star className="w-6 h-6 text-yellow-500" />
-              <h2 className="text-2xl font-bold text-slate-800">Vagas em Destaque</h2>
-            </div>
-            <Link to={createPageUrl('Jobs')} className="text-[#0056ff] font-medium flex items-center gap-1 hover:underline">
-              Ver todas <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {featuredJobs.map((job, index) => (
-              <motion.div
-                key={job.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <JobCard job={job} canView={canViewJob(job)} featured />
-              </motion.div>
-            ))}
-          </div>
+      {/* Features Section */}
+      <div className="max-w-6xl mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-slate-800 mb-4">Por que usar o Vagas Abertas?</h2>
+          <p className="text-slate-500 max-w-2xl mx-auto">
+            A plataforma mais completa para encontrar oportunidades de emprego na Paraíba
+          </p>
         </div>
-      )}
-
-      {/* Recent Jobs */}
-      <div className="bg-slate-100 py-12">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Clock className="w-6 h-6 text-[#0056ff]" />
-              <h2 className="text-2xl font-bold text-slate-800">Vagas Recentes</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="text-center p-6 border-0 shadow-md">
+            <div className="w-16 h-16 bg-[#0056ff]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <TrendingUp className="w-8 h-8 text-[#0056ff]" />
             </div>
-            <Link to={createPageUrl('Jobs')} className="text-[#0056ff] font-medium flex items-center gap-1 hover:underline">
-              Ver todas <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1,2,3,4].map((i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardContent className="p-6">
-                    <div className="h-4 bg-slate-200 rounded w-3/4 mb-3" />
-                    <div className="h-3 bg-slate-200 rounded w-1/2 mb-2" />
-                    <div className="h-3 bg-slate-200 rounded w-1/3" />
-                  </CardContent>
-                </Card>
-              ))}
+            <h3 className="font-semibold text-lg mb-2">Vagas Atualizadas</h3>
+            <p className="text-slate-500 text-sm">Novas oportunidades adicionadas todos os dias</p>
+          </Card>
+          
+          <Card className="text-center p-6 border-0 shadow-md">
+            <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <MapPin className="w-8 h-8 text-green-600" />
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {recentJobs.map((job, index) => (
-                <motion.div
-                  key={job.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <JobCard job={job} canView={canViewJob(job)} />
-                </motion.div>
-              ))}
+            <h3 className="font-semibold text-lg mb-2">Foco na Paraíba</h3>
+            <p className="text-slate-500 text-sm">Vagas em todas as cidades do estado</p>
+          </Card>
+          
+          <Card className="text-center p-6 border-0 shadow-md">
+            <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Users className="w-8 h-8 text-purple-600" />
             </div>
-          )}
-
-          <div className="text-center mt-8">
-            <Link to={createPageUrl('Jobs')}>
-              <Button className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12 px-8">
-                Ver Todas as Vagas
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
-          </div>
+            <h3 className="font-semibold text-lg mb-2">Comunidade Ativa</h3>
+            <p className="text-slate-500 text-sm">Troque experiências com outros profissionais</p>
+          </Card>
+          
+          <Card className="text-center p-6 border-0 shadow-md">
+            <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Zap className="w-8 h-8 text-amber-600" />
+            </div>
+            <h3 className="font-semibold text-lg mb-2">Rápido e Fácil</h3>
+            <p className="text-slate-500 text-sm">Interface simples e intuitiva</p>
+          </Card>
         </div>
       </div>
 
       {/* News Section */}
       {news.length > 0 && (
-        <div className="max-w-6xl mx-auto px-4 py-12">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Newspaper className="w-6 h-6 text-[#0056ff]" />
-              <h2 className="text-2xl font-bold text-slate-800">Últimas Notícias</h2>
+        <div className="bg-slate-100 py-16">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-800">Últimas Notícias</h2>
+                <p className="text-slate-500">Fique por dentro do mercado de trabalho</p>
+              </div>
+              <Link to={createPageUrl('News')} className="text-[#0056ff] font-medium flex items-center gap-1 hover:underline">
+                Ver todas <ChevronRight className="w-4 h-4" />
+              </Link>
             </div>
-            <Link to={createPageUrl('News')} className="text-[#0056ff] font-medium flex items-center gap-1 hover:underline">
-              Ver todas <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {news.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Link to={createPageUrl('NewsDetail') + `?id=${item.id}`}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group h-full">
-                    {item.image_url && (
-                      <div className="h-40 overflow-hidden">
-                        <img 
-                          src={item.image_url} 
-                          alt={item.title} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    )}
-                    <CardContent className="p-4">
-                      <Badge variant="outline" className="mb-2 text-xs">{item.category}</Badge>
-                      <h3 className="font-semibold text-slate-800 line-clamp-2 group-hover:text-[#0056ff] transition-colors">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm text-slate-500 mt-2">
-                        {formatRelativeDate(item.created_date)}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {news.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Link to={createPageUrl('NewsDetail') + `?id=${item.id}`}>
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group h-full bg-white">
+                      {item.image_url && (
+                        <div className="h-44 overflow-hidden">
+                          <img 
+                            src={item.image_url} 
+                            alt={item.title} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
+                      <CardContent className="p-5">
+                        <Badge variant="outline" className="mb-3 text-xs">{item.category}</Badge>
+                        <h3 className="font-semibold text-slate-800 line-clamp-2 group-hover:text-[#0056ff] transition-colors mb-2">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-slate-500">
+                          {formatRelativeDate(item.created_date)}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Features Section */}
-      <div className="bg-slate-100 py-12">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-slate-800 text-center mb-8">Por que usar o Vagas Abertas?</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="text-center p-6">
-              <div className="w-16 h-16 bg-[#0056ff]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-[#0056ff]" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Vagas Atualizadas</h3>
-              <p className="text-slate-500 text-sm">Novas oportunidades adicionadas diariamente</p>
-            </Card>
-            
-            <Card className="text-center p-6">
-              <div className="w-16 h-16 bg-[#0056ff]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-8 h-8 text-[#0056ff]" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Foco na Paraíba</h3>
-              <p className="text-slate-500 text-sm">Vagas em todas as cidades do estado</p>
-            </Card>
-            
-            <Card className="text-center p-6">
-              <div className="w-16 h-16 bg-[#0056ff]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-[#0056ff]" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Comunidade Ativa</h3>
-              <p className="text-slate-500 text-sm">Troque experiências com outros profissionais</p>
-            </Card>
-          </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] py-16 px-4">
+      {/* Premium CTA */}
+      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Acesso Vitalício por apenas R$29,90
+          <Crown className="w-16 h-16 text-yellow-400 mx-auto mb-6" />
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Acesso Premium Vitalício
           </h2>
-          <p className="text-white/80 text-lg mb-8">
-            Tenha acesso ilimitado a todas as vagas premium e funcionalidades exclusivas
+          <p className="text-white/80 text-xl mb-4">
+            Por apenas <span className="font-bold text-yellow-400 text-3xl">R$29,90</span>
           </p>
+          <p className="text-white/70 text-lg mb-8 max-w-xl mx-auto">
+            Tenha acesso ilimitado a todas as vagas exclusivas e funcionalidades premium para sempre
+          </p>
+          
+          <div className="flex flex-wrap justify-center gap-4 mb-10">
+            <div className="flex items-center gap-2 text-white/90">
+              <CheckCircle className="w-5 h-5 text-green-400" />
+              <span>Vagas Exclusivas</span>
+            </div>
+            <div className="flex items-center gap-2 text-white/90">
+              <CheckCircle className="w-5 h-5 text-green-400" />
+              <span>Chat de Suporte</span>
+            </div>
+            <div className="flex items-center gap-2 text-white/90">
+              <CheckCircle className="w-5 h-5 text-green-400" />
+              <span>Acesso Vitalício</span>
+            </div>
+          </div>
+          
           <Link to={createPageUrl('Subscription')}>
-            <Button className="h-14 px-8 text-lg bg-white text-[#0056ff] hover:bg-white/90 rounded-xl">
+            <Button className="h-16 px-10 text-xl bg-white text-[#0056ff] hover:bg-white/90 rounded-xl font-semibold shadow-xl">
               Adquirir Agora
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <ArrowRight className="w-6 h-6 ml-2" />
             </Button>
           </Link>
         </div>
       </div>
     </div>
-  );
-}
-
-function JobCard({ job, canView, featured = false }) {
-  if (!canView) {
-    return (
-      <Card className="overflow-hidden relative">
-        <div className="absolute inset-0 backdrop-blur-sm bg-white/60 z-10 flex flex-col items-center justify-center p-6">
-          <Lock className="w-10 h-10 text-[#0056ff] mb-3" />
-          <p className="text-center text-slate-700 font-medium mb-3">
-            Conteúdo exclusivo para assinantes
-          </p>
-          <Link to={createPageUrl('Subscription')}>
-            <Button size="sm" className="bg-[#0056ff] hover:bg-[#0044cc] rounded-full">
-              Adquira o Plano
-            </Button>
-          </Link>
-        </div>
-        <CardContent className="p-6 filter blur-sm">
-          <JobCardContent job={job} featured={featured} />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Link to={createPageUrl('JobDetail') + `?id=${job.id}`}>
-      <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group h-full ${featured ? 'border-yellow-200 bg-yellow-50/30' : ''}`}>
-        <CardContent className="p-6">
-          <JobCardContent job={job} featured={featured} />
-        </CardContent>
-      </Card>
-    </Link>
-  );
-}
-
-function JobCardContent({ job, featured }) {
-  return (
-    <>
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <h3 className="font-semibold text-lg text-slate-800 group-hover:text-[#0056ff] transition-colors">
-              {job.title || 'Não informado'}
-            </h3>
-            {featured && (
-              <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs">
-                <Star className="w-3 h-3 mr-1" /> Destaque
-              </Badge>
-            )}
-            {job.is_premium && (
-              <Badge className="bg-purple-100 text-purple-700 border-0 text-xs">
-                Premium
-              </Badge>
-            )}
-          </div>
-          <p className="text-slate-500 flex items-center gap-1">
-            <Building2 className="w-4 h-4" />
-            {job.company || 'Empresa confidencial'}
-          </p>
-        </div>
-      </div>
-      <div className="flex flex-wrap gap-2 mb-3">
-        <Badge variant="secondary" className="rounded-full text-xs">
-          <MapPin className="w-3 h-3 mr-1" />
-          {job.city || 'Não informado'}
-        </Badge>
-        <Badge variant="secondary" className="rounded-full text-xs">
-          {job.job_type || 'Não informado'}
-        </Badge>
-      </div>
-      <div className="flex items-center justify-between text-sm text-slate-500">
-        <span className="flex items-center gap-1">
-          <Calendar className="w-4 h-4" />
-          {formatRelativeDate(job.created_date)}
-        </span>
-        {job.salary_range && (
-          <span className="font-medium text-green-600">{job.salary_range}</span>
-        )}
-      </div>
-    </>
   );
 }
