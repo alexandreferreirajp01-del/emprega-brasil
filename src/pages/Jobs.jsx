@@ -208,7 +208,7 @@ export default function Jobs() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {/* City Filter */}
-              <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <Select value={selectedCity} onValueChange={(val) => { setSelectedCity(val); setCitySearch(''); }}>
                 <SelectTrigger className="h-10 rounded-lg">
                   <MapPin className="w-4 h-4 mr-2 text-slate-400" />
                   <SelectValue placeholder="Cidade" />
@@ -217,13 +217,16 @@ export default function Jobs() {
                   <div className="p-2 sticky top-0 bg-white z-10 border-b">
                     <div className="relative">
                       <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <input
+                      <Input
                         type="text"
                         placeholder="Pesquisar cidade..."
                         value={citySearch}
                         onChange={(e) => setCitySearch(e.target.value)}
-                        className="w-full h-9 pl-8 pr-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0056ff]"
+                        className="w-full h-9 pl-8 pr-3 text-sm"
+                        onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                        autoComplete="off"
                       />
                     </div>
                   </div>
@@ -260,21 +263,27 @@ export default function Jobs() {
               </Select>
 
               {/* Function Filter */}
-              <Select value={selectedFunction} onValueChange={setSelectedFunction}>
+              <Select value={selectedFunction} onValueChange={(val) => { setSelectedFunction(val); setFunctionSearch(''); }}>
                 <SelectTrigger className="h-10 rounded-lg">
                   <Building2 className="w-4 h-4 mr-2 text-slate-400" />
                   <SelectValue placeholder="Função" />
                 </SelectTrigger>
                 <SelectContent className="max-h-80">
                   <div className="p-2 sticky top-0 bg-white z-10 border-b">
-                    <input
-                      type="text"
-                      placeholder="Pesquisar função..."
-                      value={functionSearch}
-                      onChange={(e) => setFunctionSearch(e.target.value)}
-                      className="w-full h-8 px-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0056ff]"
-                      onKeyDown={(e) => e.stopPropagation()}
-                    />
+                    <div className="relative">
+                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        type="text"
+                        placeholder="Pesquisar função..."
+                        value={functionSearch}
+                        onChange={(e) => setFunctionSearch(e.target.value)}
+                        className="w-full h-9 pl-8 pr-3 text-sm"
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                        autoComplete="off"
+                      />
+                    </div>
                   </div>
                   <ScrollArea className="h-64">
                     <SelectItem value="all">Todas as funções</SelectItem>
