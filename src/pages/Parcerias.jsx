@@ -78,7 +78,7 @@ export default function Parcerias() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="bg-slate-800/50 border-slate-700 rounded-3xl overflow-hidden backdrop-blur">
+          <Card className="bg-white/10 border-white/20 rounded-3xl overflow-hidden backdrop-blur">
             <CardContent className="p-6">
               <div className="space-y-3">
                 {pacotes.map((pacote, index) => (
@@ -89,20 +89,20 @@ export default function Parcerias() {
                     transition={{ delay: 0.1 + index * 0.05 }}
                     className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer hover:scale-[1.02] ${
                       pacote.popular 
-                        ? 'bg-amber-500/20 border-amber-500/50' 
-                        : 'bg-slate-700/50 border-slate-600 hover:border-amber-500/30'
+                        ? 'bg-white/20 border-white/50' 
+                        : 'bg-white/10 border-white/20 hover:border-white/40'
                     }`}
                     onClick={() => handleWhatsApp(pacote)}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-semibold text-white">{pacote.dias}</span>
                       {pacote.popular && (
-                        <Badge className="bg-amber-500 text-amber-900 border-0 text-xs">
+                        <Badge className="bg-white text-[#0056ff] border-0 text-xs">
                           MAIS POPULAR
                         </Badge>
                       )}
                     </div>
-                    <span className="text-2xl font-black text-amber-400">{pacote.preco}</span>
+                    <span className="text-2xl font-black text-white">{pacote.preco}</span>
                   </motion.div>
                 ))}
               </div>
