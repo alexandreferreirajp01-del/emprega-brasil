@@ -128,7 +128,7 @@ html {
   animation: skeleton-loading 1.5s infinite;
 }
 
-/* Esconder botão Base44 Edit */
+/* Esconder botão Base44 Edit - FORÇADO */
 [data-base44-edit],
 .base44-edit-button,
 button[class*="base44"],
@@ -137,8 +137,10 @@ div[class*="base44"],
 iframe[src*="base44"],
 #base44-widget,
 .base44-floating-button,
-div:has(> span:contains("Edit with")),
-div:has(> button:contains("Base44")) {
+div[style*="position: fixed"][style*="z-index: 9999"],
+div[style*="position: fixed"][style*="bottom: 0"],
+div[style*="position: fixed"][style*="bottom:0"],
+.fixed[class*="bottom-"] {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -147,7 +149,9 @@ div:has(> button:contains("Base44")) {
   width: 0 !important;
   overflow: hidden !important;
   position: absolute !important;
-  left: -9999px !important;
+  left: -99999px !important;
+  top: -99999px !important;
+  z-index: -9999 !important;
 }
 
 @keyframes skeleton-loading {
