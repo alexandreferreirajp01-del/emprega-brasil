@@ -225,7 +225,12 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
       if (formData.website) {
         applicationLink = formData.website.startsWith('http') ? formData.website : `https://${formData.website}`;
       } else if (formData.contact_phone) {
-        applicationLink = `https://wa.me/${formData.contact_phone.replace(/\D/g, '')}`;
+        let phone = formData.contact_phone.replace(/\D/g, '');
+        // Adicionar código do Brasil se não tiver
+        if (phone.length === 11 || phone.length === 10) {
+          phone = '55' + phone;
+        }
+        applicationLink = `https://wa.me/${phone}`;
       } else if (formData.contact_email) {
         applicationLink = `mailto:${formData.contact_email}`;
       }
@@ -460,7 +465,7 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
                 <div className="flex flex-wrap gap-2">
                   {formData.contact_phone && (
                     <a 
-                      href={`https://wa.me/${formData.contact_phone.replace(/\D/g, '')}`}
+                      href={`https://wa.me/55${formData.contact_phone.replace(/\D/g, '').replace(/^55/, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm"
