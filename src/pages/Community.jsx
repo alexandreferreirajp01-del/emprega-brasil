@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { 
   Loader2, Lock, CheckCircle, Users
 } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
@@ -193,21 +193,14 @@ export default function Community() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Toast */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: -50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -50, scale: 0.9 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white"
-          >
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5" />
-              <span className="font-medium">{toast.message}</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {toast && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white animate-fade-in">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-5 h-5" />
+            <span className="font-medium">{toast.message}</span>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-8 px-4">
@@ -320,11 +313,7 @@ export default function Community() {
               <div className="space-y-4">
                 <React.Suspense fallback={<div className="h-40 bg-slate-100 rounded-xl animate-pulse" />}>
                   {posts.map((post) => (
-                    <motion.div
-                      key={post.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                    >
+                    <div key={post.id}>
                       <PostCard
                         post={post}
                         comments={comments}
@@ -337,7 +326,7 @@ export default function Community() {
                         onShowLikes={handleShowLikes}
                         isAdmin={isAdmin}
                       />
-                    </motion.div>
+                    </div>
                   ))}
                 </React.Suspense>
               </div>
