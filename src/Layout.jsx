@@ -11,54 +11,33 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingButtons from "@/components/common/FloatingButtons";
 
 export default function Layout({ children, currentPageName }) {
-  // Esconder botão do Base44 "Edit with Base44"
-  useEffect(() => {
-    const hideBase44Button = () => {
-      const style = document.createElement('style');
-      style.id = 'hide-base44-button';
-      style.textContent = `
-        [data-base44-edit], 
-        .base44-edit-button,
-        [class*="base44"],
-        #base44-floating-button,
-        button[aria-label*="base44" i],
-        button[aria-label*="edit" i][aria-label*="base44" i],
-        div[class*="fixed"][class*="bottom"][class*="right"] > button:has(svg),
-        .fixed.bottom-4.right-4,
-        .fixed.bottom-6.right-6 {
-          display: none !important;
-          visibility: hidden !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
-        }
-      `;
-      if (!document.getElementById('hide-base44-button')) {
-        document.head.appendChild(style);
-      }
-    };
-    hideBase44Button();
-    
-    // Também tentar remover via JavaScript
-    const interval = setInterval(() => {
-      const buttons = document.querySelectorAll('button');
-      buttons.forEach(btn => {
-        const text = btn.textContent?.toLowerCase() || '';
-        const ariaLabel = btn.getAttribute('aria-label')?.toLowerCase() || '';
-        if (text.includes('base44') || ariaLabel.includes('base44') || text.includes('edit with')) {
-          btn.style.display = 'none';
-          btn.remove();
-        }
-      });
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, []);
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Pages that don't need layout
   const noLayoutPages = ['Splash', 'Login', 'Register'];
+
+  // Esconder botão Base44 edit no modo produção/APK
+  useEffect(() => {
+    const hideBase44Button = () => {
+      const buttons = document.querySelectorAll('[data-base44-edit], .base44-edit-button, [class*="base44"]');
+      buttons.forEach(btn => {
+        if (btn.textContent?.includes('Edit') || btn.textContent?.includes('Base44')) {
+          btn.style.display = 'none';
+        }
+      });
+      // Esconder iframe de edição se existir
+      const iframes = document.querySelectorAll('iframe[src*="base44"]');
+      iframes.forEach(iframe => iframe.style.display = 'none');
+    };
+    
+    hideBase44Button();
+    const observer = new MutationObserver(hideBase44Button);
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    return () => observer.disconnect();
+  }, []);
   
   useEffect(() => {
     const checkAuth = async () => {
@@ -107,6 +86,63 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* PWA/APK Meta Tags */}
+      <style>{`
+        /* Safe area para notch de celulares */
+        :root {
+          --sat: env(safe-area-inset-top, 0px);
+          --sar: env(safe-area-inset-right, 0px);
+          --sab: env(safe-area-inset-bottom, 0px);
+          --sal: env(safe-area-inset-left, 0px);
+        }
+        
+        .safe-area-top { padding-top: var(--sat); }
+        .safe-area-bottom { padding-bottom: var(--sab); }
+        .pb-safe { padding-bottom: max(1rem, var(--sab)); }
+        .pb-nav { padding-bottom: calc(4rem + var(--sab)); }
+        
+        /* Esconder elementos Base44 */
+        [data-base44-edit],
+        .base44-edit-button,
+        button[class*="base44"],
+        div[class*="base44-widget"],
+        iframe[src*="base44"] {
+          display: none !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+        
+        /* Mobile optimizations */
+        * {
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+        }
+        
+        input, textarea, select {
+          font-size: 16px !important; /* Previne zoom no iOS */
+        }
+        
+        /* Smooth scrolling */
+        html {
+          scroll-behavior: smooth;
+        }
+        
+        /* Remove scrollbar em mobile */
+        @media (max-width: 768px) {
+          ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+          }
+        }
+        
+        /* Status bar style for PWA */
+        @media (display-mode: standalone) {
+          body {
+            padding-top: var(--sat);
+          }
+        }
+      `}</style>
       {/* Top Navigation */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4">
