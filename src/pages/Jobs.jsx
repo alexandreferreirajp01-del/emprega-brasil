@@ -288,6 +288,27 @@ export default function Jobs() {
           </div>
         )}
       </div>
+
+      {/* Floating Keyboards */}
+      <FloatingSearchKeyboard
+        isOpen={showCityKeyboard}
+        onClose={() => setShowCityKeyboard(false)}
+        title="Selecionar Cidade"
+        placeholder="Pesquisar cidade..."
+        options={cityNames}
+        onSelect={(city) => setSelectedCity(city)}
+        icon={MapPin}
+      />
+
+      <FloatingSearchKeyboard
+        isOpen={showFunctionKeyboard}
+        onClose={() => setShowFunctionKeyboard(false)}
+        title="Selecionar Função"
+        placeholder="Pesquisar função..."
+        options={JOB_FUNCTIONS}
+        onSelect={(func) => setSelectedFunction(func)}
+        icon={Briefcase}
+      />
     </div>
   );
 }
