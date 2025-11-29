@@ -281,11 +281,13 @@ export default function Community() {
 
             {/* New Post Form */}
             {canParticipate && (
-              <CreatePostForm 
-                user={user}
-                onSubmit={handleSubmitPost}
-                isSubmitting={createPostMutation.isPending}
-              />
+              <React.Suspense fallback={<div className="h-40 bg-slate-100 rounded-xl animate-pulse" />}>
+                <CreatePostForm 
+                  user={user}
+                  onSubmit={handleSubmitPost}
+                  isSubmitting={createPostMutation.isPending}
+                />
+              </React.Suspense>
             )}
 
             {/* Posts Feed */}
@@ -316,26 +318,28 @@ export default function Community() {
               </Card>
             ) : (
               <div className="space-y-4">
-                {posts.map((post) => (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <PostCard
-                      post={post}
-                      comments={comments}
-                      likes={likes}
-                      users={users}
-                      currentUser={user}
-                      onLike={handleLike}
-                      onComment={handleComment}
-                      onDelete={handleDeletePost}
-                      onShowLikes={handleShowLikes}
-                      isAdmin={isAdmin}
-                    />
-                  </motion.div>
-                ))}
+                <React.Suspense fallback={<div className="h-40 bg-slate-100 rounded-xl animate-pulse" />}>
+                  {posts.map((post) => (
+                    <motion.div
+                      key={post.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <PostCard
+                        post={post}
+                        comments={comments}
+                        likes={likes}
+                        users={users}
+                        currentUser={user}
+                        onLike={handleLike}
+                        onComment={handleComment}
+                        onDelete={handleDeletePost}
+                        onShowLikes={handleShowLikes}
+                        isAdmin={isAdmin}
+                      />
+                    </motion.div>
+                  ))}
+                </React.Suspense>
               </div>
             )}
           </div>
@@ -343,25 +347,29 @@ export default function Community() {
           {/* Sidebar - Trending */}
           <div className="hidden lg:block">
             <div className="sticky top-28">
-              <TrendingSection 
-                posts={posts}
-                jobs={jobs}
-                news={news}
-                likes={likes}
-                comments={comments}
-              />
+              <React.Suspense fallback={<div className="h-60 bg-slate-100 rounded-xl animate-pulse" />}>
+                <TrendingSection 
+                  posts={posts}
+                  jobs={jobs}
+                  news={news}
+                  likes={likes}
+                  comments={comments}
+                />
+              </React.Suspense>
             </div>
           </div>
         </div>
       </div>
 
       {/* Likes Modal */}
-      <LikesList 
-        isOpen={showLikesModal}
-        onClose={() => setShowLikesModal(false)}
-        likes={selectedPostLikes}
-        users={users}
-      />
+      <React.Suspense fallback={null}>
+        <LikesList 
+          isOpen={showLikesModal}
+          onClose={() => setShowLikesModal(false)}
+          likes={selectedPostLikes}
+          users={users}
+        />
+      </React.Suspense>
     </div>
   );
 }
