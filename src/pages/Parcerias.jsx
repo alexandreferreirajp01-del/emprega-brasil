@@ -6,7 +6,7 @@ import {
   Check, Copy, MessageCircle, Instagram, Phone, Send, 
   TrendingUp, Users, Eye, Target, Zap, Star, Shield
 } from "lucide-react";
-import { motion } from "framer-motion";
+
 
 export default function Parcerias() {
   const [copiedPix, setCopiedPix] = useState(false);
@@ -51,11 +51,7 @@ export default function Parcerias() {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-white/10" />
         <div className="max-w-4xl mx-auto px-4 pt-12 pb-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
+          <div className="text-center animate-fade-in">
             <Badge className="bg-white text-[#0056ff] border-0 mb-4 px-4 py-1 text-sm font-semibold">
               <Star className="w-4 h-4 mr-1" />
               PARCERIA COMERCIAL
@@ -67,26 +63,19 @@ export default function Parcerias() {
             <p className="text-xl text-white/80 max-w-2xl mx-auto">
               Divulgue sua vaga para milhares de candidatos qualificados na Paraíba
             </p>
-          </motion.div>
+          </div>
         </div>
       </div>
 
       {/* Pricing Cards */}
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <div className="animate-fade-in">
           <Card className="bg-white/10 border-white/20 rounded-3xl overflow-hidden backdrop-blur">
             <CardContent className="p-6">
               <div className="space-y-3">
                 {pacotes.map((pacote, index) => (
-                  <motion.div
+                  <div
                     key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + index * 0.05 }}
                     className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer hover:scale-[1.02] ${
                       pacote.popular 
                         ? 'bg-white/20 border-white/50' 
@@ -103,20 +92,15 @@ export default function Parcerias() {
                       )}
                     </div>
                     <span className="text-2xl font-black text-white">{pacote.preco}</span>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
         {/* Tráfego nas Redes */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 text-center"
-        >
+        <div className="mt-8 text-center">
           <h2 className="text-xl font-bold text-white mb-4">Tráfego nas redes:</h2>
           <div className="flex items-center justify-center gap-6">
             <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
@@ -134,15 +118,10 @@ export default function Parcerias() {
               </svg>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Benefícios */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8"
-        >
+        <div className="mt-8">
           <Card className="bg-white/10 border-white/20 rounded-3xl">
             <CardContent className="p-6">
               <div className="space-y-4">
@@ -157,15 +136,10 @@ export default function Parcerias() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
         {/* Copy de Vendas */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-8"
-        >
+        <div className="mt-8">
           <Card className="bg-gradient-to-br from-white/20 to-white/10 border-white/30 rounded-3xl">
             <CardContent className="p-6 text-center">
               <h3 className="text-2xl font-bold text-white mb-4">
@@ -186,15 +160,10 @@ export default function Parcerias() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
         {/* Formas de Pagamento */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="mt-8"
-        >
+        <div className="mt-8">
           <Card className="bg-white/10 border-white/20 rounded-3xl">
             <CardHeader>
               <CardTitle className="text-lg text-white text-center">Formas de Pagamento</CardTitle>
@@ -235,15 +204,10 @@ export default function Parcerias() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
         {/* CTA Final */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="mt-8"
-        >
+        <div className="mt-8">
           <Button 
             onClick={() => handleWhatsApp()}
             className="w-full h-16 text-lg font-bold bg-[#25D366] hover:bg-[#20bd5a] rounded-2xl shadow-xl"
@@ -254,7 +218,7 @@ export default function Parcerias() {
           <p className="text-center text-white/60 text-sm mt-4">
             Após o pagamento, envie o comprovante e os criativos da vaga pelo WhatsApp
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
