@@ -255,6 +255,12 @@ export default function Profile() {
                       <p className="text-sm text-slate-500">E-mail</p>
                       <p className="font-medium text-slate-800">{user?.email || 'Não informado'}</p>
                     </div>
+                    <button 
+                      onClick={() => setIsEditing(true)}
+                      className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
+                    >
+                      <Edit className="w-4 h-4 text-slate-400" />
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
@@ -263,6 +269,12 @@ export default function Profile() {
                       <p className="text-sm text-slate-500">Telefone</p>
                       <p className="font-medium text-slate-800">{user?.phone || 'Não informado'}</p>
                     </div>
+                    <button 
+                      onClick={() => setIsEditing(true)}
+                      className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
+                    >
+                      <Edit className="w-4 h-4 text-slate-400" />
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">

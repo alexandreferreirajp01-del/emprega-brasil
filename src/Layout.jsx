@@ -43,13 +43,19 @@ export default function Layout({ children, currentPageName }) {
   const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
 
   const navItems = [
-    { name: 'Início', icon: Home, page: 'Home' },
-    { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-    { name: 'Notícias', icon: Newspaper, page: 'News' },
-    { name: 'Comunidade', icon: MessageCircle, page: 'Community' },
-    { name: 'Grupos', icon: Users, page: 'Groups' },
-    { name: 'Planos', icon: Crown, page: 'Subscription' },
-  ];
+            { name: 'Início', icon: Home, page: 'Home' },
+            { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
+            { name: 'Notícias', icon: Newspaper, page: 'News' },
+            { name: 'Comunidade', icon: MessageCircle, page: 'Community' },
+            { name: 'Grupos', icon: Users, page: 'Groups' },
+          ];
+
+      // Mostrar Planos apenas para visitantes e básicos
+      const showSubscription = !user || isVisitor || (user && user.subscription_type !== 'premium' && user.subscription_type !== 'admin' && user.role !== 'admin');
+
+      if (showSubscription) {
+        navItems.push({ name: 'Planos', icon: Crown, page: 'Subscription' });
+      }
 
   const handleLogout = () => {
     localStorage.removeItem('vagas_abertas_visitor_mode');

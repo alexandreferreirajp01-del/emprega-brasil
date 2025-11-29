@@ -372,9 +372,10 @@ export default function Admin() {
       setJobForm(prev => ({ ...prev, image_url: fileUrl }));
       showToast('Imagem carregada! Extraindo dados...');
 
-      // Extrair dados da imagem usando LLM
-      const extractedData = await base44.integrations.Core.InvokeLLM({
-        prompt: `Você é um especialista em extrair informações de imagens de vagas de emprego no Brasil.
+      // Tentar extrair dados da imagem usando LLM
+      try {
+        const extractedData = await base44.integrations.Core.InvokeLLM({
+          prompt: `Você é um especialista em extrair informações de imagens de vagas de emprego no Brasil.
 
 TAREFA: Analise cuidadosamente esta imagem e extraia TODAS as informações visíveis sobre a vaga de emprego.
 
@@ -396,44 +397,48 @@ CAMPOS A EXTRAIR:
 
 IMPORTANTE:
 - Seja preciso e extraia exatamente o que está escrito na imagem
-- Se não conseguir identificar algum campo, deixe vazio
+- Se não conseguir identificar algum campo, retorne string vazia ""
 - Para a descrição, inclua TODO o texto visível na imagem
 - Números de telefone devem ser extraídos corretamente`,
-        file_urls: [fileUrl],
-        response_json_schema: {
-          type: "object",
-          properties: {
-            title: { type: "string" },
-            company: { type: "string" },
-            city: { type: "string" },
-            salary_range: { type: "string" },
-            job_type: { type: "string" },
-            description: { type: "string" }
+          file_urls: [fileUrl],
+          response_json_schema: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Título da vaga" },
+              company: { type: "string", description: "Nome da empresa" },
+              city: { type: "string", description: "Cidade" },
+              salary_range: { type: "string", description: "Faixa salarial" },
+              job_type: { type: "string", description: "Tipo de contrato" },
+              description: { type: "string", description: "Descrição completa" }
+            }
           }
+        });
+
+        console.log('Dados extraídos:', extractedData);
+
+        // Preencher o formulário com os dados extraídos
+        if (extractedData && typeof extractedData === 'object') {
+          setJobForm(prev => ({
+            ...prev,
+            title: extractedData.title || prev.title,
+            company: extractedData.company || prev.company,
+            city: extractedData.city || prev.city,
+            salary_range: extractedData.salary_range || prev.salary_range,
+            job_type: extractedData.job_type || prev.job_type,
+            description: extractedData.description || prev.description,
+            image_url: fileUrl
+          }));
+          showToast('Dados extraídos com sucesso!');
+        } else {
+          showToast('Imagem salva! Preencha os dados manualmente.');
         }
-      });
-
-      console.log('Dados extraídos:', extractedData);
-
-      // Preencher o formulário com os dados extraídos
-      if (extractedData) {
-        setJobForm(prev => ({
-          ...prev,
-          title: extractedData.title || prev.title,
-          company: extractedData.company || prev.company,
-          city: extractedData.city || prev.city,
-          salary_range: extractedData.salary_range || prev.salary_range,
-          job_type: extractedData.job_type || prev.job_type,
-          description: extractedData.description || prev.description,
-          image_url: fileUrl
-        }));
-        showToast('Dados extraídos com sucesso!');
-      } else {
-        showToast('Imagem salva, mas não foi possível extrair dados automaticamente.');
+      } catch (extractError) {
+        console.error('Erro na extração:', extractError);
+        showToast('Imagem salva! Preencha os dados manualmente.');
       }
     } catch (error) {
       console.error('Erro ao processar imagem:', error);
-      showToast('Erro ao extrair dados. A imagem foi salva.', 'error');
+      showToast('Erro no upload da imagem', 'error');
     } finally {
       setUploadingImage(false);
       setExtractingData(false);
@@ -547,15 +552,6 @@ IMPORTANTE:
               <Briefcase className="w-4 h-4 mr-2" />
               Vagas
             </TabsTrigger>
-            <TabsTrigger value="users" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <Users className="w-4 h-4 mr-2" />
-              Usuários
-              {pendingUsers.length > 0 && (
-                <Badge className="ml-2 bg-amber-500 text-white border-0 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                  {pendingUsers.length}
-                </Badge>
-              )}
-            </TabsTrigger>
             <TabsTrigger value="community" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
               <MessageSquare className="w-4 h-4 mr-2" />
               Comunidade
@@ -581,17 +577,9 @@ IMPORTANTE:
               <Globe className="w-4 h-4 mr-2" />
               Mapa
             </TabsTrigger>
-            <TabsTrigger value="codes" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <Key className="w-4 h-4 mr-2" />
-              Códigos
-            </TabsTrigger>
-            <TabsTrigger value="payments" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <CreditCard className="w-4 h-4 mr-2" />
-              Pagamentos
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Chat
+            <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <Shield className="w-4 h-4 mr-2" />
+              Configurações
             </TabsTrigger>
             </TabsList>
 
@@ -933,142 +921,6 @@ IMPORTANTE:
                 </Card>
               ))}
             </div>
-          </TabsContent>
-
-          {/* Users Tab */}
-          <TabsContent value="users" className="space-y-6">
-            {/* Pending Users */}
-            {pendingUsers.length > 0 && (
-              <Card className="rounded-xl border-amber-200 bg-amber-50">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2 text-amber-800">
-                    <Clock className="w-5 h-5" />
-                    Usuários Pendentes ({pendingUsers.length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {pendingUsers.map((u) => (
-                    <div key={u.id} className="flex items-center justify-between p-4 bg-white rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage src={u.profile_photo} />
-                          <AvatarFallback className="bg-amber-200 text-amber-700">
-                            {u.full_name?.[0] || u.email?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-slate-800">{u.full_name || 'Sem nome'}</p>
-                          <p className="text-sm text-slate-500">{u.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Select onValueChange={(type) => approveUser(u.id, type)}>
-                          <SelectTrigger className="w-40 rounded-lg">
-                            <SelectValue placeholder="Aprovar como..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="visitor">Visitante</SelectItem>
-                            <SelectItem value="basic">Membro Básico</SelectItem>
-                            <SelectItem value="premium">Membro Premium</SelectItem>
-                            <SelectItem value="admin">Administrador</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button 
-                          variant="outline"
-                          size="sm"
-                          onClick={() => rejectUser(u.id)}
-                          className="rounded-lg text-red-600 hover:bg-red-50"
-                        >
-                          <UserX className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Search Users */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <Input
-                placeholder="Pesquisar usuário..."
-                value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-                className="pl-10 rounded-xl"
-              />
-            </div>
-
-            {/* All Users */}
-            <Card className="rounded-xl">
-              <CardHeader>
-                <CardTitle className="text-lg">Todos os Usuários ({users.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px]">
-                  <div className="space-y-3">
-                    {filteredUsers.map((u) => (
-                      <div key={u.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                        <div className="flex items-center gap-3">
-                          <Avatar>
-                            <AvatarImage src={u.profile_photo} />
-                            <AvatarFallback className="bg-[#0056ff] text-white">
-                              {u.full_name?.[0] || u.email?.[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium text-slate-800">{u.full_name || 'Sem nome'}</p>
-                            <p className="text-sm text-slate-500">{u.email}</p>
-                            <div className="flex gap-2 mt-1">
-                              <Badge className={
-                                u.subscription_type === 'admin' ? 'bg-purple-100 text-purple-700' :
-                                u.subscription_type === 'premium' ? 'bg-green-100 text-green-700' :
-                                u.subscription_type === 'basic' ? 'bg-blue-100 text-blue-700' :
-                                'bg-slate-100 text-slate-600'
-                              }>
-                                {u.subscription_type === 'admin' ? 'Admin' :
-                                 u.subscription_type === 'premium' ? 'Premium' :
-                                 u.subscription_type === 'basic' ? 'Básico' :
-                                 'Visitante'}
-                              </Badge>
-                              <Badge className={
-                                u.access_status === 'approved' ? 'bg-green-100 text-green-700' :
-                                u.access_status === 'rejected' ? 'bg-red-100 text-red-700' :
-                                'bg-amber-100 text-amber-700'
-                              }>
-                                {u.access_status === 'approved' ? 'Aprovado' :
-                                 u.access_status === 'rejected' ? 'Rejeitado' :
-                                 'Pendente'}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <Select 
-                          value={u.subscription_type || 'visitor'}
-                          onValueChange={(type) => updateUserMutation.mutate({ 
-                            id: u.id, 
-                            data: { 
-                              subscription_type: type,
-                              access_status: 'approved'
-                            } 
-                          })}
-                        >
-                          <SelectTrigger className="w-36 rounded-lg">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="visitor">Visitante</SelectItem>
-                            <SelectItem value="basic">Básico</SelectItem>
-                            <SelectItem value="premium">Premium</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           {/* Community Tab */}
@@ -1497,19 +1349,184 @@ IMPORTANTE:
             <ViewsMap />
           </TabsContent>
 
-          {/* Premium Codes Tab */}
-          <TabsContent value="codes">
-            <PremiumCodesManager showToast={showToast} />
-          </TabsContent>
+          {/* Settings Tab - Contains Users, Codes, Payments, Chat */}
+          <TabsContent value="settings" className="space-y-6">
+            <Tabs defaultValue="users" className="space-y-4">
+              <TabsList className="bg-slate-100 rounded-xl p-1">
+                <TabsTrigger value="users" className="rounded-lg">
+                  <Users className="w-4 h-4 mr-2" />
+                  Usuários
+                  {pendingUsers.length > 0 && (
+                    <Badge className="ml-2 bg-amber-500 text-white border-0 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                      {pendingUsers.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="codes" className="rounded-lg">
+                  <Key className="w-4 h-4 mr-2" />
+                  Códigos
+                </TabsTrigger>
+                <TabsTrigger value="payments" className="rounded-lg">
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Pagamentos
+                </TabsTrigger>
+                <TabsTrigger value="chat" className="rounded-lg">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Chat
+                </TabsTrigger>
+              </TabsList>
 
-          {/* Payments Tab */}
-          <TabsContent value="payments">
-            <PaymentsManager showToast={showToast} />
-          </TabsContent>
+              {/* Users Sub-Tab */}
+              <TabsContent value="users" className="space-y-6">
+                {/* Pending Users */}
+                {pendingUsers.length > 0 && (
+                  <Card className="rounded-xl border-amber-200 bg-amber-50">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2 text-amber-800">
+                        <Clock className="w-5 h-5" />
+                        Usuários Pendentes ({pendingUsers.length})
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {pendingUsers.map((u) => (
+                        <div key={u.id} className="flex items-center justify-between p-4 bg-white rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarImage src={u.profile_photo} />
+                              <AvatarFallback className="bg-amber-200 text-amber-700">
+                                {u.full_name?.[0] || u.email?.[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium text-slate-800">{u.full_name || 'Sem nome'}</p>
+                              <p className="text-sm text-slate-500">{u.email}</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Select onValueChange={(type) => approveUser(u.id, type)}>
+                              <SelectTrigger className="w-40 rounded-lg">
+                                <SelectValue placeholder="Aprovar como..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="visitor">Visitante</SelectItem>
+                                <SelectItem value="basic">Membro Básico</SelectItem>
+                                <SelectItem value="premium">Membro Premium</SelectItem>
+                                <SelectItem value="admin">Administrador</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Button 
+                              variant="outline"
+                              size="sm"
+                              onClick={() => rejectUser(u.id)}
+                              className="rounded-lg text-red-600 hover:bg-red-50"
+                            >
+                              <UserX className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
 
-          {/* Chat Tab */}
-          <TabsContent value="chat">
-            <ChatManager showToast={showToast} />
+                {/* Search Users */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Input
+                    placeholder="Pesquisar usuário..."
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    className="pl-10 rounded-xl"
+                  />
+                </div>
+
+                {/* All Users */}
+                <Card className="rounded-xl">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Todos os Usuários ({users.length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="h-[400px]">
+                      <div className="space-y-3">
+                        {filteredUsers.map((u) => (
+                          <div key={u.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                            <div className="flex items-center gap-3">
+                              <Avatar>
+                                <AvatarImage src={u.profile_photo} />
+                                <AvatarFallback className="bg-[#0056ff] text-white">
+                                  {u.full_name?.[0] || u.email?.[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium text-slate-800">{u.full_name || 'Sem nome'}</p>
+                                <p className="text-sm text-slate-500">{u.email}</p>
+                                <div className="flex gap-2 mt-1">
+                                  <Badge className={
+                                    u.subscription_type === 'admin' ? 'bg-purple-100 text-purple-700' :
+                                    u.subscription_type === 'premium' ? 'bg-green-100 text-green-700' :
+                                    u.subscription_type === 'basic' ? 'bg-blue-100 text-blue-700' :
+                                    'bg-slate-100 text-slate-600'
+                                  }>
+                                    {u.subscription_type === 'admin' ? 'Admin' :
+                                     u.subscription_type === 'premium' ? 'Premium' :
+                                     u.subscription_type === 'basic' ? 'Básico' :
+                                     'Visitante'}
+                                  </Badge>
+                                  <Badge className={
+                                    u.access_status === 'approved' ? 'bg-green-100 text-green-700' :
+                                    u.access_status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                    'bg-amber-100 text-amber-700'
+                                  }>
+                                    {u.access_status === 'approved' ? 'Aprovado' :
+                                     u.access_status === 'rejected' ? 'Rejeitado' :
+                                     'Pendente'}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+                            <Select 
+                              value={u.subscription_type || 'visitor'}
+                              onValueChange={(type) => updateUserMutation.mutate({ 
+                                id: u.id, 
+                                data: { 
+                                  subscription_type: type,
+                                  access_status: 'approved'
+                                } 
+                              })}
+                            >
+                              <SelectTrigger className="w-36 rounded-lg">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="visitor">Visitante</SelectItem>
+                                <SelectItem value="basic">Básico</SelectItem>
+                                <SelectItem value="premium">Premium</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Codes Sub-Tab */}
+              <TabsContent value="codes">
+                <PremiumCodesManager showToast={showToast} />
+              </TabsContent>
+
+              {/* Payments Sub-Tab */}
+              <TabsContent value="payments">
+                <PaymentsManager showToast={showToast} />
+              </TabsContent>
+
+              {/* Chat Sub-Tab */}
+              <TabsContent value="chat">
+                <ChatManager showToast={showToast} />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
         </Tabs>
       </div>
