@@ -17,6 +17,27 @@ export default function Layout({ children, currentPageName }) {
 
   // Pages that don't need layout
   const noLayoutPages = ['Splash', 'Login', 'Register'];
+
+  // Esconder botão Base44 edit no modo produção/APK
+  useEffect(() => {
+    const hideBase44Button = () => {
+      const buttons = document.querySelectorAll('[data-base44-edit], .base44-edit-button, [class*="base44"]');
+      buttons.forEach(btn => {
+        if (btn.textContent?.includes('Edit') || btn.textContent?.includes('Base44')) {
+          btn.style.display = 'none';
+        }
+      });
+      // Esconder iframe de edição se existir
+      const iframes = document.querySelectorAll('iframe[src*="base44"]');
+      iframes.forEach(iframe => iframe.style.display = 'none');
+    };
+    
+    hideBase44Button();
+    const observer = new MutationObserver(hideBase44Button);
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    return () => observer.disconnect();
+  }, []);
   
   useEffect(() => {
     const checkAuth = async () => {
