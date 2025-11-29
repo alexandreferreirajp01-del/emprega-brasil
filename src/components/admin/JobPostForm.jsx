@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Image, Upload, Loader2, Save, X, Crown, Sparkles, Camera, FileText, CheckCircle
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { base44 } from "@/api/base44Client";
 
 const JOB_FUNCTIONS = [
