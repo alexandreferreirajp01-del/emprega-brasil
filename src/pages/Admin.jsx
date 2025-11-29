@@ -325,25 +325,18 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Toast */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: -50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -50, scale: 0.9 }}
-            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl ${
-              toast.type === 'error' 
-                ? 'bg-gradient-to-r from-red-500 to-red-600 text-white' 
-                : 'bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5" />
-              <span className="font-medium">{toast.message}</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {toast && (
+        <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl animate-fade-in ${
+          toast.type === 'error' 
+            ? 'bg-gradient-to-r from-red-500 to-red-600 text-white' 
+            : 'bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white'
+        }`}>
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-5 h-5" />
+            <span className="font-medium">{toast.message}</span>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-8 px-4">
@@ -419,24 +412,22 @@ export default function Admin() {
               </div>
             )}
 
-            <AnimatePresence>
-              {showJobForm && (
-                <JobPostForm
-                  cities={cities}
-                  editingJob={editingJob}
-                  onSubmit={(jobData) => {
-                    if (editingJob) {
-                      updateJobMutation.mutate({ id: editingJob.id, data: jobData });
-                    } else {
-                      createJobMutation.mutate(jobData);
-                    }
-                  }}
-                  onCancel={resetJobForm}
-                  isSubmitting={createJobMutation.isPending || updateJobMutation.isPending}
-                  showToast={showToast}
-                />
-              )}
-            </AnimatePresence>
+            {showJobForm && (
+              <JobPostForm
+                cities={cities}
+                editingJob={editingJob}
+                onSubmit={(jobData) => {
+                  if (editingJob) {
+                    updateJobMutation.mutate({ id: editingJob.id, data: jobData });
+                  } else {
+                    createJobMutation.mutate(jobData);
+                  }
+                }}
+                onCancel={resetJobForm}
+                isSubmitting={createJobMutation.isPending || updateJobMutation.isPending}
+                showToast={showToast}
+              />
+            )}
 
             {/* Jobs List */}
             <div className="space-y-4">
@@ -671,14 +662,9 @@ export default function Admin() {
               </Button>
             )}
 
-            <AnimatePresence>
-              {showNewsForm && (
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  <Card className="shadow-lg rounded-2xl">
+            {showNewsForm && (
+              <div className="animate-fade-in">
+                <Card className="shadow-lg rounded-2xl">
                     <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle>Nova Notícia</CardTitle>
                       <Button variant="ghost" size="icon" onClick={() => setShowNewsForm(false)}>
@@ -826,9 +812,8 @@ export default function Admin() {
                       </form>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
 
             {/* News List */}
             <Card className="rounded-xl">
