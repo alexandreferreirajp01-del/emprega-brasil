@@ -127,7 +127,13 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* PWA/APK Meta Tags */}
+      {/* PWA/APK Meta Tags - Injeta no head */}
+      <meta name="mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      <meta name="theme-color" content="#0056ff" />
+      <meta name="application-name" content="Vagas Abertas PB" />
+      <meta name="apple-mobile-web-app-title" content="Vagas Abertas PB" />
       <style>{`
         /* Safe area para notch de celulares */
         :root {
