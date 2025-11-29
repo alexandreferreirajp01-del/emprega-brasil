@@ -166,18 +166,18 @@ export default function Parcerias() {
           transition={{ delay: 0.5 }}
           className="mt-8"
         >
-          <Card className="bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-amber-500/30 rounded-3xl">
+          <Card className="bg-white/15 border-white/30 rounded-3xl">
             <CardContent className="p-6 text-center">
               <h3 className="text-2xl font-bold text-white mb-4">
                 🚀 Encontre o candidato ideal hoje!
               </h3>
-              <p className="text-slate-300 mb-6 leading-relaxed">
-                Sua vaga divulgada para <strong className="text-amber-400">milhares de candidatos qualificados</strong> na Paraíba. 
+              <p className="text-white/80 mb-6 leading-relaxed">
+                Sua vaga divulgada para <strong className="text-white">milhares de candidatos qualificados</strong> na Paraíba. 
                 Com nosso alcance massivo, você encontra o profissional perfeito em tempo recorde!
               </p>
-              <div className="bg-slate-800/50 rounded-2xl p-4 mb-6">
-                <p className="text-sm text-slate-400 mb-2">✨ Processo simples:</p>
-                <ol className="text-left text-slate-300 text-sm space-y-2">
+              <div className="bg-white/10 rounded-2xl p-4 mb-6">
+                <p className="text-sm text-white/70 mb-2">✨ Processo simples:</p>
+                <ol className="text-left text-white/80 text-sm space-y-2">
                   <li>1️⃣ Escolha o pacote ideal</li>
                   <li>2️⃣ Faça o pagamento via PIX</li>
                   <li>3️⃣ Envie o comprovante + criativos da vaga via WhatsApp</li>
