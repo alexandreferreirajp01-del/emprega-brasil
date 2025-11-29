@@ -26,7 +26,7 @@ import ViewsMap from "@/components/admin/ViewsMap";
 import PremiumCodesManager from "@/components/admin/PremiumCodesManager";
 import PaymentsManager from "@/components/admin/PaymentsManager";
 import ChatManager from "@/components/admin/ChatManager";
-import JobPostForm from "@/components/admin/JobPostForm";
+
 
 const JOB_FUNCTIONS = [
   "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
@@ -48,8 +48,7 @@ export default function Admin() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState(null);
-  const [editingJob, setEditingJob] = useState(null);
-  const [showJobForm, setShowJobForm] = useState(false);
+
   const [newCity, setNewCity] = useState('');
   const [userSearch, setUserSearch] = useState('');
   const [citySearch, setCitySearch] = useState('');
@@ -161,27 +160,6 @@ export default function Admin() {
     },
   });
 
-  // Job Mutations
-  const createJobMutation = useMutation({
-    mutationFn: (data) => base44.entities.Job.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-jobs'] });
-      resetJobForm();
-      showToast('Vaga criada com sucesso!');
-    },
-    onError: () => showToast('Erro ao criar vaga', 'error')
-  });
-
-  const updateJobMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Job.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-jobs'] });
-      resetJobForm();
-      showToast('Vaga atualizada com sucesso!');
-    },
-    onError: () => showToast('Erro ao atualizar vaga', 'error')
-  });
-
   const deleteJobMutation = useMutation({
     mutationFn: (id) => base44.entities.Job.delete(id),
     onSuccess: () => {
@@ -272,16 +250,6 @@ export default function Admin() {
       showToast('Notícia excluída!');
     },
   });
-
-  const resetJobForm = () => {
-    setEditingJob(null);
-    setShowJobForm(false);
-  };
-
-  const handleEditJob = (job) => {
-    setEditingJob(job);
-    setShowJobForm(true);
-  };
 
   const approveUser = (userId, subscriptionType = 'basic') => {
     updateUserMutation.mutate({
@@ -400,35 +368,6 @@ export default function Admin() {
 
           {/* Jobs Tab */}
           <TabsContent value="jobs" className="space-y-6">
-            {!showJobForm && (
-              <div className="flex gap-3">
-                <Button 
-                  onClick={() => setShowJobForm(true)}
-                  className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
-                >
-                  <Plus className="w-5 h-5 mr-2" />
-                  Nova Vaga
-                </Button>
-              </div>
-            )}
-
-            {showJobForm && (
-              <JobPostForm
-                cities={cities}
-                editingJob={editingJob}
-                onSubmit={(jobData) => {
-                  if (editingJob) {
-                    updateJobMutation.mutate({ id: editingJob.id, data: jobData });
-                  } else {
-                    createJobMutation.mutate(jobData);
-                  }
-                }}
-                onCancel={resetJobForm}
-                isSubmitting={createJobMutation.isPending || updateJobMutation.isPending}
-                showToast={showToast}
-              />
-            )}
-
             {/* Jobs List */}
             <div className="space-y-4">
               <h3 className="font-semibold text-slate-800">Vagas Cadastradas ({jobs.length})</h3>
@@ -458,14 +397,7 @@ export default function Admin() {
                         </p>
                       </div>
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleEditJob(job)}
-                          className="rounded-lg"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
+
                         <Button 
                           variant="outline" 
                           size="sm" 
