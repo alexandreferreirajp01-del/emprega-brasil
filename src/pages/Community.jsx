@@ -12,11 +12,14 @@ import { Link } from "react-router-dom";
 import CreatePostForm from "@/components/community/CreatePostForm";
 import PostCard from "@/components/community/PostCard";
 import TrendingSection from "@/components/community/TrendingSection";
+import LikesList from "@/components/community/LikesList";
 
 export default function Community() {
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
   const [toast, setToast] = useState(null);
+  const [showLikesModal, setShowLikesModal] = useState(false);
+  const [selectedPostLikes, setSelectedPostLikes] = useState([]);
   const queryClient = useQueryClient();
 
   const showToast = (message, type = 'success') => {
@@ -101,6 +104,17 @@ export default function Community() {
     },
   });
 
+  const { data: users = [] } = useQuery({
+    queryKey: ['community-users'],
+    queryFn: async () => {
+      try {
+        return await base44.entities.User.list('full_name', 500) || [];
+      } catch (e) {
+        return [];
+      }
+    },
+  });
+
   const createPostMutation = useMutation({
     mutationFn: (data) => base44.entities.Post.create(data),
     onSuccess: () => {
@@ -167,6 +181,12 @@ export default function Community() {
     if (confirm('Tem certeza que deseja excluir este post?')) {
       deletePostMutation.mutate(postId);
     }
+  };
+
+  const handleShowLikes = (postId) => {
+    const postLikes = likes.filter(l => l.post_id === postId);
+    setSelectedPostLikes(postLikes);
+    setShowLikesModal(true);
   };
 
   return (
@@ -305,10 +325,12 @@ export default function Community() {
                       post={post}
                       comments={comments}
                       likes={likes}
+                      users={users}
                       currentUser={user}
                       onLike={handleLike}
                       onComment={handleComment}
                       onDelete={handleDeletePost}
+                      onShowLikes={handleShowLikes}
                       isAdmin={isAdmin}
                     />
                   </motion.div>
@@ -331,6 +353,14 @@ export default function Community() {
           </div>
         </div>
       </div>
+
+      {/* Likes Modal */}
+      <LikesList 
+        isOpen={showLikesModal}
+        onClose={() => setShowLikesModal(false)}
+        likes={selectedPostLikes}
+        users={users}
+      />
     </div>
   );
 }

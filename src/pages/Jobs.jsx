@@ -182,6 +182,10 @@ export default function Jobs() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="h-11 pl-10 rounded-lg border-0 bg-slate-50"
+                autoComplete="off"
+                autoFocus={false}
+                inputMode="search"
+                enterKeyHint="search"
               />
             </div>
           </div>
