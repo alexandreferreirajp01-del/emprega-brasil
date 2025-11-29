@@ -16,11 +16,13 @@ export default function PostCard({
   post, 
   comments = [], 
   likes = [], 
+  users = [],
   currentUser, 
   onLike, 
   onComment, 
   onDelete,
   onMention,
+  onShowLikes,
   isAdmin = false 
 }) {
   const [showComments, setShowComments] = useState(false);
@@ -186,12 +188,15 @@ export default function PostCard({
         {(postLikes > 0 || postComments.length > 0) && (
           <div className="px-4 py-2 flex items-center justify-between text-sm text-slate-500 border-t">
             {postLikes > 0 && (
-              <div className="flex items-center gap-1">
+              <button 
+                onClick={() => onShowLikes && onShowLikes(post.id)}
+                className="flex items-center gap-1 hover:underline"
+              >
                 <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center">
                   <Heart className="w-3 h-3 text-white fill-white" />
                 </div>
-                <span>{postLikes}</span>
-              </div>
+                <span>{postLikes} {postLikes === 1 ? 'pessoa' : 'pessoas'}</span>
+              </button>
             )}
             {postComments.length > 0 && (
               <button 
