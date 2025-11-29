@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { 
   Loader2, Lock, CheckCircle, Users
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
