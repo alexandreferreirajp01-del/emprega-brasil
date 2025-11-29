@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Filter, Lock, Star, ChevronDown, X, Eye, ChevronRight
+  Filter, Lock, Star, X, Eye, ChevronRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -15,7 +14,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { formatLocationWithCity } from "@/components/common/NeighborhoodCityMap";
 import { formatRelativeDate } from "@/components/common/ClickableContent";
-import FloatingSearchModal from "@/components/common/FloatingSearchModal";
+import FloatingSearchKeyboard from "@/components/common/FloatingSearchKeyboard";
 
 const JOB_FUNCTIONS = [
   "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
@@ -38,10 +37,10 @@ export default function Jobs() {
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedFunction, setSelectedFunction] = useState('all');
+  const [showCityKeyboard, setShowCityKeyboard] = useState(false);
+  const [showFunctionKeyboard, setShowFunctionKeyboard] = useState(false);
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
-  const [showCityModal, setShowCityModal] = useState(false);
-  const [showFunctionModal, setShowFunctionModal] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -149,7 +148,13 @@ export default function Jobs() {
     return (a.name || '').localeCompare(b.name || '', 'pt-BR');
   });
 
-  const cityNames = sortedCities.map(c => c.name).filter(Boolean);
+  const filteredCities = sortedCities.filter(city => 
+    city.name?.toLowerCase().includes(citySearch.toLowerCase())
+  );
+
+  const filteredFunctions = JOB_FUNCTIONS.filter(func =>
+    func.toLowerCase().includes(functionSearch.toLowerCase())
+  );
 
   const clearFilters = () => {
     setSearchTerm('');
