@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Heart, MessageCircle, Send, MoreHorizontal, Trash2, Flag, Share2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -246,14 +246,8 @@ export default function PostCard({
         </div>
 
         {/* Comments Section */}
-        <AnimatePresence>
-          {showComments && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="bg-slate-50"
-            >
+        {showComments && (
+          <div className="bg-slate-50">
               {/* Comment Input */}
               {currentUser && (
                 <div className="p-4 border-b relative">
@@ -320,9 +314,8 @@ export default function PostCard({
                   ))
                 )}
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
       </CardContent>
     </Card>
   );
