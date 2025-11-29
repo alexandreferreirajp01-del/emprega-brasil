@@ -195,39 +195,39 @@ export default function Parcerias() {
           transition={{ delay: 0.6 }}
           className="mt-8"
         >
-          <Card className="bg-slate-800/50 border-slate-700 rounded-3xl">
+          <Card className="bg-white/10 border-white/20 rounded-3xl">
             <CardHeader>
               <CardTitle className="text-lg text-white text-center">Formas de Pagamento</CardTitle>
             </CardHeader>
             <CardContent className="p-6 pt-0">
-              <div className="bg-slate-700/50 rounded-2xl p-4 mb-4">
-                <p className="text-sm text-slate-400 mb-2">Chave PIX (CNPJ):</p>
+              <div className="bg-white/10 rounded-2xl p-4 mb-4">
+                <p className="text-sm text-white/70 mb-2">Chave PIX (CNPJ):</p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-slate-800 text-amber-400 p-3 rounded-xl font-mono text-lg">
+                  <code className="flex-1 bg-white/20 text-white p-3 rounded-xl font-mono text-lg">
                     {PIX_CNPJ}
                   </code>
                   <Button 
                     onClick={copyPix}
                     variant="outline" 
-                    className="rounded-xl border-amber-500/50 text-amber-400 hover:bg-amber-500/20"
+                    className="rounded-xl border-white/50 text-white hover:bg-white/20"
                   >
                     {copiedPix ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                   </Button>
                 </div>
                 {copiedPix && (
-                  <p className="text-green-400 text-sm mt-2">✓ Chave PIX copiada!</p>
+                  <p className="text-green-300 text-sm mt-2">✓ Chave PIX copiada!</p>
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-4 text-slate-400 text-sm">
+              <div className="flex flex-wrap items-center justify-center gap-4 text-white/70 text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                     <span className="text-lg">💳</span>
                   </div>
                   <span>PIX</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                     <span className="text-lg">🏦</span>
                   </div>
                   <span>Transferência</span>
