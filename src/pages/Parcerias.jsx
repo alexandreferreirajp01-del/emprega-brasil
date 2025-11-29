@@ -143,15 +143,15 @@ export default function Parcerias() {
           transition={{ delay: 0.4 }}
           className="mt-8"
         >
-          <Card className="bg-slate-800/50 border-slate-700 rounded-3xl">
+          <Card className="bg-white/10 border-white/20 rounded-3xl">
             <CardContent className="p-6">
               <div className="space-y-4">
                 {beneficios.map((beneficio, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Check className="w-4 h-4 text-amber-900" />
+                    <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                      <Check className="w-4 h-4 text-[#0056ff]" />
                     </div>
-                    <span className="text-slate-200">{beneficio.text}</span>
+                    <span className="text-white/90">{beneficio.text}</span>
                   </div>
                 ))}
               </div>
