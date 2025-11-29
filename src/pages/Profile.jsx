@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
-  Shield, Calendar, Loader2, CheckCircle, Clock
+  Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -18,8 +18,9 @@ export default function Profile() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
-  const [photoFile, setPhotoFile] = useState(null);
+  const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -31,6 +32,10 @@ export default function Profile() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        setEditForm({
+          full_name: currentUser.full_name || '',
+          phone: currentUser.phone || ''
+        });
       } catch (e) {
         window.location.href = createPageUrl('Splash');
       } finally {
@@ -52,6 +57,27 @@ export default function Profile() {
       showToast('Foto atualizada com sucesso!');
     } catch (e) {
       showToast('Erro ao atualizar foto', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
+      await base44.auth.updateMe({
+        full_name: editForm.full_name,
+        phone: editForm.phone
+      });
+      setUser(prev => ({ 
+        ...prev, 
+        full_name: editForm.full_name,
+        phone: editForm.phone
+      }));
+      setIsEditing(false);
+      showToast('Perfil atualizado com sucesso!');
+    } catch (e) {
+      showToast('Erro ao atualizar perfil', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -175,40 +201,96 @@ export default function Profile() {
                 {getSubscriptionBadge()}
               </div>
 
-              {/* User Info */}
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                  <Mail className="w-5 h-5 text-slate-400" />
-                  <div>
-                    <p className="text-sm text-slate-500">E-mail</p>
-                    <p className="font-medium text-slate-800">{user?.email || 'Não informado'}</p>
+              {/* User Info - Editable */}
+              {isEditing ? (
+                <div className="space-y-4 mb-8">
+                  <div className="space-y-2">
+                    <Label>Nome Completo</Label>
+                    <Input
+                      value={editForm.full_name}
+                      onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                      placeholder="Seu nome completo"
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Telefone</Label>
+                    <Input
+                      value={editForm.phone}
+                      onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                      placeholder="(00) 00000-0000"
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <Button 
+                      onClick={handleSaveProfile}
+                      disabled={isSaving}
+                      className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl flex-1"
+                    >
+                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                      Salvar
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setIsEditing(false);
+                        setEditForm({
+                          full_name: user?.full_name || '',
+                          phone: user?.phone || ''
+                        });
+                      }}
+                      className="rounded-xl"
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Cancelar
+                    </Button>
                   </div>
                 </div>
+              ) : (
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                    <Mail className="w-5 h-5 text-slate-400" />
+                    <div className="flex-1">
+                      <p className="text-sm text-slate-500">E-mail</p>
+                      <p className="font-medium text-slate-800">{user?.email || 'Não informado'}</p>
+                    </div>
+                  </div>
 
-                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                  <Phone className="w-5 h-5 text-slate-400" />
-                  <div>
-                    <p className="text-sm text-slate-500">Telefone</p>
-                    <p className="font-medium text-slate-800">{user?.phone || 'Não informado'}</p>
+                  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                    <Phone className="w-5 h-5 text-slate-400" />
+                    <div className="flex-1">
+                      <p className="text-sm text-slate-500">Telefone</p>
+                      <p className="font-medium text-slate-800">{user?.phone || 'Não informado'}</p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                  <Calendar className="w-5 h-5 text-slate-400" />
-                  <div>
-                    <p className="text-sm text-slate-500">Membro desde</p>
-                    <p className="font-medium text-slate-800">
-                      {user?.created_date 
-                        ? new Date(user.created_date).toLocaleDateString('pt-BR', { 
-                            day: '2-digit', 
-                            month: 'long', 
-                            year: 'numeric' 
-                          })
-                        : 'Não informado'}
-                    </p>
+                  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                    <Calendar className="w-5 h-5 text-slate-400" />
+                    <div className="flex-1">
+                      <p className="text-sm text-slate-500">Membro desde</p>
+                      <p className="font-medium text-slate-800">
+                        {user?.created_date 
+                          ? new Date(user.created_date).toLocaleDateString('pt-BR', { 
+                              day: '2-digit', 
+                              month: 'long', 
+                              year: 'numeric' 
+                            })
+                          : 'Não informado'}
+                      </p>
+                    </div>
                   </div>
+
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsEditing(true)}
+                    className="w-full rounded-xl"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Editar Perfil
+                  </Button>
                 </div>
-              </div>
+              )}
 
               {/* Actions */}
               <div className="space-y-3">
