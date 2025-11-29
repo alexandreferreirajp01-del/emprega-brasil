@@ -149,13 +149,7 @@ export default function Jobs() {
     return (a.name || '').localeCompare(b.name || '', 'pt-BR');
   });
 
-  const filteredCities = sortedCities.filter(city => 
-    city.name?.toLowerCase().includes(citySearch.toLowerCase())
-  );
-
-  const filteredFunctions = JOB_FUNCTIONS.filter(func =>
-    func.toLowerCase().includes(functionSearch.toLowerCase())
-  );
+  const cityNames = sortedCities.map(c => c.name).filter(Boolean);
 
   const clearFilters = () => {
     setSearchTerm('');
