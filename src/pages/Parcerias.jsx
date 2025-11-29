@@ -125,7 +125,7 @@ export default function Parcerias() {
             <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
               <Phone className="w-6 h-6 text-white" />
             </div>
-            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-400 rounded-xl flex items-center justify-center">
               <Send className="w-6 h-6 text-white" />
             </div>
             <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
@@ -166,7 +166,7 @@ export default function Parcerias() {
           transition={{ delay: 0.5 }}
           className="mt-8"
         >
-          <Card className="bg-white/15 border-white/30 rounded-3xl">
+          <Card className="bg-gradient-to-br from-white/20 to-white/10 border-white/30 rounded-3xl">
             <CardContent className="p-6 text-center">
               <h3 className="text-2xl font-bold text-white mb-4">
                 🚀 Encontre o candidato ideal hoje!
@@ -209,7 +209,7 @@ export default function Parcerias() {
                   <Button 
                     onClick={copyPix}
                     variant="outline" 
-                    className="rounded-xl border-white/50 text-white hover:bg-white/20"
+                    className="rounded-xl border-white/50 text-white hover:bg-white/20 bg-transparent"
                   >
                     {copiedPix ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                   </Button>
@@ -251,7 +251,7 @@ export default function Parcerias() {
             <MessageCircle className="w-6 h-6 mr-3" />
             Falar com Consultor via WhatsApp
           </Button>
-          <p className="text-center text-slate-400 text-sm mt-4">
+          <p className="text-center text-white/60 text-sm mt-4">
             Após o pagamento, envie o comprovante e os criativos da vaga pelo WhatsApp
           </p>
         </motion.div>
