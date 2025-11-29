@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 // Função de data local para evitar dependências
@@ -266,18 +266,11 @@ export default function Jobs() {
           </div>
         ) : (
           <div className="space-y-4">
-            <AnimatePresence>
-              {filteredJobs.map((job, index) => (
-                <motion.div
-                  key={job.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(index * 0.02, 0.3) }}
-                >
-                  <JobCard job={job} canView={canViewJob(job)} viewCount={viewsCountMap[job.id] || 0} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            {filteredJobs.map((job) => (
+              <div key={job.id}>
+                <JobCard job={job} canView={canViewJob(job)} viewCount={viewsCountMap[job.id] || 0} />
+              </div>
+            ))}
           </div>
         )}
 
