@@ -347,7 +347,7 @@ export default function Admin() {
     }
   };
 
-  // Upload e extração de dados da imagem
+  // Upload e extração de dados da imagem com IA
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -365,80 +365,126 @@ export default function Admin() {
 
       if (!fileUrl) {
         showToast('Erro no upload da imagem', 'error');
+        setUploadingImage(false);
+        setExtractingData(false);
         return;
       }
 
       // Salvar a imagem imediatamente
       setJobForm(prev => ({ ...prev, image_url: fileUrl }));
-      showToast('Imagem carregada! Extraindo dados...');
+      showToast('Imagem carregada! Extraindo dados com IA...');
 
-      // Tentar extrair dados da imagem usando LLM
-      try {
-        const extractedData = await base44.integrations.Core.InvokeLLM({
-          prompt: `Você é um especialista em extrair informações de imagens de vagas de emprego no Brasil.
+      // Extrair dados da imagem usando LLM
+      const extractedData = await base44.integrations.Core.InvokeLLM({
+        prompt: `Você é um especialista em extrair informações de imagens de vagas de emprego no Brasil, especialmente da Paraíba.
 
-TAREFA: Analise cuidadosamente esta imagem e extraia TODAS as informações visíveis sobre a vaga de emprego.
+TAREFA CRÍTICA: Analise esta imagem de vaga de emprego e extraia TODAS as informações visíveis. Leia cada palavra, cada número, cada detalhe.
 
-CAMPOS A EXTRAIR:
-1. TÍTULO/CARGO: O nome da vaga ou função (ex: Vendedor, Auxiliar Administrativo, Recepcionista)
-2. EMPRESA: Nome da empresa contratante (se visível)
-3. LOCALIZAÇÃO: Cidade, bairro ou região. Se for bairro da Paraíba, identifique a cidade:
-   - Mangabeira, Manaíra, Tambaú, Bancários, Cristo = João Pessoa
-   - Intermares, Camboinha = Cabedelo
-   - Catolé, Bodocongó = Campina Grande
-4. SALÁRIO: Valor ou faixa salarial mencionada
-5. TIPO DE CONTRATO: Identifique entre: CLT, Estágio, Home Office, Jovem Aprendiz, Temporário, Freelancer, PJ
-6. DESCRIÇÃO: Transcreva TODAS as informações da vaga incluindo:
-   - Requisitos e qualificações
-   - Benefícios oferecidos
+CAMPOS A EXTRAIR (preencha todos que encontrar):
+
+1. TÍTULO/CARGO (title): O nome exato da vaga ou função. Ex: "Vendedor", "Auxiliar Administrativo", "Recepcionista", "Motorista"
+
+2. EMPRESA (company): Nome completo da empresa. Se não houver, deixe vazio.
+
+3. CIDADE (city): Identifique a cidade da Paraíba. Use estas referências:
+   - Bairros de João Pessoa: Mangabeira, Manaíra, Tambaú, Bancários, Cristo, Bessa, Cabo Branco, Valentina, Geisel, Funcionários, Centro, Torre, Jaguaribe
+   - Bairros de Cabedelo: Intermares, Camboinha, Poço
+   - Bairros de Campina Grande: Catolé, Bodocongó, Liberdade, Centro, Malvinas
+   - Se mencionar bairro, identifique a cidade correta
+
+4. FAIXA SALARIAL (salary_range): Qualquer valor monetário mencionado. Ex: "R$ 1.500", "1.500 a 2.000", "A combinar"
+
+5. TIPO DE CONTRATO (job_type): Classifique entre: "CLT", "Estágio", "Home Office", "Jovem Aprendiz", "Temporário", "Freelancer", "PJ"
+   - Se mencionar carteira assinada = CLT
+   - Se mencionar trabalho remoto/casa = Home Office
+   - Se for para menor aprendiz = Jovem Aprendiz
+
+6. FUNÇÃO (job_function): Escolha a função mais próxima desta lista:
+   "Vendedor interno", "Vendedor externo", "Recepcionista", "Auxiliar administrativo", "Assistente administrativo", 
+   "Cozinheiro", "Auxiliar de cozinha", "Garçom", "Atendente de lanchonete", "Motorista de aplicativo", "Motoboy", 
+   "Entregador", "Estoquista", "Auxiliar de serviços gerais", "Porteiro", "Segurança", "Cabeleireiro", "Barbeiro",
+   "Manicure", "Enfermeiro", "Técnico de enfermagem", "Farmacêutico", "Professor", "Social media", "Designer gráfico",
+   "Programador front-end", "Programador back-end", "Suporte técnico", "Mecânico", "Eletricista", "Pedreiro", "Outros"
+
+7. DESCRIÇÃO COMPLETA (description): TRANSCREVA TODO O TEXTO visível na imagem, incluindo:
+   - Requisitos (experiência, escolaridade, habilidades)
+   - Benefícios (VT, VR, plano de saúde, etc)
    - Horário de trabalho
-   - Informações de contato (telefone, email, WhatsApp)
-   - Qualquer outra informação relevante
+   - Informações de contato (telefone, WhatsApp, email)
+   - Endereço ou local de trabalho
+   - Qualquer outra informação
 
-IMPORTANTE:
-- Seja preciso e extraia exatamente o que está escrito na imagem
-- Se não conseguir identificar algum campo, retorne string vazia ""
-- Para a descrição, inclua TODO o texto visível na imagem
-- Números de telefone devem ser extraídos corretamente`,
-          file_urls: [fileUrl],
-          response_json_schema: {
-            type: "object",
-            properties: {
-              title: { type: "string", description: "Título da vaga" },
-              company: { type: "string", description: "Nome da empresa" },
-              city: { type: "string", description: "Cidade" },
-              salary_range: { type: "string", description: "Faixa salarial" },
-              job_type: { type: "string", description: "Tipo de contrato" },
-              description: { type: "string", description: "Descrição completa" }
-            }
+8. INFORMAÇÕES ADICIONAIS (additional_info): Dados de contato, benefícios extras, observações
+
+9. LINK DE CANDIDATURA (application_link): Se houver link, email ou WhatsApp para candidatura
+
+REGRAS IMPORTANTES:
+- Extraia EXATAMENTE o que está escrito, não invente informações
+- Se um campo não estiver visível, retorne string vazia ""
+- Números de telefone devem ser no formato correto (ex: 83 99999-9999)
+- Para a descrição, seja MUITO detalhado - copie todo o texto da imagem`,
+        file_urls: [fileUrl],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            title: { type: "string", description: "Título/cargo da vaga" },
+            company: { type: "string", description: "Nome da empresa" },
+            city: { type: "string", description: "Cidade" },
+            salary_range: { type: "string", description: "Faixa salarial" },
+            job_type: { type: "string", description: "Tipo de contrato: CLT, Estágio, Home Office, Jovem Aprendiz, Temporário, Freelancer, PJ" },
+            job_function: { type: "string", description: "Função/cargo específico" },
+            description: { type: "string", description: "Descrição completa da vaga" },
+            additional_info: { type: "string", description: "Informações adicionais, benefícios, contatos" },
+            application_link: { type: "string", description: "Link, email ou WhatsApp para candidatura" }
           }
-        });
-
-        console.log('Dados extraídos:', extractedData);
-
-        // Preencher o formulário com os dados extraídos
-        if (extractedData && typeof extractedData === 'object') {
-          setJobForm(prev => ({
-            ...prev,
-            title: extractedData.title || prev.title,
-            company: extractedData.company || prev.company,
-            city: extractedData.city || prev.city,
-            salary_range: extractedData.salary_range || prev.salary_range,
-            job_type: extractedData.job_type || prev.job_type,
-            description: extractedData.description || prev.description,
-            image_url: fileUrl
-          }));
-          showToast('Dados extraídos com sucesso!');
-        } else {
-          showToast('Imagem salva! Preencha os dados manualmente.');
         }
-      } catch (extractError) {
-        console.error('Erro na extração:', extractError);
+      });
+
+      console.log('Dados extraídos pela IA:', extractedData);
+
+      // Preencher o formulário com os dados extraídos
+      if (extractedData && typeof extractedData === 'object') {
+        // Normalizar tipo de contrato
+        let normalizedJobType = extractedData.job_type || '';
+        const jobTypeMap = {
+          'clt': 'CLT',
+          'carteira assinada': 'CLT',
+          'estagio': 'Estágio',
+          'estágio': 'Estágio',
+          'home office': 'Home Office',
+          'remoto': 'Home Office',
+          'jovem aprendiz': 'Jovem Aprendiz',
+          'aprendiz': 'Jovem Aprendiz',
+          'temporario': 'Temporário',
+          'temporário': 'Temporário',
+          'freelancer': 'Freelancer',
+          'freela': 'Freelancer',
+          'pj': 'PJ',
+          'pessoa juridica': 'PJ'
+        };
+        const lowerType = normalizedJobType.toLowerCase();
+        normalizedJobType = jobTypeMap[lowerType] || normalizedJobType;
+
+        setJobForm(prev => ({
+          ...prev,
+          title: extractedData.title || prev.title,
+          company: extractedData.company || prev.company,
+          city: extractedData.city || prev.city,
+          salary_range: extractedData.salary_range || prev.salary_range,
+          job_type: normalizedJobType || prev.job_type,
+          job_function: extractedData.job_function || prev.job_function,
+          description: extractedData.description || prev.description,
+          additional_info: extractedData.additional_info || prev.additional_info,
+          application_link: extractedData.application_link || prev.application_link,
+          image_url: fileUrl
+        }));
+        showToast('✅ Dados extraídos com sucesso! Revise e publique.');
+      } else {
         showToast('Imagem salva! Preencha os dados manualmente.');
       }
     } catch (error) {
       console.error('Erro ao processar imagem:', error);
-      showToast('Erro no upload da imagem', 'error');
+      showToast('Erro ao processar imagem', 'error');
     } finally {
       setUploadingImage(false);
       setExtractingData(false);
