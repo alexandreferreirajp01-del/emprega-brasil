@@ -106,73 +106,73 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-8 pb-16 px-4 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-6 sm:pt-8 pb-12 sm:pb-16 px-3 sm:px-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-60 h-60 bg-white rounded-full blur-3xl"></div>
         </div>
         
         <div className="max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-8">
-            <Badge className="bg-white/20 text-white border-0 mb-4 px-4 py-1">
-              <Zap className="w-4 h-4 mr-2" />
-              +{jobs.length} vagas disponíveis
-            </Badge>
-            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              Encontre Sua Próxima<br />Oportunidade
-            </h1>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto mb-8">
-              A maior plataforma de empregos da Paraíba. Conectamos talentos às melhores oportunidades do mercado.
-            </p>
-            
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link to={createPageUrl('Jobs')}>
-                <Button className="h-14 px-8 text-lg bg-white text-[#0056ff] hover:bg-white/90 rounded-xl shadow-lg">
-                  <Search className="w-5 h-5 mr-2" />
-                  Buscar Vagas
-                </Button>
-              </Link>
-              {isVisitor && (
-                <Link to={createPageUrl('Splash')}>
-                  <Button variant="outline" className="h-14 px-8 text-lg border-white text-white hover:bg-white/10 rounded-xl">
-                    Criar Conta Grátis
-                  </Button>
-                </Link>
-              )}
-            </div>
-          </div>
+          <div className="text-center mb-6 sm:mb-8 px-2">
+                  <Badge className="bg-white/20 text-white border-0 mb-3 sm:mb-4 px-3 sm:px-4 py-1 text-xs sm:text-sm">
+                    <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    +{jobs.length} vagas disponíveis
+                  </Badge>
+                  <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-3 sm:mb-4 leading-tight">
+                    Encontre Sua Próxima<br />Oportunidade
+                  </h1>
+                  <p className="text-white/80 text-sm sm:text-lg max-w-2xl mx-auto mb-5 sm:mb-8 px-2">
+                    A maior plataforma de empregos da Paraíba.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
+                    <Link to={createPageUrl('Jobs')}>
+                      <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-white text-[#0056ff] hover:bg-white/90 rounded-xl shadow-lg w-full sm:w-auto">
+                        <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        Buscar Vagas
+                      </Button>
+                    </Link>
+                    {isVisitor && (
+                      <Link to={createPageUrl('Splash')}>
+                        <Button variant="outline" className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg border-white text-white hover:bg-white/10 rounded-xl w-full sm:w-auto">
+                          Criar Conta Grátis
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+                </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
-            {stats.map((stat, i) => (
-              <div key={i} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-                <stat.icon className="w-6 h-6 text-white mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-xs text-white/70">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="max-w-6xl mx-auto px-4 -mt-8 mb-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {quickActions.map((action, i) => (
-            <Link key={i} to={createPageUrl(action.page)}>
-              <Card className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-2xl border-0 overflow-hidden">
-                <CardContent className="p-5">
-                  <div className={`w-12 h-12 ${action.color} rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                    <action.icon className="w-6 h-6 text-white" />
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-md mx-auto px-2">
+                    {stats.map((stat, i) => (
+                      <div key={i} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center">
+                        <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white mx-auto mb-1 sm:mb-2" />
+                        <div className="text-xl sm:text-2xl font-bold text-white">{stat.value}</div>
+                        <div className="text-[10px] sm:text-xs text-white/70 leading-tight">{stat.label}</div>
+                      </div>
+                    ))}
                   </div>
-                  <h3 className="font-semibold text-slate-800">{action.label}</h3>
-                  <p className="text-slate-500 text-sm">{action.desc}</p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="max-w-6xl mx-auto px-3 sm:px-4 -mt-6 sm:-mt-8 mb-6 sm:mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+                  {quickActions.map((action, i) => (
+                    <Link key={i} to={createPageUrl(action.page)}>
+                      <Card className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl sm:rounded-2xl border-0 overflow-hidden h-full">
+                        <CardContent className="p-3 sm:p-5">
+                          <div className={`w-10 h-10 sm:w-12 sm:h-12 ${action.color} rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform`}>
+                            <action.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                          </div>
+                          <h3 className="font-semibold text-slate-800 text-sm sm:text-base leading-tight">{action.label}</h3>
+                          <p className="text-slate-500 text-xs sm:text-sm leading-tight mt-0.5">{action.desc}</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
 
       {/* Main Content Grid */}
       <div className="max-w-6xl mx-auto px-4">
