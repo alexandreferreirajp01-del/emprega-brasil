@@ -12,6 +12,51 @@ import { createPageUrl } from "@/utils";
 
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+
+const CIDADES_PB = [
+  "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
+  "Água Branca", "Aguiar", "Alagoa Grande", "Alagoa Nova", "Alagoinha", "Alcantil",
+  "Algodão de Jandaíra", "Alhandra", "Amparo", "Aparecida", "Araçagi", "Arara",
+  "Araruna", "Areia", "Areia de Baraúnas", "Areial", "Aroeiras", "Assunção",
+  "Baía da Traição", "Bananeiras", "Baraúna", "Barra de Santa Rosa", "Barra de Santana",
+  "Barra de São Miguel", "Belém", "Belém do Brejo do Cruz", "Bernardino Batista",
+  "Boa Ventura", "Boa Vista", "Bom Jesus", "Bom Sucesso", "Bonito de Santa Fé",
+  "Boqueirão", "Borborema", "Brejo do Cruz", "Brejo dos Santos", "Caaporã",
+  "Cabaceiras", "Cachoeira dos Índios", "Cacimba de Areia", "Cacimba de Dentro",
+  "Cacimbas", "Caiçara", "Caldas Brandão", "Camalaú", "Capim", "Caraúbas",
+  "Carrapateira", "Casserengue", "Catingueira", "Catolé do Rocha", "Caturité",
+  "Conceição", "Condado", "Conde", "Congo", "Coremas", "Coxixola",
+  "Cruz do Espírito Santo", "Cubati", "Cuité", "Cuité de Mamanguape", "Cuitegi",
+  "Curral de Cima", "Curral Velho", "Damião", "Desterro", "Diamante", "Dona Inês",
+  "Duas Estradas", "Emas", "Esperança", "Fagundes", "Frei Martinho", "Gado Bravo",
+  "Guarabira", "Gurinhém", "Gurjão", "Ibiara", "Igaracy", "Imaculada", "Ingá",
+  "Itabaiana", "Itaporanga", "Itapororoca", "Itatuba", "Jacaraú", "Jericó",
+  "Joca Claudino", "Juarez Távora", "Juazeirinho", "Junco do Seridó", "Juripiranga",
+  "Juru", "Lagoa", "Lagoa de Dentro", "Lagoa Seca", "Lastro", "Livramento",
+  "Logradouro", "Lucena", "Mãe d'Água", "Malta", "Mamanguape", "Manaíra",
+  "Marcação", "Mari", "Marizópolis", "Massaranduba", "Mataraca", "Matinhas",
+  "Mato Grosso", "Maturéia", "Mogeiro", "Montadas", "Monte Horebe", "Monteiro",
+  "Mulungu", "Natuba", "Nazarezinho", "Nova Floresta", "Nova Olinda", "Nova Palmeira",
+  "Olho d'Água", "Olivedos", "Ouro Velho", "Parari", "Passagem", "Patos", "Paulista",
+  "Pedra Branca", "Pedra Lavrada", "Pedras de Fogo", "Pedro Régis", "Piancó", "Picuí",
+  "Pilar", "Pilões", "Pilõezinhos", "Pirpirituba", "Pitimbu", "Pocinhos",
+  "Poço Dantas", "Poço de José de Moura", "Pombal", "Prata", "Princesa Isabel",
+  "Puxinanã", "Queimadas", "Quixaba", "Remígio", "Riachão", "Riachão do Bacamarte",
+  "Riachão do Poço", "Riacho de Santo Antônio", "Riacho dos Cavalos", "Rio Tinto",
+  "Salgadinho", "Salgado de São Félix", "Santa Cecília", "Santa Cruz", "Santa Helena",
+  "Santa Inês", "Santa Luzia", "Santa Teresinha", "Santana de Mangueira",
+  "Santana dos Garrotes", "Santarém", "Santo André", "São Bentinho", "São Bento",
+  "São Domingos", "São Domingos do Cariri", "São Francisco", "São João do Cariri",
+  "São João do Rio do Peixe", "São João do Tigre", "São José da Lagoa Tapada",
+  "São José de Caiana", "São José de Espinharas", "São José de Piranhas",
+  "São José de Princesa", "São José do Bonfim", "São José do Brejo do Cruz",
+  "São José do Sabugi", "São José dos Cordeiros", "São José dos Ramos", "São Mamede",
+  "São Miguel de Taipu", "São Sebastião de Lagoa de Roça", "São Sebastião do Umbuzeiro",
+  "Sapé", "Serra Branca", "Serra da Raiz", "Serra Grande", "Serra Redonda", "Serraria",
+  "Sertãozinho", "Sobrado", "Solânea", "Soledade", "Sossego", "Sousa", "Sumé",
+  "Tacima", "Taperoá", "Tavares", "Teixeira", "Tenório", "Triunfo", "Uiraúna",
+  "Umbuzeiro", "Várzea", "Vieirópolis", "Vista Serrana", "Zabelê"
+];
 // Função de data local para evitar dependências
 const formatRelativeDate = (dateStr) => {
   if (!dateStr) return 'Não informado';
@@ -96,16 +141,7 @@ export default function Jobs() {
     },
   });
 
-  const { data: cities = [] } = useQuery({
-    queryKey: ['cities'],
-    queryFn: async () => {
-      try {
-        return await base44.entities.City.list('name', 300) || [];
-      } catch (e) {
-        return [];
-      }
-    },
-  });
+
 
   const { data: allViews = [] } = useQuery({
     queryKey: ['all-job-views'],
@@ -146,21 +182,9 @@ export default function Jobs() {
     return matchesSearch && matchesCity && matchesType && matchesFunction;
   });
 
-  const priorityCities = ['João Pessoa', 'Cabedelo', 'Bayeux', 'Santa Rita', 'Campina Grande'];
-  
-  const sortedCities = [...cities].sort((a, b) => {
-    const aIndex = priorityCities.indexOf(a.name);
-    const bIndex = priorityCities.indexOf(b.name);
-    
-    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-    if (aIndex !== -1) return -1;
-    if (bIndex !== -1) return 1;
-    return (a.name || '').localeCompare(b.name || '', 'pt-BR');
-  });
-
   // Filtrar cidades pela busca
-  const filteredCities = sortedCities.filter(city =>
-    city.name?.toLowerCase().includes(citySearch.toLowerCase())
+  const filteredCities = CIDADES_PB.filter(city =>
+    city.toLowerCase().includes(citySearch.toLowerCase())
   );
 
   const clearFilters = () => {
@@ -237,8 +261,8 @@ export default function Jobs() {
                   <ScrollArea className="h-[250px]">
                     <SelectItem value="all">Todas as cidades</SelectItem>
                     {filteredCities.map((city) => (
-                      <SelectItem key={city.id} value={city.name}>
-                        {city.name}
+                      <SelectItem key={city} value={city}>
+                        {city}
                       </SelectItem>
                     ))}
                   </ScrollArea>
