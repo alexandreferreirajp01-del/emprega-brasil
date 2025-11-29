@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Briefcase, ArrowRight, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 
 export default function Splash() {
@@ -26,19 +25,9 @@ export default function Splash() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/3 rounded-full blur-3xl" />
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="relative z-10 text-center max-w-md w-full"
-      >
+      <div className="relative z-10 text-center max-w-md w-full animate-fade-in">
         {/* Logo */}
-        <motion.div 
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-12"
-        >
+        <div className="mb-12">
           <div className="inline-flex items-center justify-center w-32 h-32 mb-6">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/cbc7940a6_logoembranco.png" 
@@ -49,15 +38,10 @@ export default function Splash() {
           <h1 className="text-3xl font-bold text-white tracking-tight">Bem-vindo a</h1>
           <h2 className="text-4xl font-bold text-white tracking-tight mt-1">Vagas Abertas Paraíba</h2>
           <p className="text-white/70 mt-3 text-lg">Encontre sua próxima oportunidade</p>
-        </motion.div>
+        </div>
 
         {/* Buttons */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="space-y-4"
-        >
+        <div className="space-y-4">
           <Button 
             onClick={handleLogin}
             className="w-full h-14 text-lg font-semibold bg-white text-[#0056ff] hover:bg-white/90 rounded-2xl shadow-xl transition-all duration-300 hover:scale-[1.02]"
@@ -74,18 +58,13 @@ export default function Splash() {
             <Eye className="mr-2 w-5 h-5" />
             Continuar como Visitante
           </Button>
-        </motion.div>
+        </div>
 
         {/* Footer */}
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-          className="mt-12 text-white/50 text-sm"
-        >
+        <p className="mt-12 text-white/50 text-sm">
           © {new Date().getFullYear()} Vagas Abertas Paraíba. Todos os direitos reservados.
-        </motion.p>
-      </motion.div>
+        </p>
+      </div>
     </div>
   );
 }
