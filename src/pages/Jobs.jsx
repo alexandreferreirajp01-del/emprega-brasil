@@ -3,11 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Filter, Lock, Star, ChevronDown, X, Eye
+  Filter, Lock, Star, ChevronDown, X, Eye, ChevronRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -16,6 +15,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { formatLocationWithCity } from "@/components/common/NeighborhoodCityMap";
 import { formatRelativeDate } from "@/components/common/ClickableContent";
+import FloatingSearchModal from "@/components/common/FloatingSearchModal";
 
 const JOB_FUNCTIONS = [
   "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
