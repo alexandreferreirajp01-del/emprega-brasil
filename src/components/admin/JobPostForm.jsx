@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  Image, Upload, Loader2, Save, X, Crown, Sparkles, Camera, FileText, CheckCircle
+  Upload, Loader2, Save, X, Crown, Sparkles, Camera, CheckCircle
 } from "lucide-react";
 
 import { base44 } from "@/api/base44Client";
@@ -38,20 +38,57 @@ export default function JobPostForm({
   showToast
 }) {
   const [jobForm, setJobForm] = useState({
-    title: editingJob?.title || '',
-    company: editingJob?.company || '',
-    city: editingJob?.city || '',
-    salary_range: editingJob?.salary_range || '',
-    job_type: editingJob?.job_type || 'CLT',
-    job_function: editingJob?.job_function || '',
-    category: editingJob?.category || '',
-    description: editingJob?.description || '',
-    additional_info: editingJob?.additional_info || '',
-    application_link: editingJob?.application_link || '',
-    image_url: editingJob?.image_url || '',
-    is_premium: editingJob?.is_premium || false,
-    is_featured: editingJob?.is_featured || false
+    title: '',
+    company: '',
+    city: '',
+    salary_range: '',
+    job_type: 'CLT',
+    job_function: '',
+    category: '',
+    description: '',
+    additional_info: '',
+    application_link: '',
+    image_url: '',
+    is_premium: false,
+    is_featured: false
   });
+
+  // Atualizar form quando editingJob mudar
+  useEffect(() => {
+    if (editingJob) {
+      setJobForm({
+        title: editingJob.title || '',
+        company: editingJob.company || '',
+        city: editingJob.city || '',
+        salary_range: editingJob.salary_range || '',
+        job_type: editingJob.job_type || 'CLT',
+        job_function: editingJob.job_function || '',
+        category: editingJob.category || '',
+        description: editingJob.description || '',
+        additional_info: editingJob.additional_info || '',
+        application_link: editingJob.application_link || '',
+        image_url: editingJob.image_url || '',
+        is_premium: editingJob.is_premium || false,
+        is_featured: editingJob.is_featured || false
+      });
+    } else {
+      setJobForm({
+        title: '',
+        company: '',
+        city: '',
+        salary_range: '',
+        job_type: 'CLT',
+        job_function: '',
+        category: '',
+        description: '',
+        additional_info: '',
+        application_link: '',
+        image_url: '',
+        is_premium: false,
+        is_featured: false
+      });
+    }
+  }, [editingJob]);
 
   const [uploadingImage, setUploadingImage] = useState(false);
   const [extractingData, setExtractingData] = useState(false);
