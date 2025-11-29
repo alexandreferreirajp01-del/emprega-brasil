@@ -299,14 +299,6 @@ export default function Admin() {
     });
   };
 
-  const filteredCities = cities.filter(city =>
-    city.name?.toLowerCase().includes(citySearch.toLowerCase())
-  );
-
-  const filteredFunctions = JOB_FUNCTIONS.filter(func =>
-    func.toLowerCase().includes(functionSearch.toLowerCase())
-  );
-
   const filteredUsers = users.filter(u =>
     u.full_name?.toLowerCase().includes(userSearch.toLowerCase()) ||
     u.email?.toLowerCase().includes(userSearch.toLowerCase())
