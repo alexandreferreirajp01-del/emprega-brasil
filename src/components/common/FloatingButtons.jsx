@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { base44 } from '@/api/base44Client';
 
 export default function FloatingButtons() {
@@ -122,14 +122,8 @@ Mensagem: ${userMessage}`
       )}
 
       {/* Chat Window */}
-      <AnimatePresence>
-        {chatOpen && canUseChat && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-36 md:bottom-24 right-4 z-40 w-[calc(100%-2rem)] md:w-96 max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden"
-          >
+      {chatOpen && canUseChat && (
+        <div className="fixed bottom-36 md:bottom-24 right-4 z-40 w-[calc(100%-2rem)] md:w-96 max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
             {/* Header */}
             <div className="bg-[#0056ff] p-4 text-white">
               <h3 className="font-semibold">Suporte Vagas Abertas</h3>
@@ -187,9 +181,8 @@ Mensagem: ${userMessage}`
                 </Button>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </>
   );
 }
