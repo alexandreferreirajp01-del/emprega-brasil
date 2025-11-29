@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { motion } from "framer-motion";
+
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 
@@ -127,10 +127,7 @@ export default function News() {
           <div className="lg:col-span-2 space-y-6">
             {/* Featured News */}
             {featuredNews && selectedCategory === 'all' && !searchTerm && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
+              <div>
                 <Link to={createPageUrl('NewsDetail') + `?id=${featuredNews.id}`}>
                   <Card className="overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer group">
                     {featuredNews.image_url && (
@@ -186,7 +183,7 @@ export default function News() {
                     )}
                   </Card>
                 </Link>
-              </motion.div>
+              </div>
             )}
 
             {/* News List */}
@@ -207,13 +204,8 @@ export default function News() {
                   ))}
                 </>
               ) : (
-                filteredNews.filter(n => n.id !== featuredNews?.id).map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
+                filteredNews.filter(n => n.id !== featuredNews?.id).map((item) => (
+                  <div key={item.id}>
                     <Link to={createPageUrl('NewsDetail') + `?id=${item.id}`}>
                       <Card className="overflow-hidden rounded-xl hover:shadow-lg transition-shadow cursor-pointer group">
                         <CardContent className="p-0">
@@ -263,11 +255,11 @@ export default function News() {
                             </div>
                           </div>
                         </CardContent>
-                      </Card>
-                    </Link>
-                  </motion.div>
-                ))
-              )}
+                        </Card>
+                        </Link>
+                        </div>
+                        ))
+                        )}
 
               {filteredNews.length === 0 && !isLoading && (
                 <Card className="rounded-xl">

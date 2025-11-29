@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Send, Users, AlertCircle, ExternalLink } from "lucide-react";
-import { motion } from "framer-motion";
+
 
 const GROUPS = [
   {
@@ -119,10 +119,7 @@ export default function Groups() {
 
       {/* Warning */}
       <div className="max-w-4xl mx-auto px-4 -mt-6 mb-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <div>
           <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-lg rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
@@ -140,19 +137,14 @@ export default function Groups() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
 
       {/* Groups Grid */}
       <div className="max-w-4xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {GROUPS.map((group, index) => (
-            <motion.div
-              key={group.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
+          {GROUPS.map((group) => (
+            <div key={group.id}>
               <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group rounded-2xl">
                 <CardContent className="p-0">
                   <div className="flex items-stretch">
@@ -193,7 +185,7 @@ export default function Groups() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
