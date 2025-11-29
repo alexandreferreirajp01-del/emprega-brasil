@@ -59,6 +59,11 @@ export default function PostarVaga() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        const isAuthenticated = await base44.auth.isAuthenticated();
+        if (!isAuthenticated) {
+          window.location.href = createPageUrl('Splash');
+          return;
+        }
         const currentUser = await base44.auth.me();
         const isAdmin = currentUser.email === 'alexandreferreirajp01@gmail.com' || 
                         currentUser.role === 'admin' || 
@@ -69,6 +74,7 @@ export default function PostarVaga() {
         }
         setUser(currentUser);
       } catch (e) {
+        console.error('Erro auth:', e);
         window.location.href = createPageUrl('Splash');
       } finally {
         setIsLoading(false);
