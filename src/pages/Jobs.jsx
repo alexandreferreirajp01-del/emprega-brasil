@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Filter, Lock, Star, ChevronDown, X, Eye, ChevronRight
+  Filter, Lock, Star, X, Eye, ChevronRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -15,7 +14,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { formatLocationWithCity } from "@/components/common/NeighborhoodCityMap";
 import { formatRelativeDate } from "@/components/common/ClickableContent";
-import FloatingSearchModal from "@/components/common/FloatingSearchModal";
+import FloatingSearchKeyboard from "@/components/common/FloatingSearchKeyboard";
 
 const JOB_FUNCTIONS = [
   "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
@@ -38,10 +37,10 @@ export default function Jobs() {
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedFunction, setSelectedFunction] = useState('all');
+  const [showCityKeyboard, setShowCityKeyboard] = useState(false);
+  const [showFunctionKeyboard, setShowFunctionKeyboard] = useState(false);
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
-  const [showCityModal, setShowCityModal] = useState(false);
-  const [showFunctionModal, setShowFunctionModal] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -139,13 +138,9 @@ export default function Jobs() {
     const aIndex = priorityCities.indexOf(a.name);
     const bIndex = priorityCities.indexOf(b.name);
     
-    // Se ambas são prioritárias, ordenar pela ordem da lista
     if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-    // Se apenas a é prioritária, a vem primeiro
     if (aIndex !== -1) return -1;
-    // Se apenas b é prioritária, b vem primeiro
     if (bIndex !== -1) return 1;
-    // Se nenhuma é prioritária, ordenar alfabeticamente
     return (a.name || '').localeCompare(b.name || '', 'pt-BR');
   });
 
@@ -201,49 +196,92 @@ export default function Jobs() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {/* City Filter - Floating Modal */}
-              <Button
-                variant="outline"
-                onClick={() => setShowCityModal(true)}
-                className="h-10 rounded-lg justify-start font-normal"
-              >
-                <MapPin className="w-4 h-4 mr-2 text-slate-400" />
-                <span className="flex-1 text-left truncate">
-                  {selectedCity === 'all' ? 'Todas as cidades' : selectedCity}
-                </span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </Button>
+              {/* City Filter */}
+              <Select value={selectedCity} onValueChange={(val) => { setSelectedCity(val); setCitySearch(''); }}>
+                <SelectTrigger className="h-10 rounded-lg">
+                  <MapPin className="w-4 h-4 mr-2 text-slate-400" />
+                  <SelectValue placeholder="Cidade" />
+                </SelectTrigger>
+                <SelectContent className="max-h-96">
+                  <div className="p-2 sticky top-0 bg-white z-10 border-b">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        type="text"
+                        placeholder="Pesquisar cidade..."
+                        value={citySearch}
+                        onChange={(e) => setCitySearch(e.target.value)}
+                        className="w-full h-9 pl-8 pr-3 text-sm"
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+                  <ScrollArea className="h-72">
+                    <SelectItem value="all" className="font-medium">Todas as cidades</SelectItem>
+                    <div className="px-2 py-1 text-xs font-semibold text-slate-500 bg-slate-50">Principais</div>
+                    {filteredCities.filter(c => ['João Pessoa', 'Cabedelo', 'Bayeux', 'Santa Rita', 'Campina Grande'].includes(c.name)).map(city => (
+                      <SelectItem key={city.id} value={city.name} className="font-medium text-[#0056ff]">{city.name}</SelectItem>
+                    ))}
+                    <div className="px-2 py-1 text-xs font-semibold text-slate-500 bg-slate-50 mt-1">Outras cidades</div>
+                    {filteredCities.filter(c => !['João Pessoa', 'Cabedelo', 'Bayeux', 'Santa Rita', 'Campina Grande'].includes(c.name)).map(city => (
+                      <SelectItem key={city.id} value={city.name}>{city.name}</SelectItem>
+                    ))}
+                  </ScrollArea>
+                </SelectContent>
+              </Select>
 
-              {/* Type Filter - Simple Select */}
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const types = ['all', 'CLT', 'Home Office', 'Estágio', 'Jovem Aprendiz', 'Temporário', 'Freelancer', 'PJ'];
-                  const currentIndex = types.indexOf(selectedType);
-                  const nextIndex = (currentIndex + 1) % types.length;
-                  setSelectedType(types[nextIndex]);
-                }}
-                className="h-10 rounded-lg justify-start font-normal"
-              >
-                <Briefcase className="w-4 h-4 mr-2 text-slate-400" />
-                <span className="flex-1 text-left truncate">
-                  {selectedType === 'all' ? 'Todos os tipos' : selectedType}
-                </span>
-                <ChevronDown className="w-4 h-4 text-slate-400" />
-              </Button>
+              {/* Type Filter */}
+              <Select value={selectedType} onValueChange={setSelectedType}>
+                <SelectTrigger className="h-10 rounded-lg">
+                  <Briefcase className="w-4 h-4 mr-2 text-slate-400" />
+                  <SelectValue placeholder="Tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
+                  <SelectItem value="CLT">CLT</SelectItem>
+                  <SelectItem value="Home Office">Home Office</SelectItem>
+                  <SelectItem value="Estágio">Estágio</SelectItem>
+                  <SelectItem value="Jovem Aprendiz">Jovem Aprendiz</SelectItem>
+                  <SelectItem value="Temporário">Temporário</SelectItem>
+                  <SelectItem value="Freelancer">Freelancer</SelectItem>
+                  <SelectItem value="PJ">PJ</SelectItem>
+                </SelectContent>
+              </Select>
 
-              {/* Function Filter - Floating Modal */}
-              <Button
-                variant="outline"
-                onClick={() => setShowFunctionModal(true)}
-                className="h-10 rounded-lg justify-start font-normal"
-              >
-                <Building2 className="w-4 h-4 mr-2 text-slate-400" />
-                <span className="flex-1 text-left truncate">
-                  {selectedFunction === 'all' ? 'Todas as funções' : selectedFunction}
-                </span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </Button>
+              {/* Function Filter */}
+              <Select value={selectedFunction} onValueChange={(val) => { setSelectedFunction(val); setFunctionSearch(''); }}>
+                <SelectTrigger className="h-10 rounded-lg">
+                  <Building2 className="w-4 h-4 mr-2 text-slate-400" />
+                  <SelectValue placeholder="Função" />
+                </SelectTrigger>
+                <SelectContent className="max-h-80">
+                  <div className="p-2 sticky top-0 bg-white z-10 border-b">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        type="text"
+                        placeholder="Pesquisar função..."
+                        value={functionSearch}
+                        onChange={(e) => setFunctionSearch(e.target.value)}
+                        className="w-full h-9 pl-8 pr-3 text-sm"
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+                  <ScrollArea className="h-64">
+                    <SelectItem value="all">Todas as funções</SelectItem>
+                    {filteredFunctions.map(func => (
+                      <SelectItem key={func} value={func}>{func}</SelectItem>
+                    ))}
+                  </ScrollArea>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
