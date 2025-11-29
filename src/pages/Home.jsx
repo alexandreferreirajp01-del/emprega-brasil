@@ -106,7 +106,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-6 sm:pt-8 pb-12 sm:pb-16 px-3 sm:px-4 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-60 h-60 bg-white rounded-full blur-3xl"></div>
@@ -156,7 +156,7 @@ export default function Home() {
               </div>
 
               {/* Quick Actions */}
-              <div className="max-w-6xl mx-auto px-3 sm:px-4 -mt-6 sm:-mt-8 mb-6 sm:mb-8">
+              <div className="max-w-6xl mx-auto px-3 sm:px-4 -mt-16 sm:-mt-8 mb-6 sm:mb-8 relative z-10">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                   {quickActions.map((action, i) => (
                     <Link key={i} to={createPageUrl(action.page)}>

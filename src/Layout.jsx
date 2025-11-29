@@ -210,17 +210,28 @@ export default function Layout({ children, currentPageName }) {
               ))}
               
               {isAdmin && (
-                <Link to={createPageUrl('Admin')}>
-                  <Button 
-                    variant={currentPageName === 'Admin' ? "secondary" : "ghost"}
-                    className={`rounded-xl ${currentPageName === 'Admin' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                  >
-                    <Shield className="w-4 h-4 mr-2" />
-                    Admin
-                  </Button>
-                </Link>
+                <>
+                  <Link to={createPageUrl('Admin')}>
+                    <Button 
+                      variant={currentPageName === 'Admin' ? "secondary" : "ghost"}
+                      className={`rounded-xl ${currentPageName === 'Admin' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                    >
+                      <Shield className="w-4 h-4 mr-2" />
+                      Admin
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl('PostarVaga')}>
+                    <Button 
+                      variant={currentPageName === 'PostarVaga' ? "secondary" : "ghost"}
+                      className={`rounded-xl ${currentPageName === 'PostarVaga' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                    >
+                      <Briefcase className="w-4 h-4 mr-2" />
+                      Postar Vaga
+                    </Button>
+                  </Link>
+                </>
               )}
-            </nav>
+              </nav>
 
             {/* User Actions */}
             <div className="hidden md:flex items-center gap-3">
@@ -273,15 +284,26 @@ export default function Layout({ children, currentPageName }) {
               ))}
               
               {isAdmin && (
-                <Link to={createPageUrl('Admin')} onClick={() => setMobileMenuOpen(false)}>
-                  <Button 
-                    variant={currentPageName === 'Admin' ? "secondary" : "ghost"}
-                    className={`w-full justify-start rounded-xl ${currentPageName === 'Admin' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                  >
-                    <Shield className="w-5 h-5 mr-3" />
-                    Admin
-                  </Button>
-                </Link>
+                <>
+                  <Link to={createPageUrl('Admin')} onClick={() => setMobileMenuOpen(false)}>
+                    <Button 
+                      variant={currentPageName === 'Admin' ? "secondary" : "ghost"}
+                      className={`w-full justify-start rounded-xl ${currentPageName === 'Admin' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                    >
+                      <Shield className="w-5 h-5 mr-3" />
+                      Admin
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl('PostarVaga')} onClick={() => setMobileMenuOpen(false)}>
+                    <Button 
+                      variant={currentPageName === 'PostarVaga' ? "secondary" : "ghost"}
+                      className={`w-full justify-start rounded-xl ${currentPageName === 'PostarVaga' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                    >
+                      <Briefcase className="w-5 h-5 mr-3" />
+                      Postar Vaga
+                    </Button>
+                  </Link>
+                </>
               )}
 
               <div className="pt-2 border-t">

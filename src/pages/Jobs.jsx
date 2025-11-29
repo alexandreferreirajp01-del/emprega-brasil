@@ -39,11 +39,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+const JOB_FUNCTIONS = [
+  "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
+  "Vendedor interno", "Vendedor externo", "Consultor comercial", "Promotor de vendas",
+  "Social media", "Designer gráfico", "Programador", "Suporte técnico",
+  "Enfermeiro", "Técnico de enfermagem", "Farmacêutico", "Nutricionista",
+  "Cozinheiro", "Garçom", "Atendente", "Professor", "Motorista", "Motoboy",
+  "Estoquista", "Auxiliar de serviços gerais", "Porteiro", "Segurança", "Outros"
+];
 
 export default function Jobs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
+  const [selectedFunction, setSelectedFunction] = useState('all');
+  const [citySearch, setCitySearch] = useState('');
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
 
@@ -129,9 +141,15 @@ export default function Jobs() {
     
     const matchesCity = selectedCity === 'all' || job.city === selectedCity;
     const matchesType = selectedType === 'all' || job.job_type === selectedType;
+    const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     
-    return matchesSearch && matchesCity && matchesType;
+    return matchesSearch && matchesCity && matchesType && matchesFunction;
   });
+
+  // Filtrar cidades pela busca
+  const filteredCities = sortedCities.filter(city =>
+    city.name?.toLowerCase().includes(citySearch.toLowerCase())
+  );
 
   const priorityCities = ['João Pessoa', 'Cabedelo', 'Bayeux', 'Santa Rita', 'Campina Grande'];
   
@@ -149,9 +167,11 @@ export default function Jobs() {
     setSearchTerm('');
     setSelectedCity('all');
     setSelectedType('all');
+    setSelectedFunction('all');
+    setCitySearch('');
   };
 
-  const hasActiveFilters = searchTerm || selectedCity !== 'all' || selectedType !== 'all';
+  const hasActiveFilters = searchTerm || selectedCity !== 'all' || selectedType !== 'all' || selectedFunction !== 'all';
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
@@ -193,7 +213,7 @@ export default function Jobs() {
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-sm font-medium text-slate-600">Filtrar por:</span>
               
-              {/* Filtro Cidade */}
+              {/* Filtro Cidade com busca */}
               <Select value={selectedCity} onValueChange={setSelectedCity}>
                 <SelectTrigger className="w-[180px] h-10 rounded-lg">
                   <div className="flex items-center gap-2">
@@ -201,19 +221,33 @@ export default function Jobs() {
                     <SelectValue placeholder="Cidade" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
-                  <SelectItem value="all">Todas as cidades</SelectItem>
-                  {sortedCities.map((city) => (
-                    <SelectItem key={city.id} value={city.name}>
-                      {city.name}
-                    </SelectItem>
-                  ))}
+                <SelectContent>
+                  <div className="p-2 border-b sticky top-0 bg-white z-10">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        placeholder="Buscar cidade..."
+                        value={citySearch}
+                        onChange={(e) => setCitySearch(e.target.value)}
+                        className="h-8 pl-8 text-sm"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+                  <ScrollArea className="h-[250px]">
+                    <SelectItem value="all">Todas as cidades</SelectItem>
+                    {filteredCities.map((city) => (
+                      <SelectItem key={city.id} value={city.name}>
+                        {city.name}
+                      </SelectItem>
+                    ))}
+                  </ScrollArea>
                 </SelectContent>
               </Select>
 
               {/* Filtro Tipo */}
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="w-[160px] h-10 rounded-lg">
+                <SelectTrigger className="w-[140px] h-10 rounded-lg">
                   <div className="flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-slate-400" />
                     <SelectValue placeholder="Tipo" />
@@ -228,6 +262,26 @@ export default function Jobs() {
                   <SelectItem value="Jovem Aprendiz">Jovem Aprendiz</SelectItem>
                   <SelectItem value="Freelancer">Freelancer</SelectItem>
                   <SelectItem value="PJ">PJ</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Filtro Função */}
+              <Select value={selectedFunction} onValueChange={setSelectedFunction}>
+                <SelectTrigger className="w-[160px] h-10 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-slate-400" />
+                    <SelectValue placeholder="Função" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <ScrollArea className="h-[250px]">
+                    <SelectItem value="all">Todas funções</SelectItem>
+                    {JOB_FUNCTIONS.map((func) => (
+                      <SelectItem key={func} value={func}>
+                        {func}
+                      </SelectItem>
+                    ))}
+                  </ScrollArea>
                 </SelectContent>
               </Select>
 
