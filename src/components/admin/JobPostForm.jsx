@@ -259,11 +259,7 @@ REGRAS:
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-    >
+    <div className="animate-fade-in">
       <Card className="shadow-lg rounded-2xl">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{editingJob ? 'Editar Vaga' : 'Nova Vaga'}</CardTitle>
@@ -312,14 +308,10 @@ REGRAS:
               </label>
               
               {extractionProgress && extractionProgress.includes('sucesso') && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mt-3 flex items-center justify-center gap-2 text-green-600"
-                >
+                <div className="mt-3 flex items-center justify-center gap-2 text-green-600 animate-fade-in">
                   <CheckCircle className="w-5 h-5" />
                   <span className="font-medium">{extractionProgress}</span>
-                </motion.div>
+                </div>
               )}
               
               <p className="text-xs text-slate-400 mt-3">
@@ -541,6 +533,6 @@ REGRAS:
           </form>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
