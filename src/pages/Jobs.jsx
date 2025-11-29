@@ -12,7 +12,26 @@ import { createPageUrl } from "@/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { formatRelativeDate } from "@/components/common/ClickableContent";
+// Função de data local para evitar dependências
+const formatRelativeDate = (dateStr) => {
+  if (!dateStr) return 'Não informado';
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return 'Data inválida';
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diffTime = todayStart.getTime() - dateStart.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const formattedDate = date.toLocaleDateString('pt-BR');
+    if (diffDays === 0) return 'Hoje';
+    if (diffDays === 1) return 'Ontem';
+    if (diffDays < 7) return `${diffDays} dias`;
+    return formattedDate;
+  } catch (e) {
+    return 'Data inválida';
+  }
+};
 import {
   Select,
   SelectContent,

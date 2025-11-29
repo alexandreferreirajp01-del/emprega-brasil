@@ -9,10 +9,11 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
-import CreatePostForm from "@/components/community/CreatePostForm";
-import PostCard from "@/components/community/PostCard";
-import TrendingSection from "@/components/community/TrendingSection";
-import LikesList from "@/components/community/LikesList";
+// Imports dinâmicos para evitar erros
+const CreatePostForm = React.lazy(() => import("@/components/community/CreatePostForm"));
+const PostCard = React.lazy(() => import("@/components/community/PostCard"));
+const TrendingSection = React.lazy(() => import("@/components/community/TrendingSection"));
+const LikesList = React.lazy(() => import("@/components/community/LikesList"));
 
 export default function Community() {
   const [user, setUser] = useState(null);
