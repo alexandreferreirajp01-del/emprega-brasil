@@ -249,12 +249,15 @@ export default function Jobs() {
                   <div className="p-2 border-b sticky top-0 bg-white z-10">
                     <div className="relative">
                       <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <Input
+                      <input
+                        type="text"
                         placeholder="Buscar cidade..."
                         value={citySearch}
                         onChange={(e) => setCitySearch(e.target.value)}
-                        className="h-8 pl-8 text-sm"
+                        className="w-full h-9 pl-8 pr-3 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        autoComplete="off"
                         onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
                       />
                     </div>
                   </div>
@@ -371,20 +374,18 @@ function JobCard({ job, canView, viewCount = 0 }) {
   if (!canView) {
     return (
       <Card className="overflow-hidden relative">
-        <div className="absolute inset-0 backdrop-blur-sm bg-white/70 z-10 flex flex-col items-center justify-center p-6">
-          <Lock className="w-12 h-12 text-[#0056ff] mb-3" />
-          <p className="text-center text-slate-700 font-medium mb-3">
-            Vaga exclusiva para assinantes
-          </p>
-          <Link to={createPageUrl('Subscription')}>
-            <Button size="sm" className="bg-[#0056ff] hover:bg-[#0044cc] rounded-full">
-              Adquira o Plano Premium
-            </Button>
-          </Link>
-        </div>
         <CardContent className="p-6 filter blur-sm">
           <JobCardContent job={job} viewCount={viewCount} />
         </CardContent>
+        {/* Indicadores de vaga premium bloqueada */}
+        <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-purple-600 text-white px-2 py-1 rounded-md text-xs">
+          <Lock className="w-3 h-3" />
+        </div>
+        <div className="absolute bottom-3 right-3 bg-purple-600 text-white px-2 py-1 rounded-md text-xs font-medium">
+          Vaga Premium
+        </div>
+        {/* Overlay clicável */}
+        <Link to={createPageUrl('Subscription')} className="absolute inset-0 z-10" />
       </Card>
     );
   }

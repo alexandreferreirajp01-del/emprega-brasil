@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Camera, Loader2, Save, X, CheckCircle, Phone, Mail, Briefcase, Search } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Camera, Loader2, Save, X, CheckCircle, Phone, Mail, Briefcase, Search, Crown, Star } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 
@@ -79,9 +80,12 @@ export default function PostarVaga() {
     salary_range: '',
     contact_phone: '',
     contact_email: '',
-    image_url: ''
+    image_url: '',
+    is_premium: false,
+    is_featured: false
   });
   const [citySearch, setCitySearch] = useState('');
+  const [funcSearch, setFuncSearch] = useState('');
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -220,6 +224,8 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
         salary_range: formData.salary_range,
         image_url: formData.image_url,
         description: description,
+        is_premium: formData.is_premium,
+        is_featured: formData.is_featured,
         application_link: formData.contact_phone 
           ? `https://wa.me/${formData.contact_phone.replace(/\D/g, '')}` 
           : formData.contact_email 
@@ -229,7 +235,8 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
 
       setFormData({
         title: '', job_function: '', city: '', description: '',
-        salary_range: '', contact_phone: '', contact_email: '', image_url: ''
+        salary_range: '', contact_phone: '', contact_email: '', image_url: '',
+        is_premium: false, is_featured: false
       });
       showToast('Vaga publicada!');
     } catch (err) {
@@ -338,9 +345,28 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
               <div>
                 <Label>Função</Label>
                 <Select value={formData.job_function} onValueChange={(v) => updateField('job_function', v)}>
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Selecione a função" /></SelectTrigger>
                   <SelectContent>
-                    {JOB_FUNCTIONS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                    <div className="p-2 border-b sticky top-0 bg-white z-10">
+                      <div className="relative">
+                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="Buscar função..."
+                          value={funcSearch}
+                          onChange={(e) => setFuncSearch(e.target.value)}
+                          className="w-full h-9 pl-8 pr-3 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          autoComplete="off"
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+                    <ScrollArea className="h-[200px]">
+                      {JOB_FUNCTIONS.filter(f => f.toLowerCase().includes(funcSearch.toLowerCase())).map(f => (
+                        <SelectItem key={f} value={f}>{f}</SelectItem>
+                      ))}
+                    </ScrollArea>
                   </SelectContent>
                 </Select>
               </div>
@@ -353,11 +379,12 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
                     <div className="p-2 border-b sticky top-0 bg-white z-10">
                       <div className="relative">
                         <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <Input
+                        <input
+                          type="text"
                           placeholder="Buscar cidade..."
                           value={citySearch}
                           onChange={(e) => setCitySearch(e.target.value)}
-                          className="h-9 pl-8 text-base"
+                          className="w-full h-9 pl-8 pr-3 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           autoComplete="off"
                           onClick={(e) => e.stopPropagation()}
                           onKeyDown={(e) => e.stopPropagation()}
@@ -433,6 +460,37 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
                   )}
                 </div>
               )}
+
+              {/* Opções Premium e Destaque */}
+              <div className="border-t pt-4 mt-4 space-y-4">
+                <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Crown className="w-5 h-5 text-purple-600" />
+                    <div>
+                      <p className="font-medium text-slate-800">Vaga Premium</p>
+                      <p className="text-xs text-slate-500">Visível apenas para assinantes</p>
+                    </div>
+                  </div>
+                  <Switch 
+                    checked={formData.is_premium} 
+                    onCheckedChange={(v) => updateField('is_premium', v)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Star className="w-5 h-5 text-yellow-600" />
+                    <div>
+                      <p className="font-medium text-slate-800">Vaga em Destaque</p>
+                      <p className="text-xs text-slate-500">Aparece no topo das listagens</p>
+                    </div>
+                  </div>
+                  <Switch 
+                    checked={formData.is_featured} 
+                    onCheckedChange={(v) => updateField('is_featured', v)}
+                  />
+                </div>
+              </div>
 
               <Button 
                 type="submit" 
