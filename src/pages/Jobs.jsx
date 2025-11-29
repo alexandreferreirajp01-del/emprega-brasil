@@ -146,11 +146,6 @@ export default function Jobs() {
     return matchesSearch && matchesCity && matchesType && matchesFunction;
   });
 
-  // Filtrar cidades pela busca
-  const filteredCities = sortedCities.filter(city =>
-    city.name?.toLowerCase().includes(citySearch.toLowerCase())
-  );
-
   const priorityCities = ['João Pessoa', 'Cabedelo', 'Bayeux', 'Santa Rita', 'Campina Grande'];
   
   const sortedCities = [...cities].sort((a, b) => {
@@ -162,6 +157,11 @@ export default function Jobs() {
     if (bIndex !== -1) return 1;
     return (a.name || '').localeCompare(b.name || '', 'pt-BR');
   });
+
+  // Filtrar cidades pela busca
+  const filteredCities = sortedCities.filter(city =>
+    city.name?.toLowerCase().includes(citySearch.toLowerCase())
+  );
 
   const clearFilters = () => {
     setSearchTerm('');
