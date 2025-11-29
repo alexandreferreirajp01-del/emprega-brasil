@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import TimeAgo from "@/components/common/TimeAgo";
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -39,12 +40,32 @@ export default function Home() {
     queryKey: ['home-jobs'],
     queryFn: async () => {
       try {
-        return await base44.entities.Job.list('-created_date', 10) || [];
+        return await base44.entities.Job.list('-created_date', 50) || [];
       } catch (e) {
         return [];
       }
     },
   });
+
+  const { data: allViews = [] } = useQuery({
+    queryKey: ['home-job-views'],
+    queryFn: async () => {
+      try {
+        return await base44.entities.JobView.list('-created_date', 5000) || [];
+      } catch (e) {
+        return [];
+      }
+    },
+  });
+
+  // Contagem de views por vaga
+  const viewsCountMap = {};
+  allViews.forEach(v => {
+    viewsCountMap[v.job_id] = (viewsCountMap[v.job_id] || 0) + 1;
+  });
+
+  // Filtrar apenas vagas em destaque
+  const featuredJobs = jobs.filter(job => job.is_featured);
 
   const { data: news = [] } = useQuery({
     queryKey: ['home-news'],
@@ -68,21 +89,7 @@ export default function Home() {
     },
   });
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    try {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const diffTime = now.getTime() - date.getTime();
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      if (diffDays === 0) return 'Hoje';
-      if (diffDays === 1) return 'Ontem';
-      if (diffDays < 7) return `${diffDays} dias`;
-      return date.toLocaleDateString('pt-BR');
-    } catch (e) {
-      return '';
-    }
-  };
+
 
   const stats = [
     { label: 'Vagas Ativas', value: jobs.length, icon: Briefcase, color: 'text-blue-600' },
@@ -188,7 +195,7 @@ export default function Home() {
                   </div>
                   <div>
                     <h2 className="font-bold text-white text-sm sm:text-lg">Vagas em Destaque</h2>
-                    <p className="text-white/70 text-xs sm:text-sm">Oportunidades selecionadas</p>
+                    <p className="text-white/70 text-xs sm:text-sm">{featuredJobs.length} vagas selecionadas</p>
                   </div>
                 </div>
                 <Link to={createPageUrl('Jobs')}>
@@ -198,7 +205,7 @@ export default function Home() {
                 </Link>
               </div>
               <CardContent className="p-4 space-y-3">
-                {jobs.slice(0, 5).map((job) => (
+                {featuredJobs.slice(0, 5).map((job) => (
                   <Link key={job.id} to={createPageUrl('JobDetail') + `?id=${job.id}`}>
                     <div className="p-4 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-blue-100">
                       <div className="flex items-start justify-between gap-4">
@@ -207,11 +214,9 @@ export default function Home() {
                             <h3 className="font-semibold text-slate-800 group-hover:text-blue-600 transition-colors truncate">
                               {job.title}
                             </h3>
-                            {job.is_featured && (
-                              <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs shrink-0">
-                                <Star className="w-3 h-3 mr-1" /> Destaque
-                              </Badge>
-                            )}
+                            <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs shrink-0">
+                              <Star className="w-3 h-3 mr-1" /> Destaque
+                            </Badge>
                           </div>
                           <p className="text-slate-500 text-sm flex items-center gap-1 mb-2">
                             <Building2 className="w-3 h-3" />
@@ -234,7 +239,11 @@ export default function Home() {
                         <div className="text-right shrink-0">
                           <p className="text-xs text-slate-400 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {formatDate(job.created_date)}
+                            <TimeAgo date={job.created_date} />
+                          </p>
+                          <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
+                            <Eye className="w-3 h-3" />
+                            {viewsCountMap[job.id] || 0} views
                           </p>
                           {job.salary_range && (
                             <p className="text-green-600 font-medium text-sm mt-1">{job.salary_range}</p>
@@ -244,10 +253,10 @@ export default function Home() {
                     </div>
                   </Link>
                 ))}
-                {jobs.length === 0 && (
+                {featuredJobs.length === 0 && (
                   <div className="text-center py-8 text-slate-400">
-                    <Briefcase className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>Nenhuma vaga encontrada</p>
+                    <Star className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>Nenhuma vaga em destaque</p>
                   </div>
                 )}
               </CardContent>
@@ -321,7 +330,7 @@ export default function Home() {
                                 {job.city}
                               </Badge>
                             )}
-                            <span className="text-xs text-slate-400">{formatDate(job.created_date)}</span>
+                            <span className="text-xs text-slate-400"><TimeAgo date={job.created_date} /></span>
                           </div>
                         </div>
                       </Link>
@@ -348,7 +357,7 @@ export default function Home() {
                                 {item.category}
                               </Badge>
                             )}
-                            <span className="text-xs text-slate-400">{formatDate(item.created_date)}</span>
+                            <span className="text-xs text-slate-400"><TimeAgo date={item.created_date} /></span>
                           </div>
                         </div>
                       </Link>
