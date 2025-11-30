@@ -1,21 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Loader2, Bell, BellOff } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import { base44 } from '@/api/base44Client';
-
-const VAPID_PUBLIC_KEY = 'BCadDFNIP2f5vb4qw-FDIE4oErydBEGKUjvSz__sZaHOTSy6krKkuhcmh-FQ-t5xClfI-IE90yNMyBYAbVd5F6Q';
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
 
 export default function FloatingButtons() {
   const [user, setUser] = useState(null);
@@ -25,11 +12,6 @@ export default function FloatingButtons() {
   const [messages, setMessages] = useState([]);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
-  
-  // Push Notifications
-  const [pushSupported, setPushSupported] = useState(false);
-  const [pushSubscribed, setPushSubscribed] = useState(false);
-  const [pushLoading, setPushLoading] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -49,70 +31,7 @@ export default function FloatingButtons() {
       }
     };
     checkAuth();
-    
-    // Verificar suporte a push notifications
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      setPushSupported(true);
-      checkPushSubscription();
-    }
   }, []);
-  
-  const checkPushSubscription = async () => {
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
-      setPushSubscribed(!!subscription);
-    } catch (e) {
-      console.log('Erro ao verificar push:', e);
-    }
-  };
-  
-  const handleTogglePush = async () => {
-    if (pushLoading) return;
-    setPushLoading(true);
-    
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      
-      if (pushSubscribed) {
-        // Desinscrever
-        const subscription = await registration.pushManager.getSubscription();
-        if (subscription) {
-          await subscription.unsubscribe();
-          await base44.functions.invoke('subscribePush', {
-            subscription: { endpoint: subscription.endpoint },
-            action: 'unsubscribe'
-          });
-        }
-        setPushSubscribed(false);
-      } else {
-        // Inscrever
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-          alert('Permissão de notificação negada');
-          setPushLoading(false);
-          return;
-        }
-        
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-        });
-        
-        await base44.functions.invoke('subscribePush', {
-          subscription: subscription.toJSON(),
-          action: 'subscribe'
-        });
-        
-        setPushSubscribed(true);
-      }
-    } catch (e) {
-      console.error('Erro push:', e);
-      alert('Erro ao configurar notificações');
-    } finally {
-      setPushLoading(false);
-    }
-  };
 
   const loadMessages = async (email) => {
     try {
@@ -191,29 +110,6 @@ Mensagem: ${userMessage}`
 
   return (
     <>
-      {/* Botão Notificações Push */}
-      {pushSupported && (
-        <button
-          onClick={handleTogglePush}
-          disabled={pushLoading}
-          className={`fixed bottom-20 md:bottom-6 right-20 z-40 w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 ${
-            pushSubscribed 
-              ? 'bg-green-500 hover:bg-green-600' 
-              : 'bg-slate-600 hover:bg-slate-700'
-          }`}
-          aria-label={pushSubscribed ? 'Desativar notificações' : 'Ativar notificações'}
-          title={pushSubscribed ? 'Notificações ativadas' : 'Ativar notificações'}
-        >
-          {pushLoading ? (
-            <Loader2 className="w-5 h-5 text-white animate-spin" />
-          ) : pushSubscribed ? (
-            <Bell className="w-5 h-5 text-white" />
-          ) : (
-            <BellOff className="w-5 h-5 text-white" />
-          )}
-        </button>
-      )}
-      
       {/* Botão Chat */}
       {canUseChat && (
         <button
