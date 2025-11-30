@@ -74,6 +74,8 @@ export default function VagasEspeciais() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [publishingIndex, setPublishingIndex] = useState(null);
   const [isPublishingAll, setIsPublishingAll] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [processingStatus, setProcessingStatus] = useState('');
   
   // Filtros de busca
   const [citySearch, setCitySearch] = useState('');
@@ -100,30 +102,32 @@ export default function VagasEspeciais() {
     if (!rawText.trim()) return;
     
     setIsExtracting(true);
+    setErrorMessage('');
+    setProcessingStatus('Analisando texto...');
+    
     try {
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Analise o seguinte texto que contém várias vagas de emprego brasileiras e extraia CADA VAGA SEPARADAMENTE.
 
 TEXTO:
-${rawText}
+${rawText.substring(0, 8000)}
 
 Para CADA vaga encontrada, extraia:
 - title: Título/cargo da vaga
-- company: Nome da empresa (se mencionado)
-- city: Cidade (preferencialmente da Paraíba)
+- company: Nome da empresa (se mencionado, senão deixe vazio)
+- city: Cidade (preferencialmente da Paraíba, senão deixe vazio)
 - job_type: Tipo (CLT, Home Office, Estágio, Temporário, Freelancer, Jovem Aprendiz, PJ, PCD)
 - job_function: Função/categoria
 - salary_range: Salário se mencionado
-- description: Descrição completa com requisitos e benefícios
-- contact_phone: Telefone/WhatsApp se houver (só números com DDD)
+- description: Descrição com requisitos e benefícios
+- contact_phone: Telefone/WhatsApp (só números com DDD)
 - contact_email: Email se houver
 
 IMPORTANTE: 
-- Separe CADA VAGA como um item diferente
-- Se o texto contiver 5 vagas, retorne um array com 5 objetos
-- Extraia o máximo de informação possível de cada vaga
+- Separe CADA VAGA como um item diferente no array
+- Retorne sempre um array, mesmo que tenha apenas 1 vaga
 
-Responda APENAS com o JSON.`,
+Responda APENAS com o JSON válido.`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -148,20 +152,35 @@ Responda APENAS com o JSON.`,
         }
       });
 
-      if (result?.vagas && Array.isArray(result.vagas)) {
-        // Adicionar flags de premium e destaque a cada vaga
+      setProcessingStatus('Processando resultados...');
+
+      if (result?.vagas && Array.isArray(result.vagas) && result.vagas.length > 0) {
         const jobsWithFlags = result.vagas.map(job => ({
-          ...job,
+          title: job.title || 'Vaga sem título',
+          company: job.company || '',
+          city: job.city || '',
+          job_type: job.job_type || 'CLT',
+          job_function: job.job_function || '',
+          salary_range: job.salary_range || '',
+          description: job.description || '',
+          contact_phone: job.contact_phone || '',
+          contact_email: job.contact_email || '',
           is_premium: false,
           is_featured: false
         }));
         setExtractedJobs(jobsWithFlags);
+        setProcessingStatus(`${jobsWithFlags.length} vaga(s) extraída(s)!`);
+      } else {
+        setErrorMessage('Nenhuma vaga encontrada no texto. Tente reformatar o conteúdo.');
       }
 
     } catch (error) {
       console.error('Erro ao extrair dados:', error);
+      setErrorMessage('Erro ao processar. Tente novamente ou reduza o tamanho do texto.');
+    } finally {
+      setIsExtracting(false);
+      setTimeout(() => setProcessingStatus(''), 3000);
     }
-    setIsExtracting(false);
   };
 
   // Upload e processamento de imagens
@@ -170,30 +189,40 @@ Responda APENAS com o JSON.`,
     if (files.length === 0) return;
     
     setIsProcessingImages(true);
+    setErrorMessage('');
     const newJobs = [];
+    const totalFiles = files.length;
 
-    for (const file of files) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setProcessingStatus(`Processando imagem ${i + 1} de ${totalFiles}...`);
+      
       try {
         // Upload da imagem
         const uploadResult = await base44.integrations.Core.UploadFile({ file });
-        if (!uploadResult?.file_url) continue;
+        if (!uploadResult?.file_url) {
+          console.log('Upload falhou para:', file.name);
+          continue;
+        }
+
+        setProcessingStatus(`Extraindo dados da imagem ${i + 1}...`);
 
         // Extrair dados com IA
         const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `Analise esta imagem de vaga de emprego brasileira e extraia TODAS as informações.
+          prompt: `Analise esta imagem de vaga de emprego brasileira e extraia as informações.
 
 Extraia:
 - title: Título/cargo da vaga
 - company: Nome da empresa
-- city: Cidade (se mencionar bairros como Mangabeira, Manaíra = João Pessoa)
+- city: Cidade (bairros como Mangabeira, Manaíra = João Pessoa)
 - job_type: Tipo (CLT, Home Office, Estágio, etc)
 - job_function: Função/categoria
 - salary_range: Salário
-- description: TODA a descrição, requisitos, benefícios
-- contact_phone: Telefone/WhatsApp (apenas números com DDD)
+- description: Descrição, requisitos, benefícios
+- contact_phone: Telefone/WhatsApp (apenas números)
 - contact_email: Email
 
-IMPORTANTE: Extraia o máximo de informação possível.`,
+Responda APENAS com JSON válido.`,
           file_urls: [uploadResult.file_url],
           response_json_schema: {
             type: "object",
@@ -211,21 +240,38 @@ IMPORTANTE: Extraia o máximo de informação possível.`,
           }
         });
 
-        if (result) {
+        if (result && result.title) {
           newJobs.push({
-            ...result,
+            title: result.title || 'Vaga sem título',
+            company: result.company || '',
+            city: result.city || '',
+            job_type: result.job_type || 'CLT',
+            job_function: result.job_function || '',
+            salary_range: result.salary_range || '',
+            description: result.description || '',
+            contact_phone: result.contact_phone || '',
+            contact_email: result.contact_email || '',
             image_url: uploadResult.file_url,
             is_premium: false,
             is_featured: false
           });
+          
+          // Atualizar lista imediatamente para feedback visual
+          setExtractedFromImages(prev => [...prev, newJobs[newJobs.length - 1]]);
         }
       } catch (error) {
         console.error('Erro ao processar imagem:', error);
       }
     }
 
-    setExtractedFromImages(prev => [...prev, ...newJobs]);
+    if (newJobs.length === 0 && files.length > 0) {
+      setErrorMessage('Não foi possível extrair dados das imagens. Tente novamente.');
+    } else {
+      setProcessingStatus(`${newJobs.length} vaga(s) extraída(s)!`);
+    }
+    
     setIsProcessingImages(false);
+    setTimeout(() => setProcessingStatus(''), 3000);
     e.target.value = '';
   };
 
@@ -391,11 +437,33 @@ IMPORTANTE: Extraia o máximo de informação possível.`,
       </div>
 
       <div className="max-w-6xl mx-auto px-4 -mt-4">
-        {/* Sucesso */}
+        {/* Mensagens de status */}
         {showSuccess && (
           <div className="mb-4 p-4 bg-green-100 border border-green-300 rounded-xl flex items-center gap-3">
             <Check className="w-5 h-5 text-green-600" />
             <span className="text-green-800 font-medium">Vagas publicadas com sucesso!</span>
+          </div>
+        )}
+        
+        {errorMessage && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-xl flex items-center gap-3">
+            <X className="w-5 h-5 text-red-600" />
+            <span className="text-red-800 font-medium">{errorMessage}</span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setErrorMessage('')}
+              className="ml-auto"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+        
+        {processingStatus && (
+          <div className="mb-4 p-4 bg-blue-100 border border-blue-300 rounded-xl flex items-center gap-3">
+            <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+            <span className="text-blue-800 font-medium">{processingStatus}</span>
           </div>
         )}
 
@@ -494,7 +562,7 @@ Empresa: Empresa Y
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center">
+                  <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isProcessingImages ? 'border-indigo-400 bg-indigo-50' : 'border-slate-200'}`}>
                     <input
                       type="file"
                       accept="image/*"
@@ -504,7 +572,7 @@ Empresa: Empresa Y
                       id="image-upload"
                       disabled={isProcessingImages}
                     />
-                    <label htmlFor="image-upload" className="cursor-pointer">
+                    <label htmlFor="image-upload" className={`${isProcessingImages ? 'cursor-wait' : 'cursor-pointer'}`}>
                       <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                         {isProcessingImages ? (
                           <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
@@ -516,9 +584,14 @@ Empresa: Empresa Y
                         {isProcessingImages ? 'Processando imagens...' : 'Clique para selecionar imagens'}
                       </p>
                       <p className="text-sm text-slate-400">
-                        Selecione várias imagens de uma vez
+                        {isProcessingImages ? 'Aguarde o processamento terminar' : 'Selecione várias imagens de uma vez'}
                       </p>
                     </label>
+                  </div>
+                  
+                  {/* Dica */}
+                  <div className="p-3 bg-amber-50 rounded-lg text-sm text-amber-700">
+                    <strong>Dica:</strong> Para melhor resultado, selecione imagens claras e legíveis. O processamento pode levar alguns segundos por imagem.
                   </div>
 
                   {extractedFromImages.length > 0 && (
