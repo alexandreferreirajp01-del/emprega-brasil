@@ -191,6 +191,29 @@ Mensagem: ${userMessage}`
 
   return (
     <>
+      {/* Botão Notificações Push */}
+      {pushSupported && (
+        <button
+          onClick={handleTogglePush}
+          disabled={pushLoading}
+          className={`fixed bottom-20 md:bottom-6 right-20 z-40 w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 ${
+            pushSubscribed 
+              ? 'bg-green-500 hover:bg-green-600' 
+              : 'bg-slate-600 hover:bg-slate-700'
+          }`}
+          aria-label={pushSubscribed ? 'Desativar notificações' : 'Ativar notificações'}
+          title={pushSubscribed ? 'Notificações ativadas' : 'Ativar notificações'}
+        >
+          {pushLoading ? (
+            <Loader2 className="w-5 h-5 text-white animate-spin" />
+          ) : pushSubscribed ? (
+            <Bell className="w-5 h-5 text-white" />
+          ) : (
+            <BellOff className="w-5 h-5 text-white" />
+          )}
+        </button>
+      )}
+      
       {/* Botão Chat */}
       {canUseChat && (
         <button
