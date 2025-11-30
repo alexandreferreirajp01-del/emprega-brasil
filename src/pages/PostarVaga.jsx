@@ -89,6 +89,7 @@ export default function PostarVaga() {
   
   const [formData, setFormData] = useState({
     title: '',
+    company: '',
     job_function: '',
     city: '',
     description: '',
@@ -161,31 +162,33 @@ export default function PostarVaga() {
         // Tentar extrair dados com IA
         try {
           const result = await base44.integrations.Core.InvokeLLM({
-            prompt: `Analise esta imagem de vaga de emprego brasileira e extraia TODAS as informações visíveis:
+          prompt: `Analise esta imagem de vaga de emprego brasileira e extraia TODAS as informações visíveis:
 
-1. TÍTULO: O cargo/função da vaga
-2. FUNÇÃO: Categoria (Vendedor, Administrativo, Atendente, etc)
-3. CIDADE: Cidade da Paraíba. Se mencionar bairros como Mangabeira, Manaíra, Tambaú, Bancários = João Pessoa. Se Intermares = Cabedelo.
-4. DESCRIÇÃO: Transcreva TODOS os requisitos, benefícios, horário, informações
-5. SALÁRIO: Valor ou faixa salarial
-6. TELEFONE: Números com DDD (formato: 83999999999)
-7. EMAIL: Endereços de email
+          1. TÍTULO: O cargo/função da vaga
+          2. EMPRESA: Nome da empresa que está contratando
+          3. FUNÇÃO: Categoria (Vendedor, Administrativo, Atendente, etc)
+          4. CIDADE: Cidade da Paraíba. Se mencionar bairros como Mangabeira, Manaíra, Tambaú, Bancários = João Pessoa. Se Intermares = Cabedelo.
+          5. DESCRIÇÃO: Transcreva TODOS os requisitos, benefícios, horário, informações
+          6. SALÁRIO: Valor ou faixa salarial
+          7. TELEFONE: Números com DDD (formato: 83999999999)
+          8. EMAIL: Endereços de email
 
-IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, retorne string vazia.`,
-            file_urls: [uploadResult.file_url],
-            response_json_schema: {
-              type: "object",
-              properties: {
-                title: { type: "string", description: "Título/cargo da vaga" },
-                job_function: { type: "string", description: "Função/categoria" },
-                city: { type: "string", description: "Cidade" },
-                description: { type: "string", description: "Descrição completa com requisitos e benefícios" },
-                salary_range: { type: "string", description: "Salário ou faixa salarial" },
-                contact_phone: { type: "string", description: "Telefone/WhatsApp" },
-                contact_email: { type: "string", description: "Email de contato" },
-                website: { type: "string", description: "Site ou link de candidatura" }
-              }
-            }
+          IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, retorne string vazia.`,
+          file_urls: [uploadResult.file_url],
+          response_json_schema: {
+          type: "object",
+          properties: {
+            title: { type: "string", description: "Título/cargo da vaga" },
+            company: { type: "string", description: "Nome da empresa" },
+            job_function: { type: "string", description: "Função/categoria" },
+            city: { type: "string", description: "Cidade" },
+            description: { type: "string", description: "Descrição completa com requisitos e benefícios" },
+            salary_range: { type: "string", description: "Salário ou faixa salarial" },
+            contact_phone: { type: "string", description: "Telefone/WhatsApp" },
+            contact_email: { type: "string", description: "Email de contato" },
+            website: { type: "string", description: "Site ou link de candidatura" }
+          }
+          }
           });
 
           if (result && typeof result === 'object') {
@@ -200,6 +203,7 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
             setFormData(prev => ({
               ...prev,
               title: result.title || prev.title,
+              company: result.company || prev.company,
               job_function: result.job_function || prev.job_function,
               city: foundCity || prev.city,
               description: result.description || prev.description,
@@ -254,6 +258,7 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
 
       const createdJob = await base44.entities.Job.create({
         title: formData.title,
+        company: formData.company,
         job_function: formData.job_function,
         city: formData.city,
         salary_range: formData.salary_range,
@@ -271,7 +276,7 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
       });
       
       setFormData({
-        title: '', job_function: '', city: '', description: '',
+        title: '', company: '', job_function: '', city: '', description: '',
         salary_range: '', contact_phone: '', contact_email: '', image_url: '',
         is_premium: false, is_featured: false, website: ''
       });
@@ -377,6 +382,15 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
                   onChange={(e) => updateField('title', e.target.value)}
                   placeholder="Ex: Vendedor"
                   required
+                />
+              </div>
+
+              <div>
+                <Label>Empresa</Label>
+                <Input
+                  value={formData.company}
+                  onChange={(e) => updateField('company', e.target.value)}
+                  placeholder="Ex: Empresa XYZ"
                 />
               </div>
 

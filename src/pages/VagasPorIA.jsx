@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Sparkles, Wand2, Briefcase, MapPin, DollarSign, 
   Phone, Link as LinkIcon, FileText, Loader2, Check,
-  Star, Crown, ArrowLeft, Copy
+  Star, Crown, ArrowLeft, Copy, Building2
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -63,6 +63,7 @@ export default function VagasPorIA() {
 
   // Campos da vaga
   const [title, setTitle] = useState('');
+  const [company, setCompany] = useState('');
   const [jobFunction, setJobFunction] = useState('');
   const [city, setCity] = useState('');
   const [description, setDescription] = useState('');
@@ -101,6 +102,7 @@ ${rawText}
 
 Extraia as seguintes informações (se não encontrar, deixe vazio):
 - titulo: título/cargo da vaga
+- empresa: nome da empresa que está contratando
 - funcao: função/cargo (escolha a mais próxima desta lista: ${JOB_FUNCTIONS.join(', ')})
 - cidade: cidade da vaga (preferencialmente da Paraíba)
 - descricao: descrição completa da vaga, requisitos, benefícios, etc
@@ -113,6 +115,7 @@ Responda APENAS com o JSON, sem explicações.`,
           type: "object",
           properties: {
             titulo: { type: "string" },
+            empresa: { type: "string" },
             funcao: { type: "string" },
             cidade: { type: "string" },
             descricao: { type: "string" },
@@ -127,6 +130,7 @@ Responda APENAS com o JSON, sem explicações.`,
       
       // Preencher os campos
       if (result.titulo) setTitle(result.titulo);
+      if (result.empresa) setCompany(result.empresa);
       if (result.funcao) {
         const matchedFunc = JOB_FUNCTIONS.find(f => 
           f.toLowerCase().includes(result.funcao.toLowerCase()) ||
@@ -156,6 +160,7 @@ Responda APENAS com o JSON, sem explicações.`,
     mutationFn: async () => {
       const jobData = {
         title: title,
+        company: company,
         job_function: jobFunction,
         city: city,
         description: description,
@@ -163,8 +168,7 @@ Responda APENAS com o JSON, sem explicações.`,
         additional_info: phone ? `Contato: ${phone}` : '',
         application_link: applicationLink,
         is_premium: isPremium,
-        is_featured: isFeatured,
-        company: ''
+        is_featured: isFeatured
       };
       
       return await base44.entities.Job.create(jobData);
@@ -174,6 +178,7 @@ Responda APENAS com o JSON, sem explicações.`,
       // Limpar campos
       setRawText('');
       setTitle('');
+      setCompany('');
       setJobFunction('');
       setCity('');
       setDescription('');
@@ -191,6 +196,7 @@ Responda APENAS com o JSON, sem explicações.`,
   const clearAll = () => {
     setRawText('');
     setTitle('');
+    setCompany('');
     setJobFunction('');
     setCity('');
     setDescription('');
@@ -333,6 +339,19 @@ WhatsApp: (83) 99999-9999"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Ex: Vendedor, Auxiliar Administrativo..."
+                />
+              </div>
+
+              {/* Empresa */}
+              <div>
+                <Label className="flex items-center gap-2 mb-2">
+                  <Building2 className="w-4 h-4 text-slate-400" />
+                  Empresa
+                </Label>
+                <Input
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="Ex: Empresa XYZ"
                 />
               </div>
 
