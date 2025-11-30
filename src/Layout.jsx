@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
   Home, Briefcase, Users, Crown, User, Menu, X, 
-  Shield, Rss, LogOut, MessageCircle, Newspaper, Info, Handshake
+  Shield, Rss, LogOut, MessageCircle, Newspaper, Info, Handshake, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -241,6 +241,15 @@ export default function Layout({ children, currentPageName }) {
                       Postar Vaga
                     </Button>
                   </Link>
+                  <Link to={createPageUrl('VagasPorIA')}>
+                    <Button 
+                      variant={currentPageName === 'VagasPorIA' ? "secondary" : "ghost"}
+                      className={`rounded-xl ${currentPageName === 'VagasPorIA' ? 'bg-purple-100 text-purple-700' : ''}`}
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Vagas por IA
+                    </Button>
+                  </Link>
                 </>
               )}
               </nav>
@@ -313,6 +322,15 @@ export default function Layout({ children, currentPageName }) {
                     >
                       <Briefcase className="w-5 h-5 mr-3" />
                       Postar Vaga
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl('VagasPorIA')} onClick={() => setMobileMenuOpen(false)}>
+                    <Button 
+                      variant={currentPageName === 'VagasPorIA' ? "secondary" : "ghost"}
+                      className={`w-full justify-start rounded-xl ${currentPageName === 'VagasPorIA' ? 'bg-purple-100 text-purple-700' : ''}`}
+                    >
+                      <Sparkles className="w-5 h-5 mr-3" />
+                      Vagas por IA
                     </Button>
                   </Link>
                 </>
