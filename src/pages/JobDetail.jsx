@@ -296,13 +296,50 @@ export default function JobDetail() {
 
 
 
-              {/* Additional Info */}
+              {/* Additional Info ou Home Office Links */}
               {job.additional_info && (
                 <div className="mb-8">
-                  <h2 className="text-lg font-semibold text-slate-800 mb-4">Informações Adicionais</h2>
-                  <p className="text-slate-600 whitespace-pre-line">
-                    <ClickableText text={job.additional_info} />
-                  </p>
+                  {job.additional_info.startsWith('__HOME_OFFICE_LINKS__') ? (
+                    <>
+                      <h2 className="text-lg font-semibold text-slate-800 mb-4">Vagas Disponíveis</h2>
+                      <div className="space-y-3">
+                        {(() => {
+                          try {
+                            const jsonData = job.additional_info.replace('__HOME_OFFICE_LINKS__', '');
+                            const links = JSON.parse(jsonData);
+                            return links.map((item, index) => (
+                              <div 
+                                key={index} 
+                                className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-sm font-semibold">
+                                    {index + 1}
+                                  </span>
+                                  <span className="font-medium text-slate-800">{item.titulo}</span>
+                                </div>
+                                <a href={item.link} target="_blank" rel="noopener noreferrer">
+                                  <Button size="sm" className="bg-[#25D366] hover:bg-[#20bd5a] rounded-lg">
+                                    <ExternalLink className="w-4 h-4 mr-2" />
+                                    Candidatar-se
+                                  </Button>
+                                </a>
+                              </div>
+                            ));
+                          } catch (e) {
+                            return null;
+                          }
+                        })()}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h2 className="text-lg font-semibold text-slate-800 mb-4">Informações Adicionais</h2>
+                      <p className="text-slate-600 whitespace-pre-line">
+                        <ClickableText text={job.additional_info} />
+                      </p>
+                    </>
+                  )}
                 </div>
               )}
 
