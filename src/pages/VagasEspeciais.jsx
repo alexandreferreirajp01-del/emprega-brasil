@@ -97,38 +97,23 @@ export default function VagasEspeciais() {
     checkAuth();
   }, []);
 
-  // Extrair vagas do texto - LIMITE: 3000 caracteres para evitar timeout
+  // Extrair vagas do texto
   const extractFromText = async () => {
     if (!rawText.trim()) return;
-    
-    // Limite de caracteres para evitar timeout (máx recomendado: 3000)
-    const MAX_CHARS = 3000;
-    const textToProcess = rawText.substring(0, MAX_CHARS);
-    
-    if (rawText.length > MAX_CHARS) {
-      setErrorMessage(`Texto muito longo! Máximo: ${MAX_CHARS} caracteres. Seu texto tem ${rawText.length}. Reduza o texto ou divida em partes.`);
-      return;
-    }
+    if (isExtracting) return; // Previne duplo clique
     
     setIsExtracting(true);
     setErrorMessage('');
     setProcessingStatus('Analisando texto...');
     
-    // Timeout de 60 segundos
-    const timeoutId = setTimeout(() => {
-      setIsExtracting(false);
-      setProcessingStatus('');
-      setErrorMessage('Tempo esgotado. Reduza o tamanho do texto e tente novamente.');
-    }, 60000);
-    
     try {
+      // Limitar texto para evitar problemas
+      const textToProcess = rawText.substring(0, 2500);
+      
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extraia as vagas de emprego do texto abaixo. Para cada vaga, extraia: title, company, city, job_type, job_function, salary_range, description, contact_phone, contact_email.
+        prompt: `Extraia vagas de emprego. Retorne JSON com array "vagas". Cada vaga: title, company, city, job_type, description, contact_phone, contact_email.
 
-TEXTO:
-${textToProcess}
-
-Retorne um JSON com array "vagas".`,
+${textToProcess}`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -153,9 +138,6 @@ Retorne um JSON com array "vagas".`,
         }
       });
 
-      clearTimeout(timeoutId);
-      setProcessingStatus('Processando resultados...');
-
       if (result?.vagas && Array.isArray(result.vagas) && result.vagas.length > 0) {
         const jobsWithFlags = result.vagas.map(job => ({
           title: job.title || 'Vaga sem título',
@@ -172,113 +154,97 @@ Retorne um JSON com array "vagas".`,
         }));
         setExtractedJobs(jobsWithFlags);
         setProcessingStatus(`${jobsWithFlags.length} vaga(s) extraída(s)!`);
+        setTimeout(() => setProcessingStatus(''), 3000);
       } else {
-        setErrorMessage('Nenhuma vaga encontrada. Verifique se o texto contém informações de vagas.');
+        setErrorMessage('Nenhuma vaga encontrada no texto.');
       }
-
     } catch (error) {
-      clearTimeout(timeoutId);
-      console.error('Erro ao extrair dados:', error);
-      setErrorMessage('Erro ao processar. Tente com um texto menor.');
+      console.error('Erro:', error);
+      setErrorMessage('Erro ao processar. Tente novamente.');
     } finally {
       setIsExtracting(false);
-      setTimeout(() => setProcessingStatus(''), 3000);
     }
   };
 
-  // Upload e processamento de imagens - LIMITE: 3 imagens por vez para evitar timeout
+  // Upload e processamento de UMA imagem por vez
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
+    if (isProcessingImages) return; // Previne duplo clique
     
-    // Limite de imagens para evitar timeout (máx recomendado: 3)
-    const MAX_IMAGES = 3;
-    if (files.length > MAX_IMAGES) {
-      setErrorMessage(`Máximo ${MAX_IMAGES} imagens por vez. Você selecionou ${files.length}. Selecione menos imagens.`);
-      if (e.target) e.target.value = '';
-      return;
+    // Processa apenas 1 imagem por vez para evitar travamento
+    const file = files[0];
+    if (files.length > 1) {
+      setErrorMessage('Selecione apenas 1 imagem por vez para melhor resultado.');
     }
     
     setIsProcessingImages(true);
     setErrorMessage('');
-    let successCount = 0;
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      setProcessingStatus(`Enviando imagem ${i + 1} de ${files.length}...`);
-      
-      // Timeout individual de 45 segundos por imagem
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-        setProcessingStatus(`Imagem ${i + 1} demorou muito, pulando...`);
-      }, 45000);
-      
-      try {
-        // Upload da imagem
-        const uploadResult = await base44.integrations.Core.UploadFile({ file });
-        if (!uploadResult?.file_url) {
-          clearTimeout(timeoutId);
-          continue;
-        }
-
-        setProcessingStatus(`Lendo imagem ${i + 1}...`);
-
-        // Extrair dados com IA - prompt simplificado para ser mais rápido
-        const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `Extraia da imagem: title (cargo), company, city, job_type, salary_range, description, contact_phone, contact_email. Retorne JSON.`,
-          file_urls: [uploadResult.file_url],
-          response_json_schema: {
-            type: "object",
-            properties: {
-              title: { type: "string" },
-              company: { type: "string" },
-              city: { type: "string" },
-              job_type: { type: "string" },
-              job_function: { type: "string" },
-              salary_range: { type: "string" },
-              description: { type: "string" },
-              contact_phone: { type: "string" },
-              contact_email: { type: "string" }
-            }
-          }
-        });
-
-        clearTimeout(timeoutId);
-
-        if (result) {
-          const newJob = {
-            title: result.title || 'Vaga sem título',
-            company: result.company || '',
-            city: result.city || '',
-            job_type: result.job_type || 'CLT',
-            job_function: result.job_function || '',
-            salary_range: result.salary_range || '',
-            description: result.description || '',
-            contact_phone: result.contact_phone || '',
-            contact_email: result.contact_email || '',
-            image_url: uploadResult.file_url,
-            is_premium: false,
-            is_featured: false
-          };
-          
-          setExtractedFromImages(prev => [...prev, newJob]);
-          successCount++;
-          setProcessingStatus(`${successCount} vaga(s) extraída(s)!`);
-        }
-      } catch (error) {
-        clearTimeout(timeoutId);
-        console.error('Erro ao processar imagem:', error);
-      }
-    }
-
-    if (successCount === 0 && files.length > 0) {
-      setErrorMessage('Não foi possível extrair dados. Tente com imagens mais claras.');
-    }
+    setProcessingStatus('Enviando imagem...');
     
-    setIsProcessingImages(false);
-    setTimeout(() => setProcessingStatus(''), 3000);
-    if (e.target) e.target.value = '';
+    try {
+      // Upload da imagem
+      const uploadResult = await base44.integrations.Core.UploadFile({ file });
+      
+      if (!uploadResult?.file_url) {
+        setErrorMessage('Erro ao enviar imagem. Tente novamente.');
+        setIsProcessingImages(false);
+        if (e.target) e.target.value = '';
+        return;
+      }
+
+      setProcessingStatus('Extraindo dados da imagem...');
+
+      // Extrair dados com IA
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Extraia da imagem de vaga: title, company, city, job_type, description, contact_phone, contact_email. Retorne JSON.`,
+        file_urls: [uploadResult.file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            title: { type: "string" },
+            company: { type: "string" },
+            city: { type: "string" },
+            job_type: { type: "string" },
+            job_function: { type: "string" },
+            salary_range: { type: "string" },
+            description: { type: "string" },
+            contact_phone: { type: "string" },
+            contact_email: { type: "string" }
+          }
+        }
+      });
+
+      if (result) {
+        const newJob = {
+          title: result.title || 'Vaga sem título',
+          company: result.company || '',
+          city: result.city || '',
+          job_type: result.job_type || 'CLT',
+          job_function: result.job_function || '',
+          salary_range: result.salary_range || '',
+          description: result.description || '',
+          contact_phone: result.contact_phone || '',
+          contact_email: result.contact_email || '',
+          image_url: uploadResult.file_url,
+          is_premium: false,
+          is_featured: false
+        };
+        
+        setExtractedFromImages(prev => [...prev, newJob]);
+        setProcessingStatus('Vaga extraída com sucesso!');
+        setTimeout(() => setProcessingStatus(''), 3000);
+      } else {
+        setErrorMessage('Não foi possível extrair dados da imagem.');
+      }
+    } catch (error) {
+      console.error('Erro:', error);
+      setErrorMessage('Erro ao processar. Tente novamente.');
+    } finally {
+      setIsProcessingImages(false);
+      setProcessingStatus('');
+      if (e.target) e.target.value = '';
+    }
   };
 
   // Atualizar vaga individual
@@ -515,11 +481,11 @@ Empresa: Empresa Y
 ...`}
                     value={rawText}
                     onChange={(e) => setRawText(e.target.value)}
-                    className={`min-h-[300px] text-base ${rawText.length > 3000 ? 'border-red-500 bg-red-50' : ''}`}
+                    className={`min-h-[300px] text-base ${rawText.length > 2500 ? 'border-red-500 bg-red-50' : ''}`}
                   />
                   <div className="flex justify-between items-center">
-                    <span className={`text-xs ${rawText.length > 3000 ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
-                      {rawText.length}/3000 {rawText.length > 3000 && '⚠️ EXCEDIDO!'}
+                    <span className={`text-xs ${rawText.length > 2500 ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
+                      {rawText.length}/2500 {rawText.length > 2500 && '⚠️ Muito longo!'}
                     </span>
                     {rawText && (
                       <Button variant="ghost" size="sm" onClick={() => setRawText('')}>
@@ -574,7 +540,6 @@ Empresa: Empresa Y
                     <input
                       type="file"
                       accept="image/*"
-                      multiple
                       onChange={handleImageUpload}
                       className="hidden"
                       id="image-upload"
@@ -592,16 +557,14 @@ Empresa: Empresa Y
                         {isProcessingImages ? 'Processando imagens...' : 'Clique para selecionar imagens'}
                       </p>
                       <p className="text-sm text-slate-400">
-                        {isProcessingImages ? 'Aguarde o processamento terminar' : 'Selecione várias imagens de uma vez'}
+                        {isProcessingImages ? 'Aguarde o processamento terminar' : 'Selecione uma imagem'}
                       </p>
                     </label>
                   </div>
                   
-                  {/* Limites e Dicas */}
-                  <div className="p-3 bg-amber-50 rounded-lg text-sm text-amber-700 space-y-1">
-                    <p><strong>⚠️ Limite:</strong> Máximo 3 imagens por vez</p>
-                    <p><strong>💡 Dica:</strong> Imagens claras processam mais rápido</p>
-                    <p><strong>⏱️ Tempo:</strong> ~15-30 segundos por imagem</p>
+                  {/* Dica */}
+                  <div className="p-3 bg-amber-50 rounded-lg text-sm text-amber-700">
+                    <p><strong>💡 Dica:</strong> Selecione 1 imagem por vez para evitar travamento.</p>
                   </div>
 
                   {extractedFromImages.length > 0 && (
