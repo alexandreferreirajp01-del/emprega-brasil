@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Sparkles, Wand2, Briefcase, MapPin, DollarSign, 
   Phone, Link as LinkIcon, FileText, Loader2, Check,
-  Star, Crown, ArrowLeft, Copy, Building2
+  Star, Crown, ArrowLeft, Copy, Building2, Search as SearchIcon
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -22,6 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Search } from "lucide-react";
+import { formatWhatsAppLink } from "@/components/common/ContactOptionsDialog";
 
 const JOB_FUNCTIONS = [
   "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
@@ -48,9 +51,47 @@ const JOB_FUNCTIONS = [
 
 const CIDADES_PB = [
   "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
-  "Patos", "Sousa", "Cajazeiras", "Guarabira", "Mamanguape", "Sapé",
-  "Pombal", "Monteiro", "Queimadas", "Esperança", "Itabaiana", "Areia",
-  "Solânea", "Bananeiras", "Cuité", "Picuí", "Catolé do Rocha"
+  "Água Branca", "Aguiar", "Alagoa Grande", "Alagoa Nova", "Alagoinha", "Alcantil",
+  "Algodão de Jandaíra", "Alhandra", "Amparo", "Aparecida", "Araçagi", "Arara",
+  "Araruna", "Areia", "Areia de Baraúnas", "Areial", "Aroeiras", "Assunção",
+  "Baía da Traição", "Bananeiras", "Baraúna", "Barra de Santa Rosa", "Barra de Santana",
+  "Barra de São Miguel", "Belém", "Belém do Brejo do Cruz", "Bernardino Batista",
+  "Boa Ventura", "Boa Vista", "Bom Jesus", "Bom Sucesso", "Bonito de Santa Fé",
+  "Boqueirão", "Borborema", "Brejo do Cruz", "Brejo dos Santos", "Caaporã",
+  "Cabaceiras", "Cachoeira dos Índios", "Cacimba de Areia", "Cacimba de Dentro",
+  "Cacimbas", "Caiçara", "Caldas Brandão", "Camalaú", "Capim", "Caraúbas",
+  "Carrapateira", "Casserengue", "Catingueira", "Catolé do Rocha", "Caturité",
+  "Conceição", "Condado", "Conde", "Congo", "Coremas", "Coxixola",
+  "Cruz do Espírito Santo", "Cubati", "Cuité", "Cuité de Mamanguape", "Cuitegi",
+  "Curral de Cima", "Curral Velho", "Damião", "Desterro", "Diamante", "Dona Inês",
+  "Duas Estradas", "Emas", "Esperança", "Fagundes", "Frei Martinho", "Gado Bravo",
+  "Guarabira", "Gurinhém", "Gurjão", "Ibiara", "Igaracy", "Imaculada", "Ingá",
+  "Itabaiana", "Itaporanga", "Itapororoca", "Itatuba", "Jacaraú", "Jericó",
+  "Joca Claudino", "Juarez Távora", "Juazeirinho", "Junco do Seridó", "Juripiranga",
+  "Juru", "Lagoa", "Lagoa de Dentro", "Lagoa Seca", "Lastro", "Livramento",
+  "Logradouro", "Lucena", "Mãe d'Água", "Malta", "Mamanguape", "Manaíra",
+  "Marcação", "Mari", "Marizópolis", "Massaranduba", "Mataraca", "Matinhas",
+  "Mato Grosso", "Maturéia", "Mogeiro", "Montadas", "Monte Horebe", "Monteiro",
+  "Mulungu", "Natuba", "Nazarezinho", "Nova Floresta", "Nova Olinda", "Nova Palmeira",
+  "Olho d'Água", "Olivedos", "Ouro Velho", "Parari", "Passagem", "Patos", "Paulista",
+  "Pedra Branca", "Pedra Lavrada", "Pedras de Fogo", "Pedro Régis", "Piancó", "Picuí",
+  "Pilar", "Pilões", "Pilõezinhos", "Pirpirituba", "Pitimbu", "Pocinhos",
+  "Poço Dantas", "Poço de José de Moura", "Pombal", "Prata", "Princesa Isabel",
+  "Puxinanã", "Queimadas", "Quixaba", "Remígio", "Riachão", "Riachão do Bacamarte",
+  "Riachão do Poço", "Riacho de Santo Antônio", "Riacho dos Cavalos", "Rio Tinto",
+  "Salgadinho", "Salgado de São Félix", "Santa Cecília", "Santa Cruz", "Santa Helena",
+  "Santa Inês", "Santa Luzia", "Santa Teresinha", "Santana de Mangueira",
+  "Santana dos Garrotes", "Santarém", "Santo André", "São Bentinho", "São Bento",
+  "São Domingos", "São Domingos do Cariri", "São Francisco", "São João do Cariri",
+  "São João do Rio do Peixe", "São João do Tigre", "São José da Lagoa Tapada",
+  "São José de Caiana", "São José de Espinharas", "São José de Piranhas",
+  "São José de Princesa", "São José do Bonfim", "São José do Brejo do Cruz",
+  "São José do Sabugi", "São José dos Cordeiros", "São José dos Ramos", "São Mamede",
+  "São Miguel de Taipu", "São Sebastião de Lagoa de Roça", "São Sebastião do Umbuzeiro",
+  "Sapé", "Serra Branca", "Serra da Raiz", "Serra Grande", "Serra Redonda", "Serraria",
+  "Sertãozinho", "Sobrado", "Solânea", "Soledade", "Sossego", "Sousa", "Sumé",
+  "Tacima", "Taperoá", "Tavares", "Teixeira", "Tenório", "Triunfo", "Uiraúna",
+  "Umbuzeiro", "Várzea", "Vieirópolis", "Vista Serrana", "Zabelê"
 ];
 
 export default function VagasPorIA() {
@@ -72,6 +113,10 @@ export default function VagasPorIA() {
   const [applicationLink, setApplicationLink] = useState('');
   const [isPremium, setIsPremium] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
+  
+  // Filtros de busca
+  const [citySearch, setCitySearch] = useState('');
+  const [funcSearch, setFuncSearch] = useState('');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -158,6 +203,18 @@ Responda APENAS com o JSON, sem explicações.`,
 
   const createJobMutation = useMutation({
     mutationFn: async () => {
+      // Gerar link de candidatura correto
+      let finalApplicationLink = applicationLink;
+      
+      // Se tem telefone e não tem link, usar WhatsApp
+      if (phone && !applicationLink) {
+        finalApplicationLink = formatWhatsAppLink(phone);
+      }
+      // Se o link é um número de telefone, converter para WhatsApp
+      else if (applicationLink && /^\d+$/.test(applicationLink.replace(/\D/g, '')) && applicationLink.length >= 10) {
+        finalApplicationLink = formatWhatsAppLink(applicationLink);
+      }
+      
       const jobData = {
         title: title,
         company: company,
@@ -166,7 +223,7 @@ Responda APENAS com o JSON, sem explicações.`,
         description: description,
         salary_range: salary,
         additional_info: phone ? `Contato: ${phone}` : '',
-        application_link: applicationLink,
+        application_link: finalApplicationLink,
         is_premium: isPremium,
         is_featured: isFeatured
       };
@@ -366,9 +423,26 @@ WhatsApp: (83) 99999-9999"
                     <SelectValue placeholder="Selecione a função" />
                   </SelectTrigger>
                   <SelectContent>
-                    {JOB_FUNCTIONS.map((func) => (
-                      <SelectItem key={func} value={func}>{func}</SelectItem>
-                    ))}
+                    <div className="p-2 border-b sticky top-0 bg-white z-10">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="Buscar função..."
+                          value={funcSearch}
+                          onChange={(e) => setFuncSearch(e.target.value)}
+                          className="w-full h-9 pl-8 pr-3 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          autoComplete="off"
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+                    <ScrollArea className="h-[200px]">
+                      {JOB_FUNCTIONS.filter(f => f.toLowerCase().includes(funcSearch.toLowerCase())).map(f => (
+                        <SelectItem key={f} value={f}>{f}</SelectItem>
+                      ))}
+                    </ScrollArea>
                   </SelectContent>
                 </Select>
               </div>
@@ -379,11 +453,33 @@ WhatsApp: (83) 99999-9999"
                   <MapPin className="w-4 h-4 text-slate-400" />
                   Cidade
                 </Label>
-                <Input
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="Ex: João Pessoa, Campina Grande..."
-                />
+                <Select value={city} onValueChange={setCity}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a cidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <div className="p-2 border-b sticky top-0 bg-white z-10">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="Buscar cidade..."
+                          value={citySearch}
+                          onChange={(e) => setCitySearch(e.target.value)}
+                          className="w-full h-9 pl-8 pr-3 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          autoComplete="off"
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+                    <ScrollArea className="h-[200px]">
+                      {CIDADES_PB.filter(c => c.toLowerCase().includes(citySearch.toLowerCase())).map(c => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </ScrollArea>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Descrição */}

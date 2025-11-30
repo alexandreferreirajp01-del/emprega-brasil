@@ -246,9 +246,14 @@ export default function PostarVaga() {
       if (formData.website) {
         applicationLink = formData.website.startsWith('http') ? formData.website : `https://${formData.website}`;
       } else if (formData.contact_phone) {
+        // Formatar corretamente o link do WhatsApp com código 55
         let phone = formData.contact_phone.replace(/\D/g, '');
-        // Adicionar código do Brasil se não tiver
-        if (phone.length === 11 || phone.length === 10) {
+        // Remover 0 inicial se houver
+        if (phone.startsWith('0')) {
+          phone = phone.substring(1);
+        }
+        // Garantir que tem código do país 55
+        if (!phone.startsWith('55')) {
           phone = '55' + phone;
         }
         applicationLink = `https://wa.me/${phone}`;
