@@ -88,6 +88,8 @@ export default function PostarVaga() {
   });
   const [citySearch, setCitySearch] = useState('');
   const [funcSearch, setFuncSearch] = useState('');
+  const [showNotificationSender, setShowNotificationSender] = useState(false);
+  const [lastCreatedJob, setLastCreatedJob] = useState(null);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -236,7 +238,7 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
         applicationLink = `mailto:${formData.contact_email}`;
       }
 
-      await base44.entities.Job.create({
+      const createdJob = await base44.entities.Job.create({
         title: formData.title,
         job_function: formData.job_function,
         city: formData.city,
@@ -248,12 +250,19 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
         application_link: applicationLink
       });
 
+      setLastCreatedJob({
+        id: createdJob?.id,
+        title: formData.title,
+        city: formData.city
+      });
+      
       setFormData({
         title: '', job_function: '', city: '', description: '',
         salary_range: '', contact_phone: '', contact_email: '', image_url: '',
         is_premium: false, is_featured: false, website: ''
       });
       showToast('Vaga publicada!');
+      setShowNotificationSender(true);
     } catch (err) {
       showToast('Erro ao publicar', 'error');
     } finally {
@@ -537,6 +546,30 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
             </form>
           </CardContent>
         </Card>
+
+        {/* Enviar Notificação após publicar vaga */}
+        {showNotificationSender && lastCreatedJob && (
+          <div className="mt-6">
+            <NotificationSender 
+              showToast={showToast}
+              job={lastCreatedJob}
+              onClose={() => {
+                setShowNotificationSender(false);
+                setLastCreatedJob(null);
+              }}
+            />
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setShowNotificationSender(false);
+                setLastCreatedJob(null);
+              }}
+              className="w-full mt-2 text-slate-500"
+            >
+              Pular notificação
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
