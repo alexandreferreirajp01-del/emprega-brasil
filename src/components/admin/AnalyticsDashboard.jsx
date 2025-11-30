@@ -315,6 +315,39 @@ export default function AnalyticsDashboard() {
         </Card>
       </div>
 
+      {/* Cards de Visitas ao App */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-indigo-100">Visitas ao App</p>
+                <p className="text-3xl font-bold mt-1">{totalAppVisits.toLocaleString()}</p>
+              </div>
+              <Eye className="w-10 h-10 text-indigo-200" />
+            </div>
+            <div className="mt-4 text-sm text-indigo-200">
+              Total de acessos registrados
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-teal-100">Visitantes Únicos (App)</p>
+                <p className="text-3xl font-bold mt-1">{uniqueAppVisitors.toLocaleString()}</p>
+              </div>
+              <Users className="w-10 h-10 text-teal-200" />
+            </div>
+            <div className="mt-4 text-sm text-teal-200">
+              Pessoas diferentes acessaram
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Visualizações ao longo do tempo */}
