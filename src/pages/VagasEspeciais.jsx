@@ -97,37 +97,38 @@ export default function VagasEspeciais() {
     checkAuth();
   }, []);
 
-  // Extrair vagas do texto
+  // Extrair vagas do texto - LIMITE: 3000 caracteres para evitar timeout
   const extractFromText = async () => {
     if (!rawText.trim()) return;
+    
+    // Limite de caracteres para evitar timeout (máx recomendado: 3000)
+    const MAX_CHARS = 3000;
+    const textToProcess = rawText.substring(0, MAX_CHARS);
+    
+    if (rawText.length > MAX_CHARS) {
+      setErrorMessage(`Texto muito longo! Máximo: ${MAX_CHARS} caracteres. Seu texto tem ${rawText.length}. Reduza o texto ou divida em partes.`);
+      return;
+    }
     
     setIsExtracting(true);
     setErrorMessage('');
     setProcessingStatus('Analisando texto...');
     
+    // Timeout de 60 segundos
+    const timeoutId = setTimeout(() => {
+      setIsExtracting(false);
+      setProcessingStatus('');
+      setErrorMessage('Tempo esgotado. Reduza o tamanho do texto e tente novamente.');
+    }, 60000);
+    
     try {
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analise o seguinte texto que contém várias vagas de emprego brasileiras e extraia CADA VAGA SEPARADAMENTE.
+        prompt: `Extraia as vagas de emprego do texto abaixo. Para cada vaga, extraia: title, company, city, job_type, job_function, salary_range, description, contact_phone, contact_email.
 
 TEXTO:
-${rawText.substring(0, 8000)}
+${textToProcess}
 
-Para CADA vaga encontrada, extraia:
-- title: Título/cargo da vaga
-- company: Nome da empresa (se mencionado, senão deixe vazio)
-- city: Cidade (preferencialmente da Paraíba, senão deixe vazio)
-- job_type: Tipo (CLT, Home Office, Estágio, Temporário, Freelancer, Jovem Aprendiz, PJ, PCD)
-- job_function: Função/categoria
-- salary_range: Salário se mencionado
-- description: Descrição com requisitos e benefícios
-- contact_phone: Telefone/WhatsApp (só números com DDD)
-- contact_email: Email se houver
-
-IMPORTANTE: 
-- Separe CADA VAGA como um item diferente no array
-- Retorne sempre um array, mesmo que tenha apenas 1 vaga
-
-Responda APENAS com o JSON válido.`,
+Retorne um JSON com array "vagas".`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -152,6 +153,7 @@ Responda APENAS com o JSON válido.`,
         }
       });
 
+      clearTimeout(timeoutId);
       setProcessingStatus('Processando resultados...');
 
       if (result?.vagas && Array.isArray(result.vagas) && result.vagas.length > 0) {
@@ -171,58 +173,60 @@ Responda APENAS com o JSON válido.`,
         setExtractedJobs(jobsWithFlags);
         setProcessingStatus(`${jobsWithFlags.length} vaga(s) extraída(s)!`);
       } else {
-        setErrorMessage('Nenhuma vaga encontrada no texto. Tente reformatar o conteúdo.');
+        setErrorMessage('Nenhuma vaga encontrada. Verifique se o texto contém informações de vagas.');
       }
 
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('Erro ao extrair dados:', error);
-      setErrorMessage('Erro ao processar. Tente novamente ou reduza o tamanho do texto.');
+      setErrorMessage('Erro ao processar. Tente com um texto menor.');
     } finally {
       setIsExtracting(false);
       setTimeout(() => setProcessingStatus(''), 3000);
     }
   };
 
-  // Upload e processamento de imagens
+  // Upload e processamento de imagens - LIMITE: 3 imagens por vez para evitar timeout
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
     
+    // Limite de imagens para evitar timeout (máx recomendado: 3)
+    const MAX_IMAGES = 3;
+    if (files.length > MAX_IMAGES) {
+      setErrorMessage(`Máximo ${MAX_IMAGES} imagens por vez. Você selecionou ${files.length}. Selecione menos imagens.`);
+      if (e.target) e.target.value = '';
+      return;
+    }
+    
     setIsProcessingImages(true);
     setErrorMessage('');
-    const newJobs = [];
-    const totalFiles = files.length;
+    let successCount = 0;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      setProcessingStatus(`Processando imagem ${i + 1} de ${totalFiles}...`);
+      setProcessingStatus(`Enviando imagem ${i + 1} de ${files.length}...`);
+      
+      // Timeout individual de 45 segundos por imagem
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        setProcessingStatus(`Imagem ${i + 1} demorou muito, pulando...`);
+      }, 45000);
       
       try {
         // Upload da imagem
         const uploadResult = await base44.integrations.Core.UploadFile({ file });
         if (!uploadResult?.file_url) {
-          console.log('Upload falhou para:', file.name);
+          clearTimeout(timeoutId);
           continue;
         }
 
-        setProcessingStatus(`Extraindo dados da imagem ${i + 1}...`);
+        setProcessingStatus(`Lendo imagem ${i + 1}...`);
 
-        // Extrair dados com IA
+        // Extrair dados com IA - prompt simplificado para ser mais rápido
         const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `Analise esta imagem de vaga de emprego brasileira e extraia as informações.
-
-Extraia:
-- title: Título/cargo da vaga
-- company: Nome da empresa
-- city: Cidade (bairros como Mangabeira, Manaíra = João Pessoa)
-- job_type: Tipo (CLT, Home Office, Estágio, etc)
-- job_function: Função/categoria
-- salary_range: Salário
-- description: Descrição, requisitos, benefícios
-- contact_phone: Telefone/WhatsApp (apenas números)
-- contact_email: Email
-
-Responda APENAS com JSON válido.`,
+          prompt: `Extraia da imagem: title (cargo), company, city, job_type, salary_range, description, contact_phone, contact_email. Retorne JSON.`,
           file_urls: [uploadResult.file_url],
           response_json_schema: {
             type: "object",
@@ -240,8 +244,10 @@ Responda APENAS com JSON válido.`,
           }
         });
 
-        if (result && result.title) {
-          newJobs.push({
+        clearTimeout(timeoutId);
+
+        if (result) {
+          const newJob = {
             title: result.title || 'Vaga sem título',
             company: result.company || '',
             city: result.city || '',
@@ -254,20 +260,20 @@ Responda APENAS com JSON válido.`,
             image_url: uploadResult.file_url,
             is_premium: false,
             is_featured: false
-          });
+          };
           
-          // Atualizar lista imediatamente para feedback visual
-          setExtractedFromImages(prev => [...prev, newJobs[newJobs.length - 1]]);
+          setExtractedFromImages(prev => [...prev, newJob]);
+          successCount++;
+          setProcessingStatus(`${successCount} vaga(s) extraída(s)!`);
         }
       } catch (error) {
+        clearTimeout(timeoutId);
         console.error('Erro ao processar imagem:', error);
       }
     }
 
-    if (newJobs.length === 0 && files.length > 0) {
-      setErrorMessage('Não foi possível extrair dados das imagens. Tente novamente.');
-    } else if (newJobs.length > 0) {
-      setProcessingStatus(`${newJobs.length} vaga(s) extraída(s)!`);
+    if (successCount === 0 && files.length > 0) {
+      setErrorMessage('Não foi possível extrair dados. Tente com imagens mais claras.');
     }
     
     setIsProcessingImages(false);
@@ -508,11 +514,13 @@ VAGA: Auxiliar Administrativo
 Empresa: Empresa Y
 ...`}
                     value={rawText}
-                    onChange={(e) => setRawText(e.target.value.slice(0, 10000))}
-                    className="min-h-[350px] text-base"
+                    onChange={(e) => setRawText(e.target.value)}
+                    className={`min-h-[300px] text-base ${rawText.length > 3000 ? 'border-red-500 bg-red-50' : ''}`}
                   />
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-slate-400">{rawText.length}/10000</span>
+                    <span className={`text-xs ${rawText.length > 3000 ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
+                      {rawText.length}/3000 {rawText.length > 3000 && '⚠️ EXCEDIDO!'}
+                    </span>
                     {rawText && (
                       <Button variant="ghost" size="sm" onClick={() => setRawText('')}>
                         Limpar
@@ -589,9 +597,11 @@ Empresa: Empresa Y
                     </label>
                   </div>
                   
-                  {/* Dica */}
-                  <div className="p-3 bg-amber-50 rounded-lg text-sm text-amber-700">
-                    <strong>Dica:</strong> Para melhor resultado, selecione imagens claras e legíveis. O processamento pode levar alguns segundos por imagem.
+                  {/* Limites e Dicas */}
+                  <div className="p-3 bg-amber-50 rounded-lg text-sm text-amber-700 space-y-1">
+                    <p><strong>⚠️ Limite:</strong> Máximo 3 imagens por vez</p>
+                    <p><strong>💡 Dica:</strong> Imagens claras processam mais rápido</p>
+                    <p><strong>⏱️ Tempo:</strong> ~15-30 segundos por imagem</p>
                   </div>
 
                   {extractedFromImages.length > 0 && (
