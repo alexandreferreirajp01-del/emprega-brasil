@@ -66,6 +66,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 
 const JOB_FUNCTIONS = [
   "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
@@ -96,6 +102,9 @@ export default function Jobs() {
   const [selectedType, setSelectedType] = useState('all');
   const [selectedFunction, setSelectedFunction] = useState('all');
   const [citySearch, setCitySearch] = useState('');
+  const [funcSearch, setFuncSearch] = useState('');
+  const [cityOpen, setCityOpen] = useState(false);
+  const [funcOpen, setFuncOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
 
@@ -188,6 +197,7 @@ export default function Jobs() {
     setSelectedType('all');
     setSelectedFunction('all');
     setCitySearch('');
+    setFuncSearch('');
   };
 
   const hasActiveFilters = searchTerm || selectedCity !== 'all' || selectedType !== 'all' || selectedFunction !== 'all';
@@ -233,43 +243,53 @@ export default function Jobs() {
               <span className="text-sm font-medium text-slate-600">Filtrar por:</span>
               
               {/* Filtro Cidade com busca */}
-              <Select value={selectedCity} onValueChange={setSelectedCity}>
-                <SelectTrigger className="w-[180px] h-10 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-slate-400" />
-                    <SelectValue placeholder="Cidade" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <div className="p-2 border-b sticky top-0 bg-white z-10">
-                    <div className="relative">
-                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <input
-                        type="text"
-                        placeholder="Buscar cidade..."
-                        value={citySearch}
-                        onChange={(e) => setCitySearch(e.target.value)}
-                        className="w-full h-9 pl-8 pr-3 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        autoComplete="off"
-                        autoFocus={false}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onTouchStart={(e) => e.stopPropagation()}
-                        onClick={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => e.stopPropagation()}
-                        onFocus={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
-                  <ScrollArea className="h-[250px]">
-                    <SelectItem value="all">Todas as cidades</SelectItem>
-                    {filteredCities.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
+              <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-[180px] h-10 rounded-lg justify-start">
+                    <MapPin className="w-4 h-4 text-slate-400 mr-2" />
+                    <span className="truncate">
+                      {selectedCity === 'all' ? 'Cidade' : selectedCity}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[220px] p-0" align="start">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Buscar cidade..." 
+                      value={citySearch}
+                      onValueChange={setCitySearch}
+                    />
+                    <CommandList>
+                      <CommandEmpty>Nenhuma cidade encontrada</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="all"
+                          onSelect={() => {
+                            setSelectedCity('all');
+                            setCityOpen(false);
+                            setCitySearch('');
+                          }}
+                        >
+                          Todas as cidades
+                        </CommandItem>
+                        {filteredCities.map((city) => (
+                          <CommandItem
+                            key={city}
+                            value={city}
+                            onSelect={() => {
+                              setSelectedCity(city);
+                              setCityOpen(false);
+                              setCitySearch('');
+                            }}
+                          >
+                            {city}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
 
               {/* Filtro Tipo */}
               <Select value={selectedType} onValueChange={setSelectedType}>
@@ -293,24 +313,55 @@ export default function Jobs() {
               </Select>
 
               {/* Filtro Função */}
-              <Select value={selectedFunction} onValueChange={setSelectedFunction}>
-                <SelectTrigger className="w-[160px] h-10 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-slate-400" />
-                    <SelectValue placeholder="Função" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <ScrollArea className="h-[250px]">
-                    <SelectItem value="all">Todas funções</SelectItem>
-                    {JOB_FUNCTIONS.map((func) => (
-                      <SelectItem key={func} value={func}>
-                        {func}
-                      </SelectItem>
-                    ))}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
+              <Popover open={funcOpen} onOpenChange={setFuncOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-[160px] h-10 rounded-lg justify-start">
+                    <Briefcase className="w-4 h-4 text-slate-400 mr-2" />
+                    <span className="truncate text-sm">
+                      {selectedFunction === 'all' ? 'Função' : selectedFunction}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[220px] p-0" align="start">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Buscar função..." 
+                      value={funcSearch}
+                      onValueChange={setFuncSearch}
+                    />
+                    <CommandList>
+                      <CommandEmpty>Nenhuma função encontrada</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="all"
+                          onSelect={() => {
+                            setSelectedFunction('all');
+                            setFuncOpen(false);
+                            setFuncSearch('');
+                          }}
+                        >
+                          Todas funções
+                        </CommandItem>
+                        {JOB_FUNCTIONS.filter(f => 
+                          f.toLowerCase().includes(funcSearch.toLowerCase())
+                        ).map((func) => (
+                          <CommandItem
+                            key={func}
+                            value={func}
+                            onSelect={() => {
+                              setSelectedFunction(func);
+                              setFuncOpen(false);
+                              setFuncSearch('');
+                            }}
+                          >
+                            {func}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
 
               {hasActiveFilters && (
                 <Button 
