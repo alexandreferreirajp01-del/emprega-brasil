@@ -266,13 +266,13 @@ Responda APENAS com JSON válido.`,
 
     if (newJobs.length === 0 && files.length > 0) {
       setErrorMessage('Não foi possível extrair dados das imagens. Tente novamente.');
-    } else {
+    } else if (newJobs.length > 0) {
       setProcessingStatus(`${newJobs.length} vaga(s) extraída(s)!`);
     }
     
     setIsProcessingImages(false);
     setTimeout(() => setProcessingStatus(''), 3000);
-    e.target.value = '';
+    if (e.target) e.target.value = '';
   };
 
   // Atualizar vaga individual
