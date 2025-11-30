@@ -4,8 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { Switch } from "@/components/ui/switch";
 import { Camera, Loader2, Save, X, CheckCircle, Phone, Mail, Briefcase, Search, Crown, Star, Globe, Bell } from "lucide-react";
 import { base44 } from "@/api/base44Client";
@@ -102,6 +106,8 @@ export default function PostarVaga() {
   });
   const [citySearch, setCitySearch] = useState('');
   const [funcSearch, setFuncSearch] = useState('');
+  const [cityOpen, setCityOpen] = useState(false);
+  const [funcOpen, setFuncOpen] = useState(false);
   const [showNotificationSender, setShowNotificationSender] = useState(false);
   const [lastCreatedJob, setLastCreatedJob] = useState(null);
 
@@ -382,68 +388,104 @@ IMPORTANTE: Extraia o máximo de informação possível. Se não encontrar, reto
 
               <div>
                 <Label>Função</Label>
-                <Select value={formData.job_function} onValueChange={(v) => updateField('job_function', v)}>
-                  <SelectTrigger><SelectValue placeholder="Selecione a função" /></SelectTrigger>
-                  <SelectContent>
-                    <div className="p-2 border-b sticky top-0 bg-white z-10">
-                      <div className="relative">
-                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                          type="text"
-                          placeholder="Buscar função..."
-                          value={funcSearch}
-                          onChange={(e) => setFuncSearch(e.target.value)}
-                          className="w-full h-9 pl-8 pr-3 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          autoComplete="off"
-                          autoFocus={false}
-                          onPointerDown={(e) => e.stopPropagation()}
-                          onTouchStart={(e) => e.stopPropagation()}
-                          onClick={(e) => e.stopPropagation()}
-                          onKeyDown={(e) => e.stopPropagation()}
-                          onFocus={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                    </div>
-                    <ScrollArea className="h-[200px]">
-                      {JOB_FUNCTIONS.filter(f => f.toLowerCase().includes(funcSearch.toLowerCase())).map(f => (
-                        <SelectItem key={f} value={f}>{f}</SelectItem>
-                      ))}
-                    </ScrollArea>
-                  </SelectContent>
-                </Select>
+                <Popover open={funcOpen} onOpenChange={setFuncOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full h-10 justify-start font-normal">
+                      <Briefcase className="w-4 h-4 text-slate-400 mr-2" />
+                      <span className="truncate">
+                        {formData.job_function || 'Selecione a função'}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    className="w-[280px] p-0" 
+                    align="start"
+                    side="bottom"
+                    sideOffset={4}
+                    avoidCollisions={false}
+                    style={{ maxHeight: '40vh' }}
+                  >
+                    <Command className="flex flex-col">
+                      <CommandInput 
+                        placeholder="Buscar função..." 
+                        value={funcSearch}
+                        onValueChange={setFuncSearch}
+                        className="sticky top-0 z-10"
+                      />
+                      <CommandList className="max-h-[30vh] overflow-y-auto">
+                        <CommandEmpty>Nenhuma função encontrada</CommandEmpty>
+                        <CommandGroup>
+                          {JOB_FUNCTIONS.filter(f => 
+                            f.toLowerCase().includes(funcSearch.toLowerCase())
+                          ).map((func) => (
+                            <CommandItem
+                              key={func}
+                              value={func}
+                              onSelect={() => {
+                                updateField('job_function', func);
+                                setFuncOpen(false);
+                                setFuncSearch('');
+                              }}
+                            >
+                              {func}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div>
                 <Label>Cidade</Label>
-                <Select value={formData.city} onValueChange={(v) => updateField('city', v)}>
-                  <SelectTrigger><SelectValue placeholder="Selecione a cidade" /></SelectTrigger>
-                  <SelectContent>
-                    <div className="p-2 border-b sticky top-0 bg-white z-10">
-                      <div className="relative">
-                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                          type="text"
-                          placeholder="Buscar cidade..."
-                          value={citySearch}
-                          onChange={(e) => setCitySearch(e.target.value)}
-                          className="w-full h-9 pl-8 pr-3 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          autoComplete="off"
-                          autoFocus={false}
-                          onPointerDown={(e) => e.stopPropagation()}
-                          onTouchStart={(e) => e.stopPropagation()}
-                          onClick={(e) => e.stopPropagation()}
-                          onKeyDown={(e) => e.stopPropagation()}
-                          onFocus={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                    </div>
-                    <ScrollArea className="h-[200px]">
-                      {CIDADES_PB.filter(c => c.toLowerCase().includes(citySearch.toLowerCase())).map(c => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </ScrollArea>
-                  </SelectContent>
-                </Select>
+                <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full h-10 justify-start font-normal">
+                      <Search className="w-4 h-4 text-slate-400 mr-2" />
+                      <span className="truncate">
+                        {formData.city || 'Selecione a cidade'}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    className="w-[280px] p-0" 
+                    align="start"
+                    side="bottom"
+                    sideOffset={4}
+                    avoidCollisions={false}
+                    style={{ maxHeight: '40vh' }}
+                  >
+                    <Command className="flex flex-col">
+                      <CommandInput 
+                        placeholder="Buscar cidade..." 
+                        value={citySearch}
+                        onValueChange={setCitySearch}
+                        className="sticky top-0 z-10"
+                      />
+                      <CommandList className="max-h-[30vh] overflow-y-auto">
+                        <CommandEmpty>Nenhuma cidade encontrada</CommandEmpty>
+                        <CommandGroup>
+                          {CIDADES_PB.filter(c => 
+                            c.toLowerCase().includes(citySearch.toLowerCase())
+                          ).map((city) => (
+                            <CommandItem
+                              key={city}
+                              value={city}
+                              onSelect={() => {
+                                updateField('city', city);
+                                setCityOpen(false);
+                                setCitySearch('');
+                              }}
+                            >
+                              {city}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div>
