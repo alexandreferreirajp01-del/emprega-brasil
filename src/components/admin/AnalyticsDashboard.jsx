@@ -54,6 +54,17 @@ export default function AnalyticsDashboard() {
     },
   });
 
+  const { data: appVisits = [] } = useQuery({
+    queryKey: ['app-visits'],
+    queryFn: async () => {
+      try {
+        return await base44.entities.AppVisit.list('-created_date', 2000) || [];
+      } catch (e) {
+        return [];
+      }
+    },
+  });
+
   // Filtrar visualizações pelo período selecionado
   const filteredViews = useMemo(() => {
     const start = new Date(startDate);
@@ -75,6 +86,10 @@ export default function AnalyticsDashboard() {
     const today = new Date();
     return viewDate.toDateString() === today.toDateString();
   }).length;
+  
+  // Estatísticas de visitas ao app
+  const totalAppVisits = appVisits.length;
+  const uniqueAppVisitors = new Set(appVisits.map(v => v.visitor_id)).size;
 
   // Visualizações por dia no período selecionado
   const dailyViews = useMemo(() => {

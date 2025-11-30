@@ -12,6 +12,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import TimeAgo from "@/components/common/TimeAgo";
+import VisitTracker from "@/components/common/VisitTracker";
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -112,6 +113,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
+      <VisitTracker pageName="Home" user={user} />
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
