@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Key, Plus, Copy, Trash2, Check, Loader2, Search } from "lucide-react";
+import { Key, Plus, Copy, Trash2, Check, Loader2, Search, Calendar, Users, AlertTriangle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,6 +22,8 @@ function generateCode() {
 export default function PremiumCodesManager({ showToast }) {
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
+  const [maxUses, setMaxUses] = useState(1);
+  const [validityDays, setValidityDays] = useState(30);
   const [search, setSearch] = useState('');
   const [copiedCode, setCopiedCode] = useState(null);
   const queryClient = useQueryClient();
@@ -40,11 +43,18 @@ export default function PremiumCodesManager({ showToast }) {
   const createCodeMutation = useMutation({
     mutationFn: async (data) => {
       const codesToCreate = [];
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + data.validityDays);
+      
       for (let i = 0; i < data.quantity; i++) {
         codesToCreate.push({
           code: generateCode(),
           is_used: false,
-          notes: data.notes
+          notes: data.notes,
+          max_uses: data.maxUses,
+          current_uses: 0,
+          expires_at: expiresAt.toISOString(),
+          used_by_list: []
         });
       }
       return base44.entities.PremiumCode.bulkCreate(codesToCreate);
@@ -71,19 +81,37 @@ export default function PremiumCodesManager({ showToast }) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  const isCodeExpired = (code) => {
+    if (!code.expires_at) return false;
+    return new Date(code.expires_at) < new Date();
+  };
+
+  const isCodeFullyUsed = (code) => {
+    const maxUses = code.max_uses || 1;
+    const currentUses = code.current_uses || 0;
+    return currentUses >= maxUses;
+  };
+
+  const getCodeStatus = (code) => {
+    if (isCodeExpired(code)) return 'expired';
+    if (isCodeFullyUsed(code)) return 'used';
+    return 'available';
+  };
+
   const filteredCodes = codes.filter(c => 
     c.code?.toLowerCase().includes(search.toLowerCase()) ||
     c.notes?.toLowerCase().includes(search.toLowerCase()) ||
     c.used_by?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const unusedCodes = codes.filter(c => !c.is_used);
-  const usedCodes = codes.filter(c => c.is_used);
+  const availableCodes = codes.filter(c => getCodeStatus(c) === 'available');
+  const usedCodes = codes.filter(c => getCodeStatus(c) === 'used');
+  const expiredCodes = codes.filter(c => getCodeStatus(c) === 'expired');
 
   return (
     <div className="space-y-6">
       {/* Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -101,7 +129,7 @@ export default function PremiumCodesManager({ showToast }) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-green-100">Disponíveis</p>
-                <p className="text-3xl font-bold mt-1">{unusedCodes.length}</p>
+                <p className="text-3xl font-bold mt-1">{availableCodes.length}</p>
               </div>
               <Check className="w-10 h-10 text-green-200" />
             </div>
@@ -115,7 +143,19 @@ export default function PremiumCodesManager({ showToast }) {
                 <p className="text-sm text-slate-100">Utilizados</p>
                 <p className="text-3xl font-bold mt-1">{usedCodes.length}</p>
               </div>
-              <Key className="w-10 h-10 text-slate-200 opacity-50" />
+              <Users className="w-10 h-10 text-slate-200" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-red-100">Expirados</p>
+                <p className="text-3xl font-bold mt-1">{expiredCodes.length}</p>
+              </div>
+              <AlertTriangle className="w-10 h-10 text-red-200" />
             </div>
           </CardContent>
         </Card>
@@ -130,9 +170,9 @@ export default function PremiumCodesManager({ showToast }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <label className="text-sm text-slate-600 mb-1 block">Quantidade</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+              <Label className="text-sm text-slate-600 mb-1 block">Quantidade</Label>
               <Input
                 type="number"
                 min={1}
@@ -142,8 +182,37 @@ export default function PremiumCodesManager({ showToast }) {
                 className="rounded-lg"
               />
             </div>
-            <div className="flex-[2] min-w-[300px]">
-              <label className="text-sm text-slate-600 mb-1 block">Observações (opcional)</label>
+            
+            <div>
+              <Label className="text-sm text-slate-600 mb-1 block flex items-center gap-1">
+                <Users className="w-3 h-3" /> Usos por Código
+              </Label>
+              <Input
+                type="number"
+                min={1}
+                max={100}
+                value={maxUses}
+                onChange={(e) => setMaxUses(Math.min(100, Math.max(1, parseInt(e.target.value) || 1)))}
+                className="rounded-lg"
+              />
+            </div>
+
+            <div>
+              <Label className="text-sm text-slate-600 mb-1 block flex items-center gap-1">
+                <Calendar className="w-3 h-3" /> Validade (dias)
+              </Label>
+              <Input
+                type="number"
+                min={1}
+                max={365}
+                value={validityDays}
+                onChange={(e) => setValidityDays(Math.min(365, Math.max(1, parseInt(e.target.value) || 30)))}
+                className="rounded-lg"
+              />
+            </div>
+
+            <div className="lg:col-span-2">
+              <Label className="text-sm text-slate-600 mb-1 block">Observações</Label>
               <Input
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -151,20 +220,25 @@ export default function PremiumCodesManager({ showToast }) {
                 className="rounded-lg"
               />
             </div>
-            <div className="flex items-end">
-              <Button
-                onClick={() => createCodeMutation.mutate({ quantity, notes })}
-                disabled={createCodeMutation.isPending}
-                className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-10"
-              >
-                {createCodeMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <Plus className="w-4 h-4 mr-2" />
-                )}
-                Gerar {quantity} Código{quantity > 1 ? 's' : ''}
-              </Button>
-            </div>
+          </div>
+          
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
+            <strong>Resumo:</strong> {quantity} código(s) | {maxUses} uso(s) cada | Válido por {validityDays} dias
+          </div>
+
+          <div className="mt-4">
+            <Button
+              onClick={() => createCodeMutation.mutate({ quantity, notes, maxUses, validityDays })}
+              disabled={createCodeMutation.isPending}
+              className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
+            >
+              {createCodeMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Plus className="w-4 h-4 mr-2" />
+              )}
+              Gerar {quantity} Código{quantity > 1 ? 's' : ''}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -187,69 +261,98 @@ export default function PremiumCodesManager({ showToast }) {
           <ScrollArea className="h-[400px]">
             <div className="space-y-2">
               <AnimatePresence>
-                {filteredCodes.map((code) => (
-                  <motion.div
-                    key={code.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    className={`flex items-center justify-between p-4 rounded-xl ${
-                      code.is_used ? 'bg-slate-100' : 'bg-green-50 border border-green-200'
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        code.is_used ? 'bg-slate-200' : 'bg-green-100'
-                      }`}>
-                        <Key className={`w-5 h-5 ${code.is_used ? 'text-slate-400' : 'text-green-600'}`} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <code className={`text-lg font-mono font-bold ${
-                            code.is_used ? 'text-slate-400 line-through' : 'text-slate-800'
-                          }`}>
-                            {code.code}
-                          </code>
-                          <Badge className={code.is_used ? 'bg-slate-200 text-slate-600' : 'bg-green-100 text-green-700'}>
-                            {code.is_used ? 'Usado' : 'Disponível'}
-                          </Badge>
+                {filteredCodes.map((code) => {
+                  const status = getCodeStatus(code);
+                  const maxUses = code.max_uses || 1;
+                  const currentUses = code.current_uses || 0;
+                  
+                  return (
+                    <motion.div
+                      key={code.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      className={`flex items-center justify-between p-4 rounded-xl ${
+                        status === 'expired' ? 'bg-red-50 border border-red-200' :
+                        status === 'used' ? 'bg-slate-100' : 
+                        'bg-green-50 border border-green-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          status === 'expired' ? 'bg-red-100' :
+                          status === 'used' ? 'bg-slate-200' : 
+                          'bg-green-100'
+                        }`}>
+                          <Key className={`w-5 h-5 ${
+                            status === 'expired' ? 'text-red-500' :
+                            status === 'used' ? 'text-slate-400' : 
+                            'text-green-600'
+                          }`} />
                         </div>
-                        <div className="text-sm text-slate-500 mt-1">
-                          {code.is_used ? (
-                            <>Usado por: {code.used_by} em {new Date(code.used_at).toLocaleDateString('pt-BR')}</>
-                          ) : (
-                            <>Criado em: {new Date(code.created_date).toLocaleDateString('pt-BR')}</>
-                          )}
-                          {code.notes && <span className="ml-2 text-slate-400">• {code.notes}</span>}
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <code className={`text-lg font-mono font-bold ${
+                              status !== 'available' ? 'text-slate-400 line-through' : 'text-slate-800'
+                            }`}>
+                              {code.code}
+                            </code>
+                            <Badge className={
+                              status === 'expired' ? 'bg-red-100 text-red-700' :
+                              status === 'used' ? 'bg-slate-200 text-slate-600' : 
+                              'bg-green-100 text-green-700'
+                            }>
+                              {status === 'expired' ? 'Expirado' : status === 'used' ? 'Esgotado' : 'Disponível'}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              <Users className="w-3 h-3 mr-1" />
+                              {currentUses}/{maxUses} usos
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-slate-500 mt-1 flex flex-wrap gap-2">
+                            {code.expires_at && (
+                              <span className={`flex items-center gap-1 ${isCodeExpired(code) ? 'text-red-500' : ''}`}>
+                                <Calendar className="w-3 h-3" />
+                                Expira: {new Date(code.expires_at).toLocaleDateString('pt-BR')}
+                              </span>
+                            )}
+                            {code.used_by_list && code.used_by_list.length > 0 && (
+                              <span className="text-xs text-slate-400">
+                                Usado por: {code.used_by_list.slice(0, 3).join(', ')}
+                                {code.used_by_list.length > 3 && ` +${code.used_by_list.length - 3}`}
+                              </span>
+                            )}
+                            {code.notes && <span className="text-slate-400">• {code.notes}</span>}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {!code.is_used && (
+                      <div className="flex items-center gap-2">
+                        {status === 'available' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCopyCode(code.code)}
+                            className="rounded-lg"
+                          >
+                            {copiedCode === code.code ? (
+                              <Check className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <Copy className="w-4 h-4" />
+                            )}
+                          </Button>
+                        )}
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
-                          onClick={() => handleCopyCode(code.code)}
-                          className="rounded-lg"
+                          onClick={() => deleteCodeMutation.mutate(code.id)}
+                          className="text-red-500 hover:bg-red-50 rounded-lg"
                         >
-                          {copiedCode === code.code ? (
-                            <Check className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
+                          <Trash2 className="w-4 h-4" />
                         </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteCodeMutation.mutate(code.id)}
-                        className="text-red-500 hover:bg-red-50 rounded-lg"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                ))}
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
               {filteredCodes.length === 0 && (
                 <div className="text-center py-12 text-slate-400">
