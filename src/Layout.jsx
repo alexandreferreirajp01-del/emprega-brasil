@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
   Home, Briefcase, Users, Crown, User, Menu, X, 
-  Shield, Rss, LogOut, MessageCircle, Newspaper, Info, Handshake, Sparkles
+  Shield, Rss, LogOut, MessageCircle, Newspaper, Info, Handshake, Sparkles, Home as HomeIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -250,6 +250,15 @@ export default function Layout({ children, currentPageName }) {
                       Vagas por IA
                     </Button>
                   </Link>
+                  <Link to={createPageUrl('VagasHomeOffice')}>
+                    <Button 
+                      variant={currentPageName === 'VagasHomeOffice' ? "secondary" : "ghost"}
+                      className={`rounded-xl ${currentPageName === 'VagasHomeOffice' ? 'bg-green-100 text-green-700' : ''}`}
+                    >
+                      <HomeIcon className="w-4 h-4 mr-2" />
+                      Home Office
+                    </Button>
+                  </Link>
                 </>
               )}
               </nav>
@@ -331,6 +340,15 @@ export default function Layout({ children, currentPageName }) {
                     >
                       <Sparkles className="w-5 h-5 mr-3" />
                       Vagas por IA
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl('VagasHomeOffice')} onClick={() => setMobileMenuOpen(false)}>
+                    <Button 
+                      variant={currentPageName === 'VagasHomeOffice' ? "secondary" : "ghost"}
+                      className={`w-full justify-start rounded-xl ${currentPageName === 'VagasHomeOffice' ? 'bg-green-100 text-green-700' : ''}`}
+                    >
+                      <HomeIcon className="w-5 h-5 mr-3" />
+                      Vagas Home Office
                     </Button>
                   </Link>
                 </>
