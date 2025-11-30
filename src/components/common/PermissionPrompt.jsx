@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, MapPin, Shield, Check, ChevronRight } from 'lucide-react';
+import { Bell, MapPin, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 
@@ -31,8 +31,15 @@ export default function PermissionPrompt() {
 
   const requestNotifications = async () => {
     setLoading(true);
+    
+    // Timeout de segurança para não travar
+    const timeout = setTimeout(() => {
+      setLoading(false);
+      setStep(2);
+    }, 8000);
+    
     try {
-      if ('serviceWorker' in navigator && 'PushManager' in window) {
+      if ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window) {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
           try {
@@ -53,8 +60,10 @@ export default function PermissionPrompt() {
     } catch (e) {
       console.log('Notification error:', e);
     }
+    
+    clearTimeout(timeout);
     setLoading(false);
-    setStep(2); // Ir para localização
+    setStep(2);
   };
 
   const requestLocation = async () => {
@@ -95,7 +104,15 @@ export default function PermissionPrompt() {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden">
+      <div className="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden relative">
+        
+        {/* Botão X para fechar */}
+        <button
+          onClick={finishSetup}
+          className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center transition-colors"
+        >
+          <X className="w-5 h-5 text-white" />
+        </button>
         
         {/* Step 1: Notificações */}
         {step === 1 && (
