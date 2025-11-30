@@ -68,12 +68,26 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const JOB_FUNCTIONS = [
-  "Assistente administrativo", "Auxiliar administrativo", "Secretária executiva", "Recepcionista",
-  "Vendedor interno", "Vendedor externo", "Consultor comercial", "Promotor de vendas",
-  "Social media", "Designer gráfico", "Programador", "Suporte técnico",
-  "Enfermeiro", "Técnico de enfermagem", "Farmacêutico", "Nutricionista",
-  "Cozinheiro", "Garçom", "Atendente", "Professor", "Motorista", "Motoboy",
-  "Estoquista", "Auxiliar de serviços gerais", "Porteiro", "Segurança", "Outros"
+  "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
+  "Analista de compras", "Analista de logística", "Analista de marketing",
+  "Analista de recursos humanos", "Analista de sistemas", "Atendente de balcão",
+  "Atendente de call center", "Auxiliar de limpeza", "Auxiliar de manutenção",
+  "Auxiliar de mecânico", "Auxiliar de produção", "Bibliotecário", "Biomédico",
+  "Bombeiro", "Cabeleireiro", "Caixa de supermercado", "Carpinteiro",
+  "Consultor de vendas", "Coordenador administrativo", "Coordenador de produção",
+  "Coordenador de recursos humanos", "Cozinheiro", "Designer gráfico",
+  "Desenvolvedor de software", "Digitador", "Eletricista", "Engenheiro civil",
+  "Engenheiro de produção", "Engenheiro eletricista", "Engenheiro mecânico",
+  "Farmacêutico", "Fisioterapeuta", "Garçom", "Jardineiro", "Jornalista",
+  "Motorista", "Nutricionista", "Operador de caixa", "Operador de máquinas",
+  "Pedreiro", "Pintor", "Professor", "Psicólogo", "Porteiro", "Recepcionista",
+  "Técnico de enfermagem", "Técnico em informática", "Técnico em manutenção",
+  "Vendedor", "Zelador", "Mecânico", "Balconista", "Copeiro", "Babá",
+  "Lavador de Carros", "Faturista", "Departamento Pessoal", "Repositor",
+  "Manobrista", "Tec Enfermagem", "Enfermeira", "Médica", "Gestor Comercial",
+  "Gerente", "Coordenador", "Assistente Fiscal", "Assistente contábil",
+  "Tec Segurança do trabalho", "Controladoria", "Compras", "Promotor de vendas",
+  "Carregador", "Estoquista", "Logística", "Panfletista", "Outros"
 ];
 
 export default function Jobs() {
@@ -237,8 +251,12 @@ export default function Jobs() {
                         onChange={(e) => setCitySearch(e.target.value)}
                         className="w-full h-9 pl-8 pr-3 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         autoComplete="off"
+                        autoFocus={false}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onTouchStart={(e) => e.stopPropagation()}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
                       />
                     </div>
                   </div>
@@ -270,6 +288,7 @@ export default function Jobs() {
                   <SelectItem value="Jovem Aprendiz">Jovem Aprendiz</SelectItem>
                   <SelectItem value="Freelancer">Freelancer</SelectItem>
                   <SelectItem value="PJ">PJ</SelectItem>
+                  <SelectItem value="PCD">PCD</SelectItem>
                 </SelectContent>
               </Select>
 
