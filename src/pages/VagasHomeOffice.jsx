@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { 
   Sparkles, Wand2, Loader2, Check, ArrowLeft, Copy, 
-  Home, ExternalLink, Briefcase
+  Home, ExternalLink, Briefcase, X, Crown, Star
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
@@ -21,6 +22,8 @@ export default function VagasHomeOffice() {
   const [extractedJobs, setExtractedJobs] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [publishingIndex, setPublishingIndex] = useState(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const [isFeatured, setIsFeatured] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -115,8 +118,8 @@ Responda APENAS com o JSON, sem explicações.`,
         additional_info: `__HOME_OFFICE_LINKS__${linksData}`,
         job_type: 'Home Office',
         city: 'Home Office',
-        is_premium: false,
-        is_featured: false
+        is_premium: isPremium,
+        is_featured: isFeatured
       };
       
       return await base44.entities.Job.create(jobData);
@@ -297,13 +300,13 @@ https://querohome.com.br/category/dev/`}
                               Home Office
                             </Badge>
                           </div>
-                          <div className="flex flex-col gap-2">
+                          <div className="flex items-start gap-2">
                             <a 
                               href={job.link} 
                               target="_blank" 
                               rel="noopener noreferrer"
                             >
-                              <Button size="sm" variant="outline" className="w-full">
+                              <Button size="sm" variant="outline">
                                 <ExternalLink className="w-3 h-3 mr-1" />
                                 Ver
                               </Button>
@@ -320,10 +323,36 @@ https://querohome.com.br/category/dev/`}
                                 'Publicar'
                               )}
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setExtractedJobs(prev => prev.filter((_, i) => i !== index))}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>
                     ))}
+                  </div>
+
+                  {/* Opções Premium e Destaque */}
+                  <div className="space-y-3 pt-4 border-t">
+                    <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Crown className="w-4 h-4 text-purple-600" />
+                        <span className="text-sm font-medium">Vaga Premium</span>
+                      </div>
+                      <Switch checked={isPremium} onCheckedChange={setIsPremium} />
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Star className="w-4 h-4 text-yellow-600" />
+                        <span className="text-sm font-medium">Destaque</span>
+                      </div>
+                      <Switch checked={isFeatured} onCheckedChange={setIsFeatured} />
+                    </div>
                   </div>
 
                   {/* Botões de ação */}
