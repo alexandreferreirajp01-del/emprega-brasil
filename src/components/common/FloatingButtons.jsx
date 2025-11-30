@@ -49,7 +49,70 @@ export default function FloatingButtons() {
       }
     };
     checkAuth();
+    
+    // Verificar suporte a push notifications
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      setPushSupported(true);
+      checkPushSubscription();
+    }
   }, []);
+  
+  const checkPushSubscription = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      setPushSubscribed(!!subscription);
+    } catch (e) {
+      console.log('Erro ao verificar push:', e);
+    }
+  };
+  
+  const handleTogglePush = async () => {
+    if (pushLoading) return;
+    setPushLoading(true);
+    
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      
+      if (pushSubscribed) {
+        // Desinscrever
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          await subscription.unsubscribe();
+          await base44.functions.invoke('subscribePush', {
+            subscription: { endpoint: subscription.endpoint },
+            action: 'unsubscribe'
+          });
+        }
+        setPushSubscribed(false);
+      } else {
+        // Inscrever
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          alert('Permissão de notificação negada');
+          setPushLoading(false);
+          return;
+        }
+        
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+        
+        await base44.functions.invoke('subscribePush', {
+          subscription: subscription.toJSON(),
+          action: 'subscribe'
+        });
+        
+        setPushSubscribed(true);
+      }
+    } catch (e) {
+      console.error('Erro push:', e);
+      alert('Erro ao configurar notificações');
+    } finally {
+      setPushLoading(false);
+    }
+  };
 
   const loadMessages = async (email) => {
     try {
