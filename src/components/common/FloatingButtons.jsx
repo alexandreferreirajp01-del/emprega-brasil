@@ -25,6 +25,11 @@ export default function FloatingButtons() {
   const [messages, setMessages] = useState([]);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
+  
+  // Push Notifications
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushSubscribed, setPushSubscribed] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
