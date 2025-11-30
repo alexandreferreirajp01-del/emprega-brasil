@@ -92,21 +92,27 @@ Responda APENAS com o JSON, sem explicações.`,
 
   const publishAllMutation = useMutation({
     mutationFn: async () => {
-      // Criar descrição com todas as vagas e seus links
+      // Criar descrição apenas com os nomes das vagas (sem links visíveis)
       let description = `🏠 ${extractedJobs.length} Vagas Home Office disponíveis!\n\n`;
       description += `Confira as oportunidades:\n\n`;
       
       extractedJobs.forEach((job, index) => {
         description += `${index + 1}. ${job.titulo}\n`;
-        description += `🔗 ${job.link}\n\n`;
       });
       
       description += `\n💼 Todas as vagas são para trabalho remoto (Home Office).`;
+      
+      // Salvar os links em formato JSON no additional_info para renderizar botões
+      const linksData = JSON.stringify(extractedJobs.map(job => ({
+        titulo: job.titulo,
+        link: job.link
+      })));
       
       // Criar um único post agrupado
       const jobData = {
         title: `${extractedJobs.length} Vagas Home Office`,
         description: description,
+        additional_info: `__HOME_OFFICE_LINKS__${linksData}`,
         job_type: 'Home Office',
         city: 'Home Office',
         is_premium: false,
