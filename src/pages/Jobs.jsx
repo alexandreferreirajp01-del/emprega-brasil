@@ -252,14 +252,19 @@ export default function Jobs() {
                     </span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[220px] p-0" align="start">
+                <PopoverContent 
+                  className="w-[220px] p-0" 
+                  align="start"
+                  side="bottom"
+                  collisionPadding={{ top: 10, bottom: 200 }}
+                >
                   <Command>
                     <CommandInput 
                       placeholder="Buscar cidade..." 
                       value={citySearch}
                       onValueChange={setCitySearch}
                     />
-                    <CommandList>
+                    <CommandList className="max-h-[180px]">
                       <CommandEmpty>Nenhuma cidade encontrada</CommandEmpty>
                       <CommandGroup>
                         <CommandItem
@@ -322,14 +327,19 @@ export default function Jobs() {
                     </span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[220px] p-0" align="start">
+                <PopoverContent 
+                  className="w-[220px] p-0" 
+                  align="start"
+                  side="bottom"
+                  collisionPadding={{ top: 10, bottom: 200 }}
+                >
                   <Command>
                     <CommandInput 
                       placeholder="Buscar função..." 
                       value={funcSearch}
                       onValueChange={setFuncSearch}
                     />
-                    <CommandList>
+                    <CommandList className="max-h-[180px]">
                       <CommandEmpty>Nenhuma função encontrada</CommandEmpty>
                       <CommandGroup>
                         <CommandItem
