@@ -252,22 +252,14 @@ export default function Jobs() {
                     </span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent 
-                  className="w-[220px] p-0" 
-                  align="start"
-                  side="bottom"
-                  sideOffset={4}
-                  avoidCollisions={false}
-                  style={{ maxHeight: '40vh' }}
-                >
-                  <Command className="flex flex-col">
+                <PopoverContent className="w-[220px] p-0" align="start">
+                  <Command>
                     <CommandInput 
                       placeholder="Buscar cidade..." 
                       value={citySearch}
                       onValueChange={setCitySearch}
-                      className="sticky top-0 z-10"
                     />
-                    <CommandList className="max-h-[30vh] overflow-y-auto">
+                    <CommandList>
                       <CommandEmpty>Nenhuma cidade encontrada</CommandEmpty>
                       <CommandGroup>
                         <CommandItem
@@ -330,22 +322,14 @@ export default function Jobs() {
                     </span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent 
-                  className="w-[220px] p-0" 
-                  align="start"
-                  side="bottom"
-                  sideOffset={4}
-                  avoidCollisions={false}
-                  style={{ maxHeight: '40vh' }}
-                >
-                  <Command className="flex flex-col">
+                <PopoverContent className="w-[220px] p-0" align="start">
+                  <Command>
                     <CommandInput 
                       placeholder="Buscar função..." 
                       value={funcSearch}
                       onValueChange={setFuncSearch}
-                      className="sticky top-0 z-10"
                     />
-                    <CommandList className="max-h-[30vh] overflow-y-auto">
+                    <CommandList>
                       <CommandEmpty>Nenhuma função encontrada</CommandEmpty>
                       <CommandGroup>
                         <CommandItem
