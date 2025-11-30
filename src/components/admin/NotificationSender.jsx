@@ -10,11 +10,11 @@ import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const NOTIFICATION_ICONS = [
-  { value: 'briefcase', label: '💼 Vaga de Emprego', icon: Briefcase, emoji: '💼' },
+  { value: 'briefcase', label: '📁 Vaga de Emprego', icon: Briefcase, emoji: '📁' },
   { value: 'newspaper', label: '📰 Notícia', icon: Newspaper, emoji: '📰' },
+  { value: 'chat', label: '💬 Chat/Comunidade', icon: Bell, emoji: '💬' },
   { value: 'gift', label: '🎁 Promoção', icon: Gift, emoji: '🎁' },
   { value: 'sparkles', label: '✨ Destaque', icon: Sparkles, emoji: '✨' },
-  { value: 'bell', label: '🔔 Geral', icon: Bell, emoji: '🔔' },
 ];
 
 const CREATIVE_TEMPLATES = [
@@ -40,10 +40,17 @@ const CREATIVE_TEMPLATES = [
   },
 ];
 
-export default function NotificationSender({ showToast, job, onClose }) {
+export default function NotificationSender({ showToast, job, news, chatReply, notificationType = 'job', onClose }) {
+  // Definir ícone padrão baseado no tipo
+  const getDefaultIcon = () => {
+    if (notificationType === 'news') return 'newspaper';
+    if (notificationType === 'chat' || notificationType === 'community') return 'chat';
+    return 'briefcase';
+  };
+  
   const [title, setTitle] = useState(CREATIVE_TEMPLATES[0].title);
   const [message, setMessage] = useState(CREATIVE_TEMPLATES[0].message);
-  const [iconType, setIconType] = useState('briefcase');
+  const [iconType, setIconType] = useState(getDefaultIcon());
   const [customIconUrl, setCustomIconUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
@@ -122,9 +129,15 @@ export default function NotificationSender({ showToast, job, onClose }) {
       return;
     }
 
-    const finalMessage = job 
-      ? `${message}\n\n📍 ${job.title}${job.city ? ` - ${job.city}` : ''}` 
-      : message;
+    let finalMessage = message;
+    
+    if (job) {
+      finalMessage = `${message}\n\n📁 ${job.title}${job.city ? ` - ${job.city}` : ''}`;
+    } else if (news) {
+      finalMessage = `${message}\n\n📰 ${news.title}`;
+    } else if (chatReply) {
+      finalMessage = `${message}\n\n💬 Nova resposta no chat`;
+    }
 
     sendNotificationMutation.mutate({
       title,
@@ -235,14 +248,20 @@ export default function NotificationSender({ showToast, job, onClose }) {
               {customIconUrl ? (
                 <img src={customIconUrl} alt="" className="w-full h-full rounded-xl object-cover" />
               ) : (
-                <span className="text-lg">{NOTIFICATION_ICONS.find(i => i.value === iconType)?.emoji || '🔔'}</span>
+                <span className="text-lg">{NOTIFICATION_ICONS.find(i => i.value === iconType)?.emoji || '📁'}</span>
               )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-slate-800 text-sm">{title || 'Título da notificação'}</p>
               <p className="text-slate-600 text-xs mt-0.5 line-clamp-2">{message || 'Mensagem da notificação'}</p>
               {job && (
-                <p className="text-blue-600 text-xs mt-1">📍 {job.title}{job.city ? ` - ${job.city}` : ''}</p>
+                <p className="text-blue-600 text-xs mt-1">📁 {job.title}{job.city ? ` - ${job.city}` : ''}</p>
+              )}
+              {news && (
+                <p className="text-green-600 text-xs mt-1">📰 {news.title}</p>
+              )}
+              {chatReply && (
+                <p className="text-purple-600 text-xs mt-1">💬 Nova resposta no chat</p>
               )}
             </div>
           </div>
