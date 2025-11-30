@@ -92,17 +92,28 @@ Responda APENAS com o JSON, sem explicações.`,
 
   const publishAllMutation = useMutation({
     mutationFn: async () => {
-      const jobsToCreate = extractedJobs.map(job => ({
-        title: job.titulo,
-        description: job.descricao || `Vaga Home Office - ${job.titulo}`,
+      // Criar descrição com todas as vagas e seus links
+      let description = `🏠 ${extractedJobs.length} Vagas Home Office disponíveis!\n\n`;
+      description += `Confira as oportunidades:\n\n`;
+      
+      extractedJobs.forEach((job, index) => {
+        description += `${index + 1}. ${job.titulo}\n`;
+        description += `🔗 ${job.link}\n\n`;
+      });
+      
+      description += `\n💼 Todas as vagas são para trabalho remoto (Home Office).`;
+      
+      // Criar um único post agrupado
+      const jobData = {
+        title: `${extractedJobs.length} Vagas Home Office`,
+        description: description,
         job_type: 'Home Office',
         city: 'Home Office',
-        application_link: job.link,
         is_premium: false,
         is_featured: false
-      }));
+      };
       
-      return await base44.entities.Job.bulkCreate(jobsToCreate);
+      return await base44.entities.Job.create(jobData);
     },
     onSuccess: () => {
       setShowSuccess(true);
