@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useMutation } from "@tanstack/react-query";
+import NotificationSender from "@/components/admin/NotificationSender";
 import {
   Select,
   SelectContent,
@@ -117,6 +118,12 @@ export default function VagasPorIA() {
   // Filtros de busca
   const [citySearch, setCitySearch] = useState('');
   const [funcSearch, setFuncSearch] = useState('');
+  const [showNotificationSender, setShowNotificationSender] = useState(false);
+  const [lastCreatedJob, setLastCreatedJob] = useState(null);
+  
+  const showToast = (msg) => {
+    alert(msg);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -230,8 +237,13 @@ Responda APENAS com o JSON, sem explicações.`,
       
       return await base44.entities.Job.create(jobData);
     },
-    onSuccess: () => {
+    onSuccess: (createdJob) => {
       setShowSuccess(true);
+      setLastCreatedJob({
+        id: createdJob?.id,
+        title: title,
+        city: city
+      });
       // Limpar campos
       setRawText('');
       setTitle('');
@@ -245,6 +257,7 @@ Responda APENAS com o JSON, sem explicações.`,
       setIsPremium(false);
       setIsFeatured(false);
       setExtractedData(null);
+      setShowNotificationSender(true);
       
       setTimeout(() => setShowSuccess(false), 3000);
     }
@@ -602,6 +615,18 @@ WhatsApp: (83) 99999-9999"
             </CardContent>
           </Card>
         </div>
+
+        {/* Notification Sender */}
+        {showNotificationSender && lastCreatedJob && (
+          <div className="mt-6">
+            <NotificationSender
+              showToast={showToast}
+              job={lastCreatedJob}
+              notificationType="job"
+              onClose={() => setShowNotificationSender(false)}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
