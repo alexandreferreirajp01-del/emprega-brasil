@@ -26,6 +26,7 @@ import ViewsMap from "@/components/admin/ViewsMap";
 import PremiumCodesManager from "@/components/admin/PremiumCodesManager";
 import PaymentsManager from "@/components/admin/PaymentsManager";
 import ChatManager from "@/components/admin/ChatManager";
+import SocialAdminPanel from "@/components/admin/SocialAdminPanel";
 
 
 const JOB_FUNCTIONS = [
@@ -360,11 +361,15 @@ export default function Admin() {
               <BarChart3 className="w-4 h-4 mr-2" />
               Análises Internas
             </TabsTrigger>
-            <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <Shield className="w-4 h-4 mr-2" />
-              Configurações
-            </TabsTrigger>
-            </TabsList>
+            <TabsTrigger value="social" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+                <Users className="w-4 h-4 mr-2" />
+                Social
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+                <Shield className="w-4 h-4 mr-2" />
+                Configurações
+              </TabsTrigger>
+              </TabsList>
 
           {/* Jobs Tab */}
           <TabsContent value="jobs" className="space-y-6">
@@ -882,6 +887,11 @@ export default function Admin() {
             </Card>
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          {/* Social Tab */}
+          <TabsContent value="social" className="space-y-6">
+            <SocialAdminPanel showToast={showToast} />
           </TabsContent>
 
           {/* Settings Tab - Contains Users, Codes, Payments */}
