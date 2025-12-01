@@ -155,6 +155,63 @@ export default function AnalyticsDashboard() {
       }));
   }, [filteredViews]);
 
+  // Visualizações por hora do dia
+  const hourlyData = useMemo(() => {
+    const viewsByHour = {};
+    for (let i = 0; i < 24; i++) {
+      viewsByHour[i] = 0;
+    }
+    filteredViews.forEach(v => {
+      if (v.created_date) {
+        const hour = new Date(v.created_date).getHours();
+        viewsByHour[hour] = (viewsByHour[hour] || 0) + 1;
+      }
+    });
+    return Object.entries(viewsByHour).map(([hour, count]) => ({
+      hour: `${hour}h`,
+      views: count
+    }));
+  }, [filteredViews]);
+
+  // Visualizações por dia da semana
+  const weekdayData = useMemo(() => {
+    const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const viewsByDay = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+    filteredViews.forEach(v => {
+      if (v.created_date) {
+        const day = new Date(v.created_date).getDay();
+        viewsByDay[day] = (viewsByDay[day] || 0) + 1;
+      }
+    });
+    return Object.entries(viewsByDay).map(([day, count]) => ({
+      day: days[parseInt(day)],
+      views: count
+    }));
+  }, [filteredViews]);
+
+  // Crescimento semanal
+  const weeklyGrowth = useMemo(() => {
+    const weeks = [];
+    const now = new Date();
+    for (let i = 3; i >= 0; i--) {
+      const weekStart = new Date(now);
+      weekStart.setDate(weekStart.getDate() - (i * 7) - 6);
+      const weekEnd = new Date(now);
+      weekEnd.setDate(weekEnd.getDate() - (i * 7));
+      
+      const weekViews = views.filter(v => {
+        const viewDate = new Date(v.created_date);
+        return viewDate >= weekStart && viewDate <= weekEnd;
+      }).length;
+      
+      weeks.push({
+        week: `Semana ${4 - i}`,
+        views: weekViews
+      });
+    }
+    return weeks;
+  }, [views]);
+
   // Calcular tendência (comparar período atual com período anterior de mesma duração)
   const periodDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
   
@@ -483,6 +540,75 @@ export default function AnalyticsDashboard() {
                 Dados de dispositivo não disponíveis
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Por hora do dia */}
+        <Card className="rounded-xl">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-[#0056ff]" />
+              Horários de Maior Tráfego
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={hourlyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="hour" tick={{ fontSize: 10 }} interval={2} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Bar dataKey="views" fill="#00C49F" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Por dia da semana */}
+        <Card className="rounded-xl">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-[#0056ff]" />
+              Tráfego por Dia da Semana
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={weekdayData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Bar dataKey="views" fill="#FFBB28" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Crescimento semanal */}
+        <Card className="rounded-xl">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-[#0056ff]" />
+              Crescimento Semanal
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <AreaChart data={weeklyGrowth}>
+                <defs>
+                  <linearGradient id="colorGrowth" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="week" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Area type="monotone" dataKey="views" stroke="#8884d8" fill="url(#colorGrowth)" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
