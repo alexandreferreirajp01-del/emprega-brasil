@@ -10,6 +10,7 @@ import { base44 } from "@/api/base44Client";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingButtons from "@/components/common/FloatingButtons";
 import PermissionPrompt from "@/components/common/PermissionPrompt";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -137,6 +138,7 @@ export default function Layout({ children, currentPageName }) {
       <meta name="theme-color" content="#0056ff" />
       <meta name="application-name" content="Vagas Abertas PB" />
       <meta name="apple-mobile-web-app-title" content="Vagas Abertas PB" />
+      <meta name="google" content="notranslate" />
       <style>{`
         /* Safe area para notch de celulares */
         :root {
@@ -191,7 +193,7 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       {/* Top Navigation */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-white shadow-sm sticky top-0 z-40" translate="no">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-24">
             {/* Logo */}
@@ -267,6 +269,9 @@ export default function Layout({ children, currentPageName }) {
 
             {/* User Actions */}
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+              {!isVisitor && user && (
+                <NotificationBell user={user} />
+              )}
               {isVisitor ? (
                 <Link to={createPageUrl('Splash')}>
                   <Button className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl text-sm px-4">
@@ -442,7 +447,7 @@ export default function Layout({ children, currentPageName }) {
       </footer>
 
       {/* Bottom Navigation (Mobile) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom" translate="no">
         <div className="flex items-center justify-around h-16 pb-safe">
           {navItems.slice(0, 5).map((item) => (
             <Link 
