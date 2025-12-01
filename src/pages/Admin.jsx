@@ -986,39 +986,39 @@ export default function Admin() {
                   <CardHeader>
                     <CardTitle className="text-lg">Todos os Usuários ({users.length})</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-6">
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-3">
                         {filteredUsers.map((u) => (
-                          <div key={u.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                            <div className="flex items-center gap-3">
-                              <Avatar>
+                          <div key={u.id} className="p-3 bg-slate-50 rounded-xl">
+                            <div className="flex items-start gap-3 mb-3">
+                              <Avatar className="w-10 h-10 flex-shrink-0">
                                 <AvatarImage src={u.profile_photo} />
-                                <AvatarFallback className="bg-[#0056ff] text-white">
+                                <AvatarFallback className="bg-[#0056ff] text-white text-sm">
                                   {u.full_name?.[0] || u.email?.[0]}
                                 </AvatarFallback>
                               </Avatar>
-                              <div>
-                                <p className="font-medium text-slate-800">{u.full_name || 'Sem nome'}</p>
-                                <p className="text-sm text-slate-500">{u.email}</p>
-                                <div className="flex gap-2 mt-1">
-                                  <Badge className={
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-slate-800 text-sm truncate">{u.full_name || 'Sem nome'}</p>
+                                <p className="text-xs text-slate-500 truncate">{u.email}</p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  <Badge className={`text-xs ${
                                     u.subscription_type === 'admin' ? 'bg-purple-100 text-purple-700' :
                                     u.subscription_type === 'premium' ? 'bg-green-100 text-green-700' :
                                     u.subscription_type === 'basic' ? 'bg-blue-100 text-blue-700' :
                                     'bg-slate-100 text-slate-600'
-                                  }>
+                                  }`}>
                                     {u.subscription_type === 'admin' ? 'Admin' :
                                      u.subscription_type === 'premium' ? 'Premium' :
                                      u.subscription_type === 'basic' ? 'Básico' :
                                      'Visitante'}
                                   </Badge>
-                                  <Badge className={
+                                  <Badge className={`text-xs ${
                                     u.access_status === 'approved' ? 'bg-green-100 text-green-700' :
                                     u.access_status === 'rejected' ? 'bg-red-100 text-red-700' :
                                     u.access_status === 'blocked' ? 'bg-orange-100 text-orange-700' :
                                     'bg-amber-100 text-amber-700'
-                                  }>
+                                  }`}>
                                     {u.access_status === 'approved' ? 'Aprovado' :
                                      u.access_status === 'rejected' ? 'Rejeitado' :
                                      u.access_status === 'blocked' ? 'Bloqueado' :
@@ -1027,7 +1027,7 @@ export default function Admin() {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <Select 
                                 value={u.subscription_type || 'visitor'}
                                 onValueChange={(type) => updateUserMutation.mutate({ 
@@ -1038,7 +1038,7 @@ export default function Admin() {
                                   } 
                                 })}
                               >
-                                <SelectTrigger className="w-28 rounded-lg">
+                                <SelectTrigger className="w-24 h-8 rounded-lg text-xs">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1053,28 +1053,28 @@ export default function Admin() {
                                 size="sm"
                                 onClick={() => updateUserMutation.mutate({ 
                                   id: u.id, 
-                                  data: { access_status: 'blocked' } 
+                                  data: { access_status: u.access_status === 'blocked' ? 'approved' : 'blocked' } 
                                 })}
-                                className="rounded-lg text-orange-600 hover:bg-orange-50"
-                                title="Bloquear usuário"
+                                className={`h-8 rounded-lg text-xs ${u.access_status === 'blocked' ? 'text-green-600 hover:bg-green-50' : 'text-orange-600 hover:bg-orange-50'}`}
                               >
-                                <UserX className="w-4 h-4" />
+                                <UserX className="w-3 h-3 mr-1" />
+                                {u.access_status === 'blocked' ? 'Desbloquear' : 'Bloquear'}
                               </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
-                                  if (confirm(`Excluir usuário ${u.full_name || u.email}? Esta ação não pode ser desfeita.`)) {
+                                  if (confirm(`Excluir usuário ${u.full_name || u.email}?`)) {
                                     base44.entities.User.delete(u.id).then(() => {
                                       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
                                       showToast('Usuário excluído!');
                                     });
                                   }
                                 }}
-                                className="rounded-lg text-red-600 hover:bg-red-50"
-                                title="Excluir usuário"
+                                className="h-8 rounded-lg text-xs text-red-600 hover:bg-red-50"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-3 h-3 mr-1" />
+                                Excluir
                               </Button>
                             </div>
                           </div>

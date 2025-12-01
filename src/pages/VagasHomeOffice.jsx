@@ -216,16 +216,17 @@ Responda APENAS com o JSON, sem explicações.`,
                 <Label className="text-slate-600 mb-2 block">
                   Cole aqui o texto com as vagas home office (até 5000 caracteres)
                 </Label>
-                <Textarea
+                <textarea
                   placeholder="Cole aqui o texto com as vagas..."
                   value={rawText}
-                  onChange={(e) => {
-                    const newValue = e.target.value;
-                    if (newValue.length <= 5000) {
-                      setRawText(newValue);
-                    }
+                  onChange={(e) => setRawText(e.target.value)}
+                  onPaste={(e) => {
+                    e.preventDefault();
+                    const pastedText = e.clipboardData.getData('text');
+                    setRawText(prev => (prev + pastedText).slice(0, 5000));
                   }}
-                  className="min-h-[300px] text-base"
+                  maxLength={5000}
+                  className="w-full min-h-[300px] text-base p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
                 />
                 <div className="flex justify-between items-center mt-2">
                   <span className="text-xs text-slate-400">
