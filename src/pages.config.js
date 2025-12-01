@@ -19,6 +19,8 @@ import Parcerias from './pages/Parcerias';
 import PostarVaga from './pages/PostarVaga';
 import VagasPorIA from './pages/VagasPorIA';
 import VagasHomeOffice from './pages/VagasHomeOffice';
+import Favoritos from './pages/Favoritos';
+import Historico from './pages/Historico';
 import __Layout from './Layout.jsx';
 
 
@@ -44,6 +46,8 @@ export const PAGES = {
     "PostarVaga": PostarVaga,
     "VagasPorIA": VagasPorIA,
     "VagasHomeOffice": VagasHomeOffice,
+    "Favoritos": Favoritos,
+    "Historico": Historico,
 }
 
 export const pagesConfig = {

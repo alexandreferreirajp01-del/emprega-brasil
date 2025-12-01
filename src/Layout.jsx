@@ -259,17 +259,8 @@ export default function Layout({ children, currentPageName }) {
                         Home Office
                       </Button>
                     </Link>
-                    <Link to={createPageUrl('VagasEspeciais')}>
-                      <Button 
-                        variant={currentPageName === 'VagasEspeciais' ? "secondary" : "ghost"}
-                        className={`rounded-xl ${currentPageName === 'VagasEspeciais' ? 'bg-indigo-100 text-indigo-700' : ''}`}
-                      >
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Especiais
-                      </Button>
-                    </Link>
-                  </>
-                  )}
+                    </>
+                    )}
                   </nav>
 
             {/* User Actions */}
@@ -360,17 +351,8 @@ export default function Layout({ children, currentPageName }) {
                         Vagas Home Office
                       </Button>
                     </Link>
-                    <Link to={createPageUrl('VagasEspeciais')} onClick={() => setMobileMenuOpen(false)}>
-                      <Button 
-                        variant={currentPageName === 'VagasEspeciais' ? "secondary" : "ghost"}
-                        className={`w-full justify-start rounded-xl ${currentPageName === 'VagasEspeciais' ? 'bg-indigo-100 text-indigo-700' : ''}`}
-                      >
-                        <Sparkles className="w-5 h-5 mr-3" />
-                        Vagas Especiais
-                      </Button>
-                    </Link>
-                  </>
-                  )}
+                    </>
+                    )}
 
               <div className="pt-2 border-t">
                 {isVisitor ? (
