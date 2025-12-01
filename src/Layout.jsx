@@ -311,6 +311,16 @@ export default function Layout({ children, currentPageName }) {
                   </Button>
                 </Link>
               ))}
+
+              <Link to={createPageUrl('Groups')} onClick={() => setMobileMenuOpen(false)}>
+                <Button 
+                  variant={currentPageName === 'Groups' ? "secondary" : "ghost"}
+                  className={`w-full justify-start rounded-xl ${currentPageName === 'Groups' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                >
+                  <Users className="w-5 h-5 mr-3" />
+                  Grupos
+                </Button>
+              </Link>
               
               {isAdmin && (
                 <>

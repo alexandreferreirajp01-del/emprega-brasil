@@ -8,10 +8,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
-  Heart, History
+  Heart, History, Users
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 
@@ -45,6 +46,31 @@ export default function Profile() {
     };
     loadUser();
   }, []);
+
+  // Buscar seguidores e seguindo
+  const { data: followers = [] } = useQuery({
+    queryKey: ['my-followers', user?.email],
+    queryFn: async () => {
+      try {
+        return await base44.entities.Follow.filter({ following_email: user.email }) || [];
+      } catch (e) {
+        return [];
+      }
+    },
+    enabled: !!user?.email,
+  });
+
+  const { data: following = [] } = useQuery({
+    queryKey: ['my-following', user?.email],
+    queryFn: async () => {
+      try {
+        return await base44.entities.Follow.filter({ follower_email: user.email }) || [];
+      } catch (e) {
+        return [];
+      }
+    },
+    enabled: !!user?.email,
+  });
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
@@ -200,6 +226,24 @@ export default function Profile() {
                   {user?.full_name || 'Usuário'}
                 </h2>
                 {getSubscriptionBadge()}
+                
+                {/* Seguidores e Seguindo */}
+                <div className="flex items-center gap-6 mt-4">
+                  <Link 
+                    to={`${createPageUrl('SocialProfile')}?email=${user?.email}`}
+                    className="text-center hover:opacity-70 transition-opacity"
+                  >
+                    <p className="text-lg font-bold text-slate-800">{followers.length}</p>
+                    <p className="text-xs text-slate-500">Seguidores</p>
+                  </Link>
+                  <Link 
+                    to={`${createPageUrl('SocialProfile')}?email=${user?.email}`}
+                    className="text-center hover:opacity-70 transition-opacity"
+                  >
+                    <p className="text-lg font-bold text-slate-800">{following.length}</p>
+                    <p className="text-xs text-slate-500">Seguindo</p>
+                  </Link>
+                </div>
               </div>
 
               {/* User Info - Editable */}
