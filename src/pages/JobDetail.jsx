@@ -74,42 +74,66 @@ export default function JobDetail() {
   const registerViewMutation = useMutation({
     mutationFn: async () => {
       // Gerar ID único do visualizador
-      const viewerId = `${navigator.userAgent}-${Date.now().toString(36)}`;
-      const storedViewerId = localStorage.getItem('vagas_viewer_id') || viewerId;
-      if (!localStorage.getItem('vagas_viewer_id')) {
-        localStorage.setItem('vagas_viewer_id', viewerId);
+      let storedViewerId = localStorage.getItem('vagas_viewer_id');
+      if (!storedViewerId) {
+        storedViewerId = `viewer_${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`;
+        localStorage.setItem('vagas_viewer_id', storedViewerId);
       }
       
-      // Verificar se já visualizou
-      const existingViews = await base44.entities.JobView.filter({ 
-        job_id: jobId, 
-        viewer_id: storedViewerId 
-      });
-      
-      if (existingViews.length > 0) return;
+      // Verificar se já visualizou esta vaga específica
+      const viewKey = `viewed_job_${jobId}`;
+      if (sessionStorage.getItem(viewKey)) return;
       
       // Detectar dispositivo
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       const isTablet = /iPad|Android/i.test(navigator.userAgent) && !(/Mobile/i.test(navigator.userAgent));
       const deviceType = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop';
       
-      // Tentar obter localização via IP
-      let geoData = {};
+      // Obter localização via múltiplas APIs (fallback)
+      let geoData = {
+        city: 'Brasil',
+        state: '',
+        country: 'Brasil',
+        latitude: -7.1195,
+        longitude: -34.861
+      };
+      
       try {
-        const geoResponse = await fetch('https://ipapi.co/json/');
+        // Tentar ipapi.co primeiro
+        const geoResponse = await fetch('https://ipapi.co/json/', { timeout: 5000 });
         if (geoResponse.ok) {
           const geo = await geoResponse.json();
-          geoData = {
-            city: geo.city || '',
-            state: geo.region || '',
-            country: geo.country_name || 'Brasil',
-            latitude: geo.latitude,
-            longitude: geo.longitude,
-            ip_address: geo.ip
-          };
+          if (geo.latitude && geo.longitude) {
+            geoData = {
+              city: geo.city || 'Brasil',
+              state: geo.region || geo.region_code || '',
+              country: geo.country_name || 'Brasil',
+              latitude: parseFloat(geo.latitude),
+              longitude: parseFloat(geo.longitude),
+              ip_address: geo.ip || ''
+            };
+          }
         }
       } catch (e) {
-        console.log('Não foi possível obter localização');
+        // Tentar ip-api.com como fallback
+        try {
+          const fallbackResponse = await fetch('http://ip-api.com/json/?fields=city,regionName,country,lat,lon,query');
+          if (fallbackResponse.ok) {
+            const fallback = await fallbackResponse.json();
+            if (fallback.lat && fallback.lon) {
+              geoData = {
+                city: fallback.city || 'Brasil',
+                state: fallback.regionName || '',
+                country: fallback.country || 'Brasil',
+                latitude: parseFloat(fallback.lat),
+                longitude: parseFloat(fallback.lon),
+                ip_address: fallback.query || ''
+              };
+            }
+          }
+        } catch (e2) {
+          console.log('Usando localização padrão');
+        }
       }
       
       // Registrar visualização
@@ -121,6 +145,9 @@ export default function JobDetail() {
         referrer: document.referrer || '',
         ...geoData
       });
+      
+      // Marcar como visualizado nesta sessão
+      sessionStorage.setItem(viewKey, 'true');
     }
   });
 

@@ -21,9 +21,12 @@ export default function ActivateBasic() {
         // Get current user
         const user = await base44.auth.me();
         
-        // Update subscription to basic if not already premium/admin
-        if (!user.subscription_type || user.subscription_type === '' || user.subscription_type === 'pending') {
-          await base44.auth.updateMe({ subscription_type: 'basic' });
+        // Atualizar para básico automaticamente (sem precisar aprovação manual)
+        if (!user.subscription_type || user.subscription_type === '' || user.subscription_type === 'pending' || user.subscription_type === 'visitor') {
+          await base44.auth.updateMe({ 
+            subscription_type: 'basic',
+            access_status: 'approved' // Aprovação automática
+          });
         }
 
         // Clear pending subscription

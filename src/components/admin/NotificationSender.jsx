@@ -160,9 +160,10 @@ export default function NotificationSender({ showToast, job, news, socialPost, c
         await base44.entities.Notification.bulkCreate(batch);
       }
 
-      // Enviar email para usuários premium se a opção estiver ativada
+      // Enviar email para usuários a partir do básico se a opção estiver ativada
       if (data.sendEmail) {
-        const premiumUsers = users.filter(u => 
+        const eligibleUsers = users.filter(u => 
+          u.subscription_type === 'basic' ||
           u.subscription_type === 'premium' || 
           u.subscription_type === 'admin' || 
           u.role === 'admin'
@@ -170,8 +171,8 @@ export default function NotificationSender({ showToast, job, news, socialPost, c
         
         // Enviar emails em paralelo (máximo 10 por vez)
         const emailBatchSize = 10;
-        for (let i = 0; i < premiumUsers.length; i += emailBatchSize) {
-          const emailBatch = premiumUsers.slice(i, i + emailBatchSize);
+        for (let i = 0; i < eligibleUsers.length; i += emailBatchSize) {
+          const emailBatch = eligibleUsers.slice(i, i + emailBatchSize);
           await Promise.all(emailBatch.map(user => 
             base44.integrations.Core.SendEmail({
               to: user.email,
@@ -364,7 +365,7 @@ Vagas Abertas Paraíba
             <Mail className="w-4 h-4 text-blue-600" />
             <div>
               <span className="text-sm font-medium">Enviar Email</span>
-              <p className="text-xs text-slate-500">Envia email para usuários Premium</p>
+              <p className="text-xs text-slate-500">Envia email para todos (Básico, Premium, Admin)</p>
             </div>
           </div>
           <Switch checked={sendEmail} onCheckedChange={setSendEmail} />
