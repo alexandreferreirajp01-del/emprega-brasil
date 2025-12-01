@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, MapPin, Calendar, Building2, Briefcase, 
-  DollarSign, ExternalLink, Lock, Clock, CheckCircle, Eye, MessageCircle
+  DollarSign, ExternalLink, Lock, Clock, CheckCircle, Eye, MessageCircle, Share2, Heart
 } from "lucide-react";
 import ContactOptionsDialog, { extractContacts } from "@/components/common/ContactOptionsDialog";
+import ShareJobDialog from "@/components/jobs/ShareJobDialog";
+import FavoriteButton from "@/components/jobs/FavoriteButton";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
@@ -19,6 +21,7 @@ export default function JobDetail() {
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   
   const urlParams = new URLSearchParams(window.location.search);
   const jobId = urlParams.get('id');
@@ -119,12 +122,38 @@ export default function JobDetail() {
     }
   });
 
-  // Registrar visualização ao carregar
+  // Registrar visualização ao carregar e salvar no histórico
   useEffect(() => {
     if (job && jobId && canViewJob()) {
       registerViewMutation.mutate();
+      
+      // Salvar no histórico do usuário
+      if (user) {
+        saveToHistory();
+      }
     }
-  }, [job, jobId]);
+  }, [job, jobId, user]);
+
+  const saveToHistory = async () => {
+    try {
+      // Verificar se já está no histórico
+      const existing = await base44.entities.ViewHistory.filter({
+        job_id: jobId,
+        user_email: user.email
+      });
+      
+      if (existing.length === 0) {
+        await base44.entities.ViewHistory.create({
+          job_id: jobId,
+          user_email: user.email,
+          job_title: job?.title || '',
+          job_company: job?.company || ''
+        });
+      }
+    } catch (e) {
+      console.log('Erro ao salvar histórico');
+    }
+  };
 
   const userIsPremium = user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin' || user?.email === 'alexandreferreirajp01@gmail.com';
 
@@ -237,7 +266,7 @@ export default function JobDetail() {
               {/* Title Section */}
               <div className="mb-6">
                 <div className="flex items-start justify-between flex-wrap gap-4">
-                  <div>
+                  <div className="flex-1">
                     <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">
                       {job.title || 'Não informado'}
                     </h1>
@@ -246,15 +275,26 @@ export default function JobDetail() {
                       {job.company || 'Empresa confidencial'}
                     </p>
                   </div>
-                  {job.salary_range && (
-                    <div className="bg-green-50 px-4 py-2 rounded-xl">
-                      <p className="text-green-700 font-semibold flex items-center gap-2">
-                        <DollarSign className="w-5 h-5" />
-                        {job.salary_range}
-                      </p>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <FavoriteButton job={job} user={user} />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setShowShareDialog(true)}
+                      className="rounded-full"
+                    >
+                      <Share2 className="w-5 h-5" />
+                    </Button>
+                  </div>
                 </div>
+                {job.salary_range && (
+                  <div className="mt-3 bg-green-50 px-4 py-2 rounded-xl inline-block">
+                    <p className="text-green-700 font-semibold flex items-center gap-2">
+                      <DollarSign className="w-5 h-5" />
+                      {job.salary_range}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Badges */}
@@ -373,6 +413,8 @@ export default function JobDetail() {
           </Card>
         </motion.div>
       </div>
+      
+      <ShareJobDialog open={showShareDialog} onOpenChange={setShowShareDialog} job={job} />
     </div>
   );
 }
