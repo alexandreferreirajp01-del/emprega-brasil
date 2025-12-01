@@ -17,13 +17,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import CommentsSection from "./CommentsSection";
 import ReportDialog from "./ReportDialog";
 import SharePostDialog from "./SharePostDialog";
 import PlanBadge from "./PlanBadge";
 
 export default function SocialPostCard({ post, user, likesCount, userLiked, onRefresh }) {
-  const [showComments, setShowComments] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const queryClient = useQueryClient();
@@ -271,10 +269,7 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
           </Button>
         </div>
 
-        {/* Comments Section */}
-        {showComments && (
-          <CommentsSection post={post} user={user} onRefresh={onRefresh} />
-        )}
+        {/* Comments removed - now opens in PostDetail page */}
       </CardContent>
 
       <ReportDialog 
