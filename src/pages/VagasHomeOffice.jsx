@@ -190,7 +190,7 @@ Retorne JSON com array "vagas".`,
         description: description,
         additional_info: `__HOME_OFFICE_LINKS__${linksData}`,
         job_type: 'Home Office',
-        city: 'Home Office',
+        city: 'Brasil',
         is_premium: isPremium,
         is_featured: isFeatured
       };
@@ -218,7 +218,7 @@ Retorne JSON com array "vagas".`,
         title: job.titulo,
         description: job.descricao || `Vaga Home Office - ${job.titulo}`,
         job_type: 'Home Office',
-        city: 'Home Office',
+        city: 'Brasil',
         application_link: job.link,
         is_premium: false,
         is_featured: false
