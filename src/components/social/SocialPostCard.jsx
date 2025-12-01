@@ -8,7 +8,7 @@ import {
   Briefcase, ExternalLink, Trophy
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
@@ -19,13 +19,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 import CommentsSection from "./CommentsSection";
 import ReportDialog from "./ReportDialog";
+import SharePostDialog from "./SharePostDialog";
+import PlanBadge from "./PlanBadge";
 
 export default function SocialPostCard({ post, user, likesCount, userLiked, onRefresh }) {
   const [showComments, setShowComments] = useState(false);
   const [showReport, setShowReport] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const [isLiked, setIsLiked] = useState(userLiked);
   const [currentLikes, setCurrentLikes] = useState(likesCount);
   const queryClient = useQueryClient();
+
+  // Get author user data for plan badge
+  const { data: authorUser } = useQuery({
+    queryKey: ['user-data', post.author_email],
+    queryFn: async () => {
+      try {
+        const users = await base44.entities.User.filter({ email: post.author_email });
+        return users[0];
+      } catch (e) {
+        return null;
+      }
+    },
+    staleTime: 60000,
+  });
 
   const likeMutation = useMutation({
     mutationFn: async () => {
@@ -105,9 +122,12 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-semibold text-slate-800 hover:text-[#0056ff]">
-                {post.author_name || 'Usuário'}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-slate-800 hover:text-[#0056ff]">
+                  {post.author_name || 'Usuário'}
+                </p>
+                <PlanBadge user={authorUser} />
+              </div>
               <p className="text-sm text-slate-500">
                 {post.author_occupation || 'Profissional'} • {formatDate(post.created_date)}
               </p>
@@ -216,10 +236,7 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
           </Button>
           <Button
             variant="ghost"
-            onClick={() => {
-              const url = `${window.location.origin}${createPageUrl('Social')}?post=${post.id}`;
-              navigator.clipboard.writeText(url);
-            }}
+            onClick={() => setShowShare(true)}
             className="flex-1 rounded-xl text-slate-600"
           >
             <Share2 className="w-5 h-5 mr-2" />
@@ -239,6 +256,12 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
         contentType="post"
         contentId={post.id}
         user={user}
+      />
+
+      <SharePostDialog
+        open={showShare}
+        onOpenChange={setShowShare}
+        post={post}
       />
     </Card>
   );

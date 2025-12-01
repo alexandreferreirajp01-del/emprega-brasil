@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Users, TrendingUp, Bell, Plus, Loader2
+  Users, TrendingUp, Bell, Plus, Loader2, Lock, Crown
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -15,9 +15,11 @@ import SocialFeed from "@/components/social/SocialFeed";
 import CreatePostModal from "@/components/social/CreatePostModal";
 import PopularProfiles from "@/components/social/PopularProfiles";
 import SocialNotifications from "@/components/social/SocialNotifications";
+import PremiumProfiles from "@/components/social/PremiumProfiles";
 
 export default function Social() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [activeTab, setActiveTab] = useState('feed');
 
@@ -25,15 +27,16 @@ export default function Social() {
     const checkAuth = async () => {
       const visitorMode = localStorage.getItem('vagas_abertas_visitor_mode');
       if (visitorMode === 'true') {
-        window.location.href = createPageUrl('Splash');
+        setLoading(false);
         return;
       }
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (e) {
-        window.location.href = createPageUrl('Splash');
+        // Not authenticated
       }
+      setLoading(false);
     };
     checkAuth();
   }, []);
@@ -42,18 +45,75 @@ export default function Social() {
     queryKey: ['social-notifications-unread', user?.email],
     queryFn: async () => {
       if (!user) return [];
-      return await base44.entities.SocialNotification.filter({ 
-        user_email: user.email,
-        is_read: false 
-      }) || [];
+      try {
+        return await base44.entities.SocialNotification.filter({ 
+          user_email: user.email,
+          is_read: false 
+        }) || [];
+      } catch (e) {
+        return [];
+      }
     },
     enabled: !!user,
   });
 
-  if (!user) {
+  // Check if user can access social
+  const canAccessSocial = user && (
+    user.subscription_type === 'premium' || 
+    user.subscription_type === 'admin' || 
+    user.subscription_type === 'basic' ||
+    user.role === 'admin' ||
+    user.email === 'alexandreferreirajp01@gmail.com'
+  );
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
+      </div>
+    );
+  }
+
+  // Access denied for visitors or non-subscribers
+  if (!user || !canAccessSocial) {
+    return (
+      <div className="min-h-screen bg-slate-50 pb-20">
+        <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-16 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-2xl font-bold text-white">Social Vagas Abertas</h1>
+            <p className="text-white/70">Conecte-se com profissionais</p>
+          </div>
+        </div>
+        <div className="max-w-lg mx-auto px-4 -mt-8">
+          <Card className="rounded-2xl shadow-xl">
+            <CardContent className="p-8 text-center">
+              <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Lock className="w-10 h-10 text-purple-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Acesso Exclusivo</h2>
+              <p className="text-slate-600 mb-6">
+                A rede social é exclusiva para usuários cadastrados. 
+                {!user ? ' Faça login para acessar.' : ' Você precisa de um plano ativo.'}
+              </p>
+              <div className="space-y-3">
+                {!user ? (
+                  <Link to={createPageUrl('Splash')}>
+                    <Button className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12">
+                      Fazer Login
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to={createPageUrl('Subscription')}>
+                    <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-90 rounded-xl h-12">
+                      <Crown className="w-5 h-5 mr-2" />
+                      Ver Planos
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -107,6 +167,7 @@ export default function Social() {
 
           <TabsContent value="discover">
             <div className="space-y-6">
+              <PremiumProfiles user={user} />
               <PopularProfiles user={user} />
               <SocialFeed user={user} feedType="all" />
             </div>
