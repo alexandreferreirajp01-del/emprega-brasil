@@ -40,7 +40,30 @@ const CREATIVE_TEMPLATES = [
   },
 ];
 
-export default function NotificationSender({ showToast, job, news, chatReply, notificationType = 'job', onClose }) {
+const HOME_OFFICE_TEMPLATES = [
+  {
+    title: "🏠 VAGAS HOME OFFICE!",
+    message: "Trabalhe de casa! Novas vagas remotas acabaram de chegar! 💻"
+  },
+  {
+    title: "💻 TRABALHO REMOTO!",
+    message: "Oportunidades para trabalhar de qualquer lugar! Confira agora! 🌍"
+  },
+  {
+    title: "🏡 HOME OFFICE LIBERADO!",
+    message: "Vagas para trabalhar no conforto da sua casa! Candidate-se já! 🚀"
+  },
+  {
+    title: "🌐 VAGAS 100% REMOTAS!",
+    message: "Empresas contratando para home office! Não perca! ⚡"
+  },
+  {
+    title: "🖥️ TRABALHE DE CASA!",
+    message: "Novas oportunidades remotas disponíveis! Aproveite! 🎯"
+  },
+];
+
+export default function NotificationSender({ showToast, job, news, chatReply, notificationType = 'job', isHomeOffice = false, onClose }) {
   // Definir ícone padrão baseado no tipo
   const getDefaultIcon = () => {
     if (notificationType === 'news') return 'newspaper';
@@ -48,8 +71,11 @@ export default function NotificationSender({ showToast, job, news, chatReply, no
     return 'briefcase';
   };
   
-  const [title, setTitle] = useState(CREATIVE_TEMPLATES[0].title);
-  const [message, setMessage] = useState(CREATIVE_TEMPLATES[0].message);
+  // Selecionar templates baseado no tipo
+  const templates = isHomeOffice ? HOME_OFFICE_TEMPLATES : CREATIVE_TEMPLATES;
+  
+  const [title, setTitle] = useState(templates[0].title);
+  const [message, setMessage] = useState(templates[0].message);
   const [iconType, setIconType] = useState(getDefaultIcon());
   const [customIconUrl, setCustomIconUrl] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -157,15 +183,17 @@ export default function NotificationSender({ showToast, job, news, chatReply, no
       <CardContent className="space-y-4">
         {/* Templates Criativos */}
         <div>
-          <Label className="text-sm text-slate-600 mb-2 block">Templates Prontos</Label>
+          <Label className="text-sm text-slate-600 mb-2 block">
+            Templates Prontos {isHomeOffice && <span className="text-green-600">(Home Office)</span>}
+          </Label>
           <div className="flex flex-wrap gap-2">
-            {CREATIVE_TEMPLATES.map((template, i) => (
+            {templates.map((template, i) => (
               <Button
                 key={i}
                 variant="outline"
                 size="sm"
                 onClick={() => handleSelectTemplate(template)}
-                className="rounded-lg text-xs hover:bg-blue-50"
+                className={`rounded-lg text-xs ${isHomeOffice ? 'hover:bg-green-50' : 'hover:bg-blue-50'}`}
               >
                 {template.title.slice(0, 15)}...
               </Button>
