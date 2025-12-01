@@ -53,7 +53,7 @@ export default function JobDetail() {
     enabled: !!jobId,
   });
 
-  // Buscar visualizações da vaga
+  // Buscar visualizações da vaga - tempo real
   const { data: viewsData = [] } = useQuery({
     queryKey: ['job-views', jobId],
     queryFn: async () => {
@@ -64,6 +64,8 @@ export default function JobDetail() {
       }
     },
     enabled: !!jobId,
+    refetchInterval: 5000, // Atualiza a cada 5 segundos
+    staleTime: 3000,
   });
 
   const viewCount = viewsData.length;

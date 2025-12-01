@@ -57,6 +57,8 @@ export default function Home() {
         return [];
       }
     },
+    refetchInterval: 5000, // Atualiza a cada 5 segundos
+    staleTime: 3000,
   });
 
   // Contagem de views por vaga

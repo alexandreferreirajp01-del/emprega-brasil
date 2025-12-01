@@ -158,7 +158,8 @@ export default function Jobs() {
         return [];
       }
     },
-    refetchInterval: 10000,
+    refetchInterval: 5000, // Atualiza a cada 5 segundos para tempo real
+    staleTime: 3000,
   });
 
   const viewsCountMap = {};
