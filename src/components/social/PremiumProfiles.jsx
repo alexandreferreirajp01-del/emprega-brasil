@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Crown, UserPlus, Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, UserPlus, Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -18,15 +18,10 @@ export default function PremiumProfiles({ user }) {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: allUsers = [], isLoading } = useQuery({
-    queryKey: ['premium-users'],
+    queryKey: ['all-users-discover'],
     queryFn: async () => {
       try {
-        const users = await base44.entities.User.list('-created_date', 100) || [];
-        return users.filter(u => 
-          u.subscription_type === 'premium' || 
-          u.subscription_type === 'admin' || 
-          u.role === 'admin'
-        );
+        return await base44.entities.User.list('-created_date', 500) || [];
       } catch (e) {
         return [];
       }
@@ -121,11 +116,11 @@ export default function PremiumProfiles({ user }) {
   if (premiumUsers.length === 0) return null;
 
   return (
-    <Card className="rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+    <Card className="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Crown className="w-5 h-5 text-amber-500" />
-          Usuários Premium
+          <Users className="w-5 h-5 text-[#0056ff]" />
+          Usuários Cadastrados
         </CardTitle>
         {/* Search */}
         <div className="relative mt-2">
@@ -151,9 +146,9 @@ export default function PremiumProfiles({ user }) {
                 to={`${createPageUrl('SocialProfile')}?email=${premiumUser.email}`}
                 className="flex-shrink-0"
               >
-                <Avatar className="w-10 h-10 ring-2 ring-amber-400">
+                <Avatar className="w-10 h-10 ring-2 ring-blue-300">
                   <AvatarImage src={premiumUser.profile_photo} />
-                  <AvatarFallback className="bg-amber-500 text-white">
+                  <AvatarFallback className="bg-[#0056ff] text-white">
                     {premiumUser.full_name?.[0]}
                   </AvatarFallback>
                 </Avatar>
@@ -197,7 +192,7 @@ export default function PremiumProfiles({ user }) {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 pt-3 border-t border-amber-200">
+          <div className="flex items-center justify-center gap-2 pt-3 border-t border-blue-200">
             <Button
               variant="outline"
               size="icon"

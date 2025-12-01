@@ -1016,35 +1016,67 @@ export default function Admin() {
                                   <Badge className={
                                     u.access_status === 'approved' ? 'bg-green-100 text-green-700' :
                                     u.access_status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                    u.access_status === 'blocked' ? 'bg-orange-100 text-orange-700' :
                                     'bg-amber-100 text-amber-700'
                                   }>
                                     {u.access_status === 'approved' ? 'Aprovado' :
                                      u.access_status === 'rejected' ? 'Rejeitado' :
+                                     u.access_status === 'blocked' ? 'Bloqueado' :
                                      'Pendente'}
                                   </Badge>
                                 </div>
                               </div>
                             </div>
-                            <Select 
-                              value={u.subscription_type || 'visitor'}
-                              onValueChange={(type) => updateUserMutation.mutate({ 
-                                id: u.id, 
-                                data: { 
-                                  subscription_type: type,
-                                  access_status: 'approved'
-                                } 
-                              })}
-                            >
-                              <SelectTrigger className="w-36 rounded-lg">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="visitor">Visitante</SelectItem>
-                                <SelectItem value="basic">Básico</SelectItem>
-                                <SelectItem value="premium">Premium</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <div className="flex items-center gap-2">
+                              <Select 
+                                value={u.subscription_type || 'visitor'}
+                                onValueChange={(type) => updateUserMutation.mutate({ 
+                                  id: u.id, 
+                                  data: { 
+                                    subscription_type: type,
+                                    access_status: 'approved'
+                                  } 
+                                })}
+                              >
+                                <SelectTrigger className="w-28 rounded-lg">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="visitor">Visitante</SelectItem>
+                                  <SelectItem value="basic">Básico</SelectItem>
+                                  <SelectItem value="premium">Premium</SelectItem>
+                                  <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => updateUserMutation.mutate({ 
+                                  id: u.id, 
+                                  data: { access_status: 'blocked' } 
+                                })}
+                                className="rounded-lg text-orange-600 hover:bg-orange-50"
+                                title="Bloquear usuário"
+                              >
+                                <UserX className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  if (confirm(`Excluir usuário ${u.full_name || u.email}? Esta ação não pode ser desfeita.`)) {
+                                    base44.entities.User.delete(u.id).then(() => {
+                                      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+                                      showToast('Usuário excluído!');
+                                    });
+                                  }
+                                }}
+                                className="rounded-lg text-red-600 hover:bg-red-50"
+                                title="Excluir usuário"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </div>
                         ))}
                       </div>

@@ -217,19 +217,14 @@ Responda APENAS com o JSON, sem explicações.`,
                   Cole aqui o texto com as vagas home office (até 5000 caracteres)
                 </Label>
                 <Textarea
-                  placeholder={`Cole aqui o texto com as vagas...
-
-Exemplo:
-Contabilidade:
-https://querohome.com.br/category/contabilidade/
-
-Atendimento ao Cliente:
-https://querohome.com.br/category/atendimento/
-
-Desenvolvedor:
-https://querohome.com.br/category/dev/`}
+                  placeholder="Cole aqui o texto com as vagas..."
                   value={rawText}
-                  onChange={(e) => setRawText(e.target.value.slice(0, 5000))}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    if (newValue.length <= 5000) {
+                      setRawText(newValue);
+                    }
+                  }}
                   className="min-h-[300px] text-base"
                 />
                 <div className="flex justify-between items-center mt-2">
