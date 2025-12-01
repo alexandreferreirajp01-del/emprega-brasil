@@ -24,6 +24,7 @@ import Historico from './pages/Historico';
 import Social from './pages/Social';
 import SocialProfile from './pages/SocialProfile';
 import PostDetail from './pages/PostDetail';
+import ActivateBasic from './pages/ActivateBasic';
 import __Layout from './Layout.jsx';
 
 
@@ -54,6 +55,7 @@ export const PAGES = {
     "Social": Social,
     "SocialProfile": SocialProfile,
     "PostDetail": PostDetail,
+    "ActivateBasic": ActivateBasic,
 }
 
 export const pagesConfig = {

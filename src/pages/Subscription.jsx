@@ -5,15 +5,33 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Crown, Shield, Zap, Star, MessageCircle, Users, UserPlus } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
+import { base44 } from "@/api/base44Client";
 
 export default function Subscription() {
   const handleSubscribePremium = () => {
     window.location.href = createPageUrl('Payment');
   };
 
-  const handleCreateAccount = () => {
+  const handleChooseBasic = async () => {
     localStorage.removeItem('vagas_abertas_visitor_mode');
-    window.location.href = createPageUrl('Splash');
+    
+    // Check if already authenticated
+    try {
+      const isAuthenticated = await base44.auth.isAuthenticated();
+      if (isAuthenticated) {
+        // User already logged in, just update subscription
+        await base44.auth.updateMe({ subscription_type: 'basic' });
+        window.location.href = createPageUrl('Home');
+      } else {
+        // Redirect to login, after login will set basic
+        localStorage.setItem('pending_subscription', 'basic');
+        base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
+      }
+    } catch (e) {
+      // Not authenticated, redirect to login
+      localStorage.setItem('pending_subscription', 'basic');
+      base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
+    }
   };
 
   const basicFeatures = [
@@ -94,12 +112,12 @@ export default function Subscription() {
                 </div>
 
                 <Button 
-                  onClick={handleCreateAccount}
+                  onClick={handleChooseBasic}
                   variant="outline"
                   className="w-full h-12 font-semibold rounded-xl border-blue-500 text-blue-600 hover:bg-blue-50"
                 >
                   <UserPlus className="w-5 h-5 mr-2" />
-                  Criar Conta Grátis
+                  Escolher Básico (Grátis)
                 </Button>
               </CardContent>
             </Card>
