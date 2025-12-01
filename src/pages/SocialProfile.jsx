@@ -382,7 +382,7 @@ export default function SocialProfile() {
 }
 
 function ProfilePosts({ userEmail, currentUser }) {
-  const { data: posts = [], isLoading } = useQuery({
+  const { data: posts = [], isLoading, refetch } = useQuery({
     queryKey: ['user-posts', userEmail],
     queryFn: async () => {
       return await base44.entities.SocialPost.filter(
@@ -412,16 +412,19 @@ function ProfilePosts({ userEmail, currentUser }) {
         const postLikes = allLikes.filter(l => l.post_id === post.id);
         const userLiked = postLikes.some(l => l.user_email === currentUser?.email);
         
-        const SocialPostCard = require('@/components/social/SocialPostCard').default;
+        // Import inline to avoid circular dependency
+        const SocialPostCard = React.lazy(() => import('@/components/social/SocialPostCard'));
         
         return (
-          <SocialPostCard
-            key={post.id}
-            post={post}
-            user={currentUser}
-            likesCount={postLikes.length}
-            userLiked={userLiked}
-          />
+          <React.Suspense key={post.id} fallback={<div className="h-20 bg-slate-100 animate-pulse rounded-xl" />}>
+            <SocialPostCard
+              post={post}
+              user={currentUser}
+              likesCount={postLikes.length}
+              userLiked={userLiked}
+              onRefresh={refetch}
+            />
+          </React.Suspense>
         );
       })}
     </div>
