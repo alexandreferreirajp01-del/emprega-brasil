@@ -74,7 +74,7 @@ export default function Social() {
     );
   }
 
-  // Access denied for visitors or non-subscribers
+  // Access denied for visitors - redirect to subscription page
   if (!user || !canAccessSocial) {
     return (
       <div className="min-h-screen bg-slate-50 pb-20">
@@ -90,26 +90,18 @@ export default function Social() {
               <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Lock className="w-10 h-10 text-purple-600" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Acesso Exclusivo</h2>
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Escolha um Plano</h2>
               <p className="text-slate-600 mb-6">
-                A rede social é exclusiva para usuários cadastrados. 
-                {!user ? ' Faça login para acessar.' : ' Você precisa de um plano ativo.'}
+                Para acessar a rede social, você precisa escolher um plano.
+                O plano básico é gratuito!
               </p>
               <div className="space-y-3">
-                {!user ? (
-                  <Link to={createPageUrl('Splash')}>
-                    <Button className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12">
-                      Fazer Login
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link to={createPageUrl('Subscription')}>
-                    <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-90 rounded-xl h-12">
-                      <Crown className="w-5 h-5 mr-2" />
-                      Ver Planos
-                    </Button>
-                  </Link>
-                )}
+                <Link to={createPageUrl('Subscription')}>
+                  <Button className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12">
+                    <Crown className="w-5 h-5 mr-2" />
+                    Escolher um Plano
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
