@@ -63,16 +63,69 @@ const HOME_OFFICE_TEMPLATES = [
   },
 ];
 
-export default function NotificationSender({ showToast, job, news, chatReply, notificationType = 'job', isHomeOffice = false, onClose }) {
+const NEWS_TEMPLATES = [
+  {
+    title: "📰 NOTÍCIA IMPORTANTE!",
+    message: "Confira a nova notícia que acabou de sair! Fique por dentro! 📢"
+  },
+  {
+    title: "🗞️ ÚLTIMAS NOTÍCIAS!",
+    message: "Novidades fresquinhas para você! Não perca essa informação! 📋"
+  },
+  {
+    title: "📣 ATENÇÃO!",
+    message: "Nova notícia publicada! Confira agora mesmo! 🔔"
+  },
+  {
+    title: "💡 NOVIDADE!",
+    message: "Informação importante para sua carreira! Leia agora! 📖"
+  },
+  {
+    title: "🔥 NOTÍCIA QUENTE!",
+    message: "Acabou de sair! Notícia imperdível para você! 🚀"
+  },
+];
+
+const SOCIAL_TEMPLATES = [
+  {
+    title: "👥 NOVA POSTAGEM!",
+    message: "Confira o que há de novo na comunidade! Participe! 💬"
+  },
+  {
+    title: "💬 COMUNIDADE ATIVA!",
+    message: "Nova publicação interessante! Venha conferir e interagir! 🌟"
+  },
+  {
+    title: "🗣️ NOVIDADE NA REDE!",
+    message: "Post novo na comunidade! Não fique de fora! 📱"
+  },
+  {
+    title: "✨ POST ESPECIAL!",
+    message: "Conteúdo exclusivo na comunidade! Confira agora! 🎯"
+  },
+  {
+    title: "📲 ATUALIZE-SE!",
+    message: "Novidades na rede social! Participe da conversa! 💭"
+  },
+];
+
+export default function NotificationSender({ showToast, job, news, socialPost, chatReply, notificationType = 'job', isHomeOffice = false, onClose }) {
   // Definir ícone padrão baseado no tipo
   const getDefaultIcon = () => {
     if (notificationType === 'news') return 'newspaper';
-    if (notificationType === 'chat' || notificationType === 'community') return 'chat';
+    if (notificationType === 'chat' || notificationType === 'community' || notificationType === 'social') return 'chat';
     return 'briefcase';
   };
   
   // Selecionar templates baseado no tipo
-  const templates = isHomeOffice ? HOME_OFFICE_TEMPLATES : CREATIVE_TEMPLATES;
+  const getTemplates = () => {
+    if (isHomeOffice) return HOME_OFFICE_TEMPLATES;
+    if (notificationType === 'news') return NEWS_TEMPLATES;
+    if (notificationType === 'social') return SOCIAL_TEMPLATES;
+    return CREATIVE_TEMPLATES;
+  };
+  
+  const templates = getTemplates();
   
   const [title, setTitle] = useState(templates[0].title);
   const [message, setMessage] = useState(templates[0].message);
@@ -161,6 +214,8 @@ export default function NotificationSender({ showToast, job, news, chatReply, no
       finalMessage = `${message}\n\n📁 ${job.title}${job.city ? ` - ${job.city}` : ''}`;
     } else if (news) {
       finalMessage = `${message}\n\n📰 ${news.title}`;
+    } else if (socialPost) {
+      finalMessage = `${message}\n\n👥 ${socialPost.author_name || 'Novo post'}`;
     } else if (chatReply) {
       finalMessage = `${message}\n\n💬 Nova resposta no chat`;
     }
@@ -287,6 +342,9 @@ export default function NotificationSender({ showToast, job, news, chatReply, no
               )}
               {news && (
                 <p className="text-green-600 text-xs mt-1">📰 {news.title}</p>
+              )}
+              {socialPost && (
+                <p className="text-purple-600 text-xs mt-1">👥 {socialPost.author_name || 'Novo post na comunidade'}</p>
               )}
               {chatReply && (
                 <p className="text-purple-600 text-xs mt-1">💬 Nova resposta no chat</p>
