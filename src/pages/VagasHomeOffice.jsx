@@ -202,7 +202,7 @@ Retorne JSON com array "vagas".`,
       setLastCreatedJob({
         id: createdJob?.id,
         title: `${extractedJobs.length} Vagas Home Office`,
-        city: 'Home Office'
+        city: 'Brasil'
       });
       if (textareaRef.current) textareaRef.current.value = '';
       setExtractedJobs([]);

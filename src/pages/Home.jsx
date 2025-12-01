@@ -46,6 +46,8 @@ export default function Home() {
         return [];
       }
     },
+    refetchInterval: 10000, // Atualiza em tempo real a cada 10 segundos
+    staleTime: 5000,
   });
 
   const { data: allViews = [] } = useQuery({
@@ -79,6 +81,8 @@ export default function Home() {
         return [];
       }
     },
+    refetchInterval: 15000, // Atualiza em tempo real
+    staleTime: 10000,
   });
 
   const { data: posts = [] } = useQuery({
@@ -90,6 +94,8 @@ export default function Home() {
         return [];
       }
     },
+    refetchInterval: 15000, // Atualiza em tempo real
+    staleTime: 10000,
   });
 
 
