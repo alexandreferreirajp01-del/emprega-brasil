@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Bloquear tradução automática do navegador em elementos críticos */
+[translate="no"],
+.notranslate,
+[data-translate="no"] {
+  translate: no;
+}
+
 /* Safe area for iOS/Android */
 :root {
   --sat: env(safe-area-inset-top);
