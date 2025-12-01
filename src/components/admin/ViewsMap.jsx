@@ -17,14 +17,14 @@ export default function ViewsMap() {
     queryKey: ['job-views'],
     queryFn: async () => {
       try {
-        return await base44.entities.JobView.list('-created_date', 5000) || [];
+        return await base44.entities.JobView.list('-created_date', 10000) || [];
       } catch (e) {
         console.error('Erro ao carregar visualizações:', e);
         return [];
       }
     },
-    refetchInterval: 5000, // Atualiza em tempo real a cada 5 segundos
-    staleTime: 3000,
+    refetchInterval: 3000, // Atualiza em tempo real a cada 3 segundos
+    staleTime: 2000,
   });
 
   // Filtrar por data
