@@ -41,29 +41,93 @@ export default function VagasHomeOffice() {
     checkAuth();
   }, []);
 
+  // Limpa emojis e caracteres especiais do texto
+  const cleanText = (text) => {
+    return text
+      .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // emoticons
+      .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // símbolos e pictogramas
+      .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // transporte e símbolos de mapa
+      .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // bandeiras
+      .replace(/[\u{2600}-\u{26FF}]/gu, '')   // símbolos diversos
+      .replace(/[\u{2700}-\u{27BF}]/gu, '')   // dingbats
+      .replace(/[\u{FE00}-\u{FE0F}]/gu, '')   // variation selectors
+      .replace(/[\u{1F900}-\u{1F9FF}]/gu, '') // suplemento de símbolos
+      .replace(/[\u{1FA00}-\u{1FA6F}]/gu, '') // símbolos de xadrez
+      .replace(/[\u{1FA70}-\u{1FAFF}]/gu, '') // símbolos e pictogramas estendidos
+      .replace(/[\u{231A}-\u{231B}]/gu, '')   // relógios
+      .replace(/[\u{23E9}-\u{23F3}]/gu, '')   // botões de mídia
+      .replace(/[\u{23F8}-\u{23FA}]/gu, '')   // botões de mídia 2
+      .replace(/[\u{25AA}-\u{25AB}]/gu, '')   // quadrados
+      .replace(/[\u{25B6}]/gu, '')            // play
+      .replace(/[\u{25C0}]/gu, '')            // reverse
+      .replace(/[\u{25FB}-\u{25FE}]/gu, '')   // quadrados 2
+      .replace(/[\u{2614}-\u{2615}]/gu, '')   // guarda-chuva e café
+      .replace(/[\u{2648}-\u{2653}]/gu, '')   // signos
+      .replace(/[\u{267F}]/gu, '')            // cadeira de rodas
+      .replace(/[\u{2693}]/gu, '')            // âncora
+      .replace(/[\u{26A1}]/gu, '')            // raio
+      .replace(/[\u{26AA}-\u{26AB}]/gu, '')   // círculos
+      .replace(/[\u{26BD}-\u{26BE}]/gu, '')   // bolas
+      .replace(/[\u{26C4}-\u{26C5}]/gu, '')   // boneco de neve e sol
+      .replace(/[\u{26CE}]/gu, '')            // ofiúco
+      .replace(/[\u{26D4}]/gu, '')            // proibido
+      .replace(/[\u{26EA}]/gu, '')            // igreja
+      .replace(/[\u{26F2}-\u{26F3}]/gu, '')   // fonte e golfe
+      .replace(/[\u{26F5}]/gu, '')            // barco
+      .replace(/[\u{26FA}]/gu, '')            // barraca
+      .replace(/[\u{26FD}]/gu, '')            // bomba de gasolina
+      .replace(/[\u{2702}]/gu, '')            // tesoura
+      .replace(/[\u{2705}]/gu, '')            // check verde
+      .replace(/[\u{2708}-\u{270D}]/gu, '')   // avião e mão
+      .replace(/[\u{270F}]/gu, '')            // lápis
+      .replace(/[\u{2712}]/gu, '')            // caneta preta
+      .replace(/[\u{2714}]/gu, '')            // check
+      .replace(/[\u{2716}]/gu, '')            // X
+      .replace(/[\u{271D}]/gu, '')            // cruz
+      .replace(/[\u{2721}]/gu, '')            // estrela de davi
+      .replace(/[\u{2728}]/gu, '')            // sparkles
+      .replace(/[\u{2733}-\u{2734}]/gu, '')   // asteriscos
+      .replace(/[\u{2744}]/gu, '')            // floco de neve
+      .replace(/[\u{2747}]/gu, '')            // sparkle
+      .replace(/[\u{274C}]/gu, '')            // X vermelho
+      .replace(/[\u{274E}]/gu, '')            // X verde
+      .replace(/[\u{2753}-\u{2755}]/gu, '')   // interrogações
+      .replace(/[\u{2757}]/gu, '')            // exclamação
+      .replace(/[\u{2763}-\u{2764}]/gu, '')   // corações
+      .replace(/[\u{2795}-\u{2797}]/gu, '')   // operadores
+      .replace(/[\u{27A1}]/gu, '')            // seta
+      .replace(/[\u{27B0}]/gu, '')            // curly loop
+      .replace(/[\u{27BF}]/gu, '')            // double curly loop
+      .replace(/[\u{2934}-\u{2935}]/gu, '')   // setas curvas
+      .replace(/[\u{2B05}-\u{2B07}]/gu, '')   // setas
+      .replace(/[\u{2B1B}-\u{2B1C}]/gu, '')   // quadrados grandes
+      .replace(/[\u{2B50}]/gu, '')            // estrela
+      .replace(/[\u{2B55}]/gu, '')            // círculo
+      .replace(/[\u{3030}]/gu, '')            // ondinha
+      .replace(/[\u{303D}]/gu, '')            // parte alternada
+      .replace(/[\u{3297}]/gu, '')            // parabéns
+      .replace(/[\u{3299}]/gu, '')            // segredo
+      .replace(/[👉✅💼🏠]/gu, '')            // emojis específicos
+      .trim();
+  };
+
   const extractWithAI = async () => {
-    const text = textareaRef.current?.value || '';
-    if (!text.trim()) return;
+    const rawInput = textareaRef.current?.value || '';
+    if (!rawInput.trim()) return;
+    
+    // Limpar texto antes de enviar
+    const text = cleanText(rawInput).slice(0, 3000);
     
     setIsExtracting(true);
     try {
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analise o seguinte texto que contém vagas de emprego HOME OFFICE e extraia cada vaga separadamente.
+        prompt: `Extraia as vagas de emprego do texto abaixo.
 
 TEXTO:
-${text.slice(0, 5000)}
+${text}
 
-Para cada vaga encontrada, extraia:
-- titulo: nome/área da vaga (ex: "Contabilidade", "Atendimento ao Cliente", "Desenvolvedor")
-- link: URL completa para candidatura
-- descricao: breve descrição se houver (opcional)
-
-IMPORTANTE: 
-- Extraia TODAS as vagas do texto
-- Cada linha com uma área e um link é uma vaga separada
-- Retorne um array com todas as vagas encontradas
-
-Responda APENAS com o JSON, sem explicações.`,
+Extraia: titulo (cargo/area), link (URL), descricao (breve, opcional).
+Retorne JSON com array "vagas".`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -90,6 +154,7 @@ Responda APENAS com o JSON, sem explicações.`,
 
     } catch (error) {
       console.error('Erro ao extrair dados:', error);
+      alert('Erro ao extrair vagas. Tente novamente.');
     }
     setIsExtracting(false);
   };
