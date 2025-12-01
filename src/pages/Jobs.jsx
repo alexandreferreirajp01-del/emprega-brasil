@@ -158,6 +158,7 @@ export default function Jobs() {
         return [];
       }
     },
+    refetchInterval: 10000,
   });
 
   const viewsCountMap = {};
