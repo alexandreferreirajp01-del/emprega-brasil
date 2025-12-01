@@ -6,16 +6,19 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Users, MessageSquare, Flag, Trash2, Eye, 
-  TrendingUp, Heart, Ban, Check, Loader2
+  TrendingUp, Heart, Ban, Check, Loader2, Bell
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import NotificationSender from "@/components/admin/NotificationSender";
 
 const COLORS = ['#0056ff', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export default function SocialAdminPanel({ showToast }) {
   const queryClient = useQueryClient();
+  const [showNotification, setShowNotification] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const { data: posts = [] } = useQuery({
     queryKey: ['all-social-posts'],
@@ -218,6 +221,21 @@ export default function SocialAdminPanel({ showToast }) {
 
         {/* Posts */}
         <TabsContent value="posts">
+          {/* Notification Sender for Social Posts */}
+          {showNotification && selectedPost && (
+            <div className="mb-4">
+              <NotificationSender
+                showToast={showToast}
+                socialPost={selectedPost}
+                notificationType="social"
+                onClose={() => {
+                  setShowNotification(false);
+                  setSelectedPost(null);
+                }}
+              />
+            </div>
+          )}
+          
           <Card className="rounded-xl">
             <CardHeader>
               <CardTitle className="text-lg">Todos os Posts</CardTitle>
@@ -237,14 +255,27 @@ export default function SocialAdminPanel({ showToast }) {
                           </span>
                         </div>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => deletePostMutation.mutate(post.id)}
-                        className="text-red-500"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setSelectedPost(post);
+                            setShowNotification(true);
+                          }}
+                          className="text-blue-500"
+                        >
+                          <Bell className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => deletePostMutation.mutate(post.id)}
+                          className="text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
