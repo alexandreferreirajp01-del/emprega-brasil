@@ -5,13 +5,14 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { 
   Sparkles, Wand2, Loader2, Check, ArrowLeft, Copy, 
-  Home, ExternalLink, Briefcase, X, Crown, Star
+  Home, ExternalLink, Briefcase, X, Crown, Star, Bell
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useMutation } from "@tanstack/react-query";
+import NotificationSender from "@/components/admin/NotificationSender";
 
 export default function VagasHomeOffice() {
   const [user, setUser] = useState(null);
@@ -23,7 +24,13 @@ export default function VagasHomeOffice() {
   const [publishingIndex, setPublishingIndex] = useState(null);
   const [isPremium, setIsPremium] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
+  const [showNotificationSender, setShowNotificationSender] = useState(false);
+  const [lastCreatedJob, setLastCreatedJob] = useState(null);
   const textareaRef = useRef(null);
+  
+  const showToast = (msg) => {
+    alert(msg);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -190,10 +197,16 @@ Retorne JSON com array "vagas".`,
       
       return await base44.entities.Job.create(jobData);
     },
-    onSuccess: () => {
+    onSuccess: (createdJob) => {
       setShowSuccess(true);
+      setLastCreatedJob({
+        id: createdJob?.id,
+        title: `${extractedJobs.length} Vagas Home Office`,
+        city: 'Home Office'
+      });
       if (textareaRef.current) textareaRef.current.value = '';
       setExtractedJobs([]);
+      setShowNotificationSender(true);
       setTimeout(() => setShowSuccess(false), 3000);
     }
   });
@@ -443,6 +456,19 @@ Retorne JSON com array "vagas".`,
             </CardContent>
           </Card>
         </div>
+
+        {/* Notification Sender para Home Office */}
+        {showNotificationSender && lastCreatedJob && (
+          <div className="mt-6">
+            <NotificationSender
+              showToast={showToast}
+              job={lastCreatedJob}
+              notificationType="job"
+              isHomeOffice={true}
+              onClose={() => setShowNotificationSender(false)}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
