@@ -26,8 +26,6 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
   const [showComments, setShowComments] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [isLiked, setIsLiked] = useState(userLiked);
-  const [currentLikes, setCurrentLikes] = useState(likesCount);
   const queryClient = useQueryClient();
 
   // Get author user data for plan badge
@@ -44,9 +42,39 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
     staleTime: 60000,
   });
 
+  // Real-time likes count
+  const { data: realTimeLikes = [] } = useQuery({
+    queryKey: ['post-likes', post.id],
+    queryFn: async () => {
+      try {
+        return await base44.entities.SocialLike.filter({ post_id: post.id }) || [];
+      } catch (e) {
+        return [];
+      }
+    },
+    refetchInterval: 5000,
+  });
+
+  // Real-time comments count
+  const { data: realTimeComments = [] } = useQuery({
+    queryKey: ['post-comments-count', post.id],
+    queryFn: async () => {
+      try {
+        return await base44.entities.SocialComment.filter({ post_id: post.id, status: 'active' }) || [];
+      } catch (e) {
+        return [];
+      }
+    },
+    refetchInterval: 5000,
+  });
+
+  const realLikesCount = realTimeLikes.length;
+  const realCommentsCount = realTimeComments.length;
+  const realUserLiked = realTimeLikes.some(l => l.user_email === user?.email);
+
   const likeMutation = useMutation({
     mutationFn: async () => {
-      if (isLiked) {
+      if (realUserLiked) {
         const likes = await base44.entities.SocialLike.filter({
           post_id: post.id,
           user_email: user.email
@@ -73,11 +101,8 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
         }
       }
     },
-    onMutate: () => {
-      setIsLiked(!isLiked);
-      setCurrentLikes(prev => isLiked ? prev - 1 : prev + 1);
-    },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['post-likes', post.id] });
       queryClient.invalidateQueries({ queryKey: ['social-likes'] });
     },
   });
@@ -212,8 +237,8 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
 
         {/* Stats */}
         <div className="flex items-center justify-between text-sm text-slate-500 mb-3">
-          <span>{currentLikes} curtida{currentLikes !== 1 ? 's' : ''}</span>
-          <span>{post.comments_count || 0} comentário{(post.comments_count || 0) !== 1 ? 's' : ''}</span>
+          <span>{realLikesCount} curtida{realLikesCount !== 1 ? 's' : ''}</span>
+          <span>{realCommentsCount} comentário{realCommentsCount !== 1 ? 's' : ''}</span>
         </div>
 
         {/* Actions */}
@@ -221,9 +246,10 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
           <Button
             variant="ghost"
             onClick={() => likeMutation.mutate()}
-            className={`flex-1 rounded-xl ${isLiked ? 'text-red-500 hover:text-red-600' : 'text-slate-600'}`}
+            disabled={likeMutation.isPending}
+            className={`flex-1 rounded-xl ${realUserLiked ? 'text-red-500 hover:text-red-600' : 'text-slate-600'}`}
           >
-            <Heart className={`w-5 h-5 mr-2 ${isLiked ? 'fill-current' : ''}`} />
+            <Heart className={`w-5 h-5 mr-2 ${realUserLiked ? 'fill-current' : ''}`} />
             Curtir
           </Button>
           <Button
