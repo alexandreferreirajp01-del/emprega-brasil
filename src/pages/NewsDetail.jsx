@@ -24,6 +24,8 @@ export default function NewsDetail() {
       return items[0];
     },
     enabled: !!newsId,
+    refetchInterval: 10000, // Atualiza views em tempo real
+    staleTime: 5000,
   });
 
   const { data: allNews = [] } = useQuery({
@@ -115,8 +117,8 @@ export default function NewsDetail() {
 
   return (
     <div className="min-h-screen bg-white pb-20">
-      {/* Top Bar - Estilo G1 */}
-      <div className="bg-red-600 py-2 px-4">
+      {/* Top Bar */}
+      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] py-2 px-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link to={createPageUrl('News')} className="inline-flex items-center text-white hover:text-white/80 transition-colors text-sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -144,7 +146,7 @@ export default function NewsDetail() {
             >
               {/* Category Badge */}
               <div className="px-4 pt-6">
-                <Badge className="bg-red-600 text-white border-0 rounded-sm px-3 py-1 text-xs uppercase font-bold tracking-wide">
+                <Badge className="bg-[#0056ff] text-white border-0 rounded-sm px-3 py-1 text-xs uppercase font-bold tracking-wide">
                   {news.category || 'Geral'}
                 </Badge>
               </div>
@@ -156,7 +158,7 @@ export default function NewsDetail() {
                 </h1>
 
                 {news.subtitle && (
-                  <p className="text-lg sm:text-xl text-slate-600 leading-relaxed border-l-4 border-red-600 pl-4">
+                  <p className="text-lg sm:text-xl text-slate-600 leading-relaxed border-l-4 border-[#0056ff] pl-4">
                     {news.subtitle}
                   </p>
                 )}
@@ -167,7 +169,7 @@ export default function NewsDetail() {
                 <div className="flex items-center gap-3">
                   {news.author_name && (
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 bg-[#0056ff] rounded-full flex items-center justify-center">
                         <User className="w-4 h-4 text-white" />
                       </div>
                       <div>
@@ -185,7 +187,7 @@ export default function NewsDetail() {
                     variant="ghost" 
                     size="sm"
                     onClick={handleShare}
-                    className="h-8 text-slate-500 hover:text-red-600"
+                    className="h-8 text-slate-500 hover:text-[#0056ff]"
                   >
                     <Share2 className="w-4 h-4 mr-1" />
                     Compartilhar
@@ -224,7 +226,7 @@ export default function NewsDetail() {
                       // Primeiro parágrafo em destaque
                       if (index === 0) {
                         return (
-                          <p key={index} className="text-xl font-medium text-slate-900 mb-6 first-letter:text-5xl first-letter:font-bold first-letter:text-red-600 first-letter:float-left first-letter:mr-3 first-letter:mt-1">
+                          <p key={index} className="text-xl font-medium text-slate-900 mb-6 first-letter:text-5xl first-letter:font-bold first-letter:text-[#0056ff] first-letter:float-left first-letter:mr-3 first-letter:mt-1">
                             {paragraph}
                           </p>
                         );
@@ -275,7 +277,7 @@ export default function NewsDetail() {
             {relatedNews.length > 0 && (
               <Card className="rounded-lg border-0 shadow-sm">
                 <CardContent className="p-0">
-                  <div className="bg-red-600 px-4 py-3">
+                  <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] px-4 py-3">
                     <h3 className="font-bold text-white text-sm uppercase tracking-wide">Notícias Relacionadas</h3>
                   </div>
                   <div className="divide-y">
@@ -294,7 +296,7 @@ export default function NewsDetail() {
                             />
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-800 group-hover:text-red-600 transition-colors line-clamp-3">
+                            <p className="text-sm font-medium text-slate-800 group-hover:text-[#0056ff] transition-colors line-clamp-3">
                               {item.title}
                             </p>
                             <p className="text-xs text-slate-400 mt-2 flex items-center gap-1">

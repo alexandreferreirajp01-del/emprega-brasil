@@ -27,6 +27,8 @@ export default function News() {
         return [];
       }
     },
+    refetchInterval: 10000, // Atualiza em tempo real a cada 10 segundos
+    staleTime: 5000,
   });
 
   const categories = ['Mercado de Trabalho', 'Dicas de Emprego', 'Economia', 'Cursos', 'Eventos', 'Geral'];
@@ -69,8 +71,8 @@ export default function News() {
 
   return (
     <div className="min-h-screen bg-white pb-20">
-      {/* Header - Estilo G1 */}
-      <div className="bg-red-600 py-3 px-4">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] py-3 px-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Newspaper className="w-6 h-6 text-white" />
@@ -97,7 +99,7 @@ export default function News() {
         </div>
       </div>
 
-      {/* Categories - Estilo G1 */}
+      {/* Categories */}
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex overflow-x-auto py-3 gap-1 hide-scrollbar">
@@ -105,7 +107,7 @@ export default function News() {
               variant={selectedCategory === 'all' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setSelectedCategory('all')}
-              className={`rounded-none border-b-2 ${selectedCategory === 'all' ? 'border-red-600 text-red-600 bg-transparent hover:bg-transparent' : 'border-transparent'}`}
+              className={`rounded-none border-b-2 ${selectedCategory === 'all' ? 'border-[#0056ff] text-[#0056ff] bg-transparent hover:bg-transparent' : 'border-transparent'}`}
             >
               Todas
             </Button>
@@ -115,7 +117,7 @@ export default function News() {
                 variant={selectedCategory === cat ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setSelectedCategory(cat)}
-                className={`rounded-none border-b-2 whitespace-nowrap ${selectedCategory === cat ? 'border-red-600 text-red-600 bg-transparent hover:bg-transparent' : 'border-transparent'}`}
+                className={`rounded-none border-b-2 whitespace-nowrap ${selectedCategory === cat ? 'border-[#0056ff] text-[#0056ff] bg-transparent hover:bg-transparent' : 'border-transparent'}`}
               >
                 {cat}
               </Button>
@@ -142,7 +144,7 @@ export default function News() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                         <div className="absolute top-4 left-4">
-                          <Badge className="bg-red-600 text-white border-0 rounded-sm px-3 py-1 text-xs uppercase font-bold">
+                          <Badge className="bg-[#0056ff] text-white border-0 rounded-sm px-3 py-1 text-xs uppercase font-bold">
                             {featuredNews.category || 'Destaque'}
                           </Badge>
                         </div>
@@ -166,7 +168,7 @@ export default function News() {
                         </div>
                         {featuredNews.video_url && (
                           <div className="absolute top-4 right-4">
-                            <div className="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
+                            <div className="w-14 h-14 bg-[#0056ff] rounded-full flex items-center justify-center shadow-lg">
                               <PlayCircle className="w-8 h-8 text-white" />
                             </div>
                           </div>
@@ -174,8 +176,8 @@ export default function News() {
                       </div>
                     )}
                     {!featuredNews.image_url && (
-                      <div className="p-6 bg-slate-900 text-white">
-                        <Badge className="bg-red-600 text-white border-0 rounded-sm mb-3">
+                      <div className="p-6 bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white">
+                        <Badge className="bg-white/20 text-white border-0 rounded-sm mb-3">
                           Destaque
                         </Badge>
                         <h2 className="text-2xl md:text-3xl font-bold mb-2">{featuredNews.title}</h2>
@@ -225,14 +227,14 @@ export default function News() {
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <Badge className="bg-red-600/10 text-red-600 border-0 text-xs rounded-sm px-2 py-0.5">
+                            <Badge className="bg-[#0056ff]/10 text-[#0056ff] border-0 text-xs rounded-sm px-2 py-0.5">
                               {item.category || 'Geral'}
                             </Badge>
                             <span className="text-xs text-slate-400">
                               {formatTimeAgo(item.created_date)}
                             </span>
                           </div>
-                          <h3 className="font-bold text-slate-900 group-hover:text-red-600 transition-colors line-clamp-2 text-lg leading-snug mb-1">
+                          <h3 className="font-bold text-slate-900 group-hover:text-[#0056ff] transition-colors line-clamp-2 text-lg leading-snug mb-1">
                             {item.title}
                           </h3>
                           {item.subtitle && (
@@ -271,7 +273,7 @@ export default function News() {
           <div className="lg:col-span-4 space-y-6">
             {/* Recent News */}
             <Card className="rounded-lg border-0 shadow-sm overflow-hidden">
-              <div className="bg-red-600 px-4 py-3">
+              <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] px-4 py-3">
                 <h3 className="font-bold text-white text-sm uppercase tracking-wide flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   Mais Lidas
@@ -284,9 +286,9 @@ export default function News() {
                     to={createPageUrl('NewsDetail') + `?id=${item.id}`}
                     className="flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors group"
                   >
-                    <span className="text-3xl font-bold text-red-600 leading-none">{index + 1}</span>
+                    <span className="text-3xl font-bold text-[#0056ff] leading-none">{index + 1}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-800 group-hover:text-red-600 transition-colors line-clamp-3">
+                      <p className="text-sm font-medium text-slate-800 group-hover:text-[#0056ff] transition-colors line-clamp-3">
                         {item.title}
                       </p>
                       <p className="text-xs text-slate-400 mt-1">{formatTimeAgo(item.created_date)}</p>
@@ -309,11 +311,11 @@ export default function News() {
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
                       className={`w-full flex items-center justify-between p-3 hover:bg-slate-50 transition-colors ${
-                        selectedCategory === cat ? 'bg-red-50 text-red-600' : 'text-slate-700'
+                        selectedCategory === cat ? 'bg-[#0056ff]/10 text-[#0056ff]' : 'text-slate-700'
                       }`}
                     >
                       <span className="text-sm font-medium">{cat}</span>
-                      <Badge className={`text-xs ${selectedCategory === cat ? 'bg-red-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                      <Badge className={`text-xs ${selectedCategory === cat ? 'bg-[#0056ff] text-white' : 'bg-slate-100 text-slate-600'}`}>
                         {count}
                       </Badge>
                     </button>

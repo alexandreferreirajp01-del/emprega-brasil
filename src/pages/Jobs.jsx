@@ -145,6 +145,8 @@ export default function Jobs() {
         return [];
       }
     },
+    refetchInterval: 10000, // Atualiza em tempo real a cada 10 segundos
+    staleTime: 5000,
   });
 
 
