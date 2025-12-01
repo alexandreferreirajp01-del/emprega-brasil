@@ -27,6 +27,7 @@ import PremiumCodesManager from "@/components/admin/PremiumCodesManager";
 import PaymentsManager from "@/components/admin/PaymentsManager";
 import ChatManager from "@/components/admin/ChatManager";
 import SocialAdminPanel from "@/components/admin/SocialAdminPanel";
+import NotificationSender from "@/components/admin/NotificationSender";
 
 
 const JOB_FUNCTIONS = [
@@ -58,6 +59,8 @@ export default function Admin() {
     title: '', subtitle: '', content: '', image_url: '', video_url: '', category: 'Geral', author_name: '', is_featured: false
   });
   const [uploadingNewsImage, setUploadingNewsImage] = useState(false);
+  const [showNewsNotification, setShowNewsNotification] = useState(false);
+  const [lastCreatedNews, setLastCreatedNews] = useState(null);
   const queryClient = useQueryClient();
 
 
@@ -236,10 +239,15 @@ export default function Admin() {
   // News Mutations
   const createNewsMutation = useMutation({
     mutationFn: (data) => base44.entities.News.create(data),
-    onSuccess: () => {
+    onSuccess: (createdNews) => {
       queryClient.invalidateQueries({ queryKey: ['admin-news'] });
+      setLastCreatedNews({
+        id: createdNews?.id,
+        title: newsForm.title
+      });
       setNewsForm({ title: '', subtitle: '', content: '', image_url: '', video_url: '', category: 'Geral', author_name: '', is_featured: false });
       setShowNewsForm(false);
+      setShowNewsNotification(true);
       showToast('Notícia publicada!');
     },
   });
@@ -751,6 +759,16 @@ export default function Admin() {
                   </Card>
                 </div>
               )}
+
+            {/* Notification Sender for News */}
+            {showNewsNotification && lastCreatedNews && (
+              <NotificationSender
+                showToast={showToast}
+                news={lastCreatedNews}
+                notificationType="news"
+                onClose={() => setShowNewsNotification(false)}
+              />
+            )}
 
             {/* News List */}
             <Card className="rounded-xl">
