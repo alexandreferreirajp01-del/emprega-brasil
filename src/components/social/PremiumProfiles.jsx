@@ -148,10 +148,10 @@ export default function PremiumProfiles({ user }) {
           const isFollowing = followingEmails.includes(premiumUser.email);
           
           return (
-            <div key={premiumUser.id} className="flex items-center justify-between bg-white p-3 rounded-xl">
+            <div key={premiumUser.id} className="flex items-center gap-3 bg-white p-3 rounded-xl">
               <Link 
                 to={`${createPageUrl('SocialProfile')}?email=${premiumUser.email}`}
-                className="flex items-center gap-3 flex-1"
+                className="flex-shrink-0"
               >
                 <Avatar className="w-10 h-10 ring-2 ring-amber-400">
                   <AvatarImage src={premiumUser.profile_photo} />
@@ -159,34 +159,37 @@ export default function PremiumProfiles({ user }) {
                     {premiumUser.full_name?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-slate-800 hover:text-[#0056ff] text-sm">
-                      {premiumUser.full_name}
-                    </p>
-                    <PlanBadge user={premiumUser} />
-                  </div>
-                  <p className="text-xs text-slate-500">
-                    {premiumUser.occupation}
-                  </p>
-                </div>
               </Link>
-              <Button
-                size="sm"
-                variant={isFollowing ? 'outline' : 'default'}
-                onClick={() => followMutation.mutate(premiumUser.email)}
-                disabled={followMutation.isPending}
-                className="rounded-full h-8"
+              <Link 
+                to={`${createPageUrl('SocialProfile')}?email=${premiumUser.email}`}
+                className="flex-1 min-w-0"
               >
-                {isFollowing ? (
-                  'Seguindo'
-                ) : (
-                  <>
-                    <UserPlus className="w-3 h-3 mr-1" />
-                    Seguir
-                  </>
-                )}
-              </Button>
+                <p className="font-medium text-slate-800 hover:text-[#0056ff] text-sm truncate">
+                  {premiumUser.full_name}
+                </p>
+                <p className="text-xs text-slate-500 truncate">
+                  {premiumUser.occupation}
+                </p>
+              </Link>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <PlanBadge user={premiumUser} />
+                <Button
+                  size="sm"
+                  variant={isFollowing ? 'outline' : 'default'}
+                  onClick={() => followMutation.mutate(premiumUser.email)}
+                  disabled={followMutation.isPending}
+                  className="rounded-full h-8 px-3"
+                >
+                  {isFollowing ? (
+                    'Seguindo'
+                  ) : (
+                    <>
+                      <UserPlus className="w-3 h-3 mr-1" />
+                      Seguir
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           );
         })}
