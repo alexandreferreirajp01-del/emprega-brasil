@@ -110,7 +110,7 @@ export default function Layout({ children, currentPageName }) {
             { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
             { name: 'Social', icon: Users, page: 'Social' },
             { name: 'Notícias', icon: Newspaper, page: 'News' },
-            { name: 'Grupos', icon: Users, page: 'Groups' },
+            { name: 'Perfil', icon: User, page: 'Profile' },
           ];
 
       // Mostrar Planos apenas para visitantes e básicos
@@ -405,14 +405,15 @@ export default function Layout({ children, currentPageName }) {
               </p>
             </div>
             <div>
-                <h4 className="font-semibold mb-4">Links Úteis</h4>
-                <div className="space-y-2 text-sm">
-                  <Link to={createPageUrl('Parcerias')} className="block text-slate-400 hover:text-white">Parcerias</Link>
-                  <Link to={createPageUrl('About')} className="block text-slate-400 hover:text-white">Sobre Nós</Link>
-                  <Link to={createPageUrl('Terms')} className="block text-slate-400 hover:text-white">Termos de Uso</Link>
-                  <Link to={createPageUrl('Privacy')} className="block text-slate-400 hover:text-white">Política de Privacidade</Link>
-                </div>
-              </div>
+                                  <h4 className="font-semibold mb-4">Links Úteis</h4>
+                                  <div className="space-y-2 text-sm">
+                                    <Link to={createPageUrl('Groups')} className="block text-slate-400 hover:text-white">Grupos</Link>
+                                    <Link to={createPageUrl('Parcerias')} className="block text-slate-400 hover:text-white">Parcerias</Link>
+                                    <Link to={createPageUrl('About')} className="block text-slate-400 hover:text-white">Sobre Nós</Link>
+                                    <Link to={createPageUrl('Terms')} className="block text-slate-400 hover:text-white">Termos de Uso</Link>
+                                    <Link to={createPageUrl('Privacy')} className="block text-slate-400 hover:text-white">Política de Privacidade</Link>
+                                  </div>
+                                </div>
             <div>
               <h4 className="font-semibold mb-4">Contato</h4>
               <div className="space-y-2 text-sm text-slate-400">
