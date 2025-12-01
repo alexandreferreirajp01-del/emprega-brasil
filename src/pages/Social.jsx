@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Users, TrendingUp, Bell, Plus, Loader2, Lock, Crown
+  Users, TrendingUp, Bell, Plus, Loader2, Lock, Crown, MessageCircle
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -16,6 +16,7 @@ import CreatePostModal from "@/components/social/CreatePostModal";
 import PopularProfiles from "@/components/social/PopularProfiles";
 import SocialNotifications from "@/components/social/SocialNotifications";
 import PremiumProfiles from "@/components/social/PremiumProfiles";
+import FollowRequests from "@/components/social/FollowRequests";
 
 export default function Social() {
   const [user, setUser] = useState(null);
@@ -120,13 +121,23 @@ export default function Social() {
               <h1 className="text-2xl font-bold text-white">Social Vagas Abertas</h1>
               <p className="text-white/70">Conecte-se com profissionais</p>
             </div>
-            <Button
-              onClick={() => setShowCreatePost(true)}
-              className="bg-white text-[#0056ff] hover:bg-white/90 rounded-xl"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Publicar
-            </Button>
+            <div className="flex items-center gap-2">
+              <Link to={createPageUrl('Messages')}>
+                <Button
+                  variant="ghost"
+                  className="text-white hover:bg-white/10 rounded-xl"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                </Button>
+              </Link>
+              <Button
+                onClick={() => setShowCreatePost(true)}
+                className="bg-white text-[#0056ff] hover:bg-white/90 rounded-xl"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Publicar
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -159,6 +170,7 @@ export default function Social() {
 
           <TabsContent value="discover">
             <div className="space-y-6">
+              <FollowRequests user={user} />
               <PremiumProfiles user={user} />
               <PopularProfiles user={user} />
               <SocialFeed user={user} feedType="all" />

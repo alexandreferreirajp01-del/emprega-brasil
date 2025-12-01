@@ -51,27 +51,24 @@ export default function PopularProfiles({ user }) {
 
   const followMutation = useMutation({
     mutationFn: async (targetEmail) => {
-      const isFollowing = followingEmails.includes(targetEmail);
+      const existingFollow = myFollows.find(f => f.following_email === targetEmail);
       
-      if (isFollowing) {
-        const follow = myFollows.find(f => f.following_email === targetEmail);
-        if (follow) {
-          await base44.entities.Follow.delete(follow.id);
-        }
+      if (existingFollow) {
+        await base44.entities.Follow.delete(existingFollow.id);
       } else {
         await base44.entities.Follow.create({
           follower_email: user.email,
-          following_email: targetEmail
+          following_email: targetEmail,
+          status: 'pending'
         });
 
-        const targetUser = allUsers.find(u => u.email === targetEmail);
         await base44.entities.SocialNotification.create({
           user_email: targetEmail,
           from_email: user.email,
           from_name: user.full_name,
           from_photo: user.profile_photo,
           type: 'follow',
-          message: `${user.full_name || 'Alguém'} começou a seguir você`
+          message: `${user.full_name || 'Alguém'} solicitou seguir você`
         });
       }
     },
@@ -154,14 +151,17 @@ export default function PopularProfiles({ user }) {
                   disabled={followMutation.isPending}
                   className="rounded-full h-8"
                 >
-                  {isFollowing ? (
-                    'Seguindo'
-                  ) : (
-                    <>
-                      <UserPlus className="w-3 h-3 mr-1" />
-                      Seguir
-                    </>
-                  )}
+                  {(() => {
+                    const follow = myFollows.find(f => f.following_email === profile.user_email);
+                    if (follow?.status === 'pending') return 'Pendente';
+                    if (follow?.status === 'accepted') return 'Seguindo';
+                    return (
+                      <>
+                        <UserPlus className="w-3 h-3 mr-1" />
+                        Seguir
+                      </>
+                    );
+                  })()}
                 </Button>
               </div>
             );
