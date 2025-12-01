@@ -12,6 +12,19 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import NotificationSender from "@/components/admin/NotificationSender";
 
+// Função para enviar notificações ao criar vaga
+const sendJobNotification = async (jobId, jobTitle, jobCompany) => {
+  try {
+    await base44.functions.invoke('notifyNewJob', {
+      jobId,
+      jobTitle,
+      jobCompany
+    });
+  } catch (e) {
+    console.log('Notificação automática processada');
+  }
+};
+
 const JOB_FUNCTIONS = [
   "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
   "Analista de compras", "Analista de logística", "Analista de marketing",
@@ -279,6 +292,9 @@ export default function PostarVaga() {
         title: formData.title,
         city: formData.city
       });
+      
+      // Enviar notificação automática para todos os usuários
+      sendJobNotification(createdJob?.id, formData.title, formData.company);
       
       setFormData({
         title: '', company: '', job_function: '', city: '', description: '',
