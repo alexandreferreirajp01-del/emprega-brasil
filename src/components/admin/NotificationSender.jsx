@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bell, Send, Loader2, Upload, Image, Sparkles, Briefcase, Newspaper, Gift, Settings } from "lucide-react";
+import { Bell, Send, Loader2, Upload, Image, Sparkles, Briefcase, Newspaper, Gift, Settings, Mail } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -132,6 +133,7 @@ export default function NotificationSender({ showToast, job, news, socialPost, c
   const [iconType, setIconType] = useState(getDefaultIcon());
   const [customIconUrl, setCustomIconUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [sendEmail, setSendEmail] = useState(false);
   const queryClient = useQueryClient();
 
   const sendNotificationMutation = useMutation({
@@ -144,7 +146,7 @@ export default function NotificationSender({ showToast, job, news, socialPost, c
         title: data.title,
         message: data.message,
         icon_url: data.iconUrl,
-        type: 'job',
+        type: notificationType === 'news' ? 'news' : notificationType === 'social' ? 'system' : 'job',
         job_id: job?.id || '',
         user_email: user.email,
         is_read: false,
@@ -156,6 +158,38 @@ export default function NotificationSender({ showToast, job, news, socialPost, c
       for (let i = 0; i < notifications.length; i += batchSize) {
         const batch = notifications.slice(i, i + batchSize);
         await base44.entities.Notification.bulkCreate(batch);
+      }
+
+      // Enviar email para usuários premium se a opção estiver ativada
+      if (data.sendEmail) {
+        const premiumUsers = users.filter(u => 
+          u.subscription_type === 'premium' || 
+          u.subscription_type === 'admin' || 
+          u.role === 'admin'
+        );
+        
+        // Enviar emails em paralelo (máximo 10 por vez)
+        const emailBatchSize = 10;
+        for (let i = 0; i < premiumUsers.length; i += emailBatchSize) {
+          const emailBatch = premiumUsers.slice(i, i + emailBatchSize);
+          await Promise.all(emailBatch.map(user => 
+            base44.integrations.Core.SendEmail({
+              to: user.email,
+              subject: `${data.title} - Vagas Abertas PB`,
+              body: `
+Olá ${user.full_name || 'Usuário'}!
+
+${data.title}
+
+${data.message}
+
+---
+Acesse o app para ver mais detalhes.
+Vagas Abertas Paraíba
+              `.trim()
+            }).catch(e => console.log('Erro ao enviar email para', user.email))
+          ));
+        }
       }
 
       return { count: users.length };
@@ -223,7 +257,8 @@ export default function NotificationSender({ showToast, job, news, socialPost, c
     sendNotificationMutation.mutate({
       title,
       message: finalMessage,
-      iconUrl: customIconUrl || ''
+      iconUrl: customIconUrl || '',
+      sendEmail
     });
   };
 
@@ -321,6 +356,18 @@ export default function NotificationSender({ showToast, job, news, socialPost, c
               <img src={customIconUrl} alt="Ícone" className="w-8 h-8 rounded-lg object-cover" />
             )}
           </div>
+        </div>
+
+        {/* Enviar Email */}
+        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Mail className="w-4 h-4 text-blue-600" />
+            <div>
+              <span className="text-sm font-medium">Enviar Email</span>
+              <p className="text-xs text-slate-500">Envia email para usuários Premium</p>
+            </div>
+          </div>
+          <Switch checked={sendEmail} onCheckedChange={setSendEmail} />
         </div>
 
         {/* Preview */}
