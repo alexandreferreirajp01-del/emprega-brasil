@@ -15,7 +15,7 @@ import {
   Plus, Briefcase, MapPin, Trash2, Edit, X, Loader2, CheckCircle, 
   Shield, Search, Building2, Users, MessageSquare, Upload, Save,
   Check, XCircle, Clock, Crown, UserX, BarChart3, 
-  Key, CreditCard, Globe
+  Key, CreditCard, Globe, Star
 } from "lucide-react";
 
 import { base44 } from "@/api/base44Client";
@@ -608,81 +608,98 @@ export default function Admin() {
             )}
 
             {showNewsForm && (
-              <div className="animate-fade-in">
-                <Card className="shadow-lg rounded-2xl">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                      <CardTitle>Nova Notícia</CardTitle>
-                      <Button variant="ghost" size="icon" onClick={() => setShowNewsForm(false)}>
-                        <X className="w-5 h-5" />
-                      </Button>
-                    </CardHeader>
-                    <CardContent>
-                      <form onSubmit={(e) => { e.preventDefault(); createNewsMutation.mutate(newsForm); }} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="animate-fade-in">
+                  <Card className="shadow-lg rounded-2xl">
+                      <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-red-600 to-red-700 text-white rounded-t-2xl">
+                        <CardTitle className="flex items-center gap-2">
+                          <MessageSquare className="w-5 h-5" />
+                          Nova Notícia
+                        </CardTitle>
+                        <Button variant="ghost" size="icon" onClick={() => setShowNewsForm(false)} className="text-white hover:bg-white/20">
+                          <X className="w-5 h-5" />
+                        </Button>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        <form onSubmit={(e) => { e.preventDefault(); createNewsMutation.mutate(newsForm); }} className="space-y-6">
+                          {/* Título */}
                           <div className="space-y-2">
-                            <Label>Título</Label>
+                            <Label className="text-base font-semibold">Título da Notícia</Label>
                             <Input
                               value={newsForm.title}
                               onChange={(e) => setNewsForm({...newsForm, title: e.target.value})}
-                              placeholder="Título da notícia"
+                              placeholder="Digite o título da notícia..."
+                              className="rounded-lg h-12 text-lg"
+                              maxLength={500}
+                            />
+                            <p className="text-xs text-slate-400">{newsForm.title?.length || 0}/500 caracteres</p>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Categoria</Label>
+                              <Select value={newsForm.category} onValueChange={(v) => setNewsForm({...newsForm, category: v})}>
+                                <SelectTrigger className="rounded-lg h-11">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Mercado de Trabalho">Mercado de Trabalho</SelectItem>
+                                  <SelectItem value="Dicas de Emprego">Dicas de Emprego</SelectItem>
+                                  <SelectItem value="Economia">Economia</SelectItem>
+                                  <SelectItem value="Cursos">Cursos</SelectItem>
+                                  <SelectItem value="Eventos">Eventos</SelectItem>
+                                  <SelectItem value="Geral">Geral</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Autor (opcional)</Label>
+                              <Input
+                                value={newsForm.author_name}
+                                onChange={(e) => setNewsForm({...newsForm, author_name: e.target.value})}
+                                placeholder="Nome do autor"
+                                className="rounded-lg h-11"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Subtítulo / Chamada (opcional)</Label>
+                            <Input
+                              value={newsForm.subtitle}
+                              onChange={(e) => setNewsForm({...newsForm, subtitle: e.target.value})}
+                              placeholder="Uma breve descrição que aparece abaixo do título..."
                               className="rounded-lg"
-                              required
+                              maxLength={1000}
                             />
                           </div>
-                          <div className="space-y-2">
-                            <Label>Categoria</Label>
-                            <Select value={newsForm.category} onValueChange={(v) => setNewsForm({...newsForm, category: v})}>
-                              <SelectTrigger className="rounded-lg">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Mercado de Trabalho">Mercado de Trabalho</SelectItem>
-                                <SelectItem value="Dicas de Emprego">Dicas de Emprego</SelectItem>
-                                <SelectItem value="Economia">Economia</SelectItem>
-                                <SelectItem value="Cursos">Cursos</SelectItem>
-                                <SelectItem value="Eventos">Eventos</SelectItem>
-                                <SelectItem value="Geral">Geral</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
 
-                        <div className="space-y-2">
-                          <Label>Subtítulo</Label>
-                          <Input
-                            value={newsForm.subtitle}
-                            onChange={(e) => setNewsForm({...newsForm, subtitle: e.target.value})}
-                            placeholder="Subtítulo (opcional)"
-                            className="rounded-lg"
-                          />
-                        </div>
+                          {/* Imagem Principal */}
+                          <div className="space-y-3 p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                            <Label className="text-base font-semibold flex items-center gap-2">
+                              <Upload className="w-4 h-4" />
+                              Imagem Principal
+                            </Label>
 
-                        <div className="space-y-2">
-                          <Label>Conteúdo</Label>
-                          <Textarea
-                            value={newsForm.content}
-                            onChange={(e) => setNewsForm({...newsForm, content: e.target.value})}
-                            placeholder="Escreva o conteúdo da notícia..."
-                            className="rounded-lg min-h-[200px]"
-                            required
-                          />
-                        </div>
+                            {newsForm.image_url && (
+                              <div className="relative w-full h-48 rounded-lg overflow-hidden mb-3">
+                                <img src={newsForm.image_url} alt="Preview" className="w-full h-full object-cover" />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-2 right-2 h-8 w-8 rounded-full"
+                                  onClick={() => setNewsForm({...newsForm, image_url: ''})}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label>Imagem</Label>
-                            <div className="flex gap-2">
-                              <Input
-                                value={newsForm.image_url}
-                                onChange={(e) => setNewsForm({...newsForm, image_url: e.target.value})}
-                                placeholder="URL da imagem ou faça upload"
-                                className="rounded-lg flex-1"
-                              />
-                              <label className="cursor-pointer inline-block">
+                            <div className="flex flex-col sm:flex-row gap-3">
+                              <label className="flex-1 cursor-pointer">
                                 <input 
                                   type="file" 
-                                  accept="image/*"
-                                  capture="environment"
+                                  accept="image/*,video/*,.gif,.webp,.svg,.png,.jpg,.jpeg,.bmp,.ico"
                                   className="hidden" 
                                   onChange={async (e) => {
                                     const file = e.target.files?.[0];
@@ -694,71 +711,98 @@ export default function Admin() {
                                       if (result?.file_url) {
                                         setNewsForm(prev => ({...prev, image_url: result.file_url}));
                                         showToast('Imagem carregada!');
-                                      } else {
-                                        throw new Error('URL não retornada');
                                       }
                                     } catch (err) {
-                                      console.error('Erro upload:', err);
                                       showToast('Erro ao carregar imagem', 'error');
                                     } finally {
                                       setUploadingNewsImage(false);
                                     }
                                   }}
                                 />
-                                <Button type="button" variant="outline" disabled={uploadingNewsImage} className="rounded-lg pointer-events-none">
-                                  {uploadingNewsImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                                </Button>
+                                <div className={`flex items-center justify-center gap-2 h-12 px-4 rounded-lg border-2 border-dashed transition-colors ${uploadingNewsImage ? 'bg-blue-50 border-blue-300' : 'bg-white border-slate-300 hover:border-blue-400 hover:bg-blue-50'}`}>
+                                  {uploadingNewsImage ? (
+                                    <><Loader2 className="w-5 h-5 animate-spin text-blue-600" /><span className="text-blue-600">Enviando...</span></>
+                                  ) : (
+                                    <><Upload className="w-5 h-5 text-slate-500" /><span className="text-slate-600">Escolher arquivo</span></>
+                                  )}
+                                </div>
                               </label>
+                              <div className="flex-1">
+                                <Input
+                                  value={newsForm.image_url}
+                                  onChange={(e) => setNewsForm({...newsForm, image_url: e.target.value})}
+                                  placeholder="Ou cole a URL da imagem..."
+                                  className="rounded-lg h-12"
+                                />
+                              </div>
                             </div>
+                            <p className="text-xs text-slate-400">Aceita: JPG, PNG, GIF, WebP, SVG e outros formatos</p>
                           </div>
+
+                          {/* Vídeo */}
                           <div className="space-y-2">
-                            <Label>Vídeo (YouTube)</Label>
+                            <Label>Vídeo do YouTube (opcional)</Label>
                             <Input
                               value={newsForm.video_url}
                               onChange={(e) => setNewsForm({...newsForm, video_url: e.target.value})}
-                              placeholder="URL do vídeo do YouTube"
+                              placeholder="Cole o link do YouTube aqui..."
                               className="rounded-lg"
                             />
                           </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Conteúdo */}
                           <div className="space-y-2">
-                            <Label>Autor</Label>
-                            <Input
-                              value={newsForm.author_name}
-                              onChange={(e) => setNewsForm({...newsForm, author_name: e.target.value})}
-                              placeholder="Nome do autor"
-                              className="rounded-lg"
+                            <Label className="text-base font-semibold">Conteúdo da Notícia</Label>
+                            <Textarea
+                              value={newsForm.content}
+                              onChange={(e) => setNewsForm({...newsForm, content: e.target.value.slice(0, 50000)})}
+                              placeholder="Escreva o conteúdo completo da notícia aqui...
+
+            Dica: Use parágrafos para organizar melhor o texto. Você pode escrever notícias longas com até 50.000 caracteres."
+                              className="rounded-lg min-h-[300px] text-base leading-relaxed"
+                              maxLength={50000}
                             />
+                            <div className="flex justify-between text-xs text-slate-400">
+                              <span>Suporta texto longo, parágrafos e quebras de linha</span>
+                              <span>{newsForm.content?.length || 0}/50.000 caracteres</span>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-3 pt-6">
+
+                          {/* Destaque */}
+                          <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <Star className="w-5 h-5 text-yellow-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-slate-800">Notícia em Destaque</p>
+                                <p className="text-xs text-slate-500">Aparece em primeiro lugar na página</p>
+                              </div>
+                            </div>
                             <Switch
                               checked={newsForm.is_featured}
                               onCheckedChange={(v) => setNewsForm({...newsForm, is_featured: v})}
                             />
-                            <Label>Notícia em Destaque</Label>
                           </div>
-                        </div>
 
-                        <div className="flex gap-3 pt-4">
-                          <Button 
-                            type="submit" 
-                            className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
-                            disabled={createNewsMutation.isPending}
-                          >
-                            {createNewsMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
-                            Publicar
-                          </Button>
-                          <Button type="button" variant="outline" onClick={() => setShowNewsForm(false)} className="rounded-xl">
-                            Cancelar
-                          </Button>
-                        </div>
-                      </form>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
+                          <div className="flex gap-3 pt-4 border-t">
+                            <Button 
+                              type="submit" 
+                              className="flex-1 bg-red-600 hover:bg-red-700 rounded-xl h-12 text-base"
+                              disabled={createNewsMutation.isPending || !newsForm.title}
+                            >
+                              {createNewsMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
+                              Publicar Notícia
+                            </Button>
+                            <Button type="button" variant="outline" onClick={() => setShowNewsForm(false)} className="rounded-xl h-12">
+                              Cancelar
+                            </Button>
+                          </div>
+                        </form>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
 
             {/* Notification Sender for News */}
             {showNewsNotification && lastCreatedNews && (
