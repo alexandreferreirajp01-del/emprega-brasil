@@ -23,6 +23,7 @@ import Favoritos from './pages/Favoritos';
 import Historico from './pages/Historico';
 import Social from './pages/Social';
 import SocialProfile from './pages/SocialProfile';
+import PostDetail from './pages/PostDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -52,6 +53,7 @@ export const PAGES = {
     "Historico": Historico,
     "Social": Social,
     "SocialProfile": SocialProfile,
+    "PostDetail": PostDetail,
 }
 
 export const pagesConfig = {

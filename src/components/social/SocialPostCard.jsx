@@ -252,14 +252,15 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
             <Heart className={`w-5 h-5 mr-2 ${realUserLiked ? 'fill-current' : ''}`} />
             Curtir
           </Button>
-          <Button
-            variant="ghost"
-            onClick={() => setShowComments(!showComments)}
-            className="flex-1 rounded-xl text-slate-600"
-          >
-            <MessageCircle className="w-5 h-5 mr-2" />
-            Comentar
-          </Button>
+          <Link to={`${createPageUrl('PostDetail')}?id=${post.id}`} className="flex-1">
+            <Button
+              variant="ghost"
+              className="w-full rounded-xl text-slate-600"
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Comentar
+            </Button>
+          </Link>
           <Button
             variant="ghost"
             onClick={() => setShowShare(true)}
