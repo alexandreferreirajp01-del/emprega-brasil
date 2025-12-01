@@ -289,14 +289,18 @@ export default function Layout({ children, currentPageName }) {
             </div>
 
             {/* Mobile/Tablet Menu Button */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="lg:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </Button>
+            <div className="lg:hidden flex items-center gap-1">
+              {!isVisitor && user && (
+                <NotificationBell user={user} />
+              )}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </Button>
+            </div>
           </div>
         </div>
 
