@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Crown, UserPlus, Loader2 } from "lucide-react";
+import { Crown, UserPlus, Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import PlanBadge from "./PlanBadge";
 
+const USERS_PER_PAGE = 6;
+
 export default function PremiumProfiles({ user }) {
   const queryClient = useQueryClient();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: allUsers = [], isLoading } = useQuery({
     queryKey: ['premium-users'],
@@ -84,8 +89,8 @@ export default function PremiumProfiles({ user }) {
     },
   });
 
-  // Combine users with profiles
-  const premiumUsers = allUsers
+  // Combine users with profiles and filter by search
+  const allPremiumUsers = allUsers
     .filter(u => u.email !== user?.email)
     .map(u => {
       const profile = profiles.find(p => p.user_email === u.email);
@@ -95,7 +100,15 @@ export default function PremiumProfiles({ user }) {
         followers_count: profile?.followers_count || 0
       };
     })
-    .slice(0, 6);
+    .filter(u => 
+      !searchTerm || 
+      u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.occupation?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+  const totalPages = Math.ceil(allPremiumUsers.length / USERS_PER_PAGE);
+  const startIndex = (currentPage - 1) * USERS_PER_PAGE;
+  const premiumUsers = allPremiumUsers.slice(startIndex, startIndex + USERS_PER_PAGE);
 
   if (isLoading) {
     return (
@@ -116,6 +129,19 @@ export default function PremiumProfiles({ user }) {
           <Crown className="w-5 h-5 text-amber-500" />
           Usuários Premium
         </CardTitle>
+        {/* Search */}
+        <div className="relative mt-2">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Input
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="Buscar usuário..."
+            className="pl-9 h-9 text-sm rounded-lg bg-white"
+          />
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {premiumUsers.map((premiumUser) => {
@@ -164,6 +190,37 @@ export default function PremiumProfiles({ user }) {
             </div>
           );
         })}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 pt-3 border-t border-amber-200">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="h-8 w-8 rounded-lg"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="text-sm text-slate-600">
+              {currentPage} / {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="h-8 w-8 rounded-lg"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+
+        {premiumUsers.length === 0 && searchTerm && (
+          <p className="text-center text-sm text-slate-500 py-2">Nenhum usuário encontrado</p>
+        )}
       </CardContent>
     </Card>
   );

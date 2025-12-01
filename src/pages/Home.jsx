@@ -417,30 +417,32 @@ export default function Home() {
               </div>
             </Card>
 
-            {/* Premium CTA */}
-            <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#0056ff] to-[#003399] text-white overflow-hidden">
-              <CardContent className="p-6 text-center relative">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-                <h3 className="font-bold text-xl mb-2">Seja Premium</h3>
-                <p className="text-white/80 text-sm mb-4">
-                  Acesso vitalício a todas as vagas exclusivas
-                </p>
-                <div className="text-3xl font-bold mb-4">
-                  R$ 29,90
-                  <span className="text-sm font-normal text-white/70 block">pagamento único</span>
-                </div>
-                <Link to={createPageUrl('Subscription')}>
-                  <Button className="w-full bg-white text-[#0056ff] hover:bg-white/90 rounded-xl">
-                    Assinar Agora
-                  </Button>
-                </Link>
-                <div className="flex items-center justify-center gap-2 mt-4 text-white/70 text-xs">
-                  <Shield className="w-4 h-4" />
-                  <span>Garantia de 7 dias</span>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Premium CTA - apenas para visitantes e básicos */}
+            {(isVisitor || !user || (user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.role !== 'admin')) && (
+              <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#0056ff] to-[#003399] text-white overflow-hidden">
+                <CardContent className="p-6 text-center relative">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                  <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+                  <h3 className="font-bold text-xl mb-2">Seja Premium</h3>
+                  <p className="text-white/80 text-sm mb-4">
+                    Acesso vitalício a todas as vagas exclusivas
+                  </p>
+                  <div className="text-3xl font-bold mb-4">
+                    R$ 29,90
+                    <span className="text-sm font-normal text-white/70 block">pagamento único</span>
+                  </div>
+                  <Link to={createPageUrl('Subscription')}>
+                    <Button className="w-full bg-white text-[#0056ff] hover:bg-white/90 rounded-xl">
+                      Assinar Agora
+                    </Button>
+                  </Link>
+                  <div className="flex items-center justify-center gap-2 mt-4 text-white/70 text-xs">
+                    <Shield className="w-4 h-4" />
+                    <span>Garantia de 7 dias</span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Join Community */}
             <Card className="rounded-2xl border-0 shadow-lg">
