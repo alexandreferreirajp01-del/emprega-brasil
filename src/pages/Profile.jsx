@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
-  Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X
+  Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
+  Heart, History
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -296,6 +297,22 @@ export default function Profile() {
 
                 </div>
               )}
+
+              {/* Minhas Seções */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <Link to={createPageUrl('Favoritos')}>
+                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1">
+                    <Heart className="w-5 h-5 text-red-500" />
+                    <span className="text-xs">Favoritas</span>
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Historico')}>
+                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1">
+                    <History className="w-5 h-5 text-purple-500" />
+                    <span className="text-xs">Histórico</span>
+                  </Button>
+                </Link>
+              </div>
 
               {/* Actions */}
               <div className="space-y-3">

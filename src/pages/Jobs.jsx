@@ -5,8 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye
+  Lock, Star, X, Eye, Share2
 } from "lucide-react";
+import FavoriteButton from "@/components/jobs/FavoriteButton";
+import ShareJobDialog from "@/components/jobs/ShareJobDialog";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -410,7 +412,7 @@ export default function Jobs() {
           <div className="space-y-4">
             {filteredJobs.map((job) => (
               <div key={job.id}>
-                <JobCard job={job} canView={canViewJob(job)} viewCount={viewsCountMap[job.id] || 0} />
+                <JobCard job={job} canView={canViewJob(job)} viewCount={viewsCountMap[job.id] || 0} user={user} />
               </div>
             ))}
           </div>
@@ -431,7 +433,9 @@ export default function Jobs() {
   );
 }
 
-function JobCard({ job, canView, viewCount = 0 }) {
+function JobCard({ job, canView, viewCount = 0, user }) {
+  const [shareOpen, setShareOpen] = useState(false);
+  
   if (!canView) {
     return (
       <Card className="overflow-hidden relative">
@@ -452,13 +456,30 @@ function JobCard({ job, canView, viewCount = 0 }) {
   }
 
   return (
-    <Link to={createPageUrl('JobDetail') + `?id=${job.id}`}>
-      <Card className="overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer group border-l-4 border-l-transparent hover:border-l-[#0056ff]">
-        <CardContent className="p-6">
-          <JobCardContent job={job} viewCount={viewCount} />
-        </CardContent>
-      </Card>
-    </Link>
+    <Card className="overflow-hidden hover:shadow-lg transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-[#0056ff]">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between">
+          <Link to={createPageUrl('JobDetail') + `?id=${job.id}`} className="flex-1">
+            <JobCardContent job={job} viewCount={viewCount} />
+          </Link>
+          <div className="flex flex-col gap-1 ml-3">
+            <FavoriteButton job={job} user={user} size="sm" />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.preventDefault();
+                setShareOpen(true);
+              }}
+              className="h-8 w-8 rounded-full text-slate-400 hover:text-[#0056ff]"
+            >
+              <Share2 className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+      <ShareJobDialog open={shareOpen} onOpenChange={setShareOpen} job={job} />
+    </Card>
   );
 }
 
