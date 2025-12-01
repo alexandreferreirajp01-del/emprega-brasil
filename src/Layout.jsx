@@ -210,55 +210,55 @@ export default function Layout({ children, currentPageName }) {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden lg:flex items-center gap-1 flex-wrap max-w-[60%]">
               {navItems.map((item) => (
                 <Link key={item.page} to={createPageUrl(item.page)}>
                   <Button 
                     variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`rounded-xl ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
                   >
-                    <item.icon className="w-4 h-4 mr-2" />
-                    {item.name}
+                    <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                    <span>{item.name}</span>
                   </Button>
                 </Link>
               ))}
-              
+
               {isAdmin && (
                 <>
                   <Link to={createPageUrl('Admin')}>
                     <Button 
                       variant={currentPageName === 'Admin' ? "secondary" : "ghost"}
-                      className={`rounded-xl ${currentPageName === 'Admin' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                      className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === 'Admin' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
                     >
-                      <Shield className="w-4 h-4 mr-2" />
-                      Admin
+                      <Shield className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                      <span>Admin</span>
                     </Button>
                   </Link>
                   <Link to={createPageUrl('PostarVaga')}>
                     <Button 
                       variant={currentPageName === 'PostarVaga' ? "secondary" : "ghost"}
-                      className={`rounded-xl ${currentPageName === 'PostarVaga' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                      className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === 'PostarVaga' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
                     >
-                      <Briefcase className="w-4 h-4 mr-2" />
-                      Postar Vaga
+                      <Briefcase className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                      <span>Postar</span>
                     </Button>
                   </Link>
                   <Link to={createPageUrl('VagasPorIA')}>
                     <Button 
                       variant={currentPageName === 'VagasPorIA' ? "secondary" : "ghost"}
-                      className={`rounded-xl ${currentPageName === 'VagasPorIA' ? 'bg-purple-100 text-purple-700' : ''}`}
+                      className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === 'VagasPorIA' ? 'bg-purple-100 text-purple-700' : ''}`}
                     >
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Vagas por IA
+                      <Sparkles className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                      <span>IA</span>
                     </Button>
                   </Link>
                   <Link to={createPageUrl('VagasHomeOffice')}>
                       <Button 
                         variant={currentPageName === 'VagasHomeOffice' ? "secondary" : "ghost"}
-                        className={`rounded-xl ${currentPageName === 'VagasHomeOffice' ? 'bg-green-100 text-green-700' : ''}`}
+                        className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === 'VagasHomeOffice' ? 'bg-green-100 text-green-700' : ''}`}
                       >
-                        <HomeIcon className="w-4 h-4 mr-2" />
-                        Home Office
+                        <HomeIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                        <span>Home Office</span>
                       </Button>
                     </Link>
                     </>
@@ -266,28 +266,28 @@ export default function Layout({ children, currentPageName }) {
                   </nav>
 
             {/* User Actions */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
               {isVisitor ? (
                 <Link to={createPageUrl('Splash')}>
-                  <Button className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
+                  <Button className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl text-sm px-4">
                     Entrar
                   </Button>
                 </Link>
               ) : (
                 <Link to={createPageUrl('Profile')}>
-                  <Button variant="outline" className="rounded-xl">
-                    <User className="w-4 h-4 mr-2" />
+                  <Button variant="outline" className="rounded-xl text-sm px-3">
+                    <User className="w-4 h-4 mr-1.5" />
                     Perfil
                   </Button>
                 </Link>
               )}
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile/Tablet Menu Button */}
             <Button 
               variant="ghost" 
               size="icon" 
-              className="md:hidden"
+              className="lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -295,9 +295,9 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile/Tablet Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t bg-white">
+          <div className="lg:hidden border-t bg-white">
             <nav className="p-4 space-y-2">
               {navItems.map((item) => (
                 <Link 

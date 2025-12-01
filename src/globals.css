@@ -10,13 +10,83 @@
   --sal: env(safe-area-inset-left);
 }
 
-/* Base styles */
+/* Base styles - Cross-browser compatibility */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8fafc;
   overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch; /* Safari smooth scroll */
+}
+
+/* Flexbox Safari fix */
+.flex {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+}
+
+.flex-wrap {
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.flex-shrink-0 {
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+
+/* Grid Safari fix */
+.grid {
+  display: -ms-grid;
+  display: grid;
+}
+
+/* Transform Safari fix */
+.-translate-x-1\/2 {
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+
+.-translate-y-1\/2 {
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+/* Backdrop filter Safari fix */
+.backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.backdrop-blur-md {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.backdrop-blur-lg {
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+/* Sticky Safari fix */
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+}
+
+/* Appearance fix for inputs */
+input, textarea, select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Button reset for Safari */
+button {
+  -webkit-appearance: none;
+  border-radius: 0;
 }
 
 /* Safe area classes */
@@ -69,22 +139,32 @@ html {
   }
 }
 
-/* Animation utilities */
+/* Animation utilities - Cross-browser */
+@-webkit-keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
+@-webkit-keyframes slideUp {
+  from { -webkit-transform: translateY(10px); transform: translateY(10px); opacity: 0; }
+  to { -webkit-transform: translateY(0); transform: translateY(0); opacity: 1; }
+}
 @keyframes slideUp {
-  from { transform: translateY(10px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from { -webkit-transform: translateY(10px); transform: translateY(10px); opacity: 0; }
+  to { -webkit-transform: translateY(0); transform: translateY(0); opacity: 1; }
 }
 
 .animate-fade-in {
+  -webkit-animation: fadeIn 0.3s ease-out;
   animation: fadeIn 0.3s ease-out;
 }
 
 .animate-slide-up {
+  -webkit-animation: slideUp 0.3s ease-out;
   animation: slideUp 0.3s ease-out;
 }
 
@@ -121,10 +201,12 @@ html {
   }
 }
 
-/* Loading states */
+/* Loading states - Cross-browser */
 .skeleton {
+  background: -webkit-linear-gradient(left, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
   background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
   background-size: 200% 100%;
+  -webkit-animation: skeleton-loading 1.5s infinite;
   animation: skeleton-loading 1.5s infinite;
 }
 
@@ -137,6 +219,10 @@ html {
   visibility: hidden !important;
 }
 
+@-webkit-keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 @keyframes skeleton-loading {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
