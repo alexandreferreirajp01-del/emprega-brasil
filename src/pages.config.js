@@ -21,6 +21,8 @@ import VagasPorIA from './pages/VagasPorIA';
 import VagasHomeOffice from './pages/VagasHomeOffice';
 import Favoritos from './pages/Favoritos';
 import Historico from './pages/Historico';
+import Social from './pages/Social';
+import SocialProfile from './pages/SocialProfile';
 import __Layout from './Layout.jsx';
 
 
@@ -48,6 +50,8 @@ export const PAGES = {
     "VagasHomeOffice": VagasHomeOffice,
     "Favoritos": Favoritos,
     "Historico": Historico,
+    "Social": Social,
+    "SocialProfile": SocialProfile,
 }
 
 export const pagesConfig = {
