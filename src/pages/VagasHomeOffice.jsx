@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -24,6 +23,7 @@ export default function VagasHomeOffice() {
   const [publishingIndex, setPublishingIndex] = useState(null);
   const [isPremium, setIsPremium] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -42,15 +42,16 @@ export default function VagasHomeOffice() {
   }, []);
 
   const extractWithAI = async () => {
-    if (!rawText.trim()) return;
+    const text = textareaRef.current?.value || '';
+    if (!text.trim()) return;
     
     setIsExtracting(true);
     try {
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analise o seguinte texto que contém várias vagas de emprego HOME OFFICE e extraia cada vaga separadamente.
+        prompt: `Analise o seguinte texto que contém vagas de emprego HOME OFFICE e extraia cada vaga separadamente.
 
 TEXTO:
-${rawText}
+${text.slice(0, 5000)}
 
 Para cada vaga encontrada, extraia:
 - titulo: nome/área da vaga (ex: "Contabilidade", "Atendimento ao Cliente", "Desenvolvedor")
@@ -126,7 +127,7 @@ Responda APENAS com o JSON, sem explicações.`,
     },
     onSuccess: () => {
       setShowSuccess(true);
-      setRawText('');
+      if (textareaRef.current) textareaRef.current.value = '';
       setExtractedJobs([]);
       setTimeout(() => setShowSuccess(false), 3000);
     }
@@ -154,7 +155,7 @@ Responda APENAS com o JSON, sem explicações.`,
   };
 
   const clearAll = () => {
-    setRawText('');
+    if (textareaRef.current) textareaRef.current.value = '';
     setExtractedJobs([]);
   };
 
@@ -217,32 +218,26 @@ Responda APENAS com o JSON, sem explicações.`,
                   Cole aqui o texto com as vagas home office (até 5000 caracteres)
                 </Label>
                 <textarea
+                  ref={textareaRef}
                   placeholder="Cole aqui o texto com as vagas..."
-                  value={rawText}
-                  onChange={(e) => setRawText(e.target.value)}
-                  onPaste={(e) => {
-                    e.preventDefault();
-                    const pastedText = e.clipboardData.getData('text');
-                    setRawText(prev => (prev + pastedText).slice(0, 5000));
-                  }}
-                  maxLength={5000}
+                  defaultValue=""
                   className="w-full min-h-[300px] text-base p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
                 />
                 <div className="flex justify-between items-center mt-2">
                   <span className="text-xs text-slate-400">
-                    {rawText.length}/5000 caracteres
+                    Até 5000 caracteres
                   </span>
-                  {rawText && (
-                    <Button variant="ghost" size="sm" onClick={() => setRawText('')}>
-                      Limpar
-                    </Button>
-                  )}
+                  <Button variant="ghost" size="sm" onClick={() => {
+                    if (textareaRef.current) textareaRef.current.value = '';
+                  }}>
+                    Limpar
+                  </Button>
                 </div>
               </div>
 
               <Button
                 onClick={extractWithAI}
-                disabled={!rawText.trim() || isExtracting}
+                disabled={isExtracting}
                 className="w-full h-12 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 rounded-xl"
               >
                 {isExtracting ? (
