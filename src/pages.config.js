@@ -25,6 +25,7 @@ import Social from './pages/Social';
 import SocialProfile from './pages/SocialProfile';
 import PostDetail from './pages/PostDetail';
 import ActivateBasic from './pages/ActivateBasic';
+import Messages from './pages/Messages';
 import __Layout from './Layout.jsx';
 
 
@@ -56,6 +57,7 @@ export const PAGES = {
     "SocialProfile": SocialProfile,
     "PostDetail": PostDetail,
     "ActivateBasic": ActivateBasic,
+    "Messages": Messages,
 }
 
 export const pagesConfig = {
