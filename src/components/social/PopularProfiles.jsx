@@ -7,6 +7,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import PlanBadge from "./PlanBadge";
 
 export default function PopularProfiles({ user }) {
   const queryClient = useQueryClient();
@@ -14,7 +15,11 @@ export default function PopularProfiles({ user }) {
   const { data: profiles = [], isLoading } = useQuery({
     queryKey: ['popular-profiles'],
     queryFn: async () => {
-      return await base44.entities.UserProfile.list('-followers_count', 10) || [];
+      try {
+        return await base44.entities.UserProfile.list('-followers_count', 10) || [];
+      } catch (e) {
+        return [];
+      }
     },
   });
 
@@ -22,14 +27,24 @@ export default function PopularProfiles({ user }) {
     queryKey: ['my-follows', user?.email],
     queryFn: async () => {
       if (!user) return [];
-      return await base44.entities.Follow.filter({ follower_email: user.email }) || [];
+      try {
+        return await base44.entities.Follow.filter({ follower_email: user.email }) || [];
+      } catch (e) {
+        return [];
+      }
     },
     enabled: !!user,
   });
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users-basic'],
-    queryFn: async () => await base44.entities.User.list('-created_date', 100) || [],
+    queryFn: async () => {
+      try {
+        return await base44.entities.User.list('-created_date', 100) || [];
+      } catch (e) {
+        return [];
+      }
+    },
   });
 
   const followingEmails = myFollows.map(f => f.following_email);
@@ -73,7 +88,10 @@ export default function PopularProfiles({ user }) {
       return {
         ...profile,
         full_name: userData?.full_name || 'Usuário',
-        profile_photo: userData?.profile_photo
+        profile_photo: userData?.profile_photo,
+        subscription_type: userData?.subscription_type,
+        role: userData?.role,
+        email: userData?.email
       };
     })
     .slice(0, 5);
@@ -118,9 +136,12 @@ export default function PopularProfiles({ user }) {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-slate-800 hover:text-[#0056ff] text-sm">
-                      {profile.full_name}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-slate-800 hover:text-[#0056ff] text-sm">
+                        {profile.full_name}
+                      </p>
+                      <PlanBadge user={profile} />
+                    </div>
                     <p className="text-xs text-slate-500">
                       {profile.occupation || 'Profissional'} • {profile.followers_count || 0} seguidores
                     </p>
