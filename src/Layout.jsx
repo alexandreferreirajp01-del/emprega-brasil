@@ -113,6 +113,9 @@ export default function Layout({ children, currentPageName }) {
             { name: 'Perfil', icon: User, page: 'Profile' },
           ];
 
+          // Adicionar Mensagens ao menu se tiver plano
+          const hasSubscription = user?.subscription_type === 'basic' || user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin';
+
       // Mostrar Planos apenas para visitantes e básicos
       const showSubscription = !user || isVisitor || (user && user.subscription_type !== 'premium' && user.subscription_type !== 'admin' && user.role !== 'admin');
 
