@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   ArrowLeft, MapPin, Briefcase, Link as LinkIcon, Edit, Save, X,
-  Users, UserPlus, Loader2, Instagram, Linkedin, Globe, Plus, Trash2
+  Users, UserPlus, Loader2, Instagram, Linkedin, Globe, Plus, Trash2, MessageCircle
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -109,7 +109,7 @@ export default function SocialProfile() {
     enabled: !!currentUser,
   });
 
-  const isFollowing = myFollows.some(f => f.following_email === targetEmail);
+  const isFollowing = myFollows.some(f => f.following_email === targetEmail && f.status === 'accepted');
 
   const updateProfileMutation = useMutation({
     mutationFn: async () => {
@@ -128,17 +128,18 @@ export default function SocialProfile() {
     },
   });
 
+  const myFollow = myFollows.find(f => f.following_email === targetEmail);
+  const followStatus = myFollow?.status;
+
   const followMutation = useMutation({
     mutationFn: async () => {
-      if (isFollowing) {
-        const follow = myFollows.find(f => f.following_email === targetEmail);
-        if (follow) {
-          await base44.entities.Follow.delete(follow.id);
-        }
+      if (myFollow) {
+        await base44.entities.Follow.delete(myFollow.id);
       } else {
         await base44.entities.Follow.create({
           follower_email: currentUser.email,
-          following_email: targetEmail
+          following_email: targetEmail,
+          status: 'pending'
         });
         
         await base44.entities.SocialNotification.create({
@@ -147,7 +148,7 @@ export default function SocialProfile() {
           from_name: currentUser.full_name,
           from_photo: currentUser.profile_photo,
           type: 'follow',
-          message: `${currentUser.full_name || 'Alguém'} começou a seguir você`
+          message: `${currentUser.full_name || 'Alguém'} solicitou seguir você`
         });
       }
     },
@@ -226,27 +227,38 @@ export default function SocialProfile() {
                   </div>
 
                   {isOwnProfile ? (
-                    <Button variant="outline" onClick={startEditing} className="rounded-xl">
-                      <Edit className="w-4 h-4 mr-2" />
-                      Editar
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => followMutation.mutate()}
-                      disabled={followMutation.isPending}
-                      variant={isFollowing ? 'outline' : 'default'}
-                      className="rounded-xl"
-                    >
-                      {isFollowing ? (
-                        'Seguindo'
-                      ) : (
-                        <>
-                          <UserPlus className="w-4 h-4 mr-2" />
-                          Seguir
-                        </>
-                      )}
-                    </Button>
-                  )}
+                      <Button variant="outline" onClick={startEditing} className="rounded-xl">
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editar
+                      </Button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        {followStatus === 'accepted' && (
+                          <Link to={`${createPageUrl('Messages')}?with=${targetEmail}`}>
+                            <Button variant="outline" size="icon" className="rounded-xl">
+                              <MessageCircle className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                        )}
+                        <Button
+                          onClick={() => followMutation.mutate()}
+                          disabled={followMutation.isPending}
+                          variant={myFollow ? 'outline' : 'default'}
+                          className="rounded-xl"
+                        >
+                          {followStatus === 'pending' ? (
+                            'Solicitado'
+                          ) : followStatus === 'accepted' ? (
+                            'Seguindo'
+                          ) : (
+                            <>
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              Seguir
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                 </div>
 
                 {/* Stats - Clickable like Instagram */}
