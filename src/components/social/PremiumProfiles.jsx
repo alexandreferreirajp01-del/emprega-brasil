@@ -1,71 +1,89 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Users, UserPlus, Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import PlanBadge from "./PlanBadge";
 
 const USERS_PER_PAGE = 6;
 
+// Função de fetch com retry robusto
+async function fetchWithRetry(fetchFn, maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const result = await fetchFn();
+      if (result && result.length >= 0) {
+        return result;
+      }
+    } catch (error) {
+      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
+    }
+    if (attempt < maxRetries - 1) {
+      await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
+    }
+  }
+  return [];
+}
+
 export default function PremiumProfiles({ user }) {
-  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [allUsers, setAllUsers] = useState([]);
+  const [profiles, setProfiles] = useState([]);
+  const [myFollows, setMyFollows] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFollowingAction, setIsFollowingAction] = useState(false);
 
-  const { data: allUsers = [], isLoading } = useQuery({
-    queryKey: ['all-users-discover'],
-    queryFn: async () => {
-      try {
-        return await base44.entities.User.list('-created_date', 500) || [];
-      } catch (e) {
-        return [];
-      }
-    },
-  });
+  useEffect(() => {
+    let isMounted = true;
 
-  const { data: profiles = [] } = useQuery({
-    queryKey: ['all-profiles-premium'],
-    queryFn: async () => {
-      try {
-        return await base44.entities.UserProfile.list('-created_date', 100) || [];
-      } catch (e) {
-        return [];
-      }
-    },
-  });
+    const loadData = async () => {
+      setIsLoading(true);
+      
+      const [usersResult, profilesResult, followsResult] = await Promise.all([
+        fetchWithRetry(() => base44.entities.User.list('-created_date', 500)),
+        fetchWithRetry(() => base44.entities.UserProfile.list('-created_date', 100)),
+        user ? fetchWithRetry(() => base44.entities.Follow.list('-created_date', 500)) : Promise.resolve([])
+      ]);
 
-  const { data: myFollows = [] } = useQuery({
-    queryKey: ['my-follows', user?.email],
-    queryFn: async () => {
-      if (!user) return [];
-      try {
-        return await base44.entities.Follow.filter({ follower_email: user.email }) || [];
-      } catch (e) {
-        return [];
+      if (isMounted) {
+        setAllUsers(usersResult);
+        setProfiles(profilesResult);
+        // Filtrar follows do usuário atual
+        const userFollows = followsResult.filter(f => f.follower_email === user?.email);
+        setMyFollows(userFollows);
+        setIsLoading(false);
       }
-    },
-    enabled: !!user,
-  });
+    };
+
+    loadData();
+
+    return () => { isMounted = false; };
+  }, [user?.email]);
 
   const followingEmails = myFollows.map(f => f.following_email);
 
-  const followMutation = useMutation({
-    mutationFn: async (targetEmail) => {
+  const handleFollow = async (targetEmail) => {
+    if (isFollowingAction) return;
+    setIsFollowingAction(true);
+    
+    try {
       const existingFollow = myFollows.find(f => f.following_email === targetEmail);
       
       if (existingFollow) {
         await base44.entities.Follow.delete(existingFollow.id);
+        setMyFollows(prev => prev.filter(f => f.id !== existingFollow.id));
       } else {
-        await base44.entities.Follow.create({
+        const newFollow = await base44.entities.Follow.create({
           follower_email: user.email,
           following_email: targetEmail,
           status: 'pending'
         });
+        setMyFollows(prev => [...prev, newFollow]);
 
         await base44.entities.SocialNotification.create({
           user_email: targetEmail,
@@ -76,11 +94,12 @@ export default function PremiumProfiles({ user }) {
           message: `${user.full_name || 'Alguém'} solicitou seguir você`
         });
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['my-follows'] });
-    },
-  });
+    } catch (e) {
+      console.warn('Erro ao seguir:', e);
+    } finally {
+      setIsFollowingAction(false);
+    }
+  };
 
   // Combine users with profiles and filter by search
   const allPremiumUsers = allUsers
@@ -168,9 +187,9 @@ export default function PremiumProfiles({ user }) {
                 <PlanBadge user={premiumUser} />
                 <Button
                   size="sm"
-                  variant={isFollowing ? 'outline' : 'default'}
-                  onClick={() => followMutation.mutate(premiumUser.email)}
-                  disabled={followMutation.isPending}
+                  variant={followingEmails.includes(premiumUser.email) ? 'outline' : 'default'}
+                  onClick={() => handleFollow(premiumUser.email)}
+                  disabled={isFollowingAction}
                   className="rounded-full h-8 px-3"
                 >
                   {(() => {
