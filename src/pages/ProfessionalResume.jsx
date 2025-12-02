@@ -154,17 +154,17 @@ export default function ProfessionalResume() {
   }, []);
 
   // Verificar permissões
+  const isPremium = user?.subscription_type === 'premium';
+  
   const isRecruiterOrAdmin = user?.subscription_type === 'recruiter' || 
                              user?.subscription_type === 'admin' || 
                              user?.role === 'admin' ||
                              user?.email === 'alexandreferreirajp01@gmail.com';
   
-  const isPremium = user?.subscription_type === 'premium';
-  
-  // Premium pode preencher/editar currículo
-  // Recrutador/Admin podem apenas visualizar e baixar
+  // Premium pode preencher/editar currículo (prioridade)
+  // Recrutador/Admin (que NÃO são premium) podem apenas visualizar e baixar
   const canFillResume = isPremium;
-  const canViewResumes = isRecruiterOrAdmin;
+  const canViewResumes = isRecruiterOrAdmin && !isPremium;
   const canAccess = canFillResume || canViewResumes;
 
   const handleSave = async () => {
