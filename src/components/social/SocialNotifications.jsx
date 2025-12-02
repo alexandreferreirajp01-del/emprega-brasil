@@ -1,37 +1,67 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bell, Heart, MessageCircle, UserPlus, FileText, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
+// Função de fetch com retry
+async function fetchWithRetry(fetchFn, maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const result = await fetchFn();
+      if (result && result.length >= 0) {
+        return result;
+      }
+    } catch (error) {
+      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
+    }
+    if (attempt < maxRetries - 1) {
+      await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
+    }
+  }
+  return [];
+}
+
 export default function SocialNotifications({ user }) {
-  const queryClient = useQueryClient();
+  const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: notifications = [], isLoading } = useQuery({
-    queryKey: ['social-notifications', user?.email],
-    queryFn: async () => {
-      if (!user) return [];
-      return await base44.entities.SocialNotification.filter(
-        { user_email: user.email },
-        '-created_date',
-        50
-      ) || [];
-    },
-    enabled: !!user,
-  });
+  useEffect(() => {
+    if (!user?.email) {
+      setIsLoading(false);
+      return;
+    }
+    let isMounted = true;
 
-  const markAsReadMutation = useMutation({
-    mutationFn: async (notificationId) => {
+    const loadNotifications = async () => {
+      setIsLoading(true);
+      const result = await fetchWithRetry(() => 
+        base44.entities.SocialNotification.list('-created_date', 200)
+      );
+      
+      if (isMounted) {
+        const userNotifications = result.filter(n => n.user_email === user.email);
+        setNotifications(userNotifications.slice(0, 50));
+        setIsLoading(false);
+      }
+    };
+
+    loadNotifications();
+    return () => { isMounted = false; };
+  }, [user?.email]);
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
       await base44.entities.SocialNotification.update(notificationId, { is_read: true });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['social-notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['social-notifications-unread'] });
-    },
-  });
+      setNotifications(prev => 
+        prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
+      );
+    } catch (e) {
+      console.warn('Erro ao marcar como lida:', e);
+    }
+  };
 
   const getIcon = (type) => {
     switch (type) {
@@ -91,7 +121,7 @@ export default function SocialNotifications({ user }) {
             }
             onClick={() => {
               if (!notification.is_read) {
-                markAsReadMutation.mutate(notification.id);
+                handleMarkAsRead(notification.id);
               }
             }}
             className={`flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors ${
