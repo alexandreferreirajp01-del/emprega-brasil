@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,8 +16,7 @@ import {
 import { 
   ArrowLeft, Save, Download, Plus, Trash2, Loader2, 
   Lock, Crown, User, Briefcase, GraduationCap, Award,
-  Languages, FileText, Car, MapPin, Phone, Mail, CheckCircle, Edit, Upload, Eye, Search,
-  ChevronLeft, ChevronRight
+  Languages, FileText, Car, MapPin, Phone, Mail, CheckCircle, Edit, Upload, Eye, Search
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -35,9 +34,6 @@ export default function ProfessionalResume() {
   const [isSaving, setIsSaving] = useState(false);
   const [activeSection, setActiveSection] = useState('personal');
   const [isUploadingResume, setIsUploadingResume] = useState(false);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
-  const menuRef = useRef(null);
   
   // Para recrutadores/admins
   const [viewMode, setViewMode] = useState(false);
@@ -445,49 +441,6 @@ export default function ProfessionalResume() {
     );
   }
 
-  // Esconder botão de chat flutuante
-  useEffect(() => {
-    const chatButton = document.querySelector('.floating-chat-button, [data-chat-button]');
-    if (chatButton) {
-      chatButton.style.display = 'none';
-    }
-    
-    // Restaurar ao sair da página
-    return () => {
-      if (chatButton) {
-        chatButton.style.display = '';
-      }
-    };
-  }, []);
-
-  // Controle de scroll do menu
-  const checkScrollPosition = () => {
-    if (menuRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = menuRef.current;
-      setShowLeftArrow(scrollLeft > 10);
-      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
-    }
-  };
-
-  const scrollMenu = (direction) => {
-    if (menuRef.current) {
-      const scrollAmount = 150;
-      menuRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  useEffect(() => {
-    const menu = menuRef.current;
-    if (menu) {
-      menu.addEventListener('scroll', checkScrollPosition);
-      checkScrollPosition();
-      return () => menu.removeEventListener('scroll', checkScrollPosition);
-    }
-  }, [canFillResume]);
-
   // Formulário Premium
   const sections = [
     { id: 'personal', label: 'Dados', icon: User },
@@ -516,53 +469,22 @@ export default function ProfessionalResume() {
       {/* Menu horizontal de seções */}
       <div className="bg-white border-b sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-4">
-          {/* Indicador informativo */}
-          <p className="text-xs text-slate-400 text-center pt-2">Deslize para ver mais seções →</p>
-          
-          <div className="relative flex items-center">
-            {/* Seta esquerda */}
-            {showLeftArrow && (
-              <button 
-                onClick={() => scrollMenu('left')}
-                className="absolute left-0 z-10 w-8 h-8 flex items-center justify-center bg-white/90 shadow-md rounded-full text-slate-600 hover:bg-slate-100"
+          <div className="flex gap-1 overflow-x-auto py-2 hide-scrollbar">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => setActiveSection(section.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-all ${
+                  activeSection === section.id
+                    ? 'bg-[#0056ff] text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
               >
-                <ChevronLeft className="w-5 h-5" />
+                <section.icon className="w-4 h-4" />
+                {section.label}
               </button>
-            )}
-            
-            {/* Menu de seções */}
-            <div 
-              ref={menuRef}
-              className="flex gap-1 overflow-x-auto py-2 hide-scrollbar scroll-smooth mx-2"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {sections.map((section, index) => (
-                <button
-                  key={section.id}
-                  type="button"
-                  onClick={() => setActiveSection(section.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-all ${
-                    activeSection === section.id
-                      ? 'bg-[#0056ff] text-white shadow-md'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  <section.icon className="w-4 h-4" />
-                  {section.label}
-                  {index === sections.length - 1 && <span className="sr-only">Última seção</span>}
-                </button>
-              ))}
-            </div>
-            
-            {/* Seta direita */}
-            {showRightArrow && (
-              <button 
-                onClick={() => scrollMenu('right')}
-                className="absolute right-0 z-10 w-8 h-8 flex items-center justify-center bg-white/90 shadow-md rounded-full text-slate-600 hover:bg-slate-100"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            )}
+            ))}
           </div>
         </div>
       </div>
