@@ -26,6 +26,7 @@ import PaymentsManager from "@/components/admin/PaymentsManager";
 import ChatManager from "@/components/admin/ChatManager";
 import SocialAdminPanel from "@/components/admin/SocialAdminPanel";
 import NotificationSender from "@/components/admin/NotificationSender";
+import RecruiterRequestsPanel from "@/components/admin/RecruiterRequestsPanel";
 
 
 const JOB_FUNCTIONS = [
@@ -954,6 +955,10 @@ export default function Admin() {
                     </Badge>
                   )}
                 </TabsTrigger>
+                <TabsTrigger value="requests" className="rounded-lg">
+                  <Briefcase className="w-4 h-4 mr-2" />
+                  Solicitações
+                </TabsTrigger>
                 <TabsTrigger value="payments" className="rounded-lg">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Pagamentos
@@ -995,6 +1000,7 @@ export default function Admin() {
                                 <SelectItem value="visitor">Visitante</SelectItem>
                                 <SelectItem value="basic">Membro Básico</SelectItem>
                                 <SelectItem value="premium">Membro Premium</SelectItem>
+                                <SelectItem value="recruiter">Recrutador</SelectItem>
                                 <SelectItem value="admin">Administrador</SelectItem>
                               </SelectContent>
                             </Select>
@@ -1047,11 +1053,13 @@ export default function Admin() {
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   <Badge className={`text-xs ${
                                     u.subscription_type === 'admin' ? 'bg-purple-100 text-purple-700' :
+                                    u.subscription_type === 'recruiter' ? 'bg-purple-100 text-purple-600' :
                                     u.subscription_type === 'premium' ? 'bg-green-100 text-green-700' :
                                     u.subscription_type === 'basic' ? 'bg-blue-100 text-blue-700' :
                                     'bg-slate-100 text-slate-600'
                                   }`}>
                                     {u.subscription_type === 'admin' ? 'Admin' :
+                                     u.subscription_type === 'recruiter' ? 'Recrutador' :
                                      u.subscription_type === 'premium' ? 'Premium' :
                                      u.subscription_type === 'basic' ? 'Básico' :
                                      'Visitante'}
@@ -1088,6 +1096,7 @@ export default function Admin() {
                                   <SelectItem value="visitor">Visitante</SelectItem>
                                   <SelectItem value="basic">Básico</SelectItem>
                                   <SelectItem value="premium">Premium</SelectItem>
+                                  <SelectItem value="recruiter">Recrutador</SelectItem>
                                   <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>
                               </Select>
@@ -1126,6 +1135,11 @@ export default function Admin() {
                     </ScrollArea>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              {/* Recruiter Requests Sub-Tab */}
+              <TabsContent value="requests">
+                <RecruiterRequestsPanel showToast={showToast} />
               </TabsContent>
 
               {/* Payments Sub-Tab */}
