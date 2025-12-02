@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, MapPin, Calendar, Building2, Briefcase, 
-  DollarSign, ExternalLink, Lock, Clock, CheckCircle, Eye, MessageCircle, Share2, Heart
+  DollarSign, ExternalLink, Lock, Clock, CheckCircle, Eye, MessageCircle, Share2, Heart, RefreshCw
 } from "lucide-react";
 import ContactOptionsDialog, { extractContacts } from "@/components/common/ContactOptionsDialog";
 import ShareJobDialog from "@/components/jobs/ShareJobDialog";
@@ -13,19 +13,51 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { formatLocationWithCity } from "@/components/common/NeighborhoodCityMap";
 import { formatRelativeDate, ClickableText } from "@/components/common/ClickableContent";
+
+// Função de fetch com retry robusto
+async function fetchJobWithRetry(jobId, maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      // Buscar todas as vagas
+      const allJobs = await base44.entities.Job.list('-created_date', 1000);
+      
+      if (allJobs && allJobs.length > 0) {
+        const found = allJobs.find(j => j.id === jobId);
+        if (found) {
+          return found;
+        }
+      }
+      
+      // Se não encontrou, aguardar e tentar novamente
+      if (attempt < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt)));
+      }
+    } catch (error) {
+      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
+      if (attempt < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt)));
+      }
+    }
+  }
+  return null;
+}
 
 export default function JobDetail() {
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [job, setJob] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
   
   const urlParams = new URLSearchParams(window.location.search);
   const jobId = urlParams.get('id');
 
+  // Autenticação
   useEffect(() => {
     const checkAuth = async () => {
       const visitorMode = localStorage.getItem('vagas_abertas_visitor_mode');
@@ -44,37 +76,37 @@ export default function JobDetail() {
     checkAuth();
   }, []);
 
-  const { data: job, isLoading, error } = useQuery({
-    queryKey: ['job-detail', jobId],
-    queryFn: async () => {
-      if (!jobId) return null;
+  // Buscar vaga com retry robusto
+  useEffect(() => {
+    if (!jobId) {
+      setIsLoading(false);
+      return;
+    }
+    
+    let isMounted = true;
+    
+    const loadJob = async () => {
+      setIsLoading(true);
       
-      // Método mais confiável: buscar todas as vagas e encontrar pelo ID
-      const allJobs = await base44.entities.Job.list('-created_date', 1000);
+      const foundJob = await fetchJobWithRetry(jobId);
       
-      if (!allJobs || allJobs.length === 0) {
-        console.log('Nenhuma vaga encontrada na base');
-        return null;
+      if (isMounted) {
+        setJob(foundJob);
+        setIsLoading(false);
       }
-      
-      // Buscar a vaga pelo ID
-      const found = allJobs.find(j => j.id === jobId);
-      
-      if (found) {
-        console.log('Vaga encontrada:', found.id, found.title);
-        return found;
-      }
-      
-      console.log('Vaga não encontrada com ID:', jobId);
-      return null;
-    },
-    enabled: !!jobId,
-    staleTime: 0, // Sempre buscar dados frescos
-    gcTime: 60000,
-    retry: 5,
-    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
-    refetchOnMount: 'always',
-  });
+    };
+    
+    loadJob();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [jobId, retryCount]);
+
+  // Função para tentar novamente
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
 
   // Buscar visualizações da vaga
   const { data: viewsData = [] } = useQuery({
@@ -247,9 +279,16 @@ export default function JobDetail() {
         <div className="text-center">
           <Briefcase className="w-16 h-16 text-slate-300 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-slate-600 mb-2">Vaga não encontrada</h2>
-          <Link to={createPageUrl('Jobs')}>
-            <Button className="mt-4">Voltar para vagas</Button>
-          </Link>
+          <p className="text-slate-500 mb-4">A vaga pode ter sido removida ou o link está incorreto.</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button onClick={handleRetry} variant="outline" className="gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Tentar novamente
+            </Button>
+            <Link to={createPageUrl('Jobs')}>
+              <Button>Voltar para vagas</Button>
+            </Link>
+          </div>
         </div>
       </div>
     );

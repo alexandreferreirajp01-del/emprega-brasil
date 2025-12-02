@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye, Share2
+  Lock, Star, X, Eye, Share2, RefreshCw, Loader2
 } from "lucide-react";
 import FavoriteButton from "@/components/jobs/FavoriteButton";
 import ShareJobDialog from "@/components/jobs/ShareJobDialog";
@@ -13,7 +13,6 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
 
 const CIDADES_PB = [
   "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
@@ -98,6 +97,28 @@ const JOB_FUNCTIONS = [
   "Carregador", "Estoquista", "Logística", "Panfletista", "Outros"
 ];
 
+// Função de fetch com retry robusto
+async function fetchJobsWithRetry(maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const result = await base44.entities.Job.list('-created_date', 1000);
+      if (result && result.length > 0) {
+        return result;
+      }
+      // Se retornou vazio, aguardar e tentar novamente
+      if (attempt < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
+      }
+    } catch (error) {
+      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
+      if (attempt < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
+      }
+    }
+  }
+  return [];
+}
+
 export default function Jobs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
@@ -109,6 +130,9 @@ export default function Jobs() {
   const [funcOpen, setFuncOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
+  const [jobs, setJobs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -136,35 +160,46 @@ export default function Jobs() {
     checkAuth();
   }, []);
 
-  const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ['jobs-list'],
-    queryFn: async () => {
-      const result = await base44.entities.Job.list('-created_date', 1000);
-      console.log('Jobs carregados:', result?.length || 0);
-      return result || [];
-    },
-    staleTime: 0, // Sempre buscar dados frescos
-    gcTime: 60000,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-    retry: 5,
-    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
-  });
+  // Buscar vagas com retry robusto
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadJobs = async () => {
+      setIsLoading(true);
+      const result = await fetchJobsWithRetry();
+      
+      if (isMounted) {
+        setJobs(result);
+        setIsLoading(false);
+      }
+    };
+    
+    loadJobs();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [refreshKey]);
+
+  const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
 
 
-  const { data: allViews = [] } = useQuery({
-    queryKey: ['all-job-views'],
-    queryFn: async () => {
-      const result = await base44.entities.JobView.list('-created_date', 5000);
-      return result || [];
-    },
-    staleTime: 60000,
-    gcTime: 300000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    retry: 2,
-  });
+  const [allViews, setAllViews] = useState([]);
+  
+  useEffect(() => {
+    const loadViews = async () => {
+      try {
+        const result = await base44.entities.JobView.list('-created_date', 5000);
+        setAllViews(result || []);
+      } catch (e) {
+        console.warn('Erro ao carregar views');
+      }
+    };
+    loadViews();
+  }, []);
 
   const viewsCountMap = {};
   allViews.forEach(v => {
@@ -215,7 +250,22 @@ export default function Jobs() {
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-8 px-4">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold text-white mb-4">Vagas de Emprego</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-white">Vagas de Emprego</h1>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              className="text-white hover:bg-white/20"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
           
           {/* Barra de Pesquisa Principal */}
           <div className="bg-white rounded-xl p-3 shadow-lg">
