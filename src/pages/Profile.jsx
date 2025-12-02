@@ -434,7 +434,7 @@ export default function Profile() {
               </div>
 
               {/* Área do Recrutador - apenas para recrutadores */}
-              {(isRecruiter || isAdmin) && (
+              {(isRecruiter && !isAdmin) && (
                 <Link to={createPageUrl('RecruiterArea')} className="block mb-6">
                   <Button 
                     variant="outline" 
@@ -442,6 +442,19 @@ export default function Profile() {
                   >
                     <Briefcase className="w-5 h-5 text-purple-600" />
                     <span className="text-purple-700 font-medium">Área do Recrutador</span>
+                  </Button>
+                </Link>
+              )}
+
+              {/* Painel do Administrador - apenas para admins */}
+              {isAdmin && (
+                <Link to={createPageUrl('Admin')} className="block mb-6">
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-red-300 bg-red-50 hover:bg-red-100"
+                  >
+                    <Settings className="w-5 h-5 text-red-600" />
+                    <span className="text-red-700 font-medium">Painel do Administrador</span>
                   </Button>
                 </Link>
               )}
