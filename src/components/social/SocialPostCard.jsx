@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -8,7 +8,6 @@ import {
   Briefcase, ExternalLink, Trophy
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
@@ -21,84 +20,69 @@ import ReportDialog from "./ReportDialog";
 import SharePostDialog from "./SharePostDialog";
 import PlanBadge from "./PlanBadge";
 
-export default function SocialPostCard({ post, user, likesCount, userLiked, onRefresh }) {
+export default function SocialPostCard({ post, user, likesCount = 0, userLiked = false, onRefresh }) {
   const [showReport, setShowReport] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const queryClient = useQueryClient();
+  const [authorUser, setAuthorUser] = useState(null);
+  const [likes, setLikes] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [isLiking, setIsLiking] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Get author user data for plan badge
-  const { data: authorUser } = useQuery({
-    queryKey: ['user-data', post.author_email],
-    queryFn: async () => {
-      let users = await base44.entities.User.filter({ email: post.author_email });
-      if (users && users.length > 0) return users[0];
-      // Fallback: buscar todos e filtrar
-      const allUsers = await base44.entities.User.list('-created_date', 500);
-      if (allUsers && allUsers.length > 0) {
-        return allUsers.find(u => u.email === post.author_email) || null;
-      }
-      return null;
-    },
-    staleTime: 60000,
-    gcTime: 300000,
-    retry: 2,
-  });
-
-  // Likes count
-  const { data: realTimeLikes = [] } = useQuery({
-    queryKey: ['post-likes', post.id],
-    queryFn: async () => {
-      let result = await base44.entities.SocialLike.filter({ post_id: post.id });
-      if (!result || result.length === 0) {
-        const allLikes = await base44.entities.SocialLike.list('-created_date', 2000);
-        if (allLikes && allLikes.length > 0) {
-          result = allLikes.filter(l => l.post_id === post.id);
+  // Carregar dados uma vez
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadData = async () => {
+      try {
+        const [usersResult, likesResult, commentsResult] = await Promise.all([
+          base44.entities.User.list('-created_date', 500),
+          base44.entities.SocialLike.list('-created_date', 2000),
+          base44.entities.SocialComment.list('-created_date', 2000)
+        ]);
+        
+        if (isMounted) {
+          const author = usersResult.find(u => u.email === post.author_email);
+          setAuthorUser(author || null);
+          
+          const postLikes = likesResult.filter(l => l.post_id === post.id);
+          setLikes(postLikes);
+          
+          const postComments = commentsResult.filter(c => 
+            c.post_id === post.id && (c.status === 'active' || !c.status)
+          );
+          setComments(postComments);
         }
+      } catch (e) {
+        console.warn('Erro ao carregar dados do post:', e);
       }
-      return result || [];
-    },
-    staleTime: 30000,
-    gcTime: 120000,
-    retry: 2,
-  });
+    };
+    
+    loadData();
+    return () => { isMounted = false; };
+  }, [post.id, post.author_email]);
 
-  // Comments count
-  const { data: realTimeComments = [] } = useQuery({
-    queryKey: ['post-comments-count', post.id],
-    queryFn: async () => {
-      let result = await base44.entities.SocialComment.filter({ post_id: post.id, status: 'active' });
-      if (!result || result.length === 0) {
-        const allComments = await base44.entities.SocialComment.list('-created_date', 2000);
-        if (allComments && allComments.length > 0) {
-          result = allComments.filter(c => c.post_id === post.id && (c.status === 'active' || !c.status));
-        }
-      }
-      return result || [];
-    },
-    staleTime: 30000,
-    gcTime: 120000,
-    retry: 2,
-  });
+  const realLikesCount = likes.length;
+  const realCommentsCount = comments.length;
+  const realUserLiked = likes.some(l => l.user_email === user?.email);
 
-  const realLikesCount = realTimeLikes.length;
-  const realCommentsCount = realTimeComments.length;
-  const realUserLiked = realTimeLikes.some(l => l.user_email === user?.email);
-
-  const likeMutation = useMutation({
-    mutationFn: async () => {
+  const handleLike = async () => {
+    if (isLiking || !user) return;
+    setIsLiking(true);
+    
+    try {
       if (realUserLiked) {
-        const likes = await base44.entities.SocialLike.filter({
-          post_id: post.id,
-          user_email: user.email
-        });
-        if (likes.length > 0) {
-          await base44.entities.SocialLike.delete(likes[0].id);
+        const userLike = likes.find(l => l.user_email === user.email);
+        if (userLike) {
+          await base44.entities.SocialLike.delete(userLike.id);
+          setLikes(prev => prev.filter(l => l.id !== userLike.id));
         }
       } else {
-        await base44.entities.SocialLike.create({
+        const newLike = await base44.entities.SocialLike.create({
           post_id: post.id,
           user_email: user.email
         });
+        setLikes(prev => [...prev, newLike]);
         
         if (post.author_email !== user.email) {
           await base44.entities.SocialNotification.create({
@@ -112,20 +96,25 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
           });
         }
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['post-likes', post.id] });
-      queryClient.invalidateQueries({ queryKey: ['social-likes'] });
-    },
-  });
+    } catch (e) {
+      console.warn('Erro ao curtir:', e);
+    } finally {
+      setIsLiking(false);
+    }
+  };
 
-  const deleteMutation = useMutation({
-    mutationFn: () => base44.entities.SocialPost.delete(post.id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['social-posts'] });
+  const handleDelete = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    
+    try {
+      await base44.entities.SocialPost.delete(post.id);
       onRefresh?.();
-    },
-  });
+    } catch (e) {
+      console.warn('Erro ao deletar:', e);
+      setIsDeleting(false);
+    }
+  };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -179,7 +168,7 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {(isOwner || isAdmin) && (
-                <DropdownMenuItem onClick={() => deleteMutation.mutate()} className="text-red-600">
+                <DropdownMenuItem onClick={handleDelete} disabled={isDeleting} className="text-red-600">
                   <Trash2 className="w-4 h-4 mr-2" />
                   Excluir
                 </DropdownMenuItem>
@@ -257,8 +246,8 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
         <div className="flex items-center gap-2 pt-3 border-t">
           <Button
             variant="ghost"
-            onClick={() => likeMutation.mutate()}
-            disabled={likeMutation.isPending}
+            onClick={handleLike}
+            disabled={isLiking}
             className={`flex-1 rounded-xl ${realUserLiked ? 'text-red-500 hover:text-red-600' : 'text-slate-600'}`}
           >
             <Heart className={`w-5 h-5 mr-2 ${realUserLiked ? 'fill-current' : ''}`} />
