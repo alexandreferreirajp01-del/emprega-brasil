@@ -10,14 +10,35 @@ import {
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
 import TimeAgo from "@/components/common/TimeAgo";
 import VisitTracker from "@/components/common/VisitTracker";
+
+// Função de fetch com retry robusto
+async function fetchWithRetry(fetchFn, maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const result = await fetchFn();
+      if (result && result.length >= 0) {
+        return result;
+      }
+    } catch (error) {
+      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
+    }
+    if (attempt < maxRetries - 1) {
+      await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
+    }
+  }
+  return [];
+}
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
   const [activeTab, setActiveTab] = useState('jobs');
+  const [jobs, setJobs] = useState([]);
+  const [allViews, setAllViews] = useState([]);
+  const [news, setNews] = useState([]);
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -36,33 +57,42 @@ export default function Home() {
     checkAuth();
   }, []);
 
-  // Fetch data
-  const { data: jobs = [] } = useQuery({
-    queryKey: ['home-jobs'],
-    queryFn: async () => {
-      const result = await base44.entities.Job.list('-created_date', 200);
-      return result || [];
-    },
-    staleTime: 0,
-    gcTime: 60000,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-    retry: 5,
-    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
-  });
+  // Carregar dados com retry robusto
+  useEffect(() => {
+    let isMounted = true;
 
-  const { data: allViews = [] } = useQuery({
-    queryKey: ['home-job-views'],
-    queryFn: async () => {
-      const result = await base44.entities.JobView.list('-created_date', 5000);
-      return result || [];
-    },
-    staleTime: 60000,
-    gcTime: 300000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    retry: 2,
-  });
+    const loadData = async () => {
+      // Carregar jobs
+      const jobsResult = await fetchWithRetry(() => 
+        base44.entities.Job.list('-created_date', 200)
+      );
+      if (isMounted) setJobs(jobsResult);
+
+      // Carregar views
+      const viewsResult = await fetchWithRetry(() => 
+        base44.entities.JobView.list('-created_date', 5000)
+      );
+      if (isMounted) setAllViews(viewsResult);
+
+      // Carregar notícias
+      const newsResult = await fetchWithRetry(() => 
+        base44.entities.News.list('-created_date', 50)
+      );
+      const publishedNews = newsResult.filter(n => n.status === 'published' || !n.status);
+      if (isMounted) setNews(publishedNews);
+
+      // Carregar posts
+      const postsResult = await fetchWithRetry(() => 
+        base44.entities.Post.list('-created_date', 50)
+      );
+      const approvedPosts = postsResult.filter(p => p.status === 'approved' || !p.status);
+      if (isMounted) setPosts(approvedPosts);
+    };
+
+    loadData();
+
+    return () => { isMounted = false; };
+  }, []);
 
   // Contagem de views por vaga
   const viewsCountMap = {};
@@ -72,50 +102,6 @@ export default function Home() {
 
   // Filtrar apenas vagas em destaque
   const featuredJobs = jobs.filter(job => job.is_featured);
-
-  const { data: news = [] } = useQuery({
-    queryKey: ['home-news'],
-    queryFn: async () => {
-      // Tenta filter primeiro
-      let result = await base44.entities.News.filter({ status: 'published' }, '-created_date', 20);
-      // Se não retornou, tenta list
-      if (!result || result.length === 0) {
-        const allNews = await base44.entities.News.list('-created_date', 50);
-        if (allNews && allNews.length > 0) {
-          result = allNews.filter(n => n.status === 'published' || !n.status);
-        }
-      }
-      return result || [];
-    },
-    staleTime: 30000,
-    gcTime: 120000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    retry: 3,
-    retryDelay: 500,
-  });
-
-  const { data: posts = [] } = useQuery({
-    queryKey: ['home-posts'],
-    queryFn: async () => {
-      // Tenta filter primeiro
-      let result = await base44.entities.Post.filter({ status: 'approved' }, '-created_date', 20);
-      // Se não retornou, tenta list
-      if (!result || result.length === 0) {
-        const allPosts = await base44.entities.Post.list('-created_date', 50);
-        if (allPosts && allPosts.length > 0) {
-          result = allPosts.filter(p => p.status === 'approved' || !p.status);
-        }
-      }
-      return result || [];
-    },
-    staleTime: 30000,
-    gcTime: 120000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    retry: 3,
-    retryDelay: 500,
-  });
 
 
 
