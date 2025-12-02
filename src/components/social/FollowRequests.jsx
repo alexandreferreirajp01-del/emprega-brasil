@@ -1,49 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserPlus, Check, X, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import PlanBadge from "./PlanBadge";
 
+// Função de fetch com retry robusto
+async function fetchWithRetry(fetchFn, maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const result = await fetchFn();
+      if (result && result.length >= 0) {
+        return result;
+      }
+    } catch (error) {
+      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
+    }
+    if (attempt < maxRetries - 1) {
+      await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
+    }
+  }
+  return [];
+}
+
 export default function FollowRequests({ user }) {
-  const queryClient = useQueryClient();
   const [processingIds, setProcessingIds] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch pending follow requests for me
-  const { data: pendingRequests = [], isLoading } = useQuery({
-    queryKey: ['pending-follow-requests', user?.email],
-    queryFn: async () => {
-      if (!user) return [];
-      try {
-        return await base44.entities.Follow.filter({ 
-          following_email: user.email,
-          status: 'pending'
-        }) || [];
-      } catch (e) {
-        return [];
-      }
-    },
-    enabled: !!user,
-    staleTime: 5000,
-    refetchOnMount: true,
-  });
+  useEffect(() => {
+    if (!user?.email) {
+      setIsLoading(false);
+      return;
+    }
+    let isMounted = true;
 
-  // Fetch users data
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ['all-users-requests'],
-    queryFn: async () => {
-      try {
-        return await base44.entities.User.list('-created_date', 500) || [];
-      } catch (e) {
-        return [];
+    const loadData = async () => {
+      setIsLoading(true);
+      
+      const [followsResult, usersResult] = await Promise.all([
+        fetchWithRetry(() => base44.entities.Follow.list('-created_date', 500)),
+        fetchWithRetry(() => base44.entities.User.list('-created_date', 500))
+      ]);
+
+      if (isMounted) {
+        // Filtrar solicitações pendentes para o usuário atual
+        const pending = followsResult.filter(f => 
+          f.following_email === user.email && f.status === 'pending'
+        );
+        setPendingRequests(pending);
+        setAllUsers(usersResult);
+        setIsLoading(false);
       }
-    },
-    staleTime: 30000,
-  });
+    };
+
+    loadData();
+
+    return () => { isMounted = false; };
+  }, [user?.email]);
 
   const handleRespond = async (requestId, accept, followerEmail) => {
     setProcessingIds(prev => [...prev, requestId]);
@@ -64,10 +82,8 @@ export default function FollowRequests({ user }) {
         });
       }
       
-      queryClient.invalidateQueries({ queryKey: ['pending-follow-requests'] });
-      queryClient.invalidateQueries({ queryKey: ['profile-followers'] });
-      queryClient.invalidateQueries({ queryKey: ['my-connections'] });
-      queryClient.invalidateQueries({ queryKey: ['my-followers'] });
+      // Atualizar lista local
+      setPendingRequests(prev => prev.filter(r => r.id !== requestId));
     } catch (e) {
       console.error('Erro ao responder solicitação:', e);
     } finally {
