@@ -137,17 +137,17 @@ export default function Jobs() {
   }, []);
 
   const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ['jobs'],
+    queryKey: ['jobs-list'],
     queryFn: async () => {
-      const result = await base44.entities.Job.list('-created_date', 500);
+      const result = await base44.entities.Job.list('-created_date', 1000);
       return result || [];
     },
-    staleTime: 60000,
-    gcTime: 300000,
+    staleTime: 30000,
+    gcTime: 120000,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
     retry: 3,
-    retryDelay: 1000,
+    retryDelay: 500,
   });
 
 

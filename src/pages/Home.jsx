@@ -40,15 +40,15 @@ export default function Home() {
   const { data: jobs = [] } = useQuery({
     queryKey: ['home-jobs'],
     queryFn: async () => {
-      const result = await base44.entities.Job.list('-created_date', 50);
+      const result = await base44.entities.Job.list('-created_date', 100);
       return result || [];
     },
-    staleTime: 60000,
-    gcTime: 300000,
+    staleTime: 30000,
+    gcTime: 120000,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
     retry: 3,
-    retryDelay: 1000,
+    retryDelay: 500,
   });
 
   const { data: allViews = [] } = useQuery({
@@ -59,7 +59,7 @@ export default function Home() {
     },
     staleTime: 60000,
     gcTime: 300000,
-    refetchOnMount: true,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     retry: 2,
   });
@@ -76,29 +76,45 @@ export default function Home() {
   const { data: news = [] } = useQuery({
     queryKey: ['home-news'],
     queryFn: async () => {
-      const result = await base44.entities.News.filter({ status: 'published' }, '-created_date', 10);
+      // Tenta filter primeiro
+      let result = await base44.entities.News.filter({ status: 'published' }, '-created_date', 20);
+      // Se não retornou, tenta list
+      if (!result || result.length === 0) {
+        const allNews = await base44.entities.News.list('-created_date', 50);
+        if (allNews && allNews.length > 0) {
+          result = allNews.filter(n => n.status === 'published' || !n.status);
+        }
+      }
       return result || [];
     },
-    staleTime: 60000,
-    gcTime: 300000,
+    staleTime: 30000,
+    gcTime: 120000,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
     retry: 3,
-    retryDelay: 1000,
+    retryDelay: 500,
   });
 
   const { data: posts = [] } = useQuery({
     queryKey: ['home-posts'],
     queryFn: async () => {
-      const result = await base44.entities.Post.filter({ status: 'approved' }, '-created_date', 10);
+      // Tenta filter primeiro
+      let result = await base44.entities.Post.filter({ status: 'approved' }, '-created_date', 20);
+      // Se não retornou, tenta list
+      if (!result || result.length === 0) {
+        const allPosts = await base44.entities.Post.list('-created_date', 50);
+        if (allPosts && allPosts.length > 0) {
+          result = allPosts.filter(p => p.status === 'approved' || !p.status);
+        }
+      }
       return result || [];
     },
-    staleTime: 60000,
-    gcTime: 300000,
+    staleTime: 30000,
+    gcTime: 120000,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
     retry: 3,
-    retryDelay: 1000,
+    retryDelay: 500,
   });
 
 
