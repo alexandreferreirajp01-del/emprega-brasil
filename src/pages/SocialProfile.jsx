@@ -109,7 +109,7 @@ export default function SocialProfile() {
     enabled: !!currentUser,
   });
 
-  const isFollowing = myFollows.some(f => f.following_email === targetEmail && f.status === 'accepted');
+  const isFollowing = myFollows.some(f => f.following_email === targetEmail);
 
   const updateProfileMutation = useMutation({
     mutationFn: async () => {
@@ -136,10 +136,11 @@ export default function SocialProfile() {
       if (myFollow) {
         await base44.entities.Follow.delete(myFollow.id);
       } else {
+        // Seguir diretamente sem aprovação
         await base44.entities.Follow.create({
           follower_email: currentUser.email,
           following_email: targetEmail,
-          status: 'pending'
+          status: 'accepted'
         });
         
         await base44.entities.SocialNotification.create({
@@ -148,12 +149,22 @@ export default function SocialProfile() {
           from_name: currentUser.full_name,
           from_photo: currentUser.profile_photo,
           type: 'follow',
-          message: `${currentUser.full_name || 'Alguém'} solicitou seguir você`
+          message: `${currentUser.full_name || 'Alguém'} começou a seguir você`
         });
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-follows'] });
+      queryClient.invalidateQueries({ queryKey: ['profile-followers'] });
+    },
+  });
+
+  // Remover seguidor
+  const removeFollowerMutation = useMutation({
+    mutationFn: async (followId) => {
+      await base44.entities.Follow.delete(followId);
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile-followers'] });
     },
   });
@@ -233,8 +244,8 @@ export default function SocialProfile() {
                       </Button>
                     ) : (
                       <div className="flex items-center gap-2">
-                        {followStatus === 'accepted' && (
-                          <Link to={`${createPageUrl('Messages')}?with=${targetEmail}`}>
+                        {myFollow && (
+                          <Link to={`${createPageUrl('Inbox')}?with=${targetEmail}`}>
                             <Button variant="outline" size="icon" className="rounded-xl">
                               <MessageCircle className="w-4 h-4" />
                             </Button>
@@ -246,9 +257,7 @@ export default function SocialProfile() {
                           variant={myFollow ? 'outline' : 'default'}
                           className="rounded-xl"
                         >
-                          {followStatus === 'pending' ? (
-                            'Solicitado'
-                          ) : followStatus === 'accepted' ? (
+                          {myFollow ? (
                             'Seguindo'
                           ) : (
                             <>
@@ -438,25 +447,40 @@ export default function SocialProfile() {
                 followers.map((follow) => {
                   const followerUser = allUsers.find(u => u.email === follow.follower_email);
                   return (
-                    <Link 
+                    <div 
                       key={follow.id}
-                      to={`${createPageUrl('SocialProfile')}?email=${follow.follower_email}`}
-                      onClick={() => setShowFollowers(false)}
                       className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg"
                     >
-                      <Avatar className="w-10 h-10">
-                        <AvatarImage src={followerUser?.profile_photo} />
-                        <AvatarFallback className="bg-[#0056ff] text-white">
-                          {followerUser?.full_name?.[0] || '?'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm">{followerUser?.full_name || 'Usuário'}</p>
-                          <PlanBadge user={followerUser} />
+                      <Link 
+                        to={`${createPageUrl('SocialProfile')}?email=${follow.follower_email}`}
+                        onClick={() => setShowFollowers(false)}
+                        className="flex items-center gap-3 flex-1"
+                      >
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={followerUser?.profile_photo} />
+                          <AvatarFallback className="bg-[#0056ff] text-white">
+                            {followerUser?.full_name?.[0] || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-sm">{followerUser?.full_name || 'Usuário'}</p>
+                            <PlanBadge user={followerUser} />
+                          </div>
                         </div>
-                      </div>
-                    </Link>
+                      </Link>
+                      {isOwnProfile && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFollowerMutation.mutate(follow.id)}
+                          disabled={removeFollowerMutation.isPending}
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
                   );
                 })
               )}
