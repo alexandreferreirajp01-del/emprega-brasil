@@ -143,9 +143,15 @@ export default function Profile() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem('vagas_abertas_visitor_mode');
-    base44.auth.logout(createPageUrl('Splash'));
+    localStorage.removeItem('vagas_abertas_last_login');
+    try {
+      await base44.auth.logout();
+    } catch (e) {
+      console.warn('Logout error:', e);
+    }
+    window.location.href = createPageUrl('Splash');
   };
 
   const hasPremiumAccess = user?.subscription_type === 'premium' || 
