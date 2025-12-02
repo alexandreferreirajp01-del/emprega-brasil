@@ -40,15 +40,15 @@ export default function Home() {
   const { data: jobs = [] } = useQuery({
     queryKey: ['home-jobs'],
     queryFn: async () => {
-      const result = await base44.entities.Job.list('-created_date', 100);
+      const result = await base44.entities.Job.list('-created_date', 200);
       return result || [];
     },
-    staleTime: 30000,
-    gcTime: 120000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    retry: 3,
-    retryDelay: 500,
+    staleTime: 0,
+    gcTime: 60000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 5,
+    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
   });
 
   const { data: allViews = [] } = useQuery({

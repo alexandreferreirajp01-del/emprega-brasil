@@ -44,27 +44,36 @@ export default function JobDetail() {
     checkAuth();
   }, []);
 
-  const { data: job, isLoading } = useQuery({
+  const { data: job, isLoading, error } = useQuery({
     queryKey: ['job-detail', jobId],
     queryFn: async () => {
-      // Primeiro tenta buscar por filtro de id
-      let jobs = await base44.entities.Job.filter({ id: jobId });
-      if (jobs && jobs.length > 0) {
-        return jobs[0];
-      }
-      // Se não encontrou, busca todas e filtra manualmente
+      if (!jobId) return null;
+      
+      // Método mais confiável: buscar todas as vagas e encontrar pelo ID
       const allJobs = await base44.entities.Job.list('-created_date', 1000);
-      if (allJobs && allJobs.length > 0) {
-        const found = allJobs.find(j => j.id === jobId);
-        return found || null;
+      
+      if (!allJobs || allJobs.length === 0) {
+        console.log('Nenhuma vaga encontrada na base');
+        return null;
       }
+      
+      // Buscar a vaga pelo ID
+      const found = allJobs.find(j => j.id === jobId);
+      
+      if (found) {
+        console.log('Vaga encontrada:', found.id, found.title);
+        return found;
+      }
+      
+      console.log('Vaga não encontrada com ID:', jobId);
       return null;
     },
     enabled: !!jobId,
-    staleTime: 30000,
-    gcTime: 120000,
-    retry: 3,
-    retryDelay: 500,
+    staleTime: 0, // Sempre buscar dados frescos
+    gcTime: 60000,
+    retry: 5,
+    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
+    refetchOnMount: 'always',
   });
 
   // Buscar visualizações da vaga

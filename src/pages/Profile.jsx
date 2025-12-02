@@ -56,41 +56,37 @@ export default function Profile() {
   const { data: followers = [] } = useQuery({
     queryKey: ['my-followers', user?.email],
     queryFn: async () => {
-      // Buscar todos os follows e filtrar manualmente
       const listFollows = await base44.entities.Follow.list('-created_date', 1000);
       if (!listFollows || listFollows.length === 0) return [];
       
-      // Filtrar quem segue o usuário atual (status accepted OU pending para contar pendentes também)
-      const myFollowers = listFollows.filter(f => 
+      return listFollows.filter(f => 
         f.following_email === user.email && (f.status === 'accepted' || f.status === 'pending')
       );
-      return myFollowers;
     },
     enabled: !!user?.email,
-    staleTime: 30000,
-    gcTime: 120000,
-    retry: 3,
-    retryDelay: 500,
+    staleTime: 0,
+    gcTime: 60000,
+    refetchOnMount: 'always',
+    retry: 5,
+    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
   });
 
   const { data: following = [] } = useQuery({
     queryKey: ['my-following', user?.email],
     queryFn: async () => {
-      // Buscar todos os follows e filtrar manualmente
       const listFollows = await base44.entities.Follow.list('-created_date', 1000);
       if (!listFollows || listFollows.length === 0) return [];
       
-      // Filtrar quem o usuário segue (status accepted OU pending)
-      const myFollowing = listFollows.filter(f => 
+      return listFollows.filter(f => 
         f.follower_email === user.email && (f.status === 'accepted' || f.status === 'pending')
       );
-      return myFollowing;
     },
     enabled: !!user?.email,
-    staleTime: 30000,
-    gcTime: 120000,
-    retry: 3,
-    retryDelay: 500,
+    staleTime: 0,
+    gcTime: 60000,
+    refetchOnMount: 'always',
+    retry: 5,
+    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
   });
 
   // Buscar todos os usuários para mostrar nas listas
@@ -101,9 +97,10 @@ export default function Profile() {
       return result || [];
     },
     enabled: !!user?.email,
-    staleTime: 60000,
-    gcTime: 300000,
-    retry: 3,
+    staleTime: 0,
+    gcTime: 60000,
+    refetchOnMount: 'always',
+    retry: 5,
   });
 
   const handlePhotoChange = async (e) => {

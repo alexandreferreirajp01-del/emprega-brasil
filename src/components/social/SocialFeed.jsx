@@ -32,11 +32,10 @@ export default function SocialFeed({ user, feedType = "all" }) {
   const { data: posts = [], isLoading, refetch } = useQuery({
     queryKey: ['social-posts', feedType, user?.email],
     queryFn: async () => {
-      // Buscar todos os posts via list (mais confiável)
       const listPosts = await base44.entities.SocialPost.list('-created_date', 200);
+      console.log('Posts carregados:', listPosts?.length || 0);
       if (!listPosts || listPosts.length === 0) return [];
       
-      // Filtrar apenas posts ativos
       const allPosts = listPosts.filter(p => p.status === 'active' || !p.status);
       
       if (feedType === 'following' && followingEmails.length > 0) {
@@ -47,12 +46,12 @@ export default function SocialFeed({ user, feedType = "all" }) {
       return allPosts;
     },
     enabled: !!user,
-    staleTime: 30000,
-    gcTime: 120000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    retry: 3,
-    retryDelay: 500,
+    staleTime: 0,
+    gcTime: 60000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 5,
+    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
   });
 
   const { data: allLikes = [] } = useQuery({
