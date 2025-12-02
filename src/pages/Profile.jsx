@@ -10,7 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
-  Heart, History, Users, FileText, Lock, Briefcase, Settings
+  Heart, History, Users, FileText, Lock, Briefcase, Settings,
+  PlusCircle, Sparkles, Home
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
