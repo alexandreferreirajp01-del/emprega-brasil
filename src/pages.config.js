@@ -28,6 +28,7 @@ import ActivateBasic from './pages/ActivateBasic';
 import Messages from './pages/Messages';
 import ProfessionalResume from './pages/ProfessionalResume';
 import Inbox from './pages/Inbox';
+import RecruiterArea from './pages/RecruiterArea';
 import __Layout from './Layout.jsx';
 
 
@@ -62,6 +63,7 @@ export const PAGES = {
     "Messages": Messages,
     "ProfessionalResume": ProfessionalResume,
     "Inbox": Inbox,
+    "RecruiterArea": RecruiterArea,
 }
 
 export const pagesConfig = {
