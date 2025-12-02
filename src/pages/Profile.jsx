@@ -14,10 +14,27 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import PlanBadge from "@/components/social/PlanBadge";
+
+// Função de fetch com retry robusto
+async function fetchWithRetry(fetchFn, maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const result = await fetchFn();
+      if (result && result.length >= 0) {
+        return result;
+      }
+    } catch (error) {
+      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
+    }
+    if (attempt < maxRetries - 1) {
+      await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
+    }
+  }
+  return [];
+}
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -28,6 +45,9 @@ export default function Profile() {
   const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -52,56 +72,42 @@ export default function Profile() {
     loadUser();
   }, []);
 
-  // Buscar seguidores e seguindo
-  const { data: followers = [] } = useQuery({
-    queryKey: ['my-followers', user?.email],
-    queryFn: async () => {
-      const listFollows = await base44.entities.Follow.list('-created_date', 1000);
-      if (!listFollows || listFollows.length === 0) return [];
-      
-      return listFollows.filter(f => 
-        f.following_email === user.email && (f.status === 'accepted' || f.status === 'pending')
-      );
-    },
-    enabled: !!user?.email,
-    staleTime: 0,
-    gcTime: 60000,
-    refetchOnMount: 'always',
-    retry: 5,
-    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
-  });
+  // Carregar dados de follows e usuários
+  useEffect(() => {
+    if (!user?.email) return;
+    let isMounted = true;
 
-  const { data: following = [] } = useQuery({
-    queryKey: ['my-following', user?.email],
-    queryFn: async () => {
-      const listFollows = await base44.entities.Follow.list('-created_date', 1000);
-      if (!listFollows || listFollows.length === 0) return [];
-      
-      return listFollows.filter(f => 
-        f.follower_email === user.email && (f.status === 'accepted' || f.status === 'pending')
+    const loadSocialData = async () => {
+      // Carregar follows
+      const allFollows = await fetchWithRetry(() => 
+        base44.entities.Follow.list('-created_date', 1000)
       );
-    },
-    enabled: !!user?.email,
-    staleTime: 0,
-    gcTime: 60000,
-    refetchOnMount: 'always',
-    retry: 5,
-    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
-  });
+      
+      if (isMounted && allFollows.length > 0) {
+        // Filtrar seguidores
+        const myFollowers = allFollows.filter(f => 
+          f.following_email === user.email && (f.status === 'accepted' || f.status === 'pending')
+        );
+        setFollowers(myFollowers);
 
-  // Buscar todos os usuários para mostrar nas listas
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ['all-users-profile'],
-    queryFn: async () => {
-      const result = await base44.entities.User.list('-created_date', 500);
-      return result || [];
-    },
-    enabled: !!user?.email,
-    staleTime: 0,
-    gcTime: 60000,
-    refetchOnMount: 'always',
-    retry: 5,
-  });
+        // Filtrar seguindo
+        const myFollowing = allFollows.filter(f => 
+          f.follower_email === user.email && (f.status === 'accepted' || f.status === 'pending')
+        );
+        setFollowing(myFollowing);
+      }
+
+      // Carregar usuários
+      const users = await fetchWithRetry(() => 
+        base44.entities.User.list('-created_date', 500)
+      );
+      if (isMounted) setAllUsers(users);
+    };
+
+    loadSocialData();
+
+    return () => { isMounted = false; };
+  }, [user?.email]);
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
