@@ -173,8 +173,9 @@ export default function ProfessionalResume() {
     try {
       const data = { ...form, user_email: user.email };
       
-      if (resume) {
+      if (resume?.id) {
         await base44.entities.ProfessionalResume.update(resume.id, data);
+        setResume({ ...resume, ...data });
       } else {
         const newResume = await base44.entities.ProfessionalResume.create(data);
         setResume(newResume);
@@ -182,16 +183,38 @@ export default function ProfessionalResume() {
       
       toast.success('Currículo salvo com sucesso!');
       setIsEditing(false);
-    } catch (e) {
-      toast.error('Erro ao salvar currículo');
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      toast.error('Erro ao salvar currículo. Tente novamente.');
     }
     setIsSaving(false);
   };
 
   const handleConfirm = async () => {
     if (!isPremium) return;
-    setForm(prev => ({ ...prev, is_confirmed: true }));
-    await handleSave();
+    const updatedForm = { ...form, is_confirmed: true };
+    setForm(updatedForm);
+    
+    setIsSaving(true);
+    try {
+      const data = { ...updatedForm, user_email: user.email };
+      
+      if (resume?.id) {
+        await base44.entities.ProfessionalResume.update(resume.id, data);
+        setResume({ ...resume, ...data });
+      } else {
+        const newResume = await base44.entities.ProfessionalResume.create(data);
+        setResume(newResume);
+      }
+      
+      toast.success('Currículo confirmado com sucesso!');
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Erro ao confirmar:', error);
+      toast.error('Erro ao confirmar currículo. Tente novamente.');
+      setForm(prev => ({ ...prev, is_confirmed: false }));
+    }
+    setIsSaving(false);
   };
 
   const handleUploadPhoto = async (e) => {
@@ -208,17 +231,23 @@ export default function ProfessionalResume() {
     }
   };
 
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+
   const handleUploadResume = async (e) => {
     if (!isPremium) return;
     const file = e.target.files[0];
     if (!file) return;
     
+    setIsUploadingResume(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setForm(prev => ({ ...prev, resume_file_url: file_url }));
-      toast.success('Currículo enviado!');
-    } catch (e) {
-      toast.error('Erro ao enviar arquivo');
+      toast.success('Currículo enviado com sucesso!');
+    } catch (error) {
+      console.error('Erro upload:', error);
+      toast.error('Erro ao enviar arquivo. Tente novamente.');
+    } finally {
+      setIsUploadingResume(false);
     }
   };
 
@@ -791,24 +820,24 @@ export default function ProfessionalResume() {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <Label>Nome Completo *</Label>
+                              <Label>Nome Completo</Label>
                               <Input value={form.full_name} onChange={(e) => setForm({...form, full_name: e.target.value})} />
                             </div>
                             <div>
-                              <Label>Data de Nascimento *</Label>
+                              <Label>Data de Nascimento</Label>
                               <Input type="date" value={form.birth_date} onChange={(e) => setForm({...form, birth_date: e.target.value})} />
                               {form.birth_date && <p className="text-sm text-slate-500 mt-1">Idade: {calculateAge(form.birth_date)} anos</p>}
                             </div>
                             <div>
-                              <Label>CPF (opcional)</Label>
+                              <Label>CPF</Label>
                               <Input value={form.cpf} onChange={(e) => setForm({...form, cpf: e.target.value})} placeholder="000.000.000-00" />
                             </div>
                             <div>
-                              <Label>RG (opcional)</Label>
+                              <Label>RG</Label>
                               <Input value={form.rg} onChange={(e) => setForm({...form, rg: e.target.value})} />
                             </div>
                             <div>
-                              <Label>Estado Civil *</Label>
+                              <Label>Estado Civil</Label>
                               <Select value={form.marital_status} onValueChange={(v) => setForm({...form, marital_status: v})}>
                                 <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                                 <SelectContent>
@@ -817,15 +846,15 @@ export default function ProfessionalResume() {
                               </Select>
                             </div>
                             <div>
-                              <Label>Nacionalidade *</Label>
+                              <Label>Nacionalidade</Label>
                               <Input value={form.nationality} onChange={(e) => setForm({...form, nationality: e.target.value})} />
                             </div>
                             <div>
-                              <Label>Telefone (WhatsApp) *</Label>
+                              <Label>Telefone (WhatsApp)</Label>
                               <Input value={form.phone_whatsapp} onChange={(e) => setForm({...form, phone_whatsapp: e.target.value})} placeholder="(00) 00000-0000" />
                             </div>
                             <div>
-                              <Label>E-mail *</Label>
+                              <Label>E-mail</Label>
                               <Input type="email" value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} />
                             </div>
                           </div>
@@ -833,27 +862,27 @@ export default function ProfessionalResume() {
                           <h4 className="font-medium text-slate-700 mt-6">Endereço</h4>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="md:col-span-2">
-                              <Label>Rua *</Label>
+                              <Label>Rua</Label>
                               <Input value={form.address_street} onChange={(e) => setForm({...form, address_street: e.target.value})} />
                             </div>
                             <div>
-                              <Label>Número *</Label>
+                              <Label>Número</Label>
                               <Input value={form.address_number} onChange={(e) => setForm({...form, address_number: e.target.value})} />
                             </div>
                             <div>
-                              <Label>Bairro *</Label>
+                              <Label>Bairro</Label>
                               <Input value={form.address_neighborhood} onChange={(e) => setForm({...form, address_neighborhood: e.target.value})} />
                             </div>
                             <div>
-                              <Label>Cidade *</Label>
+                              <Label>Cidade</Label>
                               <Input value={form.address_city} onChange={(e) => setForm({...form, address_city: e.target.value})} />
                             </div>
                             <div>
-                              <Label>Estado *</Label>
+                              <Label>Estado</Label>
                               <Input value={form.address_state} onChange={(e) => setForm({...form, address_state: e.target.value})} />
                             </div>
                             <div>
-                              <Label>CEP *</Label>
+                              <Label>CEP</Label>
                               <Input value={form.address_cep} onChange={(e) => setForm({...form, address_cep: e.target.value})} placeholder="00000-000" />
                             </div>
                           </div>
@@ -873,7 +902,7 @@ export default function ProfessionalResume() {
                             Objetivo e Resumo Profissional
                           </h3>
                           <div>
-                            <Label>Objetivo Profissional *</Label>
+                            <Label>Objetivo Profissional</Label>
                             <Textarea 
                               value={form.professional_objective} 
                               onChange={(e) => setForm({...form, professional_objective: e.target.value})}
@@ -882,7 +911,7 @@ export default function ProfessionalResume() {
                             />
                           </div>
                           <div>
-                            <Label>Resumo Profissional *</Label>
+                            <Label>Resumo Profissional</Label>
                             <Textarea 
                               value={form.professional_summary} 
                               onChange={(e) => setForm({...form, professional_summary: e.target.value})}
@@ -1244,11 +1273,23 @@ export default function ProfessionalResume() {
 
                           <div className="border-t pt-4 mt-4">
                             <Label>Upload do Currículo (PDF/Word)</Label>
-                            <Input type="file" accept=".pdf,.doc,.docx" onChange={handleUploadResume} className="mt-1" />
+                            <div className="flex items-center gap-3 mt-1">
+                              <Input 
+                                type="file" 
+                                accept=".pdf,.doc,.docx" 
+                                onChange={handleUploadResume} 
+                                disabled={isUploadingResume}
+                                className="flex-1"
+                              />
+                              {isUploadingResume && <Loader2 className="w-5 h-5 animate-spin text-[#0056ff]" />}
+                            </div>
                             {form.resume_file_url && (
-                              <a href={form.resume_file_url} target="_blank" className="text-[#0056ff] text-sm mt-2 inline-block">
-                                Ver arquivo enviado
-                              </a>
+                              <div className="flex items-center gap-2 mt-2">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <a href={form.resume_file_url} target="_blank" rel="noopener noreferrer" className="text-[#0056ff] text-sm hover:underline">
+                                  Ver arquivo enviado
+                                </a>
+                              </div>
                             )}
                           </div>
                         </div>
