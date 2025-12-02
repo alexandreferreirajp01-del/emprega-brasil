@@ -11,7 +11,29 @@ export default function FloatingButtons() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [sending, setSending] = useState(false);
+  const [hideChat, setHideChat] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Esconder chat em páginas específicas
+  useEffect(() => {
+    const checkPage = () => {
+      const path = window.location.pathname;
+      const isResumePage = path.includes('ProfessionalResume');
+      setHideChat(isResumePage);
+    };
+    
+    checkPage();
+    window.addEventListener('popstate', checkPage);
+    
+    // Observer para mudanças de URL (SPA)
+    const observer = new MutationObserver(checkPage);
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    return () => {
+      window.removeEventListener('popstate', checkPage);
+      observer.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -113,7 +135,7 @@ Mensagem: ${userMessage}`
   return (
     <>
       {/* Botão Chat */}
-      {canUseChat && (
+      {canUseChat && !hideChat && (
         <button
           onClick={() => setChatOpen(!chatOpen)}
           className="fixed bottom-20 md:bottom-6 right-4 z-40 w-14 h-14 bg-[#0056ff] hover:bg-[#0044cc] rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110"
@@ -124,7 +146,7 @@ Mensagem: ${userMessage}`
       )}
 
       {/* Chat Window */}
-      {chatOpen && canUseChat && (
+      {chatOpen && canUseChat && !hideChat && (
         <div className="fixed bottom-36 md:bottom-24 right-4 z-40 w-[calc(100%-2rem)] md:w-96 max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
             {/* Header */}
             <div className="bg-[#0056ff] p-4 text-white">
