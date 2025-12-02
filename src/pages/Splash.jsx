@@ -4,19 +4,11 @@ import { base44 } from "@/api/base44Client";
 import { Loader2 } from "lucide-react";
 
 const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 horas em ms
-const OFFICIAL_DOMAIN = 'vagasabertasparaiba.info';
 
 export default function Splash() {
   const [status, setStatus] = useState('loading');
 
   useEffect(() => {
-    // Redirecionar para o domínio oficial se estiver no domínio antigo
-    const currentHost = window.location.hostname;
-    if (currentHost.includes('base44.app') && !currentHost.includes('localhost')) {
-      window.location.href = `https://${OFFICIAL_DOMAIN}${window.location.pathname}${window.location.search}`;
-      return;
-    }
-
     const checkSession = async () => {
       const lastLogin = localStorage.getItem('vagas_abertas_last_login');
       const visitorMode = localStorage.getItem('vagas_abertas_visitor_mode');
