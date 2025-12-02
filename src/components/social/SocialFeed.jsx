@@ -112,11 +112,15 @@ export default function SocialFeed({ user, feedType = "all" }) {
           <h3 className="text-lg font-semibold text-slate-600 mb-2">
             {feedType === 'following' ? 'Seu feed está vazio' : 'Nenhuma publicação ainda'}
           </h3>
-          <p className="text-slate-500">
+          <p className="text-slate-500 mb-4">
             {feedType === 'following' 
               ? 'Siga outros profissionais para ver suas publicações aqui'
               : 'Seja o primeiro a publicar algo!'}
           </p>
+          <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Atualizar
+          </Button>
         </CardContent>
       </Card>
     );
@@ -135,7 +139,7 @@ export default function SocialFeed({ user, feedType = "all" }) {
             user={user}
             likesCount={postLikes.length}
             userLiked={userLiked}
-            onRefresh={refetch}
+            onRefresh={handleRefresh}
           />
         );
       })}
