@@ -56,47 +56,42 @@ export default function Profile() {
   const { data: followers = [] } = useQuery({
     queryKey: ['my-followers', user?.email],
     queryFn: async () => {
-      try {
-        // Filtrar apenas seguidores aceitos
-        const allFollows = await base44.entities.Follow.filter({ following_email: user.email }) || [];
-        return allFollows.filter(f => f.status === 'accepted');
-      } catch (e) {
-        return [];
-      }
+      const allFollows = await base44.entities.Follow.filter({ following_email: user.email });
+      if (!allFollows) return [];
+      return allFollows.filter(f => f.status === 'accepted');
     },
     enabled: !!user?.email,
-    staleTime: 10000,
-    refetchOnMount: true,
+    staleTime: 60000,
+    gcTime: 300000,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const { data: following = [] } = useQuery({
     queryKey: ['my-following', user?.email],
     queryFn: async () => {
-      try {
-        // Filtrar apenas quem está seguindo com status aceito
-        const allFollows = await base44.entities.Follow.filter({ follower_email: user.email }) || [];
-        return allFollows.filter(f => f.status === 'accepted');
-      } catch (e) {
-        return [];
-      }
+      const allFollows = await base44.entities.Follow.filter({ follower_email: user.email });
+      if (!allFollows) return [];
+      return allFollows.filter(f => f.status === 'accepted');
     },
     enabled: !!user?.email,
-    staleTime: 10000,
-    refetchOnMount: true,
+    staleTime: 60000,
+    gcTime: 300000,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   // Buscar todos os usuários para mostrar nas listas
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users-profile'],
     queryFn: async () => {
-      try {
-        return await base44.entities.User.list('-created_date', 500) || [];
-      } catch (e) {
-        return [];
-      }
+      const result = await base44.entities.User.list('-created_date', 500);
+      return result || [];
     },
     enabled: !!user?.email,
-    staleTime: 30000,
+    staleTime: 120000,
+    gcTime: 600000,
+    retry: 3,
   });
 
   const handlePhotoChange = async (e) => {

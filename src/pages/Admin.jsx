@@ -22,7 +22,6 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
-import PremiumCodesManager from "@/components/admin/PremiumCodesManager";
 import PaymentsManager from "@/components/admin/PaymentsManager";
 import ChatManager from "@/components/admin/ChatManager";
 import SocialAdminPanel from "@/components/admin/SocialAdminPanel";
@@ -94,73 +93,69 @@ export default function Admin() {
   const { data: jobs = [] } = useQuery({
     queryKey: ['admin-jobs'],
     queryFn: async () => {
-      try {
-        return await base44.entities.Job.list('-created_date', 500) || [];
-      } catch (e) {
-        console.error('Erro ao carregar vagas:', e);
-        return [];
-      }
+      const result = await base44.entities.Job.list('-created_date', 500);
+      return result || [];
     },
+    staleTime: 120000,
+    gcTime: 600000,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const { data: cities = [] } = useQuery({
     queryKey: ['cities'],
     queryFn: async () => {
-      try {
-        return await base44.entities.City.list('name', 500) || [];
-      } catch (e) {
-        console.error('Erro ao carregar cidades:', e);
-        return [];
-      }
+      const result = await base44.entities.City.list('name', 500);
+      return result || [];
     },
+    staleTime: 300000,
+    gcTime: 600000,
+    retry: 3,
   });
 
   const { data: users = [] } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      try {
-        return await base44.entities.User.list('-created_date', 500) || [];
-      } catch (e) {
-        console.error('Erro ao carregar usuários:', e);
-        return [];
-      }
+      const result = await base44.entities.User.list('-created_date', 500);
+      return result || [];
     },
+    staleTime: 120000,
+    gcTime: 600000,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const { data: posts = [] } = useQuery({
     queryKey: ['admin-posts'],
     queryFn: async () => {
-      try {
-        return await base44.entities.Post.list('-created_date', 500) || [];
-      } catch (e) {
-        console.error('Erro ao carregar posts:', e);
-        return [];
-      }
+      const result = await base44.entities.Post.list('-created_date', 500);
+      return result || [];
     },
+    staleTime: 120000,
+    gcTime: 600000,
+    retry: 3,
   });
 
   const { data: comments = [] } = useQuery({
     queryKey: ['admin-comments'],
     queryFn: async () => {
-      try {
-        return await base44.entities.Comment.list('-created_date', 500) || [];
-      } catch (e) {
-        console.error('Erro ao carregar comentários:', e);
-        return [];
-      }
+      const result = await base44.entities.Comment.list('-created_date', 500);
+      return result || [];
     },
+    staleTime: 120000,
+    gcTime: 600000,
+    retry: 3,
   });
 
   const { data: newsList = [] } = useQuery({
     queryKey: ['admin-news'],
     queryFn: async () => {
-      try {
-        return await base44.entities.News.list('-created_date', 100) || [];
-      } catch (e) {
-        console.error('Erro ao carregar notícias:', e);
-        return [];
-      }
+      const result = await base44.entities.News.list('-created_date', 100);
+      return result || [];
     },
+    staleTime: 120000,
+    gcTime: 600000,
+    retry: 3,
   });
 
   const deleteJobMutation = useMutation({
@@ -959,10 +954,6 @@ export default function Admin() {
                     </Badge>
                   )}
                 </TabsTrigger>
-                <TabsTrigger value="codes" className="rounded-lg">
-                  <Key className="w-4 h-4 mr-2" />
-                  Códigos
-                </TabsTrigger>
                 <TabsTrigger value="payments" className="rounded-lg">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Pagamentos
@@ -1135,11 +1126,6 @@ export default function Admin() {
                     </ScrollArea>
                   </CardContent>
                 </Card>
-              </TabsContent>
-
-              {/* Codes Sub-Tab */}
-              <TabsContent value="codes">
-                <PremiumCodesManager showToast={showToast} />
               </TabsContent>
 
               {/* Payments Sub-Tab */}

@@ -48,24 +48,26 @@ export default function JobDetail() {
     queryKey: ['job', jobId],
     queryFn: async () => {
       const jobs = await base44.entities.Job.filter({ id: jobId });
-      return jobs[0];
+      return jobs?.[0] || null;
     },
     enabled: !!jobId,
+    staleTime: 60000,
+    gcTime: 300000,
+    retry: 3,
+    retryDelay: 1000,
   });
 
-  // Buscar visualizações da vaga - tempo real
+  // Buscar visualizações da vaga
   const { data: viewsData = [] } = useQuery({
     queryKey: ['job-views', jobId],
     queryFn: async () => {
-      try {
-        return await base44.entities.JobView.filter({ job_id: jobId }) || [];
-      } catch (e) {
-        return [];
-      }
+      const result = await base44.entities.JobView.filter({ job_id: jobId });
+      return result || [];
     },
     enabled: !!jobId,
-    refetchInterval: 5000, // Atualiza a cada 5 segundos
-    staleTime: 3000,
+    staleTime: 60000,
+    gcTime: 300000,
+    retry: 2,
   });
 
   const viewCount = viewsData.length;
