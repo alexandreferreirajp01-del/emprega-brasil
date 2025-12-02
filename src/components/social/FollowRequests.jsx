@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,6 +11,7 @@ import PlanBadge from "./PlanBadge";
 
 export default function FollowRequests({ user }) {
   const queryClient = useQueryClient();
+  const [processingIds, setProcessingIds] = useState([]);
 
   // Fetch pending follow requests for me
   const { data: pendingRequests = [], isLoading } = useQuery({
@@ -27,6 +28,8 @@ export default function FollowRequests({ user }) {
       }
     },
     enabled: !!user,
+    staleTime: 5000,
+    refetchOnMount: true,
   });
 
   // Fetch users data
@@ -34,15 +37,17 @@ export default function FollowRequests({ user }) {
     queryKey: ['all-users-requests'],
     queryFn: async () => {
       try {
-        return await base44.entities.User.list('-created_date', 200) || [];
+        return await base44.entities.User.list('-created_date', 500) || [];
       } catch (e) {
         return [];
       }
     },
+    staleTime: 30000,
   });
 
-  const respondMutation = useMutation({
-    mutationFn: async ({ requestId, accept, followerEmail }) => {
+  const handleRespond = async (requestId, accept, followerEmail) => {
+    setProcessingIds(prev => [...prev, requestId]);
+    try {
       await base44.entities.Follow.update(requestId, { 
         status: accept ? 'accepted' : 'rejected' 
       });
@@ -58,13 +63,17 @@ export default function FollowRequests({ user }) {
           message: `${user.full_name || 'Alguém'} aceitou sua solicitação de seguir`
         });
       }
-    },
-    onSuccess: () => {
+      
       queryClient.invalidateQueries({ queryKey: ['pending-follow-requests'] });
       queryClient.invalidateQueries({ queryKey: ['profile-followers'] });
       queryClient.invalidateQueries({ queryKey: ['my-connections'] });
-    },
-  });
+      queryClient.invalidateQueries({ queryKey: ['my-followers'] });
+    } catch (e) {
+      console.error('Erro ao responder solicitação:', e);
+    } finally {
+      setProcessingIds(prev => prev.filter(id => id !== requestId));
+    }
+  };
 
   if (isLoading) {
     return null;
@@ -105,31 +114,31 @@ export default function FollowRequests({ user }) {
                 </div>
                 <p className="text-xs text-slate-500">quer seguir você</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-shrink-0">
                 <Button
                   size="icon"
                   variant="outline"
-                  onClick={() => respondMutation.mutate({ 
-                    requestId: request.id, 
-                    accept: false,
-                    followerEmail: request.follower_email
-                  })}
-                  disabled={respondMutation.isPending}
+                  onClick={() => handleRespond(request.id, false, request.follower_email)}
+                  disabled={processingIds.includes(request.id)}
                   className="h-8 w-8 rounded-full border-red-200 text-red-600 hover:bg-red-50"
                 >
-                  <X className="w-4 h-4" />
+                  {processingIds.includes(request.id) ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <X className="w-4 h-4" />
+                  )}
                 </Button>
                 <Button
                   size="icon"
-                  onClick={() => respondMutation.mutate({ 
-                    requestId: request.id, 
-                    accept: true,
-                    followerEmail: request.follower_email
-                  })}
-                  disabled={respondMutation.isPending}
+                  onClick={() => handleRespond(request.id, true, request.follower_email)}
+                  disabled={processingIds.includes(request.id)}
                   className="h-8 w-8 rounded-full bg-green-600 hover:bg-green-700"
                 >
-                  <Check className="w-4 h-4" />
+                  {processingIds.includes(request.id) ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
                 </Button>
               </div>
             </div>

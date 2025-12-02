@@ -46,8 +46,10 @@ export default function Home() {
         return [];
       }
     },
-    refetchInterval: 10000, // Atualiza em tempo real a cada 10 segundos
-    staleTime: 5000,
+    refetchInterval: 15000,
+    staleTime: 10000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const { data: allViews = [] } = useQuery({
@@ -81,8 +83,10 @@ export default function Home() {
         return [];
       }
     },
-    refetchInterval: 15000, // Atualiza em tempo real
-    staleTime: 10000,
+    refetchInterval: 30000,
+    staleTime: 15000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const { data: posts = [] } = useQuery({
@@ -94,8 +98,10 @@ export default function Home() {
         return [];
       }
     },
-    refetchInterval: 15000, // Atualiza em tempo real
-    staleTime: 10000,
+    refetchInterval: 30000,
+    staleTime: 15000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
 

@@ -57,24 +57,32 @@ export default function Profile() {
     queryKey: ['my-followers', user?.email],
     queryFn: async () => {
       try {
-        return await base44.entities.Follow.filter({ following_email: user.email }) || [];
+        // Filtrar apenas seguidores aceitos
+        const allFollows = await base44.entities.Follow.filter({ following_email: user.email }) || [];
+        return allFollows.filter(f => f.status === 'accepted');
       } catch (e) {
         return [];
       }
     },
     enabled: !!user?.email,
+    staleTime: 10000,
+    refetchOnMount: true,
   });
 
   const { data: following = [] } = useQuery({
     queryKey: ['my-following', user?.email],
     queryFn: async () => {
       try {
-        return await base44.entities.Follow.filter({ follower_email: user.email }) || [];
+        // Filtrar apenas quem está seguindo com status aceito
+        const allFollows = await base44.entities.Follow.filter({ follower_email: user.email }) || [];
+        return allFollows.filter(f => f.status === 'accepted');
       } catch (e) {
         return [];
       }
     },
     enabled: !!user?.email,
+    staleTime: 10000,
+    refetchOnMount: true,
   });
 
   // Buscar todos os usuários para mostrar nas listas
@@ -88,6 +96,7 @@ export default function Profile() {
       }
     },
     enabled: !!user?.email,
+    staleTime: 30000,
   });
 
   const handlePhotoChange = async (e) => {
@@ -403,12 +412,12 @@ export default function Profile() {
 
       {/* Followers Dialog */}
       <Dialog open={showFollowers} onOpenChange={setShowFollowers}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>Seguidores ({followers.length})</DialogTitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[400px]">
-            <div className="space-y-3">
+          <ScrollArea className="max-h-[60vh] pr-2">
+            <div className="space-y-2">
               {followers.length === 0 ? (
                 <p className="text-center text-slate-500 py-4">Nenhum seguidor ainda</p>
               ) : (
@@ -419,20 +428,20 @@ export default function Profile() {
                       key={follow.id}
                       to={`${createPageUrl('SocialProfile')}?email=${follow.follower_email}`}
                       onClick={() => setShowFollowers(false)}
-                      className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg"
+                      className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl border border-slate-100"
                     >
-                      <Avatar className="w-10 h-10">
+                      <Avatar className="w-11 h-11 flex-shrink-0">
                         <AvatarImage src={followerUser?.profile_photo} />
-                        <AvatarFallback className="bg-[#0056ff] text-white">
+                        <AvatarFallback className="bg-[#0056ff] text-white text-sm">
                           {followerUser?.full_name?.[0] || '?'}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm">{followerUser?.full_name || 'Usuário'}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium text-sm text-slate-800 truncate">{followerUser?.full_name || 'Usuário'}</p>
                           <PlanBadge user={followerUser} />
                         </div>
-                        <p className="text-xs text-slate-500">{followerUser?.email}</p>
+                        <p className="text-xs text-slate-500 truncate">{followerUser?.email}</p>
                       </div>
                     </Link>
                   );
@@ -445,12 +454,12 @@ export default function Profile() {
 
       {/* Following Dialog */}
       <Dialog open={showFollowing} onOpenChange={setShowFollowing}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>Seguindo ({following.length})</DialogTitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[400px]">
-            <div className="space-y-3">
+          <ScrollArea className="max-h-[60vh] pr-2">
+            <div className="space-y-2">
               {following.length === 0 ? (
                 <p className="text-center text-slate-500 py-4">Não está seguindo ninguém</p>
               ) : (
@@ -461,20 +470,20 @@ export default function Profile() {
                       key={follow.id}
                       to={`${createPageUrl('SocialProfile')}?email=${follow.following_email}`}
                       onClick={() => setShowFollowing(false)}
-                      className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg"
+                      className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl border border-slate-100"
                     >
-                      <Avatar className="w-10 h-10">
+                      <Avatar className="w-11 h-11 flex-shrink-0">
                         <AvatarImage src={followingUser?.profile_photo} />
-                        <AvatarFallback className="bg-[#0056ff] text-white">
+                        <AvatarFallback className="bg-[#0056ff] text-white text-sm">
                           {followingUser?.full_name?.[0] || '?'}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm">{followingUser?.full_name || 'Usuário'}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium text-sm text-slate-800 truncate">{followingUser?.full_name || 'Usuário'}</p>
                           <PlanBadge user={followingUser} />
                         </div>
-                        <p className="text-xs text-slate-500">{followingUser?.email}</p>
+                        <p className="text-xs text-slate-500 truncate">{followingUser?.email}</p>
                       </div>
                     </Link>
                   );
