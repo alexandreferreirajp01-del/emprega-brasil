@@ -1,66 +1,84 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Users, UserPlus, Loader2, TrendingUp } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import PlanBadge from "./PlanBadge";
 
+// Função de fetch com retry robusto
+async function fetchWithRetry(fetchFn, maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const result = await fetchFn();
+      if (result && result.length >= 0) {
+        return result;
+      }
+    } catch (error) {
+      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
+    }
+    if (attempt < maxRetries - 1) {
+      await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
+    }
+  }
+  return [];
+}
+
 export default function PopularProfiles({ user }) {
-  const queryClient = useQueryClient();
+  const [profiles, setProfiles] = useState([]);
+  const [myFollows, setMyFollows] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
 
-  const { data: profiles = [], isLoading } = useQuery({
-    queryKey: ['popular-profiles'],
-    queryFn: async () => {
-      try {
-        return await base44.entities.UserProfile.list('-followers_count', 10) || [];
-      } catch (e) {
-        return [];
-      }
-    },
-  });
+  useEffect(() => {
+    let isMounted = true;
 
-  const { data: myFollows = [] } = useQuery({
-    queryKey: ['my-follows', user?.email],
-    queryFn: async () => {
-      if (!user) return [];
-      try {
-        return await base44.entities.Follow.filter({ follower_email: user.email }) || [];
-      } catch (e) {
-        return [];
-      }
-    },
-    enabled: !!user,
-  });
+    const loadData = async () => {
+      setIsLoading(true);
+      
+      const [profilesResult, usersResult, followsResult] = await Promise.all([
+        fetchWithRetry(() => base44.entities.UserProfile.list('-followers_count', 10)),
+        fetchWithRetry(() => base44.entities.User.list('-created_date', 100)),
+        user ? fetchWithRetry(() => base44.entities.Follow.list('-created_date', 500)) : Promise.resolve([])
+      ]);
 
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ['all-users-basic'],
-    queryFn: async () => {
-      try {
-        return await base44.entities.User.list('-created_date', 100) || [];
-      } catch (e) {
-        return [];
+      if (isMounted) {
+        setProfiles(profilesResult);
+        setAllUsers(usersResult);
+        // Filtrar follows do usuário atual
+        const userFollows = followsResult.filter(f => f.follower_email === user?.email);
+        setMyFollows(userFollows);
+        setIsLoading(false);
       }
-    },
-  });
+    };
+
+    loadData();
+
+    return () => { isMounted = false; };
+  }, [user?.email]);
 
   const followingEmails = myFollows.map(f => f.following_email);
 
-  const followMutation = useMutation({
-    mutationFn: async (targetEmail) => {
+  const handleFollow = async (targetEmail) => {
+    if (isFollowing) return;
+    setIsFollowing(true);
+    
+    try {
       const existingFollow = myFollows.find(f => f.following_email === targetEmail);
       
       if (existingFollow) {
         await base44.entities.Follow.delete(existingFollow.id);
+        setMyFollows(prev => prev.filter(f => f.id !== existingFollow.id));
       } else {
-        await base44.entities.Follow.create({
+        const newFollow = await base44.entities.Follow.create({
           follower_email: user.email,
           following_email: targetEmail,
           status: 'pending'
         });
+        setMyFollows(prev => [...prev, newFollow]);
 
         await base44.entities.SocialNotification.create({
           user_email: targetEmail,
@@ -71,11 +89,12 @@ export default function PopularProfiles({ user }) {
           message: `${user.full_name || 'Alguém'} solicitou seguir você`
         });
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['my-follows'] });
-    },
-  });
+    } catch (e) {
+      console.warn('Erro ao seguir:', e);
+    } finally {
+      setIsFollowing(false);
+    }
+  };
 
   // Combinar perfis com dados de usuário
   const enrichedProfiles = profiles
@@ -146,9 +165,9 @@ export default function PopularProfiles({ user }) {
                 </Link>
                 <Button
                   size="sm"
-                  variant={isFollowing ? 'outline' : 'default'}
-                  onClick={() => followMutation.mutate(profile.user_email)}
-                  disabled={followMutation.isPending}
+                  variant={followingEmails.includes(profile.user_email) ? 'outline' : 'default'}
+                  onClick={() => handleFollow(profile.user_email)}
+                  disabled={isFollowing}
                   className="rounded-full h-8"
                 >
                   {(() => {
