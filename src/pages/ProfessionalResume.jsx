@@ -158,7 +158,12 @@ export default function ProfessionalResume() {
                              user?.email === 'alexandreferreirajp01@gmail.com';
   
   const isPremium = user?.subscription_type === 'premium';
-  const canAccess = isPremium || isRecruiterOrAdmin;
+  
+  // Premium pode preencher/editar currículo
+  // Recrutador/Admin podem apenas visualizar e baixar
+  const canFillResume = isPremium;
+  const canViewResumes = isRecruiterOrAdmin;
+  const canAccess = canFillResume || canViewResumes;
 
   const handleSave = async () => {
     if (!isPremium) return; // Só premium pode salvar
@@ -524,7 +529,7 @@ export default function ProfessionalResume() {
               <Lock className="w-16 h-16 text-[#0056ff] mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Função Exclusiva para Usuários Premium</h2>
               <p className="text-slate-600 mb-6">
-                O Currículo Profissional é exclusivo para assinantes Premium.
+                O formulário de Currículo Profissional é exclusivo para assinantes Premium.
               </p>
               <Link to={createPageUrl('Subscription')}>
                 <Button size="lg" className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl px-8">
@@ -539,8 +544,8 @@ export default function ProfessionalResume() {
     );
   }
 
-  // ========== MODO VISUALIZAÇÃO PARA RECRUTADOR/ADMIN ==========
-  if (viewMode && isRecruiterOrAdmin) {
+  // Recrutador/Admin: apenas modo visualização (sem formulário)
+  if (canViewResumes && !canFillResume) {
     const filteredResumes = allResumes.filter(r => 
       r.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -670,6 +675,8 @@ export default function ProfessionalResume() {
       </div>
     );
   }
+
+
 
   // ========== MODO FORMULÁRIO PARA PREMIUM ==========
   const sections = [
