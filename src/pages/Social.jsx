@@ -111,6 +111,7 @@ export default function Social() {
     user.subscription_type === 'premium' || 
     user.subscription_type === 'admin' || 
     user.subscription_type === 'basic' ||
+    user.subscription_type === 'recruiter' ||
     user.role === 'admin'
   );
 
@@ -155,9 +156,9 @@ export default function Social() {
     );
   }
 
-  // Get following emails
+  // Get following emails (agora todos são aceitos automaticamente)
   const myFollows = follows.filter(f => f.follower_email === user.email);
-  const followingEmails = myFollows.filter(f => f.status === 'accepted' || f.status === 'pending').map(f => f.following_email);
+  const followingEmails = myFollows.map(f => f.following_email);
   const unreadNotifications = notifications.filter(n => !n.is_read);
 
   // Filter posts for feed
@@ -439,77 +440,10 @@ function PostCard({ post, user, allUsers, likes, comments, onRefresh }) {
   );
 }
 
-// Follow Requests Section
+// Follow Requests Section - Removido pois agora segue diretamente
 function FollowRequestsSection({ user, follows, allUsers, onRefresh }) {
-  const [processing, setProcessing] = useState([]);
-  
-  const pendingRequests = follows.filter(f => 
-    f.following_email === user.email && f.status === 'pending'
-  );
-
-  if (pendingRequests.length === 0) return null;
-
-  const handleRespond = async (requestId, accept, followerEmail) => {
-    setProcessing(prev => [...prev, requestId]);
-    try {
-      await base44.entities.Follow.update(requestId, { 
-        status: accept ? 'accepted' : 'rejected' 
-      });
-      onRefresh();
-    } catch (e) {
-      console.warn('Erro:', e);
-    }
-    setProcessing(prev => prev.filter(id => id !== requestId));
-  };
-
-  return (
-    <Card className="rounded-xl border-amber-200 bg-amber-50">
-      <CardContent className="p-4">
-        <h3 className="font-semibold flex items-center gap-2 mb-3">
-          <UserPlus className="w-5 h-5 text-amber-600" />
-          Solicitações ({pendingRequests.length})
-        </h3>
-        <div className="space-y-3">
-          {pendingRequests.map(req => {
-            const requester = allUsers.find(u => u.email === req.follower_email);
-            return (
-              <div key={req.id} className="flex items-center gap-3 bg-white p-3 rounded-xl">
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src={requester?.profile_photo} />
-                  <AvatarFallback className="bg-[#0056ff] text-white">
-                    {requester?.full_name?.[0] || '?'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{requester?.full_name || 'Usuário'}</p>
-                  <p className="text-xs text-slate-500">quer seguir você</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleRespond(req.id, false, req.follower_email)}
-                    disabled={processing.includes(req.id)}
-                    className="h-8 text-red-600"
-                  >
-                    Recusar
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleRespond(req.id, true, req.follower_email)}
-                    disabled={processing.includes(req.id)}
-                    className="h-8 bg-green-600 hover:bg-green-700"
-                  >
-                    Aceitar
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
-  );
+  // Não há mais solicitações pendentes - segue diretamente
+  return null;
 }
 
 // Users Section
@@ -528,10 +462,21 @@ function UsersSection({ user, allUsers, profiles, myFollows, onRefresh }) {
       if (existing) {
         await base44.entities.Follow.delete(existing.id);
       } else {
+        // Seguir diretamente sem aprovação
         await base44.entities.Follow.create({
           follower_email: user.email,
           following_email: targetEmail,
-          status: 'pending'
+          status: 'accepted'
+        });
+        
+        // Notificar
+        await base44.entities.SocialNotification.create({
+          user_email: targetEmail,
+          from_email: user.email,
+          from_name: user.full_name,
+          from_photo: user.profile_photo,
+          type: 'follow',
+          message: `${user.full_name || 'Alguém'} começou a seguir você`
         });
       }
       onRefresh();
@@ -574,8 +519,7 @@ function UsersSection({ user, allUsers, profiles, myFollows, onRefresh }) {
                   disabled={isFollowing}
                   className="rounded-full h-8"
                 >
-                  {follow?.status === 'pending' ? 'Pendente' : 
-                   follow?.status === 'accepted' ? 'Seguindo' : 'Seguir'}
+                  {follow ? 'Seguindo' : 'Seguir'}
                 </Button>
               </div>
             );
