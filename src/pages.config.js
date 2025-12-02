@@ -26,6 +26,8 @@ import SocialProfile from './pages/SocialProfile';
 import PostDetail from './pages/PostDetail';
 import ActivateBasic from './pages/ActivateBasic';
 import Messages from './pages/Messages';
+import ProfessionalResume from './pages/ProfessionalResume';
+import Inbox from './pages/Inbox';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +60,8 @@ export const PAGES = {
     "PostDetail": PostDetail,
     "ActivateBasic": ActivateBasic,
     "Messages": Messages,
+    "ProfessionalResume": ProfessionalResume,
+    "Inbox": Inbox,
 }
 
 export const pagesConfig = {
