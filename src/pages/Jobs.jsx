@@ -5,14 +5,30 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye, Share2, RefreshCw, Loader2
+  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart
 } from "lucide-react";
-import FavoriteButton from "@/components/jobs/FavoriteButton";
-import ShareJobDialog from "@/components/jobs/ShareJobDialog";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-
 import { base44 } from "@/api/base44Client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const CIDADES_PB = [
   "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
@@ -58,21 +74,6 @@ const CIDADES_PB = [
   "Tacima", "Taperoá", "Tavares", "Teixeira", "Tenório", "Triunfo", "Uiraúna",
   "Umbuzeiro", "Várzea", "Vieirópolis", "Vista Serrana", "Zabelê"
 ];
-import TimeAgo, { getTimeAgo } from "@/components/common/TimeAgo";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 
 const JOB_FUNCTIONS = [
   "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
@@ -97,26 +98,32 @@ const JOB_FUNCTIONS = [
   "Carregador", "Estoquista", "Logística", "Panfletista", "Outros"
 ];
 
-// Função de fetch com retry robusto
-async function fetchJobsWithRetry(maxRetries = 5) {
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
+// Função de fetch robusta
+async function safeFetch(fetchFn, fallback = []) {
+  for (let i = 0; i < 3; i++) {
     try {
-      const result = await base44.entities.Job.list('-created_date', 1000);
-      if (result && result.length > 0) {
-        return result;
-      }
-      // Se retornou vazio, aguardar e tentar novamente
-      if (attempt < maxRetries - 1) {
-        await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
-      }
-    } catch (error) {
-      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
-      if (attempt < maxRetries - 1) {
-        await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
-      }
+      const result = await fetchFn();
+      return result || fallback;
+    } catch (e) {
+      if (i === 2) return fallback;
+      await new Promise(r => setTimeout(r, 500 * (i + 1)));
     }
   }
-  return [];
+  return fallback;
+}
+
+// Formatar tempo
+function getTimeAgo(dateStr) {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Agora';
+  if (mins < 60) return `${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d`;
+  return new Date(dateStr).toLocaleDateString('pt-BR');
 }
 
 export default function Jobs() {
@@ -128,12 +135,17 @@ export default function Jobs() {
   const [funcSearch, setFuncSearch] = useState('');
   const [cityOpen, setCityOpen] = useState(false);
   const [funcOpen, setFuncOpen] = useState(false);
+  
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
   const [jobs, setJobs] = useState([]);
+  const [views, setViews] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [shareJob, setShareJob] = useState(null);
 
+  // URL params
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const typeParam = urlParams.get('type');
@@ -142,6 +154,7 @@ export default function Jobs() {
     if (searchParam) setSearchTerm(searchParam);
   }, []);
 
+  // Auth check
   useEffect(() => {
     const checkAuth = async () => {
       const visitorMode = localStorage.getItem('vagas_abertas_visitor_mode');
@@ -149,7 +162,6 @@ export default function Jobs() {
         setIsVisitor(true);
         return;
       }
-      
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
@@ -160,60 +172,50 @@ export default function Jobs() {
     checkAuth();
   }, []);
 
-  // Buscar vagas com retry robusto
+  // Load data
   useEffect(() => {
-    let isMounted = true;
-    
-    const loadJobs = async () => {
+    let mounted = true;
+
+    const loadData = async () => {
       setIsLoading(true);
-      const result = await fetchJobsWithRetry();
       
-      if (isMounted) {
-        setJobs(result);
+      const [jobsData, viewsData, favoritesData] = await Promise.all([
+        safeFetch(() => base44.entities.Job.list('-created_date', 500)),
+        safeFetch(() => base44.entities.JobView.list('-created_date', 2000)),
+        user ? safeFetch(() => base44.entities.FavoriteJob.list('-created_date', 500)) : Promise.resolve([])
+      ]);
+
+      if (mounted) {
+        setJobs(jobsData);
+        setViews(viewsData);
+        setFavorites(favoritesData.filter(f => f.user_email === user?.email));
         setIsLoading(false);
       }
     };
-    
-    loadJobs();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [refreshKey]);
 
-  const handleRefresh = () => {
-    setRefreshKey(prev => prev + 1);
-  };
+    loadData();
+    return () => { mounted = false; };
+  }, [user, refreshKey]);
 
+  const handleRefresh = () => setRefreshKey(k => k + 1);
 
-
-  const [allViews, setAllViews] = useState([]);
-  
-  useEffect(() => {
-    const loadViews = async () => {
-      try {
-        const result = await base44.entities.JobView.list('-created_date', 5000);
-        setAllViews(result || []);
-      } catch (e) {
-        console.warn('Erro ao carregar views');
-      }
-    };
-    loadViews();
-  }, []);
-
-  const viewsCountMap = {};
-  allViews.forEach(v => {
-    viewsCountMap[v.job_id] = (viewsCountMap[v.job_id] || 0) + 1;
-  });
-
-  const userIsPremium = user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin' || user?.email === 'alexandreferreirajp01@gmail.com';
+  // Premium check
+  const userIsPremium = user?.subscription_type === 'premium' || 
+    user?.subscription_type === 'admin' || 
+    user?.role === 'admin';
 
   const canViewJob = (job) => {
     if (!job.is_premium) return true;
-    if (userIsPremium) return true;
-    return false;
+    return userIsPremium;
   };
 
+  // Views count map
+  const viewsCountMap = {};
+  views.forEach(v => {
+    viewsCountMap[v.job_id] = (viewsCountMap[v.job_id] || 0) + 1;
+  });
+
+  // Filter jobs
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = !searchTerm || 
       job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -229,7 +231,6 @@ export default function Jobs() {
     return matchesSearch && matchesCity && matchesType && matchesFunction;
   });
 
-  // Filtrar cidades pela busca
   const filteredCities = CIDADES_PB.filter(city =>
     city.toLowerCase().includes(citySearch.toLowerCase())
   );
@@ -244,6 +245,31 @@ export default function Jobs() {
   };
 
   const hasActiveFilters = searchTerm || selectedCity !== 'all' || selectedType !== 'all' || selectedFunction !== 'all';
+
+  // Handle favorite
+  const handleFavorite = async (job, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) return;
+
+    const existing = favorites.find(f => f.job_id === job.id);
+    try {
+      if (existing) {
+        await base44.entities.FavoriteJob.delete(existing.id);
+        setFavorites(prev => prev.filter(f => f.id !== existing.id));
+      } else {
+        const newFav = await base44.entities.FavoriteJob.create({
+          job_id: job.id,
+          user_email: user.email,
+          job_title: job.title,
+          job_company: job.company
+        });
+        setFavorites(prev => [...prev, newFav]);
+      }
+    } catch (e) {
+      console.warn('Erro ao favoritar:', e);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
@@ -267,13 +293,13 @@ export default function Jobs() {
             </Button>
           </div>
           
-          {/* Barra de Pesquisa Principal */}
+          {/* Search */}
           <div className="bg-white rounded-xl p-3 shadow-lg">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input
                 type="text"
-                placeholder="Pesquisar por cargo, empresa, cidade ou função..."
+                placeholder="Pesquisar por cargo, empresa, cidade..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="h-12 pl-12 pr-4 rounded-lg border-0 bg-slate-50 text-base w-full"
@@ -293,14 +319,14 @@ export default function Jobs() {
         </div>
       </div>
 
-      {/* Filtros */}
+      {/* Filters */}
       <div className="max-w-6xl mx-auto px-4 -mt-4">
         <Card className="shadow-lg rounded-xl">
           <CardContent className="p-4">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-slate-600">Filtrar por:</span>
+              <span className="text-sm font-medium text-slate-600">Filtrar:</span>
               
-              {/* Filtro Cidade com busca */}
+              {/* City filter */}
               <Popover open={cityOpen} onOpenChange={setCityOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-[180px] h-10 rounded-lg justify-start">
@@ -310,12 +336,7 @@ export default function Jobs() {
                     </span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent 
-                  className="w-[220px] p-0" 
-                  align="start"
-                  side="bottom"
-                  collisionPadding={{ top: 10, bottom: 200 }}
-                >
+                <PopoverContent className="w-[220px] p-0" align="start">
                   <Command>
                     <CommandInput 
                       placeholder="Buscar cidade..." 
@@ -354,7 +375,7 @@ export default function Jobs() {
                 </PopoverContent>
               </Popover>
 
-              {/* Filtro Tipo */}
+              {/* Type filter */}
               <Select value={selectedType} onValueChange={setSelectedType}>
                 <SelectTrigger className="w-[140px] h-10 rounded-lg">
                   <div className="flex items-center gap-2">
@@ -363,7 +384,7 @@ export default function Jobs() {
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos os tipos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="CLT">CLT</SelectItem>
                   <SelectItem value="Home Office">Home Office</SelectItem>
                   <SelectItem value="Estágio">Estágio</SelectItem>
@@ -375,7 +396,7 @@ export default function Jobs() {
                 </SelectContent>
               </Select>
 
-              {/* Filtro Função */}
+              {/* Function filter */}
               <Popover open={funcOpen} onOpenChange={setFuncOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-[160px] h-10 rounded-lg justify-start">
@@ -385,12 +406,7 @@ export default function Jobs() {
                     </span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent 
-                  className="w-[220px] p-0" 
-                  align="start"
-                  side="bottom"
-                  collisionPadding={{ top: 10, bottom: 200 }}
-                >
+                <PopoverContent className="w-[220px] p-0" align="start">
                   <Command>
                     <CommandInput 
                       placeholder="Buscar função..." 
@@ -438,7 +454,7 @@ export default function Jobs() {
                   onClick={clearFilters} 
                   className="text-red-500 hover:text-red-600 hover:bg-red-50"
                 >
-                  <X className="w-4 h-4 mr-1" /> Limpar filtros
+                  <X className="w-4 h-4 mr-1" /> Limpar
                 </Button>
               )}
             </div>
@@ -446,7 +462,7 @@ export default function Jobs() {
         </Card>
       </div>
 
-      {/* Resultados */}
+      {/* Results */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <p className="text-sm text-slate-500 mb-4">
           {filteredJobs.length} vaga{filteredJobs.length !== 1 ? 's' : ''} encontrada{filteredJobs.length !== 1 ? 's' : ''}
@@ -466,11 +482,63 @@ export default function Jobs() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredJobs.map((job) => (
-              <div key={job.id}>
-                <JobCard job={job} canView={canViewJob(job)} viewCount={viewsCountMap[job.id] || 0} user={user} />
-              </div>
-            ))}
+            {filteredJobs.map((job) => {
+              const canView = canViewJob(job);
+              const isFavorite = favorites.some(f => f.job_id === job.id);
+              const viewCount = viewsCountMap[job.id] || 0;
+
+              if (!canView) {
+                return (
+                  <Card key={job.id} className="overflow-hidden relative">
+                    <CardContent className="p-6">
+                      <JobCardContent job={job} viewCount={viewCount} />
+                    </CardContent>
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-purple-600 text-white px-2 py-1 rounded-md text-xs">
+                      <Lock className="w-3 h-3" />
+                    </div>
+                    <div className="absolute bottom-3 right-3 bg-purple-600 text-white px-2 py-1 rounded-md text-xs font-medium">
+                      Vaga Premium
+                    </div>
+                    <Link to={createPageUrl('Subscription')} className="absolute inset-0 z-10" />
+                  </Card>
+                );
+              }
+
+              return (
+                <Card key={job.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-[#0056ff]">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <Link to={createPageUrl('JobDetail') + `?id=${job.id}`} className="flex-1">
+                        <JobCardContent job={job} viewCount={viewCount} />
+                      </Link>
+                      <div className="flex flex-col gap-1 ml-3">
+                        {user && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => handleFavorite(job, e)}
+                            className={`h-8 w-8 rounded-full ${isFavorite ? 'text-red-500' : 'text-slate-400 hover:text-red-500'}`}
+                          >
+                            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setShareJob(job);
+                          }}
+                          className="h-8 w-8 rounded-full text-slate-400 hover:text-[#0056ff]"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
 
@@ -485,57 +553,10 @@ export default function Jobs() {
           </div>
         )}
       </div>
+
+      {/* Share Dialog */}
+      <ShareDialog job={shareJob} open={!!shareJob} onClose={() => setShareJob(null)} />
     </div>
-  );
-}
-
-function JobCard({ job, canView, viewCount = 0, user }) {
-  const [shareOpen, setShareOpen] = useState(false);
-  
-  if (!canView) {
-    return (
-      <Card className="overflow-hidden relative">
-        <CardContent className="p-6">
-          <JobCardContent job={job} viewCount={viewCount} />
-        </CardContent>
-        {/* Indicadores de vaga premium bloqueada */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-purple-600 text-white px-2 py-1 rounded-md text-xs">
-          <Lock className="w-3 h-3" />
-        </div>
-        <div className="absolute bottom-3 right-3 bg-purple-600 text-white px-2 py-1 rounded-md text-xs font-medium">
-          Vaga Premium
-        </div>
-        {/* Overlay clicável */}
-        <Link to={createPageUrl('Subscription')} className="absolute inset-0 z-10" />
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-[#0056ff]">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <Link to={createPageUrl('JobDetail') + `?id=${job.id}`} className="flex-1">
-            <JobCardContent job={job} viewCount={viewCount} />
-          </Link>
-          <div className="flex flex-col gap-1 ml-3">
-            <FavoriteButton job={job} user={user} size="sm" />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.preventDefault();
-                setShareOpen(true);
-              }}
-              className="h-8 w-8 rounded-full text-slate-400 hover:text-[#0056ff]"
-            >
-              <Share2 className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-      <ShareJobDialog open={shareOpen} onOpenChange={setShareOpen} job={job} />
-    </Card>
   );
 }
 
@@ -587,7 +608,7 @@ function JobCardContent({ job, viewCount }) {
       <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-1 text-right">
         <p className="text-sm text-slate-500 flex items-center gap-1">
           <Calendar className="w-4 h-4" />
-          <TimeAgo date={job.created_date} />
+          {getTimeAgo(job.created_date)}
         </p>
         <p className="text-xs text-slate-400 flex items-center gap-1">
           <Eye className="w-3 h-3" />
@@ -598,5 +619,45 @@ function JobCardContent({ job, viewCount }) {
         )}
       </div>
     </div>
+  );
+}
+
+function ShareDialog({ job, open, onClose }) {
+  const [copied, setCopied] = useState(false);
+
+  if (!job) return null;
+
+  const shareUrl = `${window.location.origin}${createPageUrl('JobDetail')}?id=${job.id}`;
+  const shareText = `Vaga: ${job.title} - ${job.company}\n${shareUrl}`;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Compartilhar Vaga</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600">{job.title} - {job.company}</p>
+          <div className="flex gap-2">
+            <Button onClick={handleWhatsApp} className="flex-1 bg-green-600 hover:bg-green-700">
+              WhatsApp
+            </Button>
+            <Button onClick={handleCopy} variant="outline" className="flex-1">
+              {copied ? 'Copiado!' : 'Copiar Link'}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
