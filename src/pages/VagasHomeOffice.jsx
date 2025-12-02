@@ -40,7 +40,8 @@ export default function VagasHomeOffice() {
         const isAdmin = currentUser?.email === 'alexandreferreirajp01@gmail.com' || 
                        currentUser?.role === 'admin' || 
                        currentUser?.subscription_type === 'admin';
-        setIsAuthorized(isAdmin);
+        const isRecruiter = currentUser?.subscription_type === 'recruiter';
+        setIsAuthorized(isAdmin || isRecruiter);
       } catch (e) {
         setIsAuthorized(false);
       }
@@ -194,19 +195,43 @@ Retorne JSON com array "vagas".`,
         is_premium: isPremium,
         is_featured: isFeatured
       };
+
+      const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || 
+                      user?.role === 'admin' || 
+                      user?.subscription_type === 'admin';
+      const isRecruiter = user?.subscription_type === 'recruiter';
+
+      if (isRecruiter && !isAdmin) {
+        // Recrutador - criar solicitação
+        await base44.entities.RecruiterRequest.create({
+          recruiter_email: user.email,
+          recruiter_name: user.full_name,
+          recruiter_photo: user.profile_photo,
+          request_type: 'job_homeoffice',
+          title: `${extractedJobs.length} Vagas Home Office`,
+          content_preview: `${extractedJobs.length} vagas para trabalho remoto`,
+          full_content: jobData,
+          status: 'pending'
+        });
+        return { pending: true };
+      }
       
       return await base44.entities.Job.create(jobData);
     },
-    onSuccess: (createdJob) => {
-      setShowSuccess(true);
-      setLastCreatedJob({
-        id: createdJob?.id,
-        title: `${extractedJobs.length} Vagas Home Office`,
-        city: 'Brasil'
-      });
+    onSuccess: (result) => {
+      if (result?.pending) {
+        alert('Vagas enviadas para aprovação!');
+      } else {
+        setShowSuccess(true);
+        setLastCreatedJob({
+          id: result?.id,
+          title: `${extractedJobs.length} Vagas Home Office`,
+          city: 'Brasil'
+        });
+        setShowNotificationSender(true);
+      }
       if (textareaRef.current) textareaRef.current.value = '';
       setExtractedJobs([]);
-      setShowNotificationSender(true);
       setTimeout(() => setShowSuccess(false), 3000);
     }
   });

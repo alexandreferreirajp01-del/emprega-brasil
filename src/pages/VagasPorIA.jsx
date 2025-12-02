@@ -133,7 +133,8 @@ export default function VagasPorIA() {
         const isAdmin = currentUser?.email === 'alexandreferreirajp01@gmail.com' || 
                        currentUser?.role === 'admin' || 
                        currentUser?.subscription_type === 'admin';
-        setIsAuthorized(isAdmin);
+        const isRecruiter = currentUser?.subscription_type === 'recruiter';
+        setIsAuthorized(isAdmin || isRecruiter);
       } catch (e) {
         setIsAuthorized(false);
       }
@@ -234,16 +235,41 @@ Responda APENAS com o JSON, sem explicações.`,
         is_premium: isPremium,
         is_featured: isFeatured
       };
+
+      const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || 
+                      user?.role === 'admin' || 
+                      user?.subscription_type === 'admin';
+      const isRecruiter = user?.subscription_type === 'recruiter';
+
+      if (isRecruiter && !isAdmin) {
+        // Recrutador - criar solicitação
+        await base44.entities.RecruiterRequest.create({
+          recruiter_email: user.email,
+          recruiter_name: user.full_name,
+          recruiter_photo: user.profile_photo,
+          request_type: 'job_ai',
+          title: title,
+          content_preview: `${company || 'Empresa não informada'} - ${city || 'Cidade não informada'}`,
+          full_content: jobData,
+          status: 'pending'
+        });
+        return { pending: true };
+      }
       
       return await base44.entities.Job.create(jobData);
     },
-    onSuccess: (createdJob) => {
-      setShowSuccess(true);
-      setLastCreatedJob({
-        id: createdJob?.id,
-        title: title,
-        city: city
-      });
+    onSuccess: (result) => {
+      if (result?.pending) {
+        alert('Vaga enviada para aprovação!');
+      } else {
+        setShowSuccess(true);
+        setLastCreatedJob({
+          id: result?.id,
+          title: title,
+          city: city
+        });
+        setShowNotificationSender(true);
+      }
       // Limpar campos
       setRawText('');
       setTitle('');
@@ -257,7 +283,6 @@ Responda APENAS com o JSON, sem explicações.`,
       setIsPremium(false);
       setIsFeatured(false);
       setExtractedData(null);
-      setShowNotificationSender(true);
       
       setTimeout(() => setShowSuccess(false), 3000);
     }
