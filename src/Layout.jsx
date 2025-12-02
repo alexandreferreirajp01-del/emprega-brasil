@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
   Home, Briefcase, Users, Crown, User, Menu, X, 
-  Shield, Rss, LogOut, MessageCircle, Newspaper, Info, Handshake, Sparkles, Home as HomeIcon, FileText, Mail, Lock
+  LogOut, MessageCircle, Newspaper
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -105,31 +105,24 @@ export default function Layout({ children, currentPageName }) {
   }
 
   const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
+  
+  // Verificar acesso premium (para mensagens)
+  const hasPremiumAccess = user?.subscription_type === 'premium' || 
+    user?.subscription_type === 'admin' || 
+    user?.subscription_type === 'recruiter' ||
+    user?.role === 'admin';
+  
+  // Verificar se pode usar currículo (apenas Premium)
+  const canUseResume = user?.subscription_type === 'premium';
 
+  // Menu principal limpo - apenas itens básicos
   const navItems = [
-            { name: 'Início', icon: Home, page: 'Home' },
-            { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-            { name: 'Social', icon: Users, page: 'Social' },
-            { name: 'Notícias', icon: Newspaper, page: 'News' },
-            { name: 'Perfil', icon: User, page: 'Profile' },
-          ];
-
-          // Verificar acesso premium
-          const hasPremiumAccess = user?.subscription_type === 'premium' || 
-            user?.subscription_type === 'admin' || 
-            user?.subscription_type === 'recruiter' ||
-            user?.role === 'admin';
-
-      // Mostrar Planos apenas para visitantes e básicos
-      const showSubscription = !user || isVisitor || (user && user.subscription_type !== 'premium' && user.subscription_type !== 'admin' && user.subscription_type !== 'recruiter' && user.role !== 'admin');
-
-      if (showSubscription) {
-        navItems.push({ name: 'Planos', icon: Crown, page: 'Subscription' });
-      }
-
-      // Adicionar Mensagens e Currículo ao menu (visível para todos, mas bloqueado para básico)
-      navItems.push({ name: 'Mensagens', icon: Mail, page: 'Inbox', premium: true });
-      navItems.push({ name: 'Currículo', icon: FileText, page: 'ProfessionalResume', premium: true });
+    { name: 'Início', icon: Home, page: 'Home' },
+    { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
+    { name: 'Social', icon: Users, page: 'Social' },
+    { name: 'Notícias', icon: Newspaper, page: 'News' },
+    { name: 'Perfil', icon: User, page: 'Profile' },
+  ];
 
   const handleLogout = () => {
     localStorage.clear();
@@ -222,60 +215,16 @@ export default function Layout({ children, currentPageName }) {
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1 flex-wrap max-w-[60%]">
               {navItems.map((item) => (
-                                    <Link key={item.page} to={createPageUrl(item.page)}>
-                                      <Button 
-                                        variant={currentPageName === item.page ? "secondary" : "ghost"}
-                                        className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                                      >
-                                        <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                                        <span>{item.name}</span>
-                                        {item.premium && !hasPremiumAccess && (
-                                          <Lock className="w-3 h-3 ml-1 text-amber-500" />
-                                        )}
-                                      </Button>
-                                    </Link>
-                                  ))}
-
-              {isAdmin && (
-                <>
-                  <Link to={createPageUrl('Admin')}>
-                    <Button 
-                      variant={currentPageName === 'Admin' ? "secondary" : "ghost"}
-                      className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === 'Admin' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                    >
-                      <Shield className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                      <span>Admin</span>
-                    </Button>
-                  </Link>
-                  <Link to={createPageUrl('PostarVaga')}>
-                    <Button 
-                      variant={currentPageName === 'PostarVaga' ? "secondary" : "ghost"}
-                      className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === 'PostarVaga' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                    >
-                      <Briefcase className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                      <span>Postar</span>
-                    </Button>
-                  </Link>
-                  <Link to={createPageUrl('VagasPorIA')}>
-                    <Button 
-                      variant={currentPageName === 'VagasPorIA' ? "secondary" : "ghost"}
-                      className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === 'VagasPorIA' ? 'bg-purple-100 text-purple-700' : ''}`}
-                    >
-                      <Sparkles className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                      <span>IA</span>
-                    </Button>
-                  </Link>
-                  <Link to={createPageUrl('VagasHomeOffice')}>
-                      <Button 
-                        variant={currentPageName === 'VagasHomeOffice' ? "secondary" : "ghost"}
-                        className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === 'VagasHomeOffice' ? 'bg-green-100 text-green-700' : ''}`}
-                      >
-                        <HomeIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                        <span>Home Office</span>
-                      </Button>
-                    </Link>
-                    </>
-                    )}
+                <Link key={item.page} to={createPageUrl(item.page)}>
+                  <Button 
+                    variant={currentPageName === item.page ? "secondary" : "ghost"}
+                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                  >
+                    <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                    <span>{item.name}</span>
+                  </Button>
+                </Link>
+              ))}
                   </nav>
 
             {/* User Actions */}
@@ -320,23 +269,20 @@ export default function Layout({ children, currentPageName }) {
           <div className="lg:hidden border-t bg-white">
             <nav className="p-4 space-y-2">
               {navItems.map((item) => (
-                                    <Link 
-                                      key={item.page} 
-                                      to={createPageUrl(item.page)}
-                                      onClick={() => setMobileMenuOpen(false)}
-                                    >
-                                      <Button 
-                                        variant={currentPageName === item.page ? "secondary" : "ghost"}
-                                        className={`w-full justify-start rounded-xl ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                                      >
-                                        <item.icon className="w-5 h-5 mr-3" />
-                                        {item.name}
-                                        {item.premium && !hasPremiumAccess && (
-                                          <Lock className="w-4 h-4 ml-auto text-amber-500" />
-                                        )}
-                                      </Button>
-                                    </Link>
-                                  ))}
+                <Link 
+                  key={item.page} 
+                  to={createPageUrl(item.page)}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button 
+                    variant={currentPageName === item.page ? "secondary" : "ghost"}
+                    className={`w-full justify-start rounded-xl ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                  >
+                    <item.icon className="w-5 h-5 mr-3" />
+                    {item.name}
+                  </Button>
+                </Link>
+              ))}
 
               <Link to={createPageUrl('Groups')} onClick={() => setMobileMenuOpen(false)}>
                 <Button 
@@ -347,47 +293,6 @@ export default function Layout({ children, currentPageName }) {
                   Grupos
                 </Button>
               </Link>
-              
-              {isAdmin && (
-                <>
-                  <Link to={createPageUrl('Admin')} onClick={() => setMobileMenuOpen(false)}>
-                    <Button 
-                      variant={currentPageName === 'Admin' ? "secondary" : "ghost"}
-                      className={`w-full justify-start rounded-xl ${currentPageName === 'Admin' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                    >
-                      <Shield className="w-5 h-5 mr-3" />
-                      Admin
-                    </Button>
-                  </Link>
-                  <Link to={createPageUrl('PostarVaga')} onClick={() => setMobileMenuOpen(false)}>
-                    <Button 
-                      variant={currentPageName === 'PostarVaga' ? "secondary" : "ghost"}
-                      className={`w-full justify-start rounded-xl ${currentPageName === 'PostarVaga' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                    >
-                      <Briefcase className="w-5 h-5 mr-3" />
-                      Postar Vaga
-                    </Button>
-                  </Link>
-                  <Link to={createPageUrl('VagasPorIA')} onClick={() => setMobileMenuOpen(false)}>
-                    <Button 
-                      variant={currentPageName === 'VagasPorIA' ? "secondary" : "ghost"}
-                      className={`w-full justify-start rounded-xl ${currentPageName === 'VagasPorIA' ? 'bg-purple-100 text-purple-700' : ''}`}
-                    >
-                      <Sparkles className="w-5 h-5 mr-3" />
-                      Vagas por IA
-                    </Button>
-                  </Link>
-                  <Link to={createPageUrl('VagasHomeOffice')} onClick={() => setMobileMenuOpen(false)}>
-                      <Button 
-                        variant={currentPageName === 'VagasHomeOffice' ? "secondary" : "ghost"}
-                        className={`w-full justify-start rounded-xl ${currentPageName === 'VagasHomeOffice' ? 'bg-green-100 text-green-700' : ''}`}
-                      >
-                        <HomeIcon className="w-5 h-5 mr-3" />
-                        Vagas Home Office
-                      </Button>
-                    </Link>
-                    </>
-                    )}
 
               <div className="pt-2 border-t">
                 {isVisitor ? (
