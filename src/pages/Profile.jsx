@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
-  Heart, History, Users
+  Heart, History, Users, FileText, Lock, Briefcase
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -152,12 +152,25 @@ export default function Profile() {
     base44.auth.logout(createPageUrl('Splash'));
   };
 
+  const hasPremiumAccess = user?.subscription_type === 'premium' || 
+    user?.subscription_type === 'admin' || 
+    user?.subscription_type === 'recruiter' ||
+    user?.role === 'admin';
+
   const getSubscriptionBadge = () => {
     if (user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin') {
       return (
         <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1">
           <Shield className="w-4 h-4 mr-2" />
           Administrador
+        </Badge>
+      );
+    }
+    if (user?.subscription_type === 'recruiter') {
+      return (
+        <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1">
+          <Briefcase className="w-4 h-4 mr-2" />
+          Recrutador
         </Badge>
       );
     }
@@ -393,11 +406,29 @@ export default function Profile() {
                     <span className="text-xs">Histórico</span>
                   </Button>
                 </Link>
+                <Link to={createPageUrl('ProfessionalResume')}>
+                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
+                    <FileText className="w-5 h-5 text-blue-500" />
+                    <span className="text-xs">Currículo</span>
+                    {!hasPremiumAccess && (
+                      <Lock className="w-3 h-3 absolute top-2 right-2 text-amber-500" />
+                    )}
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Inbox')}>
+                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
+                    <Mail className="w-5 h-5 text-green-500" />
+                    <span className="text-xs">Mensagens</span>
+                    {!hasPremiumAccess && (
+                      <Lock className="w-3 h-3 absolute top-2 right-2 text-amber-500" />
+                    )}
+                  </Button>
+                </Link>
               </div>
 
               {/* Actions */}
               <div className="space-y-3">
-                {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.role !== 'admin' && user?.email !== 'alexandreferreirajp01@gmail.com' && (
+                {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.role !== 'admin' && user?.email !== 'alexandreferreirajp01@gmail.com' && (
                   <Link to={createPageUrl('Subscription')} className="block">
                     <Button className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
                       <Crown className="w-5 h-5 mr-2" />
