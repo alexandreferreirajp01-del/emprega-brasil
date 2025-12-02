@@ -52,7 +52,12 @@ export default function CreatePostModal({ open, onOpenChange, user }) {
     setIsSubmitting(true);
     
     try {
-      await base44.entities.SocialPost.create({
+      const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || 
+                      user?.role === 'admin' || 
+                      user?.subscription_type === 'admin';
+      const isRecruiter = user?.subscription_type === 'recruiter';
+
+      const postData = {
         author_email: user.email,
         author_name: user.full_name,
         author_photo: user.profile_photo,
@@ -63,7 +68,28 @@ export default function CreatePostModal({ open, onOpenChange, user }) {
         video_url: postType === 'video' ? videoUrl : '',
         link_url: postType === 'text' && linkUrl ? linkUrl : '',
         shared_job_id: postType === 'job_share' ? selectedJobId : ''
-      });
+      };
+
+      if (isRecruiter && !isAdmin) {
+        // Recrutador - criar solicitação para aprovação
+        await base44.entities.RecruiterRequest.create({
+          recruiter_email: user.email,
+          recruiter_name: user.full_name,
+          recruiter_photo: user.profile_photo,
+          request_type: 'social_post',
+          title: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+          content_preview: content.substring(0, 300),
+          full_content: postData,
+          status: 'pending'
+        });
+        
+        alert('Publicação enviada para aprovação!');
+        resetForm();
+        onOpenChange(false);
+        return;
+      }
+
+      await base44.entities.SocialPost.create(postData);
 
       // Notificar seguidores
       try {
