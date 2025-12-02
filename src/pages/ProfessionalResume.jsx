@@ -136,6 +136,14 @@ export default function ProfessionalResume() {
             }));
             setIsEditing(true);
           }
+        } else if (isRecruiterOrAdmin) {
+          // Recrutador/Admin (não premium): modo visualização de currículos
+          setViewMode(true);
+          const resumes = await safeFetch(
+            () => base44.entities.ProfessionalResume.list('-created_date', 100),
+            []
+          );
+          setAllResumes(resumes || []);
         }
       } catch (e) {
         window.location.href = createPageUrl('Splash');
