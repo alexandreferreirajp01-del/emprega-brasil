@@ -116,8 +116,8 @@ export default function ProfessionalResume() {
         
         const isPremium = currentUser?.subscription_type === 'premium';
         
-        if (isRecruiterOrAdmin && !isPremium) {
-          // Recrutador/Admin (não premium): modo visualização de currículos
+        if (isRecruiterOrAdmin) {
+          // Recrutador/Admin: modo visualização de currículos
           setViewMode(true);
           const resumes = await safeFetch(
             () => base44.entities.ProfessionalResume.list('-created_date', 100),
