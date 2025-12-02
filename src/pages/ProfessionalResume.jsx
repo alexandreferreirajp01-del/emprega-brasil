@@ -109,22 +109,16 @@ export default function ProfessionalResume() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
+        const isPremium = currentUser?.subscription_type === 'premium';
+        
         const isRecruiterOrAdmin = currentUser?.subscription_type === 'recruiter' || 
                                    currentUser?.subscription_type === 'admin' || 
                                    currentUser?.role === 'admin' ||
                                    currentUser?.email === 'alexandreferreirajp01@gmail.com';
         
-        const isPremium = currentUser?.subscription_type === 'premium';
-        
-        if (isRecruiterOrAdmin) {
-          // Recrutador/Admin: modo visualização de currículos
-          setViewMode(true);
-          const resumes = await safeFetch(
-            () => base44.entities.ProfessionalResume.list('-created_date', 100),
-            []
-          );
-          setAllResumes(resumes || []);
-        } else if (isPremium) {
+        // Premium pode preencher formulário
+        // Recrutador/Admin (não premium) só visualizam
+        if (isPremium) {
           // Premium: modo formulário próprio
           const resumes = await safeFetch(
             () => base44.entities.ProfessionalResume.filter({ user_email: currentUser.email }),
