@@ -84,16 +84,12 @@ export default function Profile() {
       );
       
       if (isMounted && allFollows.length > 0) {
-        // Filtrar seguidores
-        const myFollowers = allFollows.filter(f => 
-          f.following_email === user.email && (f.status === 'accepted' || f.status === 'pending')
-        );
+        // Filtrar seguidores (agora todos são aceitos automaticamente)
+        const myFollowers = allFollows.filter(f => f.following_email === user.email);
         setFollowers(myFollowers);
 
         // Filtrar seguindo
-        const myFollowing = allFollows.filter(f => 
-          f.follower_email === user.email && (f.status === 'accepted' || f.status === 'pending')
-        );
+        const myFollowing = allFollows.filter(f => f.follower_email === user.email);
         setFollowing(myFollowing);
       }
 
