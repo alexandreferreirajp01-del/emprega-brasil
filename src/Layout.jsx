@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
   Home, Briefcase, Users, Crown, User, Menu, X, 
-  Shield, Rss, LogOut, MessageCircle, Newspaper, Info, Handshake, Sparkles, Home as HomeIcon
+  Shield, Rss, LogOut, MessageCircle, Newspaper, Info, Handshake, Sparkles, Home as HomeIcon, FileText, Mail, Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -114,15 +114,22 @@ export default function Layout({ children, currentPageName }) {
             { name: 'Perfil', icon: User, page: 'Profile' },
           ];
 
-          // Adicionar Mensagens ao menu se tiver plano
-          const hasSubscription = user?.subscription_type === 'basic' || user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.role === 'admin';
+          // Verificar acesso premium
+          const hasPremiumAccess = user?.subscription_type === 'premium' || 
+            user?.subscription_type === 'admin' || 
+            user?.subscription_type === 'recruiter' ||
+            user?.role === 'admin';
 
       // Mostrar Planos apenas para visitantes e básicos
-      const showSubscription = !user || isVisitor || (user && user.subscription_type !== 'premium' && user.subscription_type !== 'admin' && user.role !== 'admin');
+      const showSubscription = !user || isVisitor || (user && user.subscription_type !== 'premium' && user.subscription_type !== 'admin' && user.subscription_type !== 'recruiter' && user.role !== 'admin');
 
       if (showSubscription) {
         navItems.push({ name: 'Planos', icon: Crown, page: 'Subscription' });
       }
+
+      // Adicionar Mensagens e Currículo ao menu (visível para todos, mas bloqueado para básico)
+      navItems.push({ name: 'Mensagens', icon: Mail, page: 'Inbox', premium: true });
+      navItems.push({ name: 'Currículo', icon: FileText, page: 'ProfessionalResume', premium: true });
 
   const handleLogout = () => {
     localStorage.removeItem('vagas_abertas_visitor_mode');
@@ -214,16 +221,19 @@ export default function Layout({ children, currentPageName }) {
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1 flex-wrap max-w-[60%]">
               {navItems.map((item) => (
-                <Link key={item.page} to={createPageUrl(item.page)}>
-                  <Button 
-                    variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                  >
-                    <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                    <span>{item.name}</span>
-                  </Button>
-                </Link>
-              ))}
+                                    <Link key={item.page} to={createPageUrl(item.page)}>
+                                      <Button 
+                                        variant={currentPageName === item.page ? "secondary" : "ghost"}
+                                        className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                                      >
+                                        <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                                        <span>{item.name}</span>
+                                        {item.premium && !hasPremiumAccess && (
+                                          <Lock className="w-3 h-3 ml-1 text-amber-500" />
+                                        )}
+                                      </Button>
+                                    </Link>
+                                  ))}
 
               {isAdmin && (
                 <>
@@ -309,20 +319,23 @@ export default function Layout({ children, currentPageName }) {
           <div className="lg:hidden border-t bg-white">
             <nav className="p-4 space-y-2">
               {navItems.map((item) => (
-                <Link 
-                  key={item.page} 
-                  to={createPageUrl(item.page)}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button 
-                    variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`w-full justify-start rounded-xl ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                  >
-                    <item.icon className="w-5 h-5 mr-3" />
-                    {item.name}
-                  </Button>
-                </Link>
-              ))}
+                                    <Link 
+                                      key={item.page} 
+                                      to={createPageUrl(item.page)}
+                                      onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                      <Button 
+                                        variant={currentPageName === item.page ? "secondary" : "ghost"}
+                                        className={`w-full justify-start rounded-xl ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                                      >
+                                        <item.icon className="w-5 h-5 mr-3" />
+                                        {item.name}
+                                        {item.premium && !hasPremiumAccess && (
+                                          <Lock className="w-4 h-4 ml-auto text-amber-500" />
+                                        )}
+                                      </Button>
+                                    </Link>
+                                  ))}
 
               <Link to={createPageUrl('Groups')} onClick={() => setMobileMenuOpen(false)}>
                 <Button 
