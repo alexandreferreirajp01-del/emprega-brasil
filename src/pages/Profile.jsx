@@ -449,15 +449,39 @@ export default function Profile() {
 
               {/* Painel do Administrador - apenas para admins */}
               {isAdmin && (
-                <Link to={createPageUrl('Admin')} className="block mb-6">
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-red-300 bg-red-50 hover:bg-red-100"
-                  >
-                    <Settings className="w-5 h-5 text-red-600" />
-                    <span className="text-red-700 font-medium">Painel do Administrador</span>
-                  </Button>
-                </Link>
+                <>
+                  <Link to={createPageUrl('Admin')} className="block mb-4">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-red-300 bg-red-50 hover:bg-red-100"
+                    >
+                      <Settings className="w-5 h-5 text-red-600" />
+                      <span className="text-red-700 font-medium">Painel do Administrador</span>
+                    </Button>
+                  </Link>
+                  
+                  {/* Funções de Admin para postar */}
+                  <div className="grid grid-cols-3 gap-3 mb-6">
+                    <Link to={createPageUrl('PostarVaga')}>
+                      <Button variant="outline" className="w-full h-16 rounded-xl flex-col gap-1 border-blue-300 bg-blue-50 hover:bg-blue-100">
+                        <PlusCircle className="w-5 h-5 text-blue-600" />
+                        <span className="text-xs text-blue-700">Postar Vaga</span>
+                      </Button>
+                    </Link>
+                    <Link to={createPageUrl('VagasPorIA')}>
+                      <Button variant="outline" className="w-full h-16 rounded-xl flex-col gap-1 border-purple-300 bg-purple-50 hover:bg-purple-100">
+                        <Sparkles className="w-5 h-5 text-purple-600" />
+                        <span className="text-xs text-purple-700">Vagas por IA</span>
+                      </Button>
+                    </Link>
+                    <Link to={createPageUrl('VagasHomeOffice')}>
+                      <Button variant="outline" className="w-full h-16 rounded-xl flex-col gap-1 border-green-300 bg-green-50 hover:bg-green-100">
+                        <Home className="w-5 h-5 text-green-600" />
+                        <span className="text-xs text-green-700">Home Office</span>
+                      </Button>
+                    </Link>
+                  </div>
+                </>
               )}
 
               {/* Actions */}
