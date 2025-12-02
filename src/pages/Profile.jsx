@@ -143,14 +143,9 @@ export default function Profile() {
     }
   };
 
-  const handleLogout = async () => {
-    localStorage.removeItem('vagas_abertas_visitor_mode');
-    localStorage.removeItem('vagas_abertas_last_login');
-    try {
-      await base44.auth.logout();
-    } catch (e) {
-      console.warn('Logout error:', e);
-    }
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
     window.location.href = createPageUrl('Splash');
   };
 

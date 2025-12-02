@@ -131,14 +131,9 @@ export default function Layout({ children, currentPageName }) {
       navItems.push({ name: 'Mensagens', icon: Mail, page: 'Inbox', premium: true });
       navItems.push({ name: 'Currículo', icon: FileText, page: 'ProfessionalResume', premium: true });
 
-  const handleLogout = async () => {
-    localStorage.removeItem('vagas_abertas_visitor_mode');
-    localStorage.removeItem('vagas_abertas_last_login');
-    try {
-      await base44.auth.logout();
-    } catch (e) {
-      console.warn('Logout error:', e);
-    }
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
     window.location.href = createPageUrl('Splash');
   };
 
