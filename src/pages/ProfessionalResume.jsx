@@ -458,18 +458,37 @@ export default function ProfessionalResume() {
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-4 px-4">
         <div className="max-w-6xl mx-auto">
-          <Link to={createPageUrl('Profile')} className="inline-flex items-center text-white/80 hover:text-white mb-2">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Voltar
-          </Link>
-          <h1 className="text-xl font-bold text-white">Meu Currículo</h1>
+          <div className="flex items-center justify-between">
+            <div>
+              <Link to={createPageUrl('Profile')} className="inline-flex items-center text-white/80 hover:text-white mb-2">
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                Voltar
+              </Link>
+              <h1 className="text-xl font-bold text-white">Meu Currículo</h1>
+            </div>
+            <Button 
+              type="button"
+              variant="secondary"
+              onClick={() => form.resume_file_url ? window.open(form.resume_file_url, '_blank') : generatePDF(form)}
+              className="rounded-xl bg-white/20 hover:bg-white/30 text-white border-0"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Baixar PDF
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Menu horizontal de seções */}
+      {/* Menu horizontal de seções com scrollbar */}
       <div className="bg-white border-b sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="flex gap-1 overflow-x-auto py-2 hide-scrollbar">
+          <div 
+            className="flex gap-1 overflow-x-auto py-2 pb-3"
+            style={{ 
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#0056ff #e2e8f0'
+            }}
+          >
             {sections.map((section) => (
               <button
                 key={section.id}
@@ -793,26 +812,17 @@ export default function ProfessionalResume() {
         </Card>
       </div>
 
-      {/* Botões fixos na parte inferior */}
+      {/* Botão fixo na parte inferior */}
       <div className="fixed bottom-16 md:bottom-0 left-0 right-0 bg-white border-t p-4 z-30">
-        <div className="max-w-2xl mx-auto flex gap-3">
+        <div className="max-w-2xl mx-auto">
           <Button 
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="flex-1 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12"
+            className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12"
           >
             {isSaving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
-            Salvar
-          </Button>
-          <Button 
-            type="button"
-            variant="outline"
-            onClick={() => form.resume_file_url ? window.open(form.resume_file_url, '_blank') : generatePDF(form)}
-            className="rounded-xl h-12"
-          >
-            <Download className="w-5 h-5 mr-2" />
-            Baixar
+            Salvar Currículo
           </Button>
         </div>
       </div>
