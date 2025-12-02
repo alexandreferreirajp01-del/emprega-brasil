@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-// Função para calcular tempo relativo
+// Função para obter horário de Brasília (UTC-3)
+function getBrasiliaTime() {
+  const now = new Date();
+  const brasiliaOffset = -3 * 60; // -3 horas em minutos
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  return new Date(utc + (brasiliaOffset * 60000));
+}
+
+// Função para calcular tempo relativo usando horário de Brasília
 export function getTimeAgo(dateString) {
   if (!dateString) return '';
   
@@ -8,7 +16,8 @@ export function getTimeAgo(dateString) {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return '';
     
-    const now = new Date();
+    // Usar horário de Brasília
+    const now = getBrasiliaTime();
     const diffMs = now.getTime() - date.getTime();
     
     // Se a data for no futuro ou muito recente
