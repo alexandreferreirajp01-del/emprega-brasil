@@ -17,7 +17,7 @@ import {
 import { 
   ArrowLeft, Save, Download, Plus, Trash2, Loader2, 
   Lock, Crown, User, Briefcase, GraduationCap, Award,
-  Languages, FileText, Car, MapPin, Phone, Mail, Calendar, CheckCircle, Edit, Upload
+  Languages, FileText, Car, MapPin, Phone, Mail, Calendar, CheckCircle, Edit, Upload, Eye, Search
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -62,6 +62,12 @@ export default function ProfessionalResume() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeSection, setActiveSection] = useState('personal');
   
+  // Para recrutadores/admins visualizarem currículos
+  const [viewMode, setViewMode] = useState(false);
+  const [allResumes, setAllResumes] = useState([]);
+  const [selectedResume, setSelectedResume] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  
   const [form, setForm] = useState({
     full_name: '',
     birth_date: '',
@@ -103,21 +109,39 @@ export default function ProfessionalResume() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
-        const resumes = await safeFetch(
-          () => base44.entities.ProfessionalResume.filter({ user_email: currentUser.email }),
-          []
-        );
+        const isRecruiterOrAdmin = currentUser?.subscription_type === 'recruiter' || 
+                                   currentUser?.subscription_type === 'admin' || 
+                                   currentUser?.role === 'admin' ||
+                                   currentUser?.email === 'alexandreferreirajp01@gmail.com';
         
-        if (resumes && resumes.length > 0) {
-          setResume(resumes[0]);
-          setForm({ ...form, ...resumes[0] });
-        } else {
-          setForm(prev => ({
-            ...prev,
-            full_name: currentUser.full_name || '',
-            email: currentUser.email || ''
-          }));
-          setIsEditing(true);
+        const isPremium = currentUser?.subscription_type === 'premium';
+        
+        if (isRecruiterOrAdmin) {
+          // Recrutador/Admin: modo visualização de currículos
+          setViewMode(true);
+          const resumes = await safeFetch(
+            () => base44.entities.ProfessionalResume.list('-created_date', 100),
+            []
+          );
+          setAllResumes(resumes || []);
+        } else if (isPremium) {
+          // Premium: modo formulário próprio
+          const resumes = await safeFetch(
+            () => base44.entities.ProfessionalResume.filter({ user_email: currentUser.email }),
+            []
+          );
+          
+          if (resumes && resumes.length > 0) {
+            setResume(resumes[0]);
+            setForm({ ...form, ...resumes[0] });
+          } else {
+            setForm(prev => ({
+              ...prev,
+              full_name: currentUser.full_name || '',
+              email: currentUser.email || ''
+            }));
+            setIsEditing(true);
+          }
         }
       } catch (e) {
         window.location.href = createPageUrl('Splash');
@@ -127,12 +151,17 @@ export default function ProfessionalResume() {
     init();
   }, []);
 
-  const canAccess = user?.subscription_type === 'premium' || 
-    user?.subscription_type === 'admin' || 
-    user?.subscription_type === 'recruiter' ||
-    user?.role === 'admin';
+  // Verificar permissões
+  const isRecruiterOrAdmin = user?.subscription_type === 'recruiter' || 
+                             user?.subscription_type === 'admin' || 
+                             user?.role === 'admin' ||
+                             user?.email === 'alexandreferreirajp01@gmail.com';
+  
+  const isPremium = user?.subscription_type === 'premium';
+  const canAccess = isPremium || isRecruiterOrAdmin;
 
   const handleSave = async () => {
+    if (!isPremium) return; // Só premium pode salvar
     setIsSaving(true);
     try {
       const data = { ...form, user_email: user.email };
@@ -153,11 +182,13 @@ export default function ProfessionalResume() {
   };
 
   const handleConfirm = async () => {
+    if (!isPremium) return;
     setForm(prev => ({ ...prev, is_confirmed: true }));
     await handleSave();
   };
 
   const handleUploadPhoto = async (e) => {
+    if (!isPremium) return;
     const file = e.target.files[0];
     if (!file) return;
     
@@ -171,6 +202,7 @@ export default function ProfessionalResume() {
   };
 
   const handleUploadResume = async (e) => {
+    if (!isPremium) return;
     const file = e.target.files[0];
     if (!file) return;
     
@@ -184,6 +216,7 @@ export default function ProfessionalResume() {
   };
 
   const addEducation = () => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       education: [...prev.education, { degree: '', institution: '', course: '', start_date: '', end_date: '', is_current: false }]
@@ -191,6 +224,7 @@ export default function ProfessionalResume() {
   };
 
   const removeEducation = (index) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       education: prev.education.filter((_, i) => i !== index)
@@ -198,6 +232,7 @@ export default function ProfessionalResume() {
   };
 
   const updateEducation = (index, field, value) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       education: prev.education.map((edu, i) => i === index ? { ...edu, [field]: value } : edu)
@@ -205,6 +240,7 @@ export default function ProfessionalResume() {
   };
 
   const addCourse = () => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       courses: [...prev.courses, { name: '', institution: '', hours: '', year: '' }]
@@ -212,6 +248,7 @@ export default function ProfessionalResume() {
   };
 
   const removeCourse = (index) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       courses: prev.courses.filter((_, i) => i !== index)
@@ -219,6 +256,7 @@ export default function ProfessionalResume() {
   };
 
   const updateCourse = (index, field, value) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       courses: prev.courses.map((course, i) => i === index ? { ...course, [field]: value } : course)
@@ -226,6 +264,7 @@ export default function ProfessionalResume() {
   };
 
   const addExperience = () => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       experiences: [...prev.experiences, { company: '', position: '', start_date: '', end_date: '', is_current: false, activities: '' }]
@@ -233,6 +272,7 @@ export default function ProfessionalResume() {
   };
 
   const removeExperience = (index) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       experiences: prev.experiences.filter((_, i) => i !== index)
@@ -240,6 +280,7 @@ export default function ProfessionalResume() {
   };
 
   const updateExperience = (index, field, value) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       experiences: prev.experiences.map((exp, i) => i === index ? { ...exp, [field]: value } : exp)
@@ -247,6 +288,7 @@ export default function ProfessionalResume() {
   };
 
   const addLanguage = () => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       languages: [...prev.languages, { language: '', level: 'Básico' }]
@@ -254,6 +296,7 @@ export default function ProfessionalResume() {
   };
 
   const removeLanguage = (index) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       languages: prev.languages.filter((_, i) => i !== index)
@@ -261,6 +304,7 @@ export default function ProfessionalResume() {
   };
 
   const updateLanguage = (index, field, value) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       languages: prev.languages.map((lang, i) => i === index ? { ...lang, [field]: value } : lang)
@@ -268,6 +312,7 @@ export default function ProfessionalResume() {
   };
 
   const addCertification = () => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       certifications: [...prev.certifications, { name: '', institution: '', year: '', file_url: '' }]
@@ -275,6 +320,7 @@ export default function ProfessionalResume() {
   };
 
   const removeCertification = (index) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       certifications: prev.certifications.filter((_, i) => i !== index)
@@ -282,6 +328,7 @@ export default function ProfessionalResume() {
   };
 
   const updateCertification = (index, field, value) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       certifications: prev.certifications.map((cert, i) => i === index ? { ...cert, [field]: value } : cert)
@@ -289,26 +336,27 @@ export default function ProfessionalResume() {
   };
 
   const addSkill = (skill) => {
+    if (!isPremium) return;
     if (skill && !form.skills.includes(skill)) {
       setForm(prev => ({ ...prev, skills: [...prev.skills, skill] }));
     }
   };
 
   const removeSkill = (index) => {
+    if (!isPremium) return;
     setForm(prev => ({
       ...prev,
       skills: prev.skills.filter((_, i) => i !== index)
     }));
   };
 
-  const generatePDF = () => {
-    // Criar conteúdo HTML para impressão
+  const generatePDF = (resumeData = form) => {
     const printContent = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="UTF-8">
-        <title>Currículo - ${form.full_name}</title>
+        <title>Currículo - ${resumeData.full_name}</title>
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.5; color: #333; padding: 20px; }
@@ -333,31 +381,31 @@ export default function ProfessionalResume() {
       </head>
       <body>
         <div class="header">
-          ${form.profile_photo_url ? `<img src="${form.profile_photo_url}" class="photo" />` : ''}
-          <h1>${form.full_name}</h1>
-          <p>${form.phone_whatsapp} | ${form.email}</p>
-          <p>${form.address_city}, ${form.address_state}</p>
-          ${form.linkedin_url ? `<p>LinkedIn: ${form.linkedin_url}</p>` : ''}
+          ${resumeData.profile_photo_url ? `<img src="${resumeData.profile_photo_url}" class="photo" />` : ''}
+          <h1>${resumeData.full_name}</h1>
+          <p>${resumeData.phone_whatsapp} | ${resumeData.email}</p>
+          <p>${resumeData.address_city}, ${resumeData.address_state}</p>
+          ${resumeData.linkedin_url ? `<p>LinkedIn: ${resumeData.linkedin_url}</p>` : ''}
         </div>
 
-        ${form.professional_objective ? `
+        ${resumeData.professional_objective ? `
         <div class="section">
           <h2 class="section-title">Objetivo Profissional</h2>
-          <p>${form.professional_objective}</p>
+          <p>${resumeData.professional_objective}</p>
         </div>
         ` : ''}
 
-        ${form.professional_summary ? `
+        ${resumeData.professional_summary ? `
         <div class="section">
           <h2 class="section-title">Resumo Profissional</h2>
-          <p>${form.professional_summary}</p>
+          <p>${resumeData.professional_summary}</p>
         </div>
         ` : ''}
 
-        ${form.experiences?.length > 0 ? `
+        ${resumeData.experiences?.length > 0 ? `
         <div class="section">
           <h2 class="section-title">Experiência Profissional</h2>
-          ${form.experiences.map(exp => `
+          ${resumeData.experiences.map(exp => `
             <div class="experience-item">
               <div class="experience-title">${exp.position}</div>
               <div class="experience-company">${exp.company}</div>
@@ -368,10 +416,10 @@ export default function ProfessionalResume() {
         </div>
         ` : ''}
 
-        ${form.education?.length > 0 ? `
+        ${resumeData.education?.length > 0 ? `
         <div class="section">
           <h2 class="section-title">Formação Acadêmica</h2>
-          ${form.education.map(edu => `
+          ${resumeData.education.map(edu => `
             <div class="education-item">
               <div class="experience-title">${edu.degree} - ${edu.course}</div>
               <div class="experience-company">${edu.institution}</div>
@@ -381,10 +429,10 @@ export default function ProfessionalResume() {
         </div>
         ` : ''}
 
-        ${form.courses?.length > 0 ? `
+        ${resumeData.courses?.length > 0 ? `
         <div class="section">
           <h2 class="section-title">Cursos Complementares</h2>
-          ${form.courses.map(course => `
+          ${resumeData.courses.map(course => `
             <div class="education-item">
               <div class="experience-title">${course.name}</div>
               <div class="experience-company">${course.institution} - ${course.hours}h</div>
@@ -394,28 +442,28 @@ export default function ProfessionalResume() {
         </div>
         ` : ''}
 
-        ${form.skills?.length > 0 ? `
+        ${resumeData.skills?.length > 0 ? `
         <div class="section">
           <h2 class="section-title">Habilidades e Competências</h2>
           <div class="skills-list">
-            ${form.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+            ${resumeData.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
           </div>
         </div>
         ` : ''}
 
-        ${form.languages?.length > 0 ? `
+        ${resumeData.languages?.length > 0 ? `
         <div class="section">
           <h2 class="section-title">Idiomas</h2>
           <div class="languages-grid">
-            ${form.languages.map(lang => `<div>${lang.language}: ${lang.level}</div>`).join('')}
+            ${resumeData.languages.map(lang => `<div>${lang.language}: ${lang.level}</div>`).join('')}
           </div>
         </div>
         ` : ''}
 
-        ${form.certifications?.length > 0 ? `
+        ${resumeData.certifications?.length > 0 ? `
         <div class="section">
           <h2 class="section-title">Certificações</h2>
-          ${form.certifications.map(cert => `
+          ${resumeData.certifications.map(cert => `
             <div class="education-item">
               <div class="experience-title">${cert.name}</div>
               <div class="experience-company">${cert.institution} - ${cert.year}</div>
@@ -427,13 +475,13 @@ export default function ProfessionalResume() {
         <div class="section">
           <h2 class="section-title">Informações Adicionais</h2>
           <div class="info-grid">
-            ${form.cnh !== 'Não possui' ? `<div class="info-item"><span class="info-label">CNH:</span> ${form.cnh}</div>` : ''}
-            ${form.has_vehicle ? `<div class="info-item"><span class="info-label">Veículo próprio:</span> Sim</div>` : ''}
-            ${form.availability_schedule ? `<div class="info-item"><span class="info-label">Disponibilidade:</span> ${form.availability_schedule}</div>` : ''}
-            ${form.availability_travel ? `<div class="info-item"><span class="info-label">Disponível para viagens:</span> Sim</div>` : ''}
-            ${form.availability_relocation ? `<div class="info-item"><span class="info-label">Disponível para mudança:</span> Sim</div>` : ''}
+            ${resumeData.cnh !== 'Não possui' ? `<div class="info-item"><span class="info-label">CNH:</span> ${resumeData.cnh}</div>` : ''}
+            ${resumeData.has_vehicle ? `<div class="info-item"><span class="info-label">Veículo próprio:</span> Sim</div>` : ''}
+            ${resumeData.availability_schedule ? `<div class="info-item"><span class="info-label">Disponibilidade:</span> ${resumeData.availability_schedule}</div>` : ''}
+            ${resumeData.availability_travel ? `<div class="info-item"><span class="info-label">Disponível para viagens:</span> Sim</div>` : ''}
+            ${resumeData.availability_relocation ? `<div class="info-item"><span class="info-label">Disponível para mudança:</span> Sim</div>` : ''}
           </div>
-          ${form.additional_notes ? `<p style="margin-top: 10px;">${form.additional_notes}</p>` : ''}
+          ${resumeData.additional_notes ? `<p style="margin-top: 10px;">${resumeData.additional_notes}</p>` : ''}
         </div>
       </body>
       </html>
@@ -456,6 +504,7 @@ export default function ProfessionalResume() {
     );
   }
 
+  // Tela de bloqueio para usuários básicos/visitantes
   if (!canAccess) {
     return (
       <div className="min-h-screen bg-slate-50 pb-20">
@@ -473,7 +522,7 @@ export default function ProfessionalResume() {
           <Card className="rounded-2xl shadow-xl">
             <CardContent className="p-8 text-center">
               <Lock className="w-16 h-16 text-[#0056ff] mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Conteúdo Exclusivo</h2>
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Função Exclusiva para Usuários Premium</h2>
               <p className="text-slate-600 mb-6">
                 O Currículo Profissional é exclusivo para assinantes Premium.
               </p>
@@ -490,6 +539,139 @@ export default function ProfessionalResume() {
     );
   }
 
+  // ========== MODO VISUALIZAÇÃO PARA RECRUTADOR/ADMIN ==========
+  if (viewMode && isRecruiterOrAdmin) {
+    const filteredResumes = allResumes.filter(r => 
+      r.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.address_city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.professional_objective?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    return (
+      <div className="min-h-screen bg-slate-50 pb-20">
+        <div className="bg-gradient-to-r from-purple-600 to-purple-700 pt-6 pb-12 px-4">
+          <div className="max-w-6xl mx-auto">
+            <Link to={createPageUrl('Profile')} className="inline-flex items-center text-white/80 hover:text-white mb-4">
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Voltar
+            </Link>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Currículos de Candidatos</h1>
+                <p className="text-white/70">{allResumes.length} currículos disponíveis</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 -mt-6">
+          {!selectedResume ? (
+            <>
+              {/* Busca */}
+              <Card className="rounded-2xl shadow-lg mb-6">
+                <CardContent className="p-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <Input
+                      placeholder="Buscar por nome, cidade, objetivo..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 h-12 rounded-xl"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Lista de Currículos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredResumes.map((r) => (
+                  <Card 
+                    key={r.id} 
+                    className="rounded-xl hover:shadow-lg transition-all cursor-pointer"
+                    onClick={() => setSelectedResume(r)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        {r.profile_photo_url ? (
+                          <img src={r.profile_photo_url} className="w-14 h-14 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-14 h-14 rounded-full bg-purple-100 flex items-center justify-center">
+                            <User className="w-7 h-7 text-purple-600" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-slate-800 truncate">{r.full_name}</h3>
+                          {r.address_city && (
+                            <p className="text-sm text-slate-500 flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {r.address_city}, {r.address_state}
+                            </p>
+                          )}
+                          {r.professional_objective && (
+                            <p className="text-xs text-slate-400 mt-1 line-clamp-2">{r.professional_objective}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mt-3">
+                        {r.is_confirmed && (
+                          <Badge className="bg-green-100 text-green-700 text-xs">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Confirmado
+                          </Badge>
+                        )}
+                        {r.experiences?.length > 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            {r.experiences.length} exp.
+                          </Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {filteredResumes.length === 0 && (
+                <div className="text-center py-12">
+                  <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-500">Nenhum currículo encontrado</p>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Visualização do currículo selecionado */
+            <Card className="rounded-2xl shadow-xl">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setSelectedResume(null)}
+                  className="rounded-xl"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Voltar à lista
+                </Button>
+                <Button 
+                  onClick={() => generatePDF(selectedResume)} 
+                  className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Baixar PDF
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6">
+                <ResumePreview form={selectedResume} />
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ========== MODO FORMULÁRIO PARA PREMIUM ==========
   const sections = [
     { id: 'personal', label: 'Dados Pessoais', icon: User },
     { id: 'objective', label: 'Objetivo', icon: Briefcase },
@@ -564,7 +746,7 @@ export default function ProfessionalResume() {
                           <Edit className="w-4 h-4 mr-2" />
                           Editar
                         </Button>
-                        <Button onClick={generatePDF} className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
+                        <Button onClick={() => generatePDF(form)} className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
                           <Download className="w-4 h-4 mr-2" />
                           Baixar PDF
                         </Button>
@@ -1075,7 +1257,7 @@ export default function ProfessionalResume() {
                             Confirmar Informações
                           </Button>
                         )}
-                        <Button onClick={generatePDF} variant="outline" className="rounded-xl">
+                        <Button onClick={() => generatePDF(form)} variant="outline" className="rounded-xl">
                           <Download className="w-4 h-4 mr-2" />
                           Baixar Currículo
                         </Button>
