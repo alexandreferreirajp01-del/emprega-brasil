@@ -4,21 +4,30 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, TrendingUp, Users, Briefcase, MapPin, Calendar, ArrowUp, ArrowDown, Filter } from "lucide-react";
+import { Eye, TrendingUp, Users, Briefcase, MapPin, Calendar, ArrowUp, ArrowDown, Filter, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line } from 'recharts';
 
 const COLORS = ['#0056ff', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 export default function AnalyticsDashboard() {
-  // Filtros de data
-  const [startDate, setStartDate] = useState(() => {
+  // Filtros de data - temporários (antes de aplicar)
+  const [tempStartDate, setTempStartDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - 7);
     return d.toISOString().split('T')[0];
   });
-  const [endDate, setEndDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [tempEndDate, setTempEndDate] = useState(() => new Date().toISOString().split('T')[0]);
+  
+  // Filtros aplicados
+  const [startDate, setStartDate] = useState(tempStartDate);
+  const [endDate, setEndDate] = useState(tempEndDate);
+
+  const applyFilters = () => {
+    setStartDate(tempStartDate);
+    setEndDate(tempEndDate);
+  };
 
   const { data: views = [] } = useQuery({
     queryKey: ['job-views'],
@@ -231,6 +240,49 @@ export default function AnalyticsDashboard() {
     ? Math.round(((totalViews - previousPeriodViews) / previousPeriodViews) * 100)
     : 100;
 
+  // Dados de visitantes por tipo de plano ao longo do tempo
+  const visitorsByPlanData = useMemo(() => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const days = [];
+    
+    const current = new Date(start);
+    while (current <= end) {
+      const dateStr = current.toISOString().split('T')[0];
+      
+      // Contar visitas por tipo de usuário nesse dia
+      const dayVisits = appVisits.filter(v => v.created_date?.startsWith(dateStr));
+      
+      let visitors = 0;
+      let basic = 0;
+      let premium = 0;
+      
+      dayVisits.forEach(visit => {
+        const visitUser = users.find(u => u.email === visit.user_email);
+        if (!visitUser || !visit.user_email) {
+          visitors++;
+        } else if (visitUser.subscription_type === 'premium' || visitUser.subscription_type === 'admin' || visitUser.role === 'admin') {
+          premium++;
+        } else if (visitUser.subscription_type === 'basic') {
+          basic++;
+        } else {
+          visitors++;
+        }
+      });
+      
+      days.push({
+        date: current.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+        visitantes: visitors,
+        basico: basic,
+        premium: premium,
+        fullDate: dateStr
+      });
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return days;
+  }, [appVisits, users, startDate, endDate]);
+
   return (
     <div className="space-y-6">
       {/* Filtros de Data */}
@@ -246,8 +298,8 @@ export default function AnalyticsDashboard() {
                 <Label className="text-xs text-slate-500">Data Inicial</Label>
                 <Input
                   type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  value={tempStartDate}
+                  onChange={(e) => setTempStartDate(e.target.value)}
                   className="rounded-lg h-9"
                 />
               </div>
@@ -255,21 +307,21 @@ export default function AnalyticsDashboard() {
                 <Label className="text-xs text-slate-500">Data Final</Label>
                 <Input
                   type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  value={tempEndDate}
+                  onChange={(e) => setTempEndDate(e.target.value)}
                   className="rounded-lg h-9"
                 />
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
                   const d = new Date();
                   d.setDate(d.getDate() - 7);
-                  setStartDate(d.toISOString().split('T')[0]);
-                  setEndDate(new Date().toISOString().split('T')[0]);
+                  setTempStartDate(d.toISOString().split('T')[0]);
+                  setTempEndDate(new Date().toISOString().split('T')[0]);
                 }}
                 className="rounded-lg text-xs"
               >
@@ -281,12 +333,20 @@ export default function AnalyticsDashboard() {
                 onClick={() => {
                   const d = new Date();
                   d.setDate(d.getDate() - 30);
-                  setStartDate(d.toISOString().split('T')[0]);
-                  setEndDate(new Date().toISOString().split('T')[0]);
+                  setTempStartDate(d.toISOString().split('T')[0]);
+                  setTempEndDate(new Date().toISOString().split('T')[0]);
                 }}
                 className="rounded-lg text-xs"
               >
                 Último mês
+              </Button>
+              <Button
+                size="sm"
+                onClick={applyFilters}
+                className="rounded-lg text-xs bg-[#0056ff] hover:bg-[#0044cc]"
+              >
+                <Check className="w-4 h-4 mr-1" />
+                Aplicar Filtros
               </Button>
             </div>
           </div>
@@ -608,6 +668,53 @@ export default function AnalyticsDashboard() {
                 <Tooltip />
                 <Area type="monotone" dataKey="views" stroke="#8884d8" fill="url(#colorGrowth)" strokeWidth={2} />
               </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Gráfico de Visitantes por Tipo de Plano */}
+        <Card className="rounded-xl lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Users className="w-5 h-5 text-[#0056ff]" />
+              Visitantes por Tipo de Plano
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={visitorsByPlanData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="visitantes" 
+                  name="Visitantes" 
+                  stroke="#94a3b8" 
+                  strokeWidth={2} 
+                  dot={{ r: 3 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="basico" 
+                  name="Básico" 
+                  stroke="#0056ff" 
+                  strokeWidth={2} 
+                  dot={{ r: 3 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="premium" 
+                  name="Premium" 
+                  stroke="#22c55e" 
+                  strokeWidth={2} 
+                  dot={{ r: 3 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>

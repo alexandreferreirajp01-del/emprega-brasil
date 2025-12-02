@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
@@ -15,6 +17,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import PlanBadge from "@/components/social/PlanBadge";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -23,6 +26,8 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
   const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -65,6 +70,19 @@ export default function Profile() {
     queryFn: async () => {
       try {
         return await base44.entities.Follow.filter({ follower_email: user.email }) || [];
+      } catch (e) {
+        return [];
+      }
+    },
+    enabled: !!user?.email,
+  });
+
+  // Buscar todos os usuários para mostrar nas listas
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['all-users-profile'],
+    queryFn: async () => {
+      try {
+        return await base44.entities.User.list('-created_date', 500) || [];
       } catch (e) {
         return [];
       }
@@ -229,20 +247,20 @@ export default function Profile() {
                 
                 {/* Seguidores e Seguindo */}
                 <div className="flex items-center gap-6 mt-4">
-                  <Link 
-                    to={`${createPageUrl('SocialProfile')}?email=${user?.email}`}
+                  <button 
+                    onClick={() => setShowFollowers(true)}
                     className="text-center hover:opacity-70 transition-opacity"
                   >
                     <p className="text-lg font-bold text-slate-800">{followers.length}</p>
                     <p className="text-xs text-slate-500">Seguidores</p>
-                  </Link>
-                  <Link 
-                    to={`${createPageUrl('SocialProfile')}?email=${user?.email}`}
+                  </button>
+                  <button 
+                    onClick={() => setShowFollowing(true)}
                     className="text-center hover:opacity-70 transition-opacity"
                   >
                     <p className="text-lg font-bold text-slate-800">{following.length}</p>
                     <p className="text-xs text-slate-500">Seguindo</p>
-                  </Link>
+                  </button>
                 </div>
               </div>
 
@@ -382,6 +400,90 @@ export default function Profile() {
           </Card>
         </motion.div>
       </div>
+
+      {/* Followers Dialog */}
+      <Dialog open={showFollowers} onOpenChange={setShowFollowers}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Seguidores ({followers.length})</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[400px]">
+            <div className="space-y-3">
+              {followers.length === 0 ? (
+                <p className="text-center text-slate-500 py-4">Nenhum seguidor ainda</p>
+              ) : (
+                followers.map((follow) => {
+                  const followerUser = allUsers.find(u => u.email === follow.follower_email);
+                  return (
+                    <Link 
+                      key={follow.id}
+                      to={`${createPageUrl('SocialProfile')}?email=${follow.follower_email}`}
+                      onClick={() => setShowFollowers(false)}
+                      className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg"
+                    >
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src={followerUser?.profile_photo} />
+                        <AvatarFallback className="bg-[#0056ff] text-white">
+                          {followerUser?.full_name?.[0] || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm">{followerUser?.full_name || 'Usuário'}</p>
+                          <PlanBadge user={followerUser} />
+                        </div>
+                        <p className="text-xs text-slate-500">{followerUser?.email}</p>
+                      </div>
+                    </Link>
+                  );
+                })
+              )}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Following Dialog */}
+      <Dialog open={showFollowing} onOpenChange={setShowFollowing}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Seguindo ({following.length})</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[400px]">
+            <div className="space-y-3">
+              {following.length === 0 ? (
+                <p className="text-center text-slate-500 py-4">Não está seguindo ninguém</p>
+              ) : (
+                following.map((follow) => {
+                  const followingUser = allUsers.find(u => u.email === follow.following_email);
+                  return (
+                    <Link 
+                      key={follow.id}
+                      to={`${createPageUrl('SocialProfile')}?email=${follow.following_email}`}
+                      onClick={() => setShowFollowing(false)}
+                      className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg"
+                    >
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src={followingUser?.profile_photo} />
+                        <AvatarFallback className="bg-[#0056ff] text-white">
+                          {followingUser?.full_name?.[0] || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm">{followingUser?.full_name || 'Usuário'}</p>
+                          <PlanBadge user={followingUser} />
+                        </div>
+                        <p className="text-xs text-slate-500">{followingUser?.email}</p>
+                      </div>
+                    </Link>
+                  );
+                })
+              )}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

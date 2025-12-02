@@ -22,7 +22,6 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
-import ViewsMap from "@/components/admin/ViewsMap";
 import PremiumCodesManager from "@/components/admin/PremiumCodesManager";
 import PaymentsManager from "@/components/admin/PaymentsManager";
 import ChatManager from "@/components/admin/ChatManager";
@@ -859,17 +858,13 @@ export default function Admin() {
             </Tabs>
           </TabsContent>
 
-          {/* Analytics Internal Tab - Contains Cities, Analytics, Map */}
+          {/* Analytics Internal Tab - Contains Cities, Analytics */}
           <TabsContent value="analytics-internal" className="space-y-6">
             <Tabs defaultValue="analytics" className="space-y-4">
               <TabsList className="bg-slate-100 rounded-xl p-1">
                 <TabsTrigger value="analytics" className="rounded-lg">
                   <BarChart3 className="w-4 h-4 mr-2" />
                   Analytics
-                </TabsTrigger>
-                <TabsTrigger value="map" className="rounded-lg">
-                  <Globe className="w-4 h-4 mr-2" />
-                  Mapa
                 </TabsTrigger>
                 <TabsTrigger value="cities" className="rounded-lg">
                   <MapPin className="w-4 h-4 mr-2" />
@@ -880,11 +875,6 @@ export default function Admin() {
               {/* Analytics Sub-Tab */}
               <TabsContent value="analytics">
                 <AnalyticsDashboard />
-              </TabsContent>
-
-              {/* Map Sub-Tab */}
-              <TabsContent value="map">
-                <ViewsMap />
               </TabsContent>
 
               {/* Cities Sub-Tab */}
