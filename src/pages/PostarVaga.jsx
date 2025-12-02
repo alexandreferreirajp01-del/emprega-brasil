@@ -118,6 +118,7 @@ export default function PostarVaga() {
   const [funcSearch, setFuncSearch] = useState('');
   const [showNotificationSender, setShowNotificationSender] = useState(false);
   const [lastCreatedJob, setLastCreatedJob] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -134,18 +135,20 @@ export default function PostarVaga() {
           return;
         }
 
-        // Verificar se é admin
+        // Verificar se é admin ou recrutador
         const user = await base44.auth.me();
         const isAdmin = user.email === 'alexandreferreirajp01@gmail.com' || 
                         user.role === 'admin' || 
                         user.subscription_type === 'admin';
+        const isRecruiter = user.subscription_type === 'recruiter';
         
-        if (!isAdmin) {
+        if (!isAdmin && !isRecruiter) {
           window.location.href = createPageUrl('Home');
           return;
         }
 
         setIsAuthorized(true);
+        setCurrentUser(user);
       } catch (e) {
         console.error('Erro:', e);
         window.location.href = createPageUrl('Home');
@@ -259,13 +262,10 @@ export default function PostarVaga() {
       if (formData.website) {
         applicationLink = formData.website.startsWith('http') ? formData.website : `https://${formData.website}`;
       } else if (formData.contact_phone) {
-        // Formatar corretamente o link do WhatsApp com código 55
         let phone = formData.contact_phone.replace(/\D/g, '');
-        // Remover 0 inicial se houver
         if (phone.startsWith('0')) {
           phone = phone.substring(1);
         }
-        // Garantir que tem código do país 55
         if (!phone.startsWith('55')) {
           phone = '55' + phone;
         }
@@ -274,7 +274,12 @@ export default function PostarVaga() {
         applicationLink = `mailto:${formData.contact_email}`;
       }
 
-      const createdJob = await base44.entities.Job.create({
+      const isAdmin = currentUser?.email === 'alexandreferreirajp01@gmail.com' || 
+                      currentUser?.role === 'admin' || 
+                      currentUser?.subscription_type === 'admin';
+      const isRecruiter = currentUser?.subscription_type === 'recruiter';
+
+      const jobData = {
         title: formData.title,
         company: formData.company,
         job_function: formData.job_function,
@@ -285,24 +290,47 @@ export default function PostarVaga() {
         is_premium: formData.is_premium,
         is_featured: formData.is_featured,
         application_link: applicationLink
-      });
+      };
 
-      setLastCreatedJob({
-        id: createdJob?.id,
-        title: formData.title,
-        city: formData.city
-      });
-      
-      // Enviar notificação automática para todos os usuários
-      sendJobNotification(createdJob?.id, formData.title, formData.company);
-      
-      setFormData({
-        title: '', company: '', job_function: '', city: '', description: '',
-        salary_range: '', contact_phone: '', contact_email: '', image_url: '',
-        is_premium: false, is_featured: false, website: ''
-      });
-      showToast('Vaga publicada!');
-      setShowNotificationSender(true);
+      if (isRecruiter && !isAdmin) {
+        // Recrutador - criar solicitação para aprovação
+        await base44.entities.RecruiterRequest.create({
+          recruiter_email: currentUser.email,
+          recruiter_name: currentUser.full_name,
+          recruiter_photo: currentUser.profile_photo,
+          request_type: 'job',
+          title: formData.title,
+          content_preview: `${formData.company || 'Empresa não informada'} - ${formData.city || 'Cidade não informada'}`,
+          full_content: jobData,
+          status: 'pending'
+        });
+        
+        setFormData({
+          title: '', company: '', job_function: '', city: '', description: '',
+          salary_range: '', contact_phone: '', contact_email: '', image_url: '',
+          is_premium: false, is_featured: false, website: ''
+        });
+        showToast('Vaga enviada para aprovação!');
+      } else {
+        // Admin - publicar diretamente
+        const createdJob = await base44.entities.Job.create(jobData);
+
+        setLastCreatedJob({
+          id: createdJob?.id,
+          title: formData.title,
+          city: formData.city
+        });
+        
+        sendJobNotification(createdJob?.id, formData.title, formData.company);
+        
+        setFormData({
+          title: '', company: '', job_function: '', city: '', description: '',
+          salary_range: '', contact_phone: '', contact_email: '', image_url: '',
+          is_premium: false, is_featured: false, website: ''
+        });
+        showToast('Vaga publicada!');
+        setShowNotificationSender(true);
+      }
     } catch (err) {
       showToast('Erro ao publicar', 'error');
     } finally {
