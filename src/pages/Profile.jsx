@@ -153,6 +153,16 @@ export default function Profile() {
     user?.subscription_type === 'admin' || 
     user?.subscription_type === 'recruiter' ||
     user?.role === 'admin';
+  
+  const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || 
+    user?.role === 'admin' || 
+    user?.subscription_type === 'admin';
+  
+  const isRecruiter = user?.subscription_type === 'recruiter';
+  
+  // Currículo: apenas Premium pode preencher, Recrutador/Admin só visualizam
+  const canFillResume = user?.subscription_type === 'premium';
+  const canViewResumes = isRecruiter || isAdmin;
 
   const getSubscriptionBadge = () => {
     if (user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin') {
@@ -403,15 +413,6 @@ export default function Profile() {
                     <span className="text-xs">Histórico</span>
                   </Button>
                 </Link>
-                <Link to={createPageUrl('ProfessionalResume')}>
-                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
-                    <FileText className="w-5 h-5 text-blue-500" />
-                    <span className="text-xs">Currículo</span>
-                    {!hasPremiumAccess && (
-                      <Lock className="w-3 h-3 absolute top-2 right-2 text-amber-500" />
-                    )}
-                  </Button>
-                </Link>
                 <Link to={createPageUrl('Inbox')}>
                   <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
                     <Mail className="w-5 h-5 text-green-500" />
@@ -421,25 +422,29 @@ export default function Profile() {
                     )}
                   </Button>
                 </Link>
+                <Link to={createPageUrl('ProfessionalResume')}>
+                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
+                    <FileText className="w-5 h-5 text-blue-500" />
+                    <span className="text-xs">{canViewResumes ? 'Ver Currículos' : 'Currículo'}</span>
+                    {!canFillResume && !canViewResumes && (
+                      <Lock className="w-3 h-3 absolute top-2 right-2 text-amber-500" />
+                    )}
+                  </Button>
+                </Link>
               </div>
 
-              {/* Área do Recrutador */}
-              <Link to={createPageUrl('RecruiterArea')} className="block mb-6">
-                <Button 
-                  variant="outline" 
-                  className={`w-full h-14 rounded-xl flex items-center justify-center gap-2 relative ${
-                    user?.subscription_type === 'recruiter' || user?.subscription_type === 'admin' || user?.role === 'admin'
-                      ? 'border-purple-300 bg-purple-50 hover:bg-purple-100'
-                      : 'opacity-70'
-                  }`}
-                >
-                  <Briefcase className="w-5 h-5 text-purple-600" />
-                  <span className="text-purple-700 font-medium">Área do Recrutador</span>
-                  {user?.subscription_type !== 'recruiter' && user?.subscription_type !== 'admin' && user?.role !== 'admin' && (
-                    <Lock className="w-4 h-4 absolute right-4 text-amber-500" />
-                  )}
-                </Button>
-              </Link>
+              {/* Área do Recrutador - apenas para recrutadores */}
+              {(isRecruiter || isAdmin) && (
+                <Link to={createPageUrl('RecruiterArea')} className="block mb-6">
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-purple-300 bg-purple-50 hover:bg-purple-100"
+                  >
+                    <Briefcase className="w-5 h-5 text-purple-600" />
+                    <span className="text-purple-700 font-medium">Área do Recrutador</span>
+                  </Button>
+                </Link>
+              )}
 
               {/* Actions */}
               <div className="space-y-3">
