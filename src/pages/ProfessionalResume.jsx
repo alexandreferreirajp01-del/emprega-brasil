@@ -777,16 +777,25 @@ export default function ProfessionalResume() {
               <CardContent className="p-6">
                 {!isEditing && resume ? (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <h2 className="text-xl font-bold text-slate-800">Seu Currículo</h2>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Button variant="outline" onClick={() => setIsEditing(true)} className="rounded-xl">
                           <Edit className="w-4 h-4 mr-2" />
                           Editar
                         </Button>
-                        <Button onClick={() => generatePDF(form)} className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
+                        <Button 
+                          onClick={() => {
+                            if (form.resume_file_url) {
+                              window.open(form.resume_file_url, '_blank');
+                            } else {
+                              generatePDF(form);
+                            }
+                          }} 
+                          className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
+                        >
                           <Download className="w-4 h-4 mr-2" />
-                          Baixar PDF
+                          Baixar Currículo
                         </Button>
                       </div>
                     </div>
