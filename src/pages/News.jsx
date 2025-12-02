@@ -20,15 +20,15 @@ export default function News() {
   const { data: news = [], isLoading } = useQuery({
     queryKey: ['news'],
     queryFn: async () => {
-      try {
-        return await base44.entities.News.filter({ status: 'published' }, '-created_date', 100) || [];
-      } catch (e) {
-        console.error('Erro ao carregar notícias:', e);
-        return [];
-      }
+      const result = await base44.entities.News.filter({ status: 'published' }, '-created_date', 100);
+      return result || [];
     },
-    refetchInterval: 10000, // Atualiza em tempo real a cada 10 segundos
-    staleTime: 5000,
+    staleTime: 60000,
+    gcTime: 300000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const categories = ['Mercado de Trabalho', 'Dicas de Emprego', 'Economia', 'Cursos', 'Eventos', 'Geral'];

@@ -139,14 +139,15 @@ export default function Jobs() {
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ['jobs'],
     queryFn: async () => {
-      try {
-        return await base44.entities.Job.list('-created_date', 500) || [];
-      } catch (e) {
-        return [];
-      }
+      const result = await base44.entities.Job.list('-created_date', 500);
+      return result || [];
     },
-    refetchInterval: 10000, // Atualiza em tempo real a cada 10 segundos
-    staleTime: 5000,
+    staleTime: 60000,
+    gcTime: 300000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    retry: 3,
+    retryDelay: 1000,
   });
 
 
@@ -154,14 +155,14 @@ export default function Jobs() {
   const { data: allViews = [] } = useQuery({
     queryKey: ['all-job-views'],
     queryFn: async () => {
-      try {
-        return await base44.entities.JobView.list('-created_date', 5000) || [];
-      } catch (e) {
-        return [];
-      }
+      const result = await base44.entities.JobView.list('-created_date', 5000);
+      return result || [];
     },
-    refetchInterval: 5000, // Atualiza a cada 5 segundos para tempo real
-    staleTime: 3000,
+    staleTime: 60000,
+    gcTime: 300000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    retry: 2,
   });
 
   const viewsCountMap = {};

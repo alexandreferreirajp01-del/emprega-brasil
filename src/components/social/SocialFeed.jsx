@@ -10,17 +10,22 @@ export default function SocialFeed({ user, feedType = "all" }) {
     queryKey: ['my-follows', user?.email],
     queryFn: async () => {
       if (!user) return [];
-      return await base44.entities.Follow.filter({ follower_email: user.email }) || [];
+      const result = await base44.entities.Follow.filter({ follower_email: user.email, status: 'accepted' });
+      return result || [];
     },
     enabled: !!user && feedType === 'following',
+    staleTime: 60000,
+    gcTime: 300000,
+    retry: 2,
   });
 
   const followingEmails = follows.map(f => f.following_email);
 
   const { data: posts = [], isLoading, refetch } = useQuery({
-    queryKey: ['social-posts', feedType, user?.email],
+    queryKey: ['social-posts', feedType, user?.email, followingEmails.length],
     queryFn: async () => {
-      const allPosts = await base44.entities.SocialPost.filter({ status: 'active' }, '-created_date', 100) || [];
+      const allPosts = await base44.entities.SocialPost.filter({ status: 'active' }, '-created_date', 100);
+      if (!allPosts) return [];
       
       if (feedType === 'following' && followingEmails.length > 0) {
         return allPosts.filter(p => 
@@ -30,11 +35,23 @@ export default function SocialFeed({ user, feedType = "all" }) {
       return allPosts;
     },
     enabled: !!user,
+    staleTime: 60000,
+    gcTime: 300000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const { data: allLikes = [] } = useQuery({
     queryKey: ['social-likes'],
-    queryFn: async () => await base44.entities.SocialLike.list('-created_date', 1000) || [],
+    queryFn: async () => {
+      const result = await base44.entities.SocialLike.list('-created_date', 1000);
+      return result || [];
+    },
+    staleTime: 60000,
+    gcTime: 300000,
+    retry: 2,
   });
 
   if (isLoading) {

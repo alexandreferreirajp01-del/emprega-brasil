@@ -40,29 +40,28 @@ export default function Home() {
   const { data: jobs = [] } = useQuery({
     queryKey: ['home-jobs'],
     queryFn: async () => {
-      try {
-        return await base44.entities.Job.list('-created_date', 50) || [];
-      } catch (e) {
-        return [];
-      }
+      const result = await base44.entities.Job.list('-created_date', 50);
+      return result || [];
     },
-    refetchInterval: 15000,
-    staleTime: 10000,
+    staleTime: 60000,
+    gcTime: 300000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const { data: allViews = [] } = useQuery({
     queryKey: ['home-job-views'],
     queryFn: async () => {
-      try {
-        return await base44.entities.JobView.list('-created_date', 5000) || [];
-      } catch (e) {
-        return [];
-      }
+      const result = await base44.entities.JobView.list('-created_date', 5000);
+      return result || [];
     },
-    refetchInterval: 5000, // Atualiza a cada 5 segundos
-    staleTime: 3000,
+    staleTime: 60000,
+    gcTime: 300000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    retry: 2,
   });
 
   // Contagem de views por vaga
@@ -77,31 +76,29 @@ export default function Home() {
   const { data: news = [] } = useQuery({
     queryKey: ['home-news'],
     queryFn: async () => {
-      try {
-        return await base44.entities.News.filter({ status: 'published' }, '-created_date', 10) || [];
-      } catch (e) {
-        return [];
-      }
+      const result = await base44.entities.News.filter({ status: 'published' }, '-created_date', 10);
+      return result || [];
     },
-    refetchInterval: 30000,
-    staleTime: 15000,
+    staleTime: 60000,
+    gcTime: 300000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const { data: posts = [] } = useQuery({
     queryKey: ['home-posts'],
     queryFn: async () => {
-      try {
-        return await base44.entities.Post.filter({ status: 'approved' }, '-created_date', 10) || [];
-      } catch (e) {
-        return [];
-      }
+      const result = await base44.entities.Post.filter({ status: 'approved' }, '-created_date', 10);
+      return result || [];
     },
-    refetchInterval: 30000,
-    staleTime: 15000,
+    staleTime: 60000,
+    gcTime: 300000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
+    retry: 3,
+    retryDelay: 1000,
   });
 
 
