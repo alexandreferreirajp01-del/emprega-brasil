@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +10,6 @@ import {
   Loader2, Upload, X 
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 export default function CreatePostModal({ open, onOpenChange, user }) {
   const [content, setContent] = useState('');
@@ -20,25 +19,39 @@ export default function CreatePostModal({ open, onOpenChange, user }) {
   const [linkUrl, setLinkUrl] = useState('');
   const [selectedJobId, setSelectedJobId] = useState('');
   const [uploading, setUploading] = useState(false);
-  const queryClient = useQueryClient();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [jobs, setJobs] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
 
-  const { data: jobs = [] } = useQuery({
-    queryKey: ['jobs-for-share'],
-    queryFn: async () => await base44.entities.Job.list('-created_date', 50) || [],
-    enabled: postType === 'job_share',
-  });
+  // Carregar dados
+  useEffect(() => {
+    if (!open) return;
+    
+    const loadData = async () => {
+      try {
+        if (postType === 'job_share') {
+          const jobsResult = await base44.entities.Job.list('-created_date', 50);
+          setJobs(jobsResult || []);
+        }
+        
+        if (user?.email) {
+          const profilesResult = await base44.entities.UserProfile.list('-created_date', 200);
+          const profile = profilesResult.find(p => p.user_email === user.email);
+          setUserProfile(profile || null);
+        }
+      } catch (e) {
+        console.warn('Erro ao carregar dados:', e);
+      }
+    };
+    
+    loadData();
+  }, [open, postType, user?.email]);
 
-  const { data: userProfile } = useQuery({
-    queryKey: ['my-profile', user?.email],
-    queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ user_email: user?.email });
-      return profiles[0];
-    },
-    enabled: !!user,
-  });
-
-  const createPostMutation = useMutation({
-    mutationFn: async () => {
+  const handleCreatePost = async () => {
+    if (!content.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+    
+    try {
       await base44.entities.SocialPost.create({
         author_email: user.email,
         author_name: user.full_name,
@@ -53,24 +66,32 @@ export default function CreatePostModal({ open, onOpenChange, user }) {
       });
 
       // Notificar seguidores
-      const followers = await base44.entities.Follow.filter({ following_email: user.email });
-      for (const follower of followers.slice(0, 20)) {
-        await base44.entities.SocialNotification.create({
-          user_email: follower.follower_email,
-          from_email: user.email,
-          from_name: user.full_name,
-          from_photo: user.profile_photo,
-          type: 'new_post',
-          message: `${user.full_name || 'Alguém'} fez uma nova publicação`
-        });
+      try {
+        const followsResult = await base44.entities.Follow.list('-created_date', 500);
+        const followers = followsResult.filter(f => f.following_email === user.email);
+        
+        for (const follower of followers.slice(0, 20)) {
+          await base44.entities.SocialNotification.create({
+            user_email: follower.follower_email,
+            from_email: user.email,
+            from_name: user.full_name,
+            from_photo: user.profile_photo,
+            type: 'new_post',
+            message: `${user.full_name || 'Alguém'} fez uma nova publicação`
+          });
+        }
+      } catch (e) {
+        console.warn('Erro ao notificar seguidores:', e);
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['social-posts'] });
+      
       resetForm();
       onOpenChange(false);
-    },
-  });
+    } catch (e) {
+      console.warn('Erro ao criar post:', e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -240,11 +261,11 @@ export default function CreatePostModal({ open, onOpenChange, user }) {
 
           {/* Submit */}
           <Button
-            onClick={() => createPostMutation.mutate()}
-            disabled={!content.trim() || createPostMutation.isPending}
+            onClick={handleCreatePost}
+            disabled={!content.trim() || isSubmitting}
             className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
           >
-            {createPostMutation.isPending ? (
+            {isSubmitting ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               'Publicar'
