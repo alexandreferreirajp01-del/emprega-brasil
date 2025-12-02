@@ -7,25 +7,46 @@ import SocialPostCard from "./SocialPostCard";
 
 export default function SocialFeed({ user, feedType = "all" }) {
   const { data: follows = [] } = useQuery({
-    queryKey: ['my-follows', user?.email],
+    queryKey: ['my-follows-feed', user?.email],
     queryFn: async () => {
       if (!user) return [];
-      const result = await base44.entities.Follow.filter({ follower_email: user.email, status: 'accepted' });
+      // Primeiro tenta filter
+      let result = await base44.entities.Follow.filter({ follower_email: user.email, status: 'accepted' });
+      
+      // Se não retornou, tenta list e filtra manualmente
+      if (!result || result.length === 0) {
+        const listFollows = await base44.entities.Follow.list('-created_date', 1000);
+        if (listFollows && listFollows.length > 0) {
+          result = listFollows.filter(f => f.follower_email === user.email && f.status === 'accepted');
+        }
+      }
+      
       return result || [];
     },
     enabled: !!user && feedType === 'following',
-    staleTime: 60000,
-    gcTime: 300000,
-    retry: 2,
+    staleTime: 30000,
+    gcTime: 120000,
+    retry: 3,
+    retryDelay: 500,
   });
 
   const followingEmails = follows.map(f => f.following_email);
 
   const { data: posts = [], isLoading, refetch } = useQuery({
-    queryKey: ['social-posts', feedType, user?.email, followingEmails.length],
+    queryKey: ['social-posts', feedType, user?.email],
     queryFn: async () => {
-      const allPosts = await base44.entities.SocialPost.filter({ status: 'active' }, '-created_date', 100);
-      if (!allPosts) return [];
+      // Buscar todos os posts ativos
+      let allPosts = await base44.entities.SocialPost.filter({ status: 'active' }, '-created_date', 200);
+      
+      // Se não retornou nada com filter, tenta list
+      if (!allPosts || allPosts.length === 0) {
+        const listPosts = await base44.entities.SocialPost.list('-created_date', 200);
+        if (listPosts && listPosts.length > 0) {
+          allPosts = listPosts.filter(p => p.status === 'active' || !p.status);
+        }
+      }
+      
+      if (!allPosts || allPosts.length === 0) return [];
       
       if (feedType === 'following' && followingEmails.length > 0) {
         return allPosts.filter(p => 
@@ -35,12 +56,12 @@ export default function SocialFeed({ user, feedType = "all" }) {
       return allPosts;
     },
     enabled: !!user,
-    staleTime: 60000,
-    gcTime: 300000,
+    staleTime: 30000,
+    gcTime: 120000,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
     retry: 3,
-    retryDelay: 1000,
+    retryDelay: 500,
   });
 
   const { data: allLikes = [] } = useQuery({

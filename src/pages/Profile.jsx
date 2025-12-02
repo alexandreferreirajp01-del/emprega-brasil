@@ -56,29 +56,49 @@ export default function Profile() {
   const { data: followers = [] } = useQuery({
     queryKey: ['my-followers', user?.email],
     queryFn: async () => {
-      const allFollows = await base44.entities.Follow.filter({ following_email: user.email });
+      // Primeiro tenta filter
+      let allFollows = await base44.entities.Follow.filter({ following_email: user.email });
+      
+      // Se não retornou, tenta list e filtra manualmente
+      if (!allFollows || allFollows.length === 0) {
+        const listFollows = await base44.entities.Follow.list('-created_date', 1000);
+        if (listFollows && listFollows.length > 0) {
+          allFollows = listFollows.filter(f => f.following_email === user.email);
+        }
+      }
+      
       if (!allFollows) return [];
       return allFollows.filter(f => f.status === 'accepted');
     },
     enabled: !!user?.email,
-    staleTime: 60000,
-    gcTime: 300000,
+    staleTime: 30000,
+    gcTime: 120000,
     retry: 3,
-    retryDelay: 1000,
+    retryDelay: 500,
   });
 
   const { data: following = [] } = useQuery({
     queryKey: ['my-following', user?.email],
     queryFn: async () => {
-      const allFollows = await base44.entities.Follow.filter({ follower_email: user.email });
+      // Primeiro tenta filter
+      let allFollows = await base44.entities.Follow.filter({ follower_email: user.email });
+      
+      // Se não retornou, tenta list e filtra manualmente
+      if (!allFollows || allFollows.length === 0) {
+        const listFollows = await base44.entities.Follow.list('-created_date', 1000);
+        if (listFollows && listFollows.length > 0) {
+          allFollows = listFollows.filter(f => f.follower_email === user.email);
+        }
+      }
+      
       if (!allFollows) return [];
       return allFollows.filter(f => f.status === 'accepted');
     },
     enabled: !!user?.email,
-    staleTime: 60000,
-    gcTime: 300000,
+    staleTime: 30000,
+    gcTime: 120000,
     retry: 3,
-    retryDelay: 1000,
+    retryDelay: 500,
   });
 
   // Buscar todos os usuários para mostrar nas listas
@@ -89,8 +109,8 @@ export default function Profile() {
       return result || [];
     },
     enabled: !!user?.email,
-    staleTime: 120000,
-    gcTime: 600000,
+    staleTime: 60000,
+    gcTime: 300000,
     retry: 3,
   });
 
