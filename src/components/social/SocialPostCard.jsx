@@ -30,40 +30,54 @@ export default function SocialPostCard({ post, user, likesCount, userLiked, onRe
   const { data: authorUser } = useQuery({
     queryKey: ['user-data', post.author_email],
     queryFn: async () => {
-      try {
-        const users = await base44.entities.User.filter({ email: post.author_email });
-        return users[0];
-      } catch (e) {
-        return null;
+      let users = await base44.entities.User.filter({ email: post.author_email });
+      if (users && users.length > 0) return users[0];
+      // Fallback: buscar todos e filtrar
+      const allUsers = await base44.entities.User.list('-created_date', 500);
+      if (allUsers && allUsers.length > 0) {
+        return allUsers.find(u => u.email === post.author_email) || null;
       }
+      return null;
     },
     staleTime: 60000,
+    gcTime: 300000,
+    retry: 2,
   });
 
-  // Real-time likes count
+  // Likes count
   const { data: realTimeLikes = [] } = useQuery({
     queryKey: ['post-likes', post.id],
     queryFn: async () => {
-      try {
-        return await base44.entities.SocialLike.filter({ post_id: post.id }) || [];
-      } catch (e) {
-        return [];
+      let result = await base44.entities.SocialLike.filter({ post_id: post.id });
+      if (!result || result.length === 0) {
+        const allLikes = await base44.entities.SocialLike.list('-created_date', 2000);
+        if (allLikes && allLikes.length > 0) {
+          result = allLikes.filter(l => l.post_id === post.id);
+        }
       }
+      return result || [];
     },
-    refetchInterval: 5000,
+    staleTime: 30000,
+    gcTime: 120000,
+    retry: 2,
   });
 
-  // Real-time comments count
+  // Comments count
   const { data: realTimeComments = [] } = useQuery({
     queryKey: ['post-comments-count', post.id],
     queryFn: async () => {
-      try {
-        return await base44.entities.SocialComment.filter({ post_id: post.id, status: 'active' }) || [];
-      } catch (e) {
-        return [];
+      let result = await base44.entities.SocialComment.filter({ post_id: post.id, status: 'active' });
+      if (!result || result.length === 0) {
+        const allComments = await base44.entities.SocialComment.list('-created_date', 2000);
+        if (allComments && allComments.length > 0) {
+          result = allComments.filter(c => c.post_id === post.id && (c.status === 'active' || !c.status));
+        }
       }
+      return result || [];
     },
-    refetchInterval: 5000,
+    staleTime: 30000,
+    gcTime: 120000,
+    retry: 2,
   });
 
   const realLikesCount = realTimeLikes.length;
