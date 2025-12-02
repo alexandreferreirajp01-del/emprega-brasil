@@ -106,15 +106,6 @@ export default function Layout({ children, currentPageName }) {
 
   const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
   
-  // Verificar acesso premium (para mensagens)
-  const hasPremiumAccess = user?.subscription_type === 'premium' || 
-    user?.subscription_type === 'admin' || 
-    user?.subscription_type === 'recruiter' ||
-    user?.role === 'admin';
-  
-  // Verificar se pode usar currículo (apenas Premium)
-  const canUseResume = user?.subscription_type === 'premium';
-
   // Menu principal limpo - apenas itens básicos
   const navItems = [
     { name: 'Início', icon: Home, page: 'Home' },
