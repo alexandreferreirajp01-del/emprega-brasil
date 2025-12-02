@@ -11,14 +11,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   ArrowLeft, MapPin, Briefcase, Link as LinkIcon, Edit, Save, X,
-  Users, UserPlus, Loader2, Instagram, Linkedin, Globe, Plus, Trash2, MessageCircle
+  Users, UserPlus, Loader2, Instagram, Linkedin, Globe, Plus, Trash2, MessageCircle, Heart
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import SocialFeed from "@/components/social/SocialFeed";
 import PlanBadge from "@/components/social/PlanBadge";
+import SocialPostCard from "@/components/social/SocialPostCard";
 
 export default function SocialProfile() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -513,17 +513,28 @@ function ProfilePosts({ userEmail, currentUser }) {
   const { data: posts = [], isLoading, refetch } = useQuery({
     queryKey: ['user-posts', userEmail],
     queryFn: async () => {
-      return await base44.entities.SocialPost.filter(
-        { author_email: userEmail, status: 'active' },
-        '-created_date',
-        50
-      ) || [];
+      try {
+        return await base44.entities.SocialPost.filter(
+          { author_email: userEmail, status: 'active' },
+          '-created_date',
+          50
+        ) || [];
+      } catch (e) {
+        return [];
+      }
     },
+    enabled: !!userEmail,
   });
 
   const { data: allLikes = [] } = useQuery({
     queryKey: ['social-likes'],
-    queryFn: async () => await base44.entities.SocialLike.list('-created_date', 1000) || [],
+    queryFn: async () => {
+      try {
+        return await base44.entities.SocialLike.list('-created_date', 1000) || [];
+      } catch (e) {
+        return [];
+      }
+    },
   });
 
   if (isLoading) {
@@ -540,19 +551,15 @@ function ProfilePosts({ userEmail, currentUser }) {
         const postLikes = allLikes.filter(l => l.post_id === post.id);
         const userLiked = postLikes.some(l => l.user_email === currentUser?.email);
         
-        // Import inline to avoid circular dependency
-        const SocialPostCard = React.lazy(() => import('@/components/social/SocialPostCard'));
-        
         return (
-          <React.Suspense key={post.id} fallback={<div className="h-20 bg-slate-100 animate-pulse rounded-xl" />}>
-            <SocialPostCard
-              post={post}
-              user={currentUser}
-              likesCount={postLikes.length}
-              userLiked={userLiked}
-              onRefresh={refetch}
-            />
-          </React.Suspense>
+          <SocialPostCard
+            key={post.id}
+            post={post}
+            user={currentUser}
+            likesCount={postLikes.length}
+            userLiked={userLiked}
+            onRefresh={refetch}
+          />
         );
       })}
     </div>
