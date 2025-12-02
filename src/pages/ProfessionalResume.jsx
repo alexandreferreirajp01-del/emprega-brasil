@@ -1297,17 +1297,49 @@ export default function ProfessionalResume() {
 
                       {/* Action Buttons */}
                       <div className="flex flex-wrap gap-3 pt-6 border-t">
-                        <Button onClick={handleSave} disabled={isSaving} className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
+                        <Button 
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleSave();
+                          }} 
+                          disabled={isSaving} 
+                          className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
+                        >
                           {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                           Salvar
                         </Button>
                         {!form.is_confirmed && (
-                          <Button onClick={handleConfirm} disabled={isSaving} variant="outline" className="rounded-xl border-green-500 text-green-600 hover:bg-green-50">
+                          <Button 
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleConfirm();
+                            }} 
+                            disabled={isSaving} 
+                            variant="outline" 
+                            className="rounded-xl border-green-500 text-green-600 hover:bg-green-50"
+                          >
                             <CheckCircle className="w-4 h-4 mr-2" />
                             Confirmar Informações
                           </Button>
                         )}
-                        <Button onClick={() => generatePDF(form)} variant="outline" className="rounded-xl">
+                        <Button 
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (form.resume_file_url) {
+                              window.open(form.resume_file_url, '_blank');
+                            } else {
+                              generatePDF(form);
+                            }
+                          }} 
+                          variant="outline" 
+                          className="rounded-xl"
+                        >
                           <Download className="w-4 h-4 mr-2" />
                           Baixar Currículo
                         </Button>

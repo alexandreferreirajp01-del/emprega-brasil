@@ -978,22 +978,22 @@ export default function Admin() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {pendingUsers.map((u) => (
-                        <div key={u.id} className="flex items-center justify-between p-4 bg-white rounded-xl">
-                          <div className="flex items-center gap-3">
-                            <Avatar>
+                        <div key={u.id} className="p-4 bg-white rounded-xl">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Avatar className="w-10 h-10 flex-shrink-0">
                               <AvatarImage src={u.profile_photo} />
                               <AvatarFallback className="bg-amber-200 text-amber-700">
                                 {u.full_name?.[0] || u.email?.[0]}
                               </AvatarFallback>
                             </Avatar>
-                            <div>
-                              <p className="font-medium text-slate-800">{u.full_name || 'Sem nome'}</p>
-                              <p className="text-sm text-slate-500">{u.email}</p>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-slate-800 text-sm truncate">{u.full_name || 'Sem nome'}</p>
+                              <p className="text-xs text-slate-500 truncate">{u.email}</p>
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex flex-wrap gap-2">
                             <Select onValueChange={(type) => approveUser(u.id, type)}>
-                              <SelectTrigger className="w-40 rounded-lg">
+                              <SelectTrigger className="flex-1 min-w-[140px] h-9 rounded-lg text-sm">
                                 <SelectValue placeholder="Aprovar como..." />
                               </SelectTrigger>
                               <SelectContent>
@@ -1008,9 +1008,10 @@ export default function Admin() {
                               variant="outline"
                               size="sm"
                               onClick={() => rejectUser(u.id)}
-                              className="rounded-lg text-red-600 hover:bg-red-50"
+                              className="h-9 px-3 rounded-lg text-red-600 hover:bg-red-50"
                             >
-                              <UserX className="w-4 h-4" />
+                              <UserX className="w-4 h-4 mr-1" />
+                              <span className="hidden sm:inline">Rejeitar</span>
                             </Button>
                           </div>
                         </div>
