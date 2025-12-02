@@ -1,69 +1,100 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, MessageCircle } from "lucide-react";
+import { Loader2, MessageCircle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
 import SocialPostCard from "./SocialPostCard";
 
+// Função de fetch com retry robusto
+async function fetchWithRetry(fetchFn, maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const result = await fetchFn();
+      if (result && result.length >= 0) {
+        return result;
+      }
+    } catch (error) {
+      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
+    }
+    if (attempt < maxRetries - 1) {
+      await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
+    }
+  }
+  return [];
+}
+
 export default function SocialFeed({ user, feedType = "all" }) {
-  const { data: follows = [] } = useQuery({
-    queryKey: ['my-follows-feed', user?.email],
-    queryFn: async () => {
-      if (!user) return [];
-      // Buscar todos os follows e filtrar manualmente
-      const listFollows = await base44.entities.Follow.list('-created_date', 1000);
-      if (!listFollows || listFollows.length === 0) return [];
-      
-      // Filtrar quem o usuário segue (aceito ou pendente)
-      const result = listFollows.filter(f => 
-        f.follower_email === user.email && (f.status === 'accepted' || f.status === 'pending')
-      );
-      return result || [];
-    },
-    enabled: !!user && feedType === 'following',
-    staleTime: 30000,
-    gcTime: 120000,
-    retry: 3,
-    retryDelay: 500,
-  });
+  const [follows, setFollows] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [allLikes, setAllLikes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const followingEmails = follows.map(f => f.following_email);
 
-  const { data: posts = [], isLoading, refetch } = useQuery({
-    queryKey: ['social-posts', feedType, user?.email],
-    queryFn: async () => {
-      const listPosts = await base44.entities.SocialPost.list('-created_date', 200);
-      console.log('Posts carregados:', listPosts?.length || 0);
-      if (!listPosts || listPosts.length === 0) return [];
+  // Carregar follows
+  useEffect(() => {
+    if (!user || feedType !== 'following') return;
+    
+    const loadFollows = async () => {
+      const result = await fetchWithRetry(() => 
+        base44.entities.Follow.list('-created_date', 1000)
+      );
+      const filtered = result.filter(f => 
+        f.follower_email === user.email && (f.status === 'accepted' || f.status === 'pending')
+      );
+      setFollows(filtered);
+    };
+    
+    loadFollows();
+  }, [user, feedType]);
+
+  // Carregar posts
+  useEffect(() => {
+    if (!user) return;
+    let isMounted = true;
+    
+    const loadPosts = async () => {
+      setIsLoading(true);
       
-      const allPosts = listPosts.filter(p => p.status === 'active' || !p.status);
+      const listPosts = await fetchWithRetry(() => 
+        base44.entities.SocialPost.list('-created_date', 200)
+      );
+      
+      if (!isMounted) return;
+      
+      const activePosts = listPosts.filter(p => p.status === 'active' || !p.status);
       
       if (feedType === 'following' && followingEmails.length > 0) {
-        return allPosts.filter(p => 
+        setPosts(activePosts.filter(p => 
           followingEmails.includes(p.author_email) || p.author_email === user?.email
-        );
+        ));
+      } else {
+        setPosts(activePosts);
       }
-      return allPosts;
-    },
-    enabled: !!user,
-    staleTime: 0,
-    gcTime: 60000,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-    retry: 5,
-    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
-  });
+      
+      setIsLoading(false);
+    };
+    
+    loadPosts();
+    
+    return () => { isMounted = false; };
+  }, [user, feedType, followingEmails.join(','), refreshKey]);
 
-  const { data: allLikes = [] } = useQuery({
-    queryKey: ['social-likes'],
-    queryFn: async () => {
-      const result = await base44.entities.SocialLike.list('-created_date', 1000);
-      return result || [];
-    },
-    staleTime: 60000,
-    gcTime: 300000,
-    retry: 2,
-  });
+  // Carregar likes
+  useEffect(() => {
+    const loadLikes = async () => {
+      const result = await fetchWithRetry(() => 
+        base44.entities.SocialLike.list('-created_date', 1000)
+      );
+      setAllLikes(result);
+    };
+    loadLikes();
+  }, [refreshKey]);
+
+  const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   if (isLoading) {
     return (
