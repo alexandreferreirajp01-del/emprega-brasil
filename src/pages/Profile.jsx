@@ -423,6 +423,24 @@ export default function Profile() {
                 </Link>
               </div>
 
+              {/* Área do Recrutador */}
+              <Link to={createPageUrl('RecruiterArea')} className="block mb-6">
+                <Button 
+                  variant="outline" 
+                  className={`w-full h-14 rounded-xl flex items-center justify-center gap-2 relative ${
+                    user?.subscription_type === 'recruiter' || user?.subscription_type === 'admin' || user?.role === 'admin'
+                      ? 'border-purple-300 bg-purple-50 hover:bg-purple-100'
+                      : 'opacity-70'
+                  }`}
+                >
+                  <Briefcase className="w-5 h-5 text-purple-600" />
+                  <span className="text-purple-700 font-medium">Área do Recrutador</span>
+                  {user?.subscription_type !== 'recruiter' && user?.subscription_type !== 'admin' && user?.role !== 'admin' && (
+                    <Lock className="w-4 h-4 absolute right-4 text-amber-500" />
+                  )}
+                </Button>
+              </Link>
+
               {/* Actions */}
               <div className="space-y-3">
                 {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.role !== 'admin' && user?.email !== 'alexandreferreirajp01@gmail.com' && (
