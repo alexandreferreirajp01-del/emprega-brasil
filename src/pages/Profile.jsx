@@ -56,19 +56,15 @@ export default function Profile() {
   const { data: followers = [] } = useQuery({
     queryKey: ['my-followers', user?.email],
     queryFn: async () => {
-      // Primeiro tenta filter
-      let allFollows = await base44.entities.Follow.filter({ following_email: user.email });
+      // Buscar todos os follows e filtrar manualmente
+      const listFollows = await base44.entities.Follow.list('-created_date', 1000);
+      if (!listFollows || listFollows.length === 0) return [];
       
-      // Se não retornou, tenta list e filtra manualmente
-      if (!allFollows || allFollows.length === 0) {
-        const listFollows = await base44.entities.Follow.list('-created_date', 1000);
-        if (listFollows && listFollows.length > 0) {
-          allFollows = listFollows.filter(f => f.following_email === user.email);
-        }
-      }
-      
-      if (!allFollows) return [];
-      return allFollows.filter(f => f.status === 'accepted');
+      // Filtrar quem segue o usuário atual (status accepted OU pending para contar pendentes também)
+      const myFollowers = listFollows.filter(f => 
+        f.following_email === user.email && (f.status === 'accepted' || f.status === 'pending')
+      );
+      return myFollowers;
     },
     enabled: !!user?.email,
     staleTime: 30000,
@@ -80,19 +76,15 @@ export default function Profile() {
   const { data: following = [] } = useQuery({
     queryKey: ['my-following', user?.email],
     queryFn: async () => {
-      // Primeiro tenta filter
-      let allFollows = await base44.entities.Follow.filter({ follower_email: user.email });
+      // Buscar todos os follows e filtrar manualmente
+      const listFollows = await base44.entities.Follow.list('-created_date', 1000);
+      if (!listFollows || listFollows.length === 0) return [];
       
-      // Se não retornou, tenta list e filtra manualmente
-      if (!allFollows || allFollows.length === 0) {
-        const listFollows = await base44.entities.Follow.list('-created_date', 1000);
-        if (listFollows && listFollows.length > 0) {
-          allFollows = listFollows.filter(f => f.follower_email === user.email);
-        }
-      }
-      
-      if (!allFollows) return [];
-      return allFollows.filter(f => f.status === 'accepted');
+      // Filtrar quem o usuário segue (status accepted OU pending)
+      const myFollowing = listFollows.filter(f => 
+        f.follower_email === user.email && (f.status === 'accepted' || f.status === 'pending')
+      );
+      return myFollowing;
     },
     enabled: !!user?.email,
     staleTime: 30000,

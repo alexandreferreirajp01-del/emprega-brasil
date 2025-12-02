@@ -10,17 +10,14 @@ export default function SocialFeed({ user, feedType = "all" }) {
     queryKey: ['my-follows-feed', user?.email],
     queryFn: async () => {
       if (!user) return [];
-      // Primeiro tenta filter
-      let result = await base44.entities.Follow.filter({ follower_email: user.email, status: 'accepted' });
+      // Buscar todos os follows e filtrar manualmente
+      const listFollows = await base44.entities.Follow.list('-created_date', 1000);
+      if (!listFollows || listFollows.length === 0) return [];
       
-      // Se não retornou, tenta list e filtra manualmente
-      if (!result || result.length === 0) {
-        const listFollows = await base44.entities.Follow.list('-created_date', 1000);
-        if (listFollows && listFollows.length > 0) {
-          result = listFollows.filter(f => f.follower_email === user.email && f.status === 'accepted');
-        }
-      }
-      
+      // Filtrar quem o usuário segue (aceito ou pendente)
+      const result = listFollows.filter(f => 
+        f.follower_email === user.email && (f.status === 'accepted' || f.status === 'pending')
+      );
       return result || [];
     },
     enabled: !!user && feedType === 'following',
@@ -35,18 +32,12 @@ export default function SocialFeed({ user, feedType = "all" }) {
   const { data: posts = [], isLoading, refetch } = useQuery({
     queryKey: ['social-posts', feedType, user?.email],
     queryFn: async () => {
-      // Buscar todos os posts ativos
-      let allPosts = await base44.entities.SocialPost.filter({ status: 'active' }, '-created_date', 200);
+      // Buscar todos os posts via list (mais confiável)
+      const listPosts = await base44.entities.SocialPost.list('-created_date', 200);
+      if (!listPosts || listPosts.length === 0) return [];
       
-      // Se não retornou nada com filter, tenta list
-      if (!allPosts || allPosts.length === 0) {
-        const listPosts = await base44.entities.SocialPost.list('-created_date', 200);
-        if (listPosts && listPosts.length > 0) {
-          allPosts = listPosts.filter(p => p.status === 'active' || !p.status);
-        }
-      }
-      
-      if (!allPosts || allPosts.length === 0) return [];
+      // Filtrar apenas posts ativos
+      const allPosts = listPosts.filter(p => p.status === 'active' || !p.status);
       
       if (feedType === 'following' && followingEmails.length > 0) {
         return allPosts.filter(p => 
