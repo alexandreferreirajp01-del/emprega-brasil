@@ -6,7 +6,6 @@ import {
   ThumbsUp, MessageSquare, Share2, MoreHorizontal, Trash2, Flag,
   Globe, Send
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
@@ -22,7 +21,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import UserBadge from "./UserBadge";
 import moment from "moment";
 import "moment/locale/pt-br";
 
@@ -156,10 +154,7 @@ export default function FeedPostCard({ post, user, allUsers, onRefresh }) {
         <CardContent className="p-0">
           {/* Header */}
           <div className="flex items-start justify-between p-4">
-            <Link 
-              to={`${createPageUrl('SocialProfile')}?email=${post.author_email}`}
-              className="flex items-start gap-3"
-            >
+            <div className="flex items-start gap-3">
               <Avatar className="w-12 h-12">
                 <AvatarImage src={post.author_photo || author?.profile_photo} />
                 <AvatarFallback className="bg-[#0056ff] text-white font-semibold">
@@ -167,19 +162,16 @@ export default function FeedPostCard({ post, user, allUsers, onRefresh }) {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-slate-800 hover:text-[#0056ff] hover:underline">
-                    {post.author_name || 'Usuário'}
-                  </span>
-                  <UserBadge user={author} />
-                </div>
+                <span className="font-semibold text-slate-800 hover:text-[#0056ff] hover:underline">
+                  {post.author_name || 'Usuário'}
+                </span>
                 <div className="flex items-center gap-1 text-xs text-slate-500">
                   <span>{moment(post.created_date).fromNow()}</span>
                   <span>•</span>
                   <Globe className="w-3 h-3" />
                 </div>
               </div>
-            </Link>
+            </div>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -307,21 +299,16 @@ export default function FeedPostCard({ post, user, allUsers, onRefresh }) {
             ) : (
               comments.map(comment => (
                 <div key={comment.id} className="flex gap-3">
-                  <Link to={`${createPageUrl('SocialProfile')}?email=${comment.author_email}`}>
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={comment.author_photo} />
-                      <AvatarFallback className="bg-slate-200 text-sm">
-                        {comment.author_name?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Link>
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={comment.author_photo} />
+                    <AvatarFallback className="bg-slate-200 text-sm">
+                      {comment.author_name?.[0]}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex-1 bg-slate-100 rounded-xl px-4 py-2">
-                    <Link 
-                      to={`${createPageUrl('SocialProfile')}?email=${comment.author_email}`}
-                      className="font-semibold text-sm hover:underline"
-                    >
+                    <span className="font-semibold text-sm">
                       {comment.author_name}
-                    </Link>
+                    </span>
                     <p className="text-sm text-slate-700">{comment.content}</p>
                     <span className="text-xs text-slate-500">{moment(comment.created_date).fromNow()}</span>
                   </div>
