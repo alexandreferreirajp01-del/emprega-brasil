@@ -37,6 +37,7 @@ export default function ProfessionalResume() {
   const [activeSection, setActiveSection] = useState('personal');
   const [isUploadingResume, setIsUploadingResume] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [isEditing, setIsEditing] = useState(true); // Começa editável se não tem currículo salvo
   
   // Para recrutadores/admins
   const [viewMode, setViewMode] = useState(false);
@@ -87,12 +88,14 @@ export default function ProfessionalResume() {
             if (resumes && resumes.length > 0) {
               setResume(resumes[0]);
               setForm(prev => ({ ...prev, ...resumes[0] }));
+              setIsEditing(false); // Bloquear campos se já tem currículo
             } else {
               setForm(prev => ({
                 ...prev,
                 full_name: currentUser.full_name || '',
                 email: currentUser.email || ''
               }));
+              setIsEditing(true); // Pode editar se não tem currículo
             }
           } catch (e) {
             console.log('Nenhum currículo encontrado');
@@ -101,6 +104,7 @@ export default function ProfessionalResume() {
               full_name: currentUser.full_name || '',
               email: currentUser.email || ''
             }));
+            setIsEditing(true);
           }
         } else if (isRecruiterOrAdmin) {
           setViewMode(true);
@@ -156,6 +160,9 @@ export default function ProfessionalResume() {
       if (verifyResumes && verifyResumes.length > 0) {
         setResume(verifyResumes[0]);
         setForm(prev => ({ ...prev, ...verifyResumes[0] }));
+        
+        // Bloquear campos após salvar
+        setIsEditing(false);
         
         // Mostrar animação de sucesso
         setShowSuccessAnimation(true);
@@ -591,36 +598,36 @@ export default function ProfessionalResume() {
                   )}
                   <div>
                     <Label>Foto (opcional)</Label>
-                    <Input type="file" accept="image/*" onChange={handleUploadPhoto} className="mt-1" />
+                    <Input type="file" accept="image/*" onChange={handleUploadPhoto} className="mt-1" disabled={!isEditing} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <Label>Nome Completo</Label>
-                    <Input value={form.full_name || ''} onChange={(e) => setForm({...form, full_name: e.target.value})} placeholder="Seu nome" />
+                    <Input value={form.full_name || ''} onChange={(e) => setForm({...form, full_name: e.target.value})} placeholder="Seu nome" disabled={!isEditing} />
                   </div>
                   <div>
                     <Label>WhatsApp</Label>
-                    <Input value={form.phone_whatsapp || ''} onChange={(e) => setForm({...form, phone_whatsapp: e.target.value})} placeholder="(00) 00000-0000" />
+                    <Input value={form.phone_whatsapp || ''} onChange={(e) => setForm({...form, phone_whatsapp: e.target.value})} placeholder="(00) 00000-0000" disabled={!isEditing} />
                   </div>
                   <div>
                     <Label>E-mail</Label>
-                    <Input type="email" value={form.email || ''} onChange={(e) => setForm({...form, email: e.target.value})} placeholder="email@exemplo.com" />
+                    <Input type="email" value={form.email || ''} onChange={(e) => setForm({...form, email: e.target.value})} placeholder="email@exemplo.com" disabled={!isEditing} />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label>Cidade</Label>
-                      <Input value={form.address_city || ''} onChange={(e) => setForm({...form, address_city: e.target.value})} placeholder="João Pessoa" />
+                      <Input value={form.address_city || ''} onChange={(e) => setForm({...form, address_city: e.target.value})} placeholder="João Pessoa" disabled={!isEditing} />
                     </div>
                     <div>
                       <Label>Estado</Label>
-                      <Input value={form.address_state || ''} onChange={(e) => setForm({...form, address_state: e.target.value})} placeholder="PB" />
+                      <Input value={form.address_state || ''} onChange={(e) => setForm({...form, address_state: e.target.value})} placeholder="PB" disabled={!isEditing} />
                     </div>
                   </div>
                   <div>
                     <Label>LinkedIn (opcional)</Label>
-                    <Input value={form.linkedin_url || ''} onChange={(e) => setForm({...form, linkedin_url: e.target.value})} placeholder="https://linkedin.com/in/..." />
+                    <Input value={form.linkedin_url || ''} onChange={(e) => setForm({...form, linkedin_url: e.target.value})} placeholder="https://linkedin.com/in/..." disabled={!isEditing} />
                   </div>
                 </div>
               </div>
@@ -635,11 +642,11 @@ export default function ProfessionalResume() {
                 </h3>
                 <div>
                   <Label>Objetivo</Label>
-                  <Textarea value={form.professional_objective || ''} onChange={(e) => setForm({...form, professional_objective: e.target.value})} placeholder="Ex: Busco uma oportunidade na área de..." className="min-h-[100px]" />
+                  <Textarea value={form.professional_objective || ''} onChange={(e) => setForm({...form, professional_objective: e.target.value})} placeholder="Ex: Busco uma oportunidade na área de..." className="min-h-[100px]" disabled={!isEditing} />
                 </div>
                 <div>
                   <Label>Resumo Profissional</Label>
-                  <Textarea value={form.professional_summary || ''} onChange={(e) => setForm({...form, professional_summary: e.target.value})} placeholder="Fale um pouco sobre você..." className="min-h-[120px]" />
+                  <Textarea value={form.professional_summary || ''} onChange={(e) => setForm({...form, professional_summary: e.target.value})} placeholder="Fale um pouco sobre você..." className="min-h-[120px]" disabled={!isEditing} />
                 </div>
               </div>
             )}
@@ -652,27 +659,29 @@ export default function ProfessionalResume() {
                     <GraduationCap className="w-5 h-5 text-[#0056ff]" />
                     Formação
                   </h3>
-                  <Button type="button" onClick={addEducation} variant="outline" size="sm"><Plus className="w-4 h-4 mr-1" />Adicionar</Button>
+                  {isEditing && <Button type="button" onClick={addEducation} variant="outline" size="sm"><Plus className="w-4 h-4 mr-1" />Adicionar</Button>}
                 </div>
                 
                 {(form.education || []).map((edu, index) => (
                   <Card key={index} className="border-2">
                     <CardContent className="p-4 space-y-3">
-                      <div className="flex justify-end">
-                        <Button type="button" variant="ghost" size="sm" onClick={() => removeEducation(index)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
-                      </div>
-                      <Select value={edu.degree || ''} onValueChange={(v) => updateEducation(index, 'degree', v)}>
+                      {isEditing && (
+                        <div className="flex justify-end">
+                          <Button type="button" variant="ghost" size="sm" onClick={() => removeEducation(index)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
+                        </div>
+                      )}
+                      <Select value={edu.degree || ''} onValueChange={(v) => updateEducation(index, 'degree', v)} disabled={!isEditing}>
                         <SelectTrigger><SelectValue placeholder="Grau" /></SelectTrigger>
                         <SelectContent>{GRAUS_FORMACAO.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
                       </Select>
-                      <Input value={edu.course || ''} onChange={(e) => updateEducation(index, 'course', e.target.value)} placeholder="Curso" />
-                      <Input value={edu.institution || ''} onChange={(e) => updateEducation(index, 'institution', e.target.value)} placeholder="Instituição" />
+                      <Input value={edu.course || ''} onChange={(e) => updateEducation(index, 'course', e.target.value)} placeholder="Curso" disabled={!isEditing} />
+                      <Input value={edu.institution || ''} onChange={(e) => updateEducation(index, 'institution', e.target.value)} placeholder="Instituição" disabled={!isEditing} />
                       <div className="grid grid-cols-2 gap-2">
-                        <Input type="month" value={edu.start_date || ''} onChange={(e) => updateEducation(index, 'start_date', e.target.value)} placeholder="Início" />
-                        <Input type="month" value={edu.end_date || ''} onChange={(e) => updateEducation(index, 'end_date', e.target.value)} placeholder="Término" disabled={edu.is_current} />
+                        <Input type="month" value={edu.start_date || ''} onChange={(e) => updateEducation(index, 'start_date', e.target.value)} placeholder="Início" disabled={!isEditing} />
+                        <Input type="month" value={edu.end_date || ''} onChange={(e) => updateEducation(index, 'end_date', e.target.value)} placeholder="Término" disabled={!isEditing || edu.is_current} />
                       </div>
                       <div className="flex items-center gap-2">
-                        <Checkbox checked={edu.is_current || false} onCheckedChange={(c) => updateEducation(index, 'is_current', c)} />
+                        <Checkbox checked={edu.is_current || false} onCheckedChange={(c) => updateEducation(index, 'is_current', c)} disabled={!isEditing} />
                         <span className="text-sm">Cursando</span>
                       </div>
                     </CardContent>
@@ -682,19 +691,21 @@ export default function ProfessionalResume() {
                 <div className="border-t pt-4 mt-4">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-medium">Cursos Complementares</h4>
-                    <Button type="button" onClick={addCourse} variant="outline" size="sm"><Plus className="w-4 h-4 mr-1" />Adicionar</Button>
+                    {isEditing && <Button type="button" onClick={addCourse} variant="outline" size="sm"><Plus className="w-4 h-4 mr-1" />Adicionar</Button>}
                   </div>
                   {(form.courses || []).map((course, index) => (
                     <Card key={index} className="border mb-3">
                       <CardContent className="p-4 space-y-2">
-                        <div className="flex justify-end">
-                          <Button type="button" variant="ghost" size="sm" onClick={() => removeCourse(index)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
-                        </div>
-                        <Input value={course.name || ''} onChange={(e) => updateCourse(index, 'name', e.target.value)} placeholder="Nome do Curso" />
-                        <Input value={course.institution || ''} onChange={(e) => updateCourse(index, 'institution', e.target.value)} placeholder="Instituição" />
+                        {isEditing && (
+                          <div className="flex justify-end">
+                            <Button type="button" variant="ghost" size="sm" onClick={() => removeCourse(index)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
+                          </div>
+                        )}
+                        <Input value={course.name || ''} onChange={(e) => updateCourse(index, 'name', e.target.value)} placeholder="Nome do Curso" disabled={!isEditing} />
+                        <Input value={course.institution || ''} onChange={(e) => updateCourse(index, 'institution', e.target.value)} placeholder="Instituição" disabled={!isEditing} />
                         <div className="grid grid-cols-2 gap-2">
-                          <Input value={course.hours || ''} onChange={(e) => updateCourse(index, 'hours', e.target.value)} placeholder="Carga horária" />
-                          <Input value={course.year || ''} onChange={(e) => updateCourse(index, 'year', e.target.value)} placeholder="Ano" />
+                          <Input value={course.hours || ''} onChange={(e) => updateCourse(index, 'hours', e.target.value)} placeholder="Carga horária" disabled={!isEditing} />
+                          <Input value={course.year || ''} onChange={(e) => updateCourse(index, 'year', e.target.value)} placeholder="Ano" disabled={!isEditing} />
                         </div>
                       </CardContent>
                     </Card>
@@ -711,26 +722,28 @@ export default function ProfessionalResume() {
                     <Briefcase className="w-5 h-5 text-[#0056ff]" />
                     Experiências
                   </h3>
-                  <Button type="button" onClick={addExperience} variant="outline" size="sm"><Plus className="w-4 h-4 mr-1" />Adicionar</Button>
+                  {isEditing && <Button type="button" onClick={addExperience} variant="outline" size="sm"><Plus className="w-4 h-4 mr-1" />Adicionar</Button>}
                 </div>
                 
                 {(form.experiences || []).map((exp, index) => (
                   <Card key={index} className="border-2">
                     <CardContent className="p-4 space-y-3">
-                      <div className="flex justify-end">
-                        <Button type="button" variant="ghost" size="sm" onClick={() => removeExperience(index)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
-                      </div>
-                      <Input value={exp.company || ''} onChange={(e) => updateExperience(index, 'company', e.target.value)} placeholder="Empresa" />
-                      <Input value={exp.position || ''} onChange={(e) => updateExperience(index, 'position', e.target.value)} placeholder="Cargo" />
+                      {isEditing && (
+                        <div className="flex justify-end">
+                          <Button type="button" variant="ghost" size="sm" onClick={() => removeExperience(index)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
+                        </div>
+                      )}
+                      <Input value={exp.company || ''} onChange={(e) => updateExperience(index, 'company', e.target.value)} placeholder="Empresa" disabled={!isEditing} />
+                      <Input value={exp.position || ''} onChange={(e) => updateExperience(index, 'position', e.target.value)} placeholder="Cargo" disabled={!isEditing} />
                       <div className="grid grid-cols-2 gap-2">
-                        <Input type="month" value={exp.start_date || ''} onChange={(e) => updateExperience(index, 'start_date', e.target.value)} placeholder="Entrada" />
-                        <Input type="month" value={exp.end_date || ''} onChange={(e) => updateExperience(index, 'end_date', e.target.value)} placeholder="Saída" disabled={exp.is_current} />
+                        <Input type="month" value={exp.start_date || ''} onChange={(e) => updateExperience(index, 'start_date', e.target.value)} placeholder="Entrada" disabled={!isEditing} />
+                        <Input type="month" value={exp.end_date || ''} onChange={(e) => updateExperience(index, 'end_date', e.target.value)} placeholder="Saída" disabled={!isEditing || exp.is_current} />
                       </div>
                       <div className="flex items-center gap-2">
-                        <Checkbox checked={exp.is_current || false} onCheckedChange={(c) => updateExperience(index, 'is_current', c)} />
+                        <Checkbox checked={exp.is_current || false} onCheckedChange={(c) => updateExperience(index, 'is_current', c)} disabled={!isEditing} />
                         <span className="text-sm">Emprego atual</span>
                       </div>
-                      <Textarea value={exp.activities || ''} onChange={(e) => updateExperience(index, 'activities', e.target.value)} placeholder="Atividades exercidas..." className="min-h-[80px]" />
+                      <Textarea value={exp.activities || ''} onChange={(e) => updateExperience(index, 'activities', e.target.value)} placeholder="Atividades exercidas..." className="min-h-[80px]" disabled={!isEditing} />
                     </CardContent>
                   </Card>
                 ))}
@@ -744,15 +757,17 @@ export default function ProfessionalResume() {
                   <Award className="w-5 h-5 text-[#0056ff]" />
                   Habilidades
                 </h3>
-                <div className="flex gap-2">
-                  <Input id="skill-input" placeholder="Digite e pressione Enter" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSkill(e.target.value); e.target.value = ''; } }} />
-                  <Button type="button" onClick={() => { const input = document.getElementById('skill-input'); addSkill(input.value); input.value = ''; }} variant="outline"><Plus className="w-4 h-4" /></Button>
-                </div>
+                {isEditing && (
+                  <div className="flex gap-2">
+                    <Input id="skill-input" placeholder="Digite e pressione Enter" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSkill(e.target.value); e.target.value = ''; } }} />
+                    <Button type="button" onClick={() => { const input = document.getElementById('skill-input'); addSkill(input.value); input.value = ''; }} variant="outline"><Plus className="w-4 h-4" /></Button>
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {(form.skills || []).map((skill, index) => (
                     <Badge key={index} variant="secondary" className="px-3 py-1.5">
                       {skill}
-                      <button type="button" onClick={() => removeSkill(index)} className="ml-2 text-slate-500 hover:text-red-500"><Trash2 className="w-3 h-3" /></button>
+                      {isEditing && <button type="button" onClick={() => removeSkill(index)} className="ml-2 text-slate-500 hover:text-red-500"><Trash2 className="w-3 h-3" /></button>}
                     </Badge>
                   ))}
                 </div>
@@ -767,20 +782,20 @@ export default function ProfessionalResume() {
                     <Languages className="w-5 h-5 text-[#0056ff]" />
                     Idiomas
                   </h3>
-                  <Button type="button" onClick={addLanguage} variant="outline" size="sm"><Plus className="w-4 h-4 mr-1" />Adicionar</Button>
+                  {isEditing && <Button type="button" onClick={addLanguage} variant="outline" size="sm"><Plus className="w-4 h-4 mr-1" />Adicionar</Button>}
                 </div>
                 {(form.languages || []).map((lang, index) => (
                   <div key={index} className="flex gap-3 items-end">
                     <div className="flex-1">
-                      <Input value={lang.language || ''} onChange={(e) => updateLanguage(index, 'language', e.target.value)} placeholder="Idioma" />
+                      <Input value={lang.language || ''} onChange={(e) => updateLanguage(index, 'language', e.target.value)} placeholder="Idioma" disabled={!isEditing} />
                     </div>
                     <div className="flex-1">
-                      <Select value={lang.level || 'Básico'} onValueChange={(v) => updateLanguage(index, 'level', v)}>
+                      <Select value={lang.level || 'Básico'} onValueChange={(v) => updateLanguage(index, 'level', v)} disabled={!isEditing}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>{NIVEIS_IDIOMA.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeLanguage(index)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
+                    {isEditing && <Button type="button" variant="ghost" size="icon" onClick={() => removeLanguage(index)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>}
                   </div>
                 ))}
               </div>
@@ -794,17 +809,19 @@ export default function ProfessionalResume() {
                     <FileText className="w-5 h-5 text-[#0056ff]" />
                     Certificações
                   </h3>
-                  <Button type="button" onClick={addCertification} variant="outline" size="sm"><Plus className="w-4 h-4 mr-1" />Adicionar</Button>
+                  {isEditing && <Button type="button" onClick={addCertification} variant="outline" size="sm"><Plus className="w-4 h-4 mr-1" />Adicionar</Button>}
                 </div>
                 {(form.certifications || []).map((cert, index) => (
                   <Card key={index} className="border">
                     <CardContent className="p-4 space-y-2">
-                      <div className="flex justify-end">
-                        <Button type="button" variant="ghost" size="sm" onClick={() => removeCertification(index)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
-                      </div>
-                      <Input value={cert.name || ''} onChange={(e) => updateCertification(index, 'name', e.target.value)} placeholder="Nome da certificação" />
-                      <Input value={cert.institution || ''} onChange={(e) => updateCertification(index, 'institution', e.target.value)} placeholder="Instituição" />
-                      <Input value={cert.year || ''} onChange={(e) => updateCertification(index, 'year', e.target.value)} placeholder="Ano" />
+                      {isEditing && (
+                        <div className="flex justify-end">
+                          <Button type="button" variant="ghost" size="sm" onClick={() => removeCertification(index)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
+                        </div>
+                      )}
+                      <Input value={cert.name || ''} onChange={(e) => updateCertification(index, 'name', e.target.value)} placeholder="Nome da certificação" disabled={!isEditing} />
+                      <Input value={cert.institution || ''} onChange={(e) => updateCertification(index, 'institution', e.target.value)} placeholder="Instituição" disabled={!isEditing} />
+                      <Input value={cert.year || ''} onChange={(e) => updateCertification(index, 'year', e.target.value)} placeholder="Ano" disabled={!isEditing} />
                     </CardContent>
                   </Card>
                 ))}
@@ -822,42 +839,42 @@ export default function ProfessionalResume() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>CNH</Label>
-                    <Select value={form.cnh || 'Não possui'} onValueChange={(v) => setForm({...form, cnh: v})}>
+                    <Select value={form.cnh || 'Não possui'} onValueChange={(v) => setForm({...form, cnh: v})} disabled={!isEditing}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>{TIPOS_CNH.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center gap-2 pt-6">
-                    <Checkbox checked={form.has_vehicle || false} onCheckedChange={(c) => setForm({...form, has_vehicle: c})} />
+                    <Checkbox checked={form.has_vehicle || false} onCheckedChange={(c) => setForm({...form, has_vehicle: c})} disabled={!isEditing} />
                     <span className="text-sm">Veículo próprio</span>
                   </div>
                 </div>
 
                 <div>
                   <Label>Disponibilidade de Horário</Label>
-                  <Input value={form.availability_schedule || ''} onChange={(e) => setForm({...form, availability_schedule: e.target.value})} placeholder="Ex: Integral, manhã..." />
+                  <Input value={form.availability_schedule || ''} onChange={(e) => setForm({...form, availability_schedule: e.target.value})} placeholder="Ex: Integral, manhã..." disabled={!isEditing} />
                 </div>
 
                 <div className="flex flex-wrap gap-4">
                   <div className="flex items-center gap-2">
-                    <Checkbox checked={form.availability_travel || false} onCheckedChange={(c) => setForm({...form, availability_travel: c})} />
+                    <Checkbox checked={form.availability_travel || false} onCheckedChange={(c) => setForm({...form, availability_travel: c})} disabled={!isEditing} />
                     <span className="text-sm">Viagens</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Checkbox checked={form.availability_relocation || false} onCheckedChange={(c) => setForm({...form, availability_relocation: c})} />
+                    <Checkbox checked={form.availability_relocation || false} onCheckedChange={(c) => setForm({...form, availability_relocation: c})} disabled={!isEditing} />
                     <span className="text-sm">Mudança de cidade</span>
                   </div>
                 </div>
 
                 <div>
                   <Label>Observações</Label>
-                  <Textarea value={form.additional_notes || ''} onChange={(e) => setForm({...form, additional_notes: e.target.value})} placeholder="Informações extras..." className="min-h-[80px]" />
+                  <Textarea value={form.additional_notes || ''} onChange={(e) => setForm({...form, additional_notes: e.target.value})} placeholder="Informações extras..." className="min-h-[80px]" disabled={!isEditing} />
                 </div>
 
                 <div className="border-t pt-4">
                   <Label>Upload do Currículo (PDF/Word)</Label>
                   <div className="flex items-center gap-3 mt-1">
-                    <Input type="file" accept=".pdf,.doc,.docx" onChange={handleUploadResume} disabled={isUploadingResume} className="flex-1" />
+                    <Input type="file" accept=".pdf,.doc,.docx" onChange={handleUploadResume} disabled={!isEditing || isUploadingResume} className="flex-1" />
                     {isUploadingResume && <Loader2 className="w-5 h-5 animate-spin text-[#0056ff]" />}
                   </div>
                   {form.resume_file_url && (
@@ -870,23 +887,46 @@ export default function ProfessionalResume() {
               </div>
             )}
 
-            {/* Botão Salvar no final do formulário */}
+            {/* Botão Salvar/Editar no final do formulário */}
             <div className="pt-6 mt-6 border-t space-y-3">
-              <Button 
-                type="button"
-                onClick={handleSave}
-                disabled={isSaving}
-                className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12"
-              >
-                {isSaving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
-                Salvar Currículo
-              </Button>
-              
-              {resume?.id && (
-                <p className="text-center text-xs text-green-600 flex items-center justify-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  Currículo salvo - última atualização: {new Date(resume.updated_date || resume.created_date).toLocaleDateString('pt-BR')}
-                </p>
+              {isEditing ? (
+                <Button 
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-5 h-5 mr-2" />
+                      Salvar Currículo
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <div className="space-y-3">
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+                    <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="font-medium text-green-800">Currículo salvo com sucesso!</p>
+                      <p className="text-sm text-green-600">Última atualização: {new Date(resume?.updated_date || resume?.created_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                    </div>
+                  </div>
+                  <Button 
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    variant="outline"
+                    className="w-full rounded-xl h-12 border-[#0056ff] text-[#0056ff] hover:bg-[#0056ff]/10"
+                  >
+                    <Edit className="w-5 h-5 mr-2" />
+                    Editar Currículo
+                  </Button>
+                </div>
               )}
             </div>
           </CardContent>
