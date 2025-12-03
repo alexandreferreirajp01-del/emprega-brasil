@@ -16,8 +16,10 @@ import {
 import { 
   ArrowLeft, Save, Download, Plus, Trash2, Loader2, 
   Lock, Crown, User, Briefcase, GraduationCap, Award,
-  Languages, FileText, Car, MapPin, Phone, Mail, CheckCircle, Edit, Upload, Eye, Search
+  Languages, FileText, Car, MapPin, Phone, Mail, CheckCircle, Edit, Upload, Eye, Search,
+  PartyPopper
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
@@ -34,6 +36,7 @@ export default function ProfessionalResume() {
   const [isSaving, setIsSaving] = useState(false);
   const [activeSection, setActiveSection] = useState('personal');
   const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   
   // Para recrutadores/admins
   const [viewMode, setViewMode] = useState(false);
@@ -117,12 +120,12 @@ export default function ProfessionalResume() {
   }, []);
 
   const isPremium = user?.subscription_type === 'premium';
-  const isRecruiterOrAdmin = user?.subscription_type === 'recruiter' || 
-                             user?.subscription_type === 'admin' || 
-                             user?.role === 'admin';
+  const isAdmin = user?.subscription_type === 'admin' || user?.role === 'admin';
+  const isRecruiterOrAdmin = user?.subscription_type === 'recruiter' || isAdmin;
   const canFillResume = isPremium;
   const canViewResumes = isRecruiterOrAdmin && !isPremium;
   const canAccess = canFillResume || canViewResumes;
+  const canDownload = isAdmin;
 
   const handleSave = async () => {
     if (!isPremium || isSaving) return;
@@ -140,15 +143,27 @@ export default function ProfessionalResume() {
         certifications: form.certifications || []
       };
       
+      let savedResume;
       if (resume?.id) {
         await base44.entities.ProfessionalResume.update(resume.id, data);
-        setResume(prev => ({ ...prev, ...data }));
+        savedResume = { ...resume, ...data };
       } else {
-        const newResume = await base44.entities.ProfessionalResume.create(data);
-        setResume(newResume);
+        savedResume = await base44.entities.ProfessionalResume.create(data);
       }
       
-      toast.success('Currículo salvo com sucesso!');
+      // Verificar se salvou corretamente buscando do banco
+      const verifyResumes = await base44.entities.ProfessionalResume.filter({ user_email: user.email });
+      if (verifyResumes && verifyResumes.length > 0) {
+        setResume(verifyResumes[0]);
+        setForm(prev => ({ ...prev, ...verifyResumes[0] }));
+        
+        // Mostrar animação de sucesso
+        setShowSuccessAnimation(true);
+        setTimeout(() => setShowSuccessAnimation(false), 3000);
+      } else {
+        throw new Error('Erro ao verificar salvamento');
+      }
+      
     } catch (error) {
       console.error('Erro ao salvar:', error);
       toast.error('Erro ao salvar. Tente novamente.');
@@ -410,9 +425,11 @@ export default function ProfessionalResume() {
               <CardContent className="p-6">
                 <div className="flex justify-between mb-4">
                   <Button variant="ghost" onClick={() => setSelectedResume(null)}><ArrowLeft className="w-4 h-4 mr-2" />Voltar</Button>
-                  <Button onClick={() => selectedResume.resume_file_url ? window.open(selectedResume.resume_file_url, '_blank') : generatePDF(selectedResume)} className="bg-[#0056ff]">
-                    <Download className="w-4 h-4 mr-2" />Baixar
-                  </Button>
+                  {canDownload && (
+                    <Button onClick={() => selectedResume.resume_file_url ? window.open(selectedResume.resume_file_url, '_blank') : generatePDF(selectedResume)} className="bg-[#0056ff]">
+                      <Download className="w-4 h-4 mr-2" />Baixar
+                    </Button>
+                  )}
                 </div>
                 <ResumePreview form={selectedResume} />
               </CardContent>
@@ -455,6 +472,59 @@ export default function ProfessionalResume() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
+      {/* Animação de Sucesso */}
+      <AnimatePresence>
+        {showSuccessAnimation && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          >
+            <motion.div
+              initial={{ y: 50 }}
+              animate={{ y: 0 }}
+              className="bg-white rounded-3xl p-8 mx-4 text-center shadow-2xl max-w-sm"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+              >
+                <CheckCircle className="w-10 h-10 text-green-600" />
+              </motion.div>
+              <motion.h2
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-xl font-bold text-slate-800 mb-2"
+              >
+                Currículo Salvo!
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-slate-600 text-sm"
+              >
+                Suas informações foram salvas com sucesso. Você pode editar a qualquer momento.
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="flex justify-center gap-2 mt-4"
+              >
+                <PartyPopper className="w-6 h-6 text-yellow-500" />
+                <PartyPopper className="w-6 h-6 text-pink-500" />
+                <PartyPopper className="w-6 h-6 text-blue-500" />
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-4 px-4">
         <div className="max-w-6xl mx-auto">
@@ -466,15 +536,6 @@ export default function ProfessionalResume() {
               </Link>
               <h1 className="text-xl font-bold text-white">Meu Currículo</h1>
             </div>
-            <Button 
-              type="button"
-              variant="secondary"
-              onClick={() => form.resume_file_url ? window.open(form.resume_file_url, '_blank') : generatePDF(form)}
-              className="rounded-xl bg-white/20 hover:bg-white/30 text-white border-0"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Baixar PDF
-            </Button>
           </div>
         </div>
       </div>
@@ -808,24 +869,31 @@ export default function ProfessionalResume() {
                 </div>
               </div>
             )}
+
+            {/* Botão Salvar no final do formulário */}
+            <div className="pt-6 mt-6 border-t space-y-3">
+              <Button 
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12"
+              >
+                {isSaving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
+                Salvar Currículo
+              </Button>
+              
+              {resume?.id && (
+                <p className="text-center text-xs text-green-600 flex items-center justify-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  Currículo salvo - última atualização: {new Date(resume.updated_date || resume.created_date).toLocaleDateString('pt-BR')}
+                </p>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Botão fixo na parte inferior */}
-      <div className="fixed bottom-16 md:bottom-0 left-0 right-0 bg-white border-t p-4 z-30">
-        <div className="max-w-2xl mx-auto">
-          <Button 
-            type="button"
-            onClick={handleSave}
-            disabled={isSaving}
-            className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12"
-          >
-            {isSaving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
-            Salvar Currículo
-          </Button>
-        </div>
-      </div>
+
     </div>
   );
 }
