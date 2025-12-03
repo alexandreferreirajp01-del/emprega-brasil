@@ -277,12 +277,6 @@ export default function Social() {
 
           <TabsContent value="discover">
             <div className="space-y-6">
-              <FollowRequestsSection 
-                user={user} 
-                follows={follows} 
-                allUsers={allUsers}
-                onRefresh={handleRefresh}
-              />
               <UsersSection 
                 user={user} 
                 allUsers={allUsers} 
@@ -290,19 +284,6 @@ export default function Social() {
                 myFollows={myFollows}
                 onRefresh={handleRefresh}
               />
-              <div className="space-y-4">
-                {posts.map(post => (
-                  <PostCard 
-                    key={post.id} 
-                    post={post} 
-                    user={user}
-                    allUsers={allUsers}
-                    likes={likes}
-                    comments={comments}
-                    onRefresh={handleRefresh}
-                  />
-                ))}
-              </div>
             </div>
           </TabsContent>
 
