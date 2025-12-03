@@ -218,7 +218,7 @@ Retorne JSON com array "vagas".`,
       
       return await base44.entities.Job.create(jobData);
     },
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       if (result?.pending) {
         alert('Vagas enviadas para aprovação!');
       } else {
@@ -229,6 +229,18 @@ Retorne JSON com array "vagas".`,
           city: 'Brasil'
         });
         setShowNotificationSender(true);
+        
+        // Enviar notificações automáticas (email + push)
+        try {
+          await base44.functions.invoke('notifyNewJob', {
+            jobId: result?.id,
+            jobTitle: `${extractedJobs.length} Vagas Home Office`,
+            jobCompany: 'Diversas Empresas',
+            isHomeOffice: true
+          });
+        } catch (e) {
+          console.error('Erro ao enviar notificações:', e);
+        }
       }
       if (textareaRef.current) textareaRef.current.value = '';
       setExtractedJobs([]);

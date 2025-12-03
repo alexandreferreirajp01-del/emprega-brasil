@@ -258,7 +258,7 @@ Responda APENAS com o JSON, sem explicações.`,
       
       return await base44.entities.Job.create(jobData);
     },
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       if (result?.pending) {
         alert('Vaga enviada para aprovação!');
       } else {
@@ -269,6 +269,18 @@ Responda APENAS com o JSON, sem explicações.`,
           city: city
         });
         setShowNotificationSender(true);
+        
+        // Enviar notificações automáticas (email + push)
+        try {
+          await base44.functions.invoke('notifyNewJob', {
+            jobId: result?.id,
+            jobTitle: title,
+            jobCompany: company,
+            isHomeOffice: false
+          });
+        } catch (e) {
+          console.error('Erro ao enviar notificações:', e);
+        }
       }
       // Limpar campos
       setRawText('');

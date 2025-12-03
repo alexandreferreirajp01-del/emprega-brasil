@@ -12,16 +12,18 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import NotificationSender from "@/components/admin/NotificationSender";
 
-// Função para enviar notificações ao criar vaga
-const sendJobNotification = async (jobId, jobTitle, jobCompany) => {
+// Função para enviar notificações ao criar vaga (email + push para TODOS)
+const sendJobNotification = async (jobId, jobTitle, jobCompany, isHomeOffice = false) => {
   try {
-    await base44.functions.invoke('notifyNewJob', {
+    const result = await base44.functions.invoke('notifyNewJob', {
       jobId,
       jobTitle,
-      jobCompany
+      jobCompany,
+      isHomeOffice
     });
+    console.log('Notificações enviadas:', result?.data);
   } catch (e) {
-    console.log('Notificação automática processada');
+    console.error('Erro ao enviar notificações:', e);
   }
 };
 
