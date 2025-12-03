@@ -478,7 +478,7 @@ export default function ProfessionalResume() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen bg-slate-50 pb-20">
       {/* Animação de Sucesso */}
       <AnimatePresence>
         {showSuccessAnimation && (
