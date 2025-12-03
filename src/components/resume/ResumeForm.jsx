@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { 
   ArrowLeft, Save, Plus, Trash2, Loader2, 
-  User, Briefcase, GraduationCap, Award, FileText, CheckCircle
+  User, Briefcase, GraduationCap, Award, FileText, CheckCircle, Download, Archive
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -26,6 +26,7 @@ export default function ResumeForm({ user, onBack, onSaveSuccess }) {
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [savedResume, setSavedResume] = useState(null);
 
   const [form, setForm] = useState({
     full_name: user?.full_name || '',
@@ -84,15 +85,11 @@ export default function ResumeForm({ user, onBack, onSaveSuccess }) {
       };
 
       // Criar o currículo
-      const savedResume = await base44.entities.ProfessionalResume.create(dataToSave);
+      const newResume = await base44.entities.ProfessionalResume.create(dataToSave);
       
-      console.log('Currículo salvo com sucesso:', savedResume);
-
+      console.log('Currículo salvo com sucesso:', newResume);
+      setSavedResume(newResume);
       setShowSuccess(true);
-      setTimeout(() => {
-        setShowSuccess(false);
-        if (onSaveSuccess) onSaveSuccess();
-      }, 2000);
 
     } catch (error) {
       console.error('Erro ao salvar currículo:', error);
@@ -183,6 +180,229 @@ export default function ResumeForm({ user, onBack, onSaveSuccess }) {
     ...prev,
     courses: prev.courses.map((c, i) => i === index ? { ...c, [field]: value } : c)
   }));
+
+  // Gerar PDF do currículo
+  const generatePDFContent = (resume) => {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Currículo - ${resume.full_name || 'Currículo'}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.6; color: #333; padding: 30px; max-width: 800px; margin: 0 auto; }
+          .header { text-align: center; margin-bottom: 25px; border-bottom: 3px solid #0056ff; padding-bottom: 20px; }
+          .header h1 { font-size: 26pt; color: #0056ff; margin-bottom: 8px; }
+          .header .contact { font-size: 10pt; color: #666; }
+          .section { margin-bottom: 20px; }
+          .section-title { font-size: 14pt; color: #0056ff; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 12px; font-weight: bold; }
+          .item { margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #0056ff; }
+          .item-title { font-weight: bold; font-size: 11pt; }
+          .item-subtitle { color: #555; font-size: 10pt; }
+          .item-desc { font-size: 10pt; color: #666; margin-top: 4px; }
+          .skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
+          .skill-tag { background: #e8f0fe; color: #0056ff; padding: 4px 12px; border-radius: 15px; font-size: 9pt; }
+          .objective { background: #f8f9fa; padding: 15px; border-radius: 8px; font-style: italic; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>${resume.full_name || 'Nome não informado'}</h1>
+          <div class="contact">
+            ${resume.phone ? resume.phone + ' | ' : ''}${resume.email || ''}
+            ${resume.city ? '<br>' + resume.city + (resume.state ? ', ' + resume.state : '') : ''}
+            ${resume.linkedin_url ? '<br>' + resume.linkedin_url : ''}
+          </div>
+        </div>
+
+        ${resume.professional_objective ? `
+        <div class="section">
+          <h2 class="section-title">Objetivo Profissional</h2>
+          <div class="objective">${resume.professional_objective}</div>
+        </div>` : ''}
+
+        ${resume.experiences?.length > 0 ? `
+        <div class="section">
+          <h2 class="section-title">Experiência Profissional</h2>
+          ${resume.experiences.map(exp => `
+            <div class="item">
+              <div class="item-title">${exp.position || ''}</div>
+              <div class="item-subtitle">${exp.company || ''} ${exp.start_date ? '| ' + exp.start_date + ' - ' + (exp.end_date || 'Atual') : ''}</div>
+              ${exp.activities ? `<div class="item-desc">${exp.activities}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>` : ''}
+
+        ${resume.education?.length > 0 ? `
+        <div class="section">
+          <h2 class="section-title">Formação Acadêmica</h2>
+          ${resume.education.map(edu => `
+            <div class="item">
+              <div class="item-title">${edu.course || ''} ${edu.degree_type ? '(' + edu.degree_type + ')' : ''}</div>
+              <div class="item-subtitle">${edu.institution || ''} ${edu.start_year ? '| ' + edu.start_year + ' - ' + (edu.end_year || 'Em andamento') : ''}</div>
+            </div>
+          `).join('')}
+        </div>` : ''}
+
+        ${resume.skills?.length > 0 ? `
+        <div class="section">
+          <h2 class="section-title">Habilidades</h2>
+          <div class="skills-list">${resume.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+        </div>` : ''}
+
+        ${resume.courses?.length > 0 ? `
+        <div class="section">
+          <h2 class="section-title">Cursos e Certificações</h2>
+          ${resume.courses.map(c => `
+            <div class="item">
+              <div class="item-title">${c.name || ''}</div>
+              <div class="item-subtitle">${c.institution || ''} ${c.hours ? '| ' + c.hours + 'h' : ''} ${c.year ? '| ' + c.year : ''}</div>
+            </div>
+          `).join('')}
+        </div>` : ''}
+
+        ${resume.additional_notes ? `
+        <div class="section">
+          <h2 class="section-title">Informações Adicionais</h2>
+          <p>${resume.additional_notes}</p>
+        </div>` : ''}
+      </body>
+      </html>
+    `;
+  };
+
+  // Baixar PDF
+  const handleDownloadPDF = (resume) => {
+    const printContent = generatePDFContent(resume);
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    setTimeout(() => printWindow.print(), 500);
+  };
+
+  // Se tem currículo salvo, mostrar tela de sucesso com opções
+  if (savedResume) {
+    return (
+      <div className="min-h-screen bg-slate-50 pb-20">
+        <div className="bg-gradient-to-r from-green-500 to-green-600 pt-6 pb-4 px-4">
+          <div className="max-w-2xl mx-auto">
+            <h1 className="text-xl font-bold text-white flex items-center gap-2">
+              <CheckCircle className="w-6 h-6" />
+              Currículo Salvo com Sucesso!
+            </h1>
+          </div>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 py-6">
+          {/* Card do currículo salvo */}
+          <Card className="rounded-2xl shadow-lg mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4 mb-6">
+                {savedResume.profile_photo_url ? (
+                  <img src={savedResume.profile_photo_url} className="w-16 h-16 rounded-full object-cover" alt="" />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-[#0056ff]/10 flex items-center justify-center">
+                    <User className="w-8 h-8 text-[#0056ff]" />
+                  </div>
+                )}
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">{savedResume.full_name || 'Sem nome'}</h2>
+                  <p className="text-slate-500">{savedResume.resume_name}</p>
+                  <p className="text-sm text-slate-400">{savedResume.email}</p>
+                </div>
+              </div>
+
+              {/* Resumo do currículo */}
+              <div className="space-y-4 mb-6">
+                {savedResume.professional_objective && (
+                  <div>
+                    <p className="text-sm font-semibold text-[#0056ff]">Objetivo</p>
+                    <p className="text-slate-600 text-sm">{savedResume.professional_objective}</p>
+                  </div>
+                )}
+                {savedResume.experiences?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold text-[#0056ff]">Experiências: {savedResume.experiences.length}</p>
+                  </div>
+                )}
+                {savedResume.education?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold text-[#0056ff]">Formações: {savedResume.education.length}</p>
+                  </div>
+                )}
+                {savedResume.skills?.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {savedResume.skills.slice(0, 5).map((skill, i) => (
+                      <Badge key={i} variant="secondary" className="text-xs">{skill}</Badge>
+                    ))}
+                    {savedResume.skills.length > 5 && <Badge variant="outline" className="text-xs">+{savedResume.skills.length - 5}</Badge>}
+                  </div>
+                )}
+              </div>
+
+              {/* Botões de ação */}
+              <div className="flex flex-col gap-3">
+                <Button 
+                  onClick={() => handleDownloadPDF(savedResume)}
+                  className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12"
+                >
+                  <Download className="w-5 h-5 mr-2" />
+                  Baixar PDF
+                </Button>
+                
+                {savedResume.resume_file_url && (
+                  <Button 
+                    variant="outline"
+                    onClick={() => window.open(savedResume.resume_file_url, '_blank')}
+                    className="w-full rounded-xl h-12"
+                  >
+                    <FileText className="w-5 h-5 mr-2" />
+                    Ver Arquivo Anexado
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Ações */}
+          <div className="flex gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => { setSavedResume(null); setForm({
+                full_name: user?.full_name || '',
+                phone: '',
+                email: user?.email || '',
+                city: '',
+                state: 'PB',
+                birth_date: '',
+                marital_status: '',
+                linkedin_url: '',
+                profile_photo_url: '',
+                professional_objective: '',
+                education: [],
+                experiences: [],
+                skills: [],
+                courses: [],
+                additional_notes: '',
+                resume_file_url: ''
+              }); }}
+              className="flex-1 rounded-xl h-12"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Criar Novo
+            </Button>
+            <Button 
+              onClick={() => onSaveSuccess && onSaveSuccess()}
+              className="flex-1 bg-green-600 hover:bg-green-700 rounded-xl h-12"
+            >
+              Ver Todos Currículos
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
