@@ -57,14 +57,36 @@ export default function ResumeForm({ user, onBack, onSaveSuccess }) {
         month: '2-digit', 
         year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        timeZone: 'America/Sao_Paulo'
       });
 
-      await base44.entities.ProfessionalResume.create({
-        ...form,
+      // Preparar dados para salvar
+      const dataToSave = {
         user_email: user.email,
-        resume_name: resumeName
-      });
+        resume_name: `Currículo - ${resumeName}`,
+        full_name: form.full_name || '',
+        phone: form.phone || '',
+        email: form.email || '',
+        city: form.city || '',
+        state: form.state || '',
+        birth_date: form.birth_date || '',
+        marital_status: form.marital_status || '',
+        linkedin_url: form.linkedin_url || '',
+        profile_photo_url: form.profile_photo_url || '',
+        professional_objective: form.professional_objective || '',
+        education: form.education || [],
+        experiences: form.experiences || [],
+        skills: form.skills || [],
+        courses: form.courses || [],
+        additional_notes: form.additional_notes || '',
+        resume_file_url: form.resume_file_url || ''
+      };
+
+      // Criar o currículo
+      const savedResume = await base44.entities.ProfessionalResume.create(dataToSave);
+      
+      console.log('Currículo salvo com sucesso:', savedResume);
 
       setShowSuccess(true);
       setTimeout(() => {
@@ -73,8 +95,8 @@ export default function ResumeForm({ user, onBack, onSaveSuccess }) {
       }, 2000);
 
     } catch (error) {
-      console.error('Erro ao salvar:', error);
-      alert('Erro ao salvar currículo. Tente novamente.');
+      console.error('Erro ao salvar currículo:', error);
+      alert('Erro ao salvar currículo. Verifique os dados e tente novamente.');
     } finally {
       setIsSaving(false);
     }

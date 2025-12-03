@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Users, TrendingUp, Bell, Plus, Loader2, Lock, Crown, MessageCircle,
-  Heart, Share2, MoreVertical, Trash2, Flag, RefreshCw, UserPlus
+  Heart, Share2, MoreVertical, Trash2, Flag, RefreshCw, UserPlus, Search
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -449,9 +449,17 @@ function FollowRequestsSection({ user, follows, allUsers, onRefresh }) {
 // Users Section
 function UsersSection({ user, allUsers, profiles, myFollows, onRefresh }) {
   const [isFollowing, setIsFollowing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const followingEmails = myFollows.map(f => f.following_email);
 
-  const otherUsers = allUsers.filter(u => u.email !== user.email).slice(0, 10);
+  const filteredUsers = allUsers
+    .filter(u => u.email !== user.email)
+    .filter(u => 
+      !searchTerm || 
+      u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .slice(0, searchTerm ? 20 : 10);
 
   const handleFollow = async (targetEmail) => {
     if (isFollowing) return;
@@ -493,8 +501,23 @@ function UsersSection({ user, allUsers, profiles, myFollows, onRefresh }) {
           <Users className="w-5 h-5 text-[#0056ff]" />
           Pessoas para seguir
         </h3>
+        
+        {/* Campo de busca com lupa */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Buscar usuário..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0056ff] focus:border-transparent"
+          />
+        </div>
+        
         <div className="space-y-3">
-          {otherUsers.map(u => {
+          {filteredUsers.length === 0 ? (
+            <p className="text-center text-slate-500 py-4 text-sm">Nenhum usuário encontrado</p>
+          ) : filteredUsers.map(u => {
             const profile = profiles.find(p => p.user_email === u.email);
             const follow = myFollows.find(f => f.following_email === u.email);
             
