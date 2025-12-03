@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import CreatePostModal from "@/components/social/CreatePostModal";
 import PlanBadge from "@/components/social/PlanBadge";
+import FloatingUsersList from "@/components/social/FloatingUsersList";
 
 // Função de fetch robusta com retry
 async function safeFetch(fetchFn, fallback = []) {
@@ -38,6 +39,7 @@ export default function Social() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [showUsersList, setShowUsersList] = useState(false);
   const [activeTab, setActiveTab] = useState('feed');
   
   // Data states
@@ -185,6 +187,14 @@ export default function Social() {
               >
                 <RefreshCw className={`w-5 h-5 ${dataLoading ? 'animate-spin' : ''}`} />
               </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowUsersList(true)}
+                className="text-white hover:bg-white/10 rounded-xl"
+              >
+                <Users className="w-5 h-5" />
+              </Button>
               <Link to={createPageUrl('Messages')}>
                 <Button variant="ghost" className="text-white hover:bg-white/10 rounded-xl">
                   <MessageCircle className="w-5 h-5" />
@@ -302,6 +312,12 @@ export default function Social() {
         open={showCreatePost} 
         onOpenChange={setShowCreatePost} 
         user={user} 
+      />
+
+      <FloatingUsersList 
+        user={user}
+        isOpen={showUsersList}
+        onClose={() => setShowUsersList(false)}
       />
     </div>
   );
