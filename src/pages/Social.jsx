@@ -19,8 +19,7 @@ export default function Social() {
   const [allUsers, setAllUsers] = useState([]);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [followersCount, setFollowersCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
+
 
   useEffect(() => {
     checkAuth();
@@ -43,16 +42,12 @@ export default function Social() {
 
   const loadData = async (currentUser) => {
     try {
-      const [postsData, usersData, followersData, followingData] = await Promise.all([
+      const [postsData, usersData] = await Promise.all([
         base44.entities.SocialPost.filter({ status: 'active' }, '-created_date', 50),
-        base44.entities.User.list('-created_date', 500),
-        base44.entities.Follow.filter({ following_email: currentUser.email }),
-        base44.entities.Follow.filter({ follower_email: currentUser.email })
+        base44.entities.User.list('-created_date', 500)
       ]);
       setPosts(postsData || []);
       setAllUsers(usersData || []);
-      setFollowersCount(followersData?.length || 0);
-      setFollowingCount(followingData?.length || 0);
     } catch (e) {}
     setLoading(false);
   };
@@ -149,16 +144,7 @@ export default function Social() {
                   </Link>
                   <p className="text-sm text-slate-500 capitalize">{user.subscription_type || 'Usuário'}</p>
                 </div>
-                <div className="flex justify-center gap-6 mt-4 pt-4 border-t">
-                  <div className="text-center">
-                    <p className="font-bold text-slate-800">{followersCount}</p>
-                    <p className="text-xs text-slate-500">Seguidores</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-bold text-slate-800">{followingCount}</p>
-                    <p className="text-xs text-slate-500">Seguindo</p>
-                  </div>
-                </div>
+
               </CardContent>
             </Card>
 
