@@ -246,21 +246,21 @@ export default function Social() {
               <div className="flex justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
               </div>
-            ) : feedPosts.length === 0 ? (
+            ) : posts.length === 0 ? (
               <Card className="rounded-xl">
                 <CardContent className="p-8 text-center">
                   <MessageCircle className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-slate-600 mb-2">Seu feed está vazio</h3>
-                  <p className="text-slate-500 mb-4">Siga outros profissionais para ver suas publicações</p>
-                  <Button variant="outline" onClick={() => setActiveTab('discover')}>
-                    <Users className="w-4 h-4 mr-2" />
-                    Descobrir pessoas
+                  <h3 className="text-lg font-semibold text-slate-600 mb-2">Nenhuma publicação ainda</h3>
+                  <p className="text-slate-500 mb-4">Seja o primeiro a publicar algo!</p>
+                  <Button onClick={() => setShowCreatePost(true)} className="bg-[#0056ff] hover:bg-[#0044cc]">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Criar publicação
                   </Button>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-4">
-                {feedPosts.map(post => (
+                {posts.map(post => (
                   <PostCard 
                     key={post.id} 
                     post={post} 
