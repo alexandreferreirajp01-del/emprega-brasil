@@ -444,11 +444,7 @@ function PostCard({ post, user, allUsers, likes, comments, onRefresh }) {
   );
 }
 
-// Follow Requests Section - Removido pois agora segue diretamente
-function FollowRequestsSection({ user, follows, allUsers, onRefresh }) {
-  // Não há mais solicitações pendentes - segue diretamente
-  return null;
-}
+
 
 // Users Section - Lista completa de usuários
 function UsersSection({ user, allUsers, profiles, myFollows, onRefresh }) {
