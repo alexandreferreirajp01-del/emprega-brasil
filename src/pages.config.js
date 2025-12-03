@@ -27,6 +27,10 @@ import RecruiterArea from './pages/RecruiterArea';
 import Social from './pages/Social';
 import ExploreUsers from './pages/ExploreUsers';
 import SocialProfile from './pages/SocialProfile';
+import DirectMessages from './pages/DirectMessages';
+import PostDetail from './pages/PostDetail';
+import EditProfile from './pages/EditProfile';
+import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -60,6 +64,10 @@ export const PAGES = {
     "Social": Social,
     "ExploreUsers": ExploreUsers,
     "SocialProfile": SocialProfile,
+    "DirectMessages": DirectMessages,
+    "PostDetail": PostDetail,
+    "EditProfile": EditProfile,
+    "Notifications": Notifications,
 }
 
 export const pagesConfig = {
