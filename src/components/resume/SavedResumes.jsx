@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  ArrowLeft, Download, Trash2, Loader2, FileText, Search, User
+  ArrowLeft, Download, Trash2, Loader2, FileText, Search, User, Eye, RefreshCw
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { base44 } from "@/api/base44Client";
@@ -23,6 +23,7 @@ export default function SavedResumes({ user, isAdmin, onBack }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedResume, setSelectedResume] = useState(null);
 
   useEffect(() => {
     loadResumes();
@@ -39,6 +40,7 @@ export default function SavedResumes({ user, isAdmin, onBack }) {
         // Usuário vê apenas seus currículos
         data = await base44.entities.ProfessionalResume.filter({ user_email: user.email }, '-created_date', 100);
       }
+      console.log('Currículos carregados:', data);
       setResumes(data || []);
     } catch (e) {
       console.error('Erro ao carregar currículos:', e);
@@ -163,6 +165,157 @@ export default function SavedResumes({ user, isAdmin, onBack }) {
     r.user_email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Visualizar detalhes do currículo
+  if (selectedResume) {
+    return (
+      <div className="min-h-screen bg-slate-50 pb-20">
+        <div className={`${isAdmin ? 'bg-gradient-to-r from-purple-600 to-purple-700' : 'bg-gradient-to-r from-[#0056ff] to-[#0044cc]'} pt-6 pb-4 px-4`}>
+          <div className="max-w-4xl mx-auto">
+            <button onClick={() => setSelectedResume(null)} className="inline-flex items-center text-white/80 hover:text-white mb-2">
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Voltar para lista
+            </button>
+            <h1 className="text-xl font-bold text-white">Detalhes do Currículo</h1>
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 py-6">
+          <Card className="rounded-2xl shadow-lg">
+            <CardContent className="p-6 space-y-6">
+              {/* Cabeçalho */}
+              <div className="flex items-center gap-4 pb-4 border-b">
+                {selectedResume.profile_photo_url ? (
+                  <img src={selectedResume.profile_photo_url} className="w-20 h-20 rounded-full object-cover" alt="" />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-[#0056ff]/10 flex items-center justify-center">
+                    <User className="w-10 h-10 text-[#0056ff]" />
+                  </div>
+                )}
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">{selectedResume.full_name || 'Sem nome'}</h2>
+                  <p className="text-slate-500">{selectedResume.email}</p>
+                  <p className="text-sm text-slate-400">{selectedResume.phone}</p>
+                  {selectedResume.city && <p className="text-sm text-slate-400">{selectedResume.city}{selectedResume.state ? `, ${selectedResume.state}` : ''}</p>}
+                </div>
+              </div>
+
+              {/* Objetivo */}
+              {selectedResume.professional_objective && (
+                <div>
+                  <h3 className="font-semibold text-[#0056ff] mb-2">Objetivo Profissional</h3>
+                  <p className="text-slate-600">{selectedResume.professional_objective}</p>
+                </div>
+              )}
+
+              {/* Experiências */}
+              {selectedResume.experiences?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-[#0056ff] mb-2">Experiência Profissional</h3>
+                  <div className="space-y-3">
+                    {selectedResume.experiences.map((exp, i) => (
+                      <div key={i} className="border-l-2 border-[#0056ff] pl-3">
+                        <p className="font-medium">{exp.position}</p>
+                        <p className="text-sm text-slate-500">{exp.company}</p>
+                        <p className="text-xs text-slate-400">{exp.start_date} - {exp.end_date || 'Atual'}</p>
+                        {exp.activities && <p className="text-sm text-slate-600 mt-1">{exp.activities}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Formação */}
+              {selectedResume.education?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-[#0056ff] mb-2">Formação Acadêmica</h3>
+                  <div className="space-y-3">
+                    {selectedResume.education.map((edu, i) => (
+                      <div key={i} className="border-l-2 border-green-500 pl-3">
+                        <p className="font-medium">{edu.course} {edu.degree_type ? `(${edu.degree_type})` : ''}</p>
+                        <p className="text-sm text-slate-500">{edu.institution}</p>
+                        <p className="text-xs text-slate-400">{edu.start_year} - {edu.end_year || 'Em andamento'}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Habilidades */}
+              {selectedResume.skills?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-[#0056ff] mb-2">Habilidades</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedResume.skills.map((skill, i) => (
+                      <span key={i} className="bg-[#0056ff]/10 text-[#0056ff] px-3 py-1 rounded-full text-sm">{skill}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Cursos */}
+              {selectedResume.courses?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-[#0056ff] mb-2">Cursos e Certificações</h3>
+                  <div className="space-y-2">
+                    {selectedResume.courses.map((c, i) => (
+                      <div key={i} className="border-l-2 border-purple-500 pl-3">
+                        <p className="font-medium">{c.name}</p>
+                        <p className="text-sm text-slate-500">{c.institution} {c.hours ? `• ${c.hours}h` : ''} {c.year ? `• ${c.year}` : ''}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Notas adicionais */}
+              {selectedResume.additional_notes && (
+                <div>
+                  <h3 className="font-semibold text-[#0056ff] mb-2">Informações Adicionais</h3>
+                  <p className="text-slate-600">{selectedResume.additional_notes}</p>
+                </div>
+              )}
+
+              {/* Arquivo anexado */}
+              {selectedResume.resume_file_url && (
+                <div className="pt-4 border-t">
+                  <a href={selectedResume.resume_file_url} target="_blank" rel="noopener noreferrer" className="text-[#0056ff] hover:underline flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Ver arquivo anexado
+                  </a>
+                </div>
+              )}
+
+              {/* Botões */}
+              <div className="flex gap-3 pt-4 border-t">
+                <Button onClick={() => generatePDF(selectedResume)} className="flex-1 bg-[#0056ff] hover:bg-[#0044cc]">
+                  <Download className="w-4 h-4 mr-2" />
+                  Baixar PDF
+                </Button>
+                <Button variant="destructive" onClick={() => { setDeleteId(selectedResume.id); }}>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Excluir
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Dialog de Exclusão */}
+        <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir Currículo</AlertDialogTitle>
+              <AlertDialogDescription>Tem certeza? Esta ação não pode ser desfeita.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={async () => { await handleDelete(); setSelectedResume(null); }} className="bg-red-600 hover:bg-red-700">Excluir</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
@@ -172,7 +325,12 @@ export default function SavedResumes({ user, isAdmin, onBack }) {
             <ArrowLeft className="w-5 h-5 mr-2" />
             Voltar
           </button>
-          <h1 className="text-xl font-bold text-white">Currículos Salvos ({resumes.length})</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-white">Currículos Salvos ({resumes.length})</h1>
+            <Button variant="ghost" size="icon" onClick={loadResumes} className="text-white hover:bg-white/10">
+              <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -211,7 +369,11 @@ export default function SavedResumes({ user, isAdmin, onBack }) {
         ) : (
           <div className="space-y-4">
             {filteredResumes.map((resume) => (
-              <Card key={resume.id} className="rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <Card 
+                key={resume.id} 
+                className="rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => setSelectedResume(resume)}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -233,16 +395,25 @@ export default function SavedResumes({ user, isAdmin, onBack }) {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        onClick={() => resume.resume_file_url ? window.open(resume.resume_file_url, '_blank') : generatePDF(resume)}
+                        onClick={(e) => { e.stopPropagation(); setSelectedResume(resume); }}
+                        className="rounded-lg"
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        Ver
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={(e) => { e.stopPropagation(); generatePDF(resume); }}
                         className="rounded-lg"
                       >
                         <Download className="w-4 h-4 mr-1" />
-                        Baixar
+                        PDF
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => setDeleteId(resume.id)}
+                        onClick={(e) => { e.stopPropagation(); setDeleteId(resume.id); }}
                         className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg"
                       >
                         <Trash2 className="w-4 h-4" />
