@@ -26,8 +26,10 @@ async function safeFetch(fetchFn, fallback = []) {
   for (let i = 0; i < 3; i++) {
     try {
       const result = await fetchFn();
-      return result || fallback;
+      console.log('safeFetch resultado:', result?.length || 0);
+      return Array.isArray(result) ? result : fallback;
     } catch (e) {
+      console.warn('safeFetch tentativa', i + 1, 'falhou:', e.message);
       if (i === 2) return fallback;
       await new Promise(r => setTimeout(r, 500 * (i + 1)));
     }
