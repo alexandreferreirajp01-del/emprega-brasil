@@ -5,19 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
-  Heart, History, Users, FileText, Lock, Briefcase, Settings,
+  Heart, History, FileText, Lock, Briefcase, Settings,
   PlusCircle, Sparkles, Home
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
-import PlanBadge from "@/components/social/PlanBadge";
 
 // Função de fetch com retry robusto
 async function fetchWithRetry(fetchFn, maxRetries = 5) {
@@ -44,11 +42,7 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
   const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
-  const [showFollowers, setShowFollowers] = useState(false);
-  const [showFollowing, setShowFollowing] = useState(false);
-  const [followers, setFollowers] = useState([]);
-  const [following, setFollowing] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
+
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -73,38 +67,7 @@ export default function Profile() {
     loadUser();
   }, []);
 
-  // Carregar dados de follows e usuários
-  useEffect(() => {
-    if (!user?.email) return;
-    let isMounted = true;
 
-    const loadSocialData = async () => {
-      // Carregar follows
-      const allFollows = await fetchWithRetry(() => 
-        base44.entities.Follow.list('-created_date', 1000)
-      );
-      
-      if (isMounted && allFollows.length > 0) {
-        // Filtrar seguidores (agora todos são aceitos automaticamente)
-        const myFollowers = allFollows.filter(f => f.following_email === user.email);
-        setFollowers(myFollowers);
-
-        // Filtrar seguindo
-        const myFollowing = allFollows.filter(f => f.follower_email === user.email);
-        setFollowing(myFollowing);
-      }
-
-      // Carregar usuários
-      const users = await fetchWithRetry(() => 
-        base44.entities.User.list('-created_date', 500)
-      );
-      if (isMounted) setAllUsers(users);
-    };
-
-    loadSocialData();
-
-    return () => { isMounted = false; };
-  }, [user?.email]);
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
@@ -284,24 +247,6 @@ export default function Profile() {
                   {user?.full_name || 'Usuário'}
                 </h2>
                 {getSubscriptionBadge()}
-                
-                {/* Seguidores e Seguindo */}
-                <div className="flex items-center gap-6 mt-4">
-                  <button 
-                    onClick={() => setShowFollowers(true)}
-                    className="text-center hover:opacity-70 transition-opacity"
-                  >
-                    <p className="text-lg font-bold text-slate-800">{followers.length}</p>
-                    <p className="text-xs text-slate-500">Seguidores</p>
-                  </button>
-                  <button 
-                    onClick={() => setShowFollowing(true)}
-                    className="text-center hover:opacity-70 transition-opacity"
-                  >
-                    <p className="text-lg font-bold text-slate-800">{following.length}</p>
-                    <p className="text-xs text-slate-500">Seguindo</p>
-                  </button>
-                </div>
               </div>
 
               {/* User Info - Editable */}
@@ -509,89 +454,6 @@ export default function Profile() {
         </motion.div>
       </div>
 
-      {/* Followers Dialog */}
-      <Dialog open={showFollowers} onOpenChange={setShowFollowers}>
-        <DialogContent className="sm:max-w-md max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle>Seguidores ({followers.length})</DialogTitle>
-          </DialogHeader>
-          <ScrollArea className="max-h-[60vh] pr-2">
-            <div className="space-y-2">
-              {followers.length === 0 ? (
-                <p className="text-center text-slate-500 py-4">Nenhum seguidor ainda</p>
-              ) : (
-                followers.map((follow) => {
-                  const followerUser = allUsers.find(u => u.email === follow.follower_email);
-                  return (
-                    <Link 
-                      key={follow.id}
-                      to={`${createPageUrl('SocialProfile')}?email=${follow.follower_email}`}
-                      onClick={() => setShowFollowers(false)}
-                      className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl border border-slate-100"
-                    >
-                      <Avatar className="w-11 h-11 flex-shrink-0">
-                        <AvatarImage src={followerUser?.profile_photo} />
-                        <AvatarFallback className="bg-[#0056ff] text-white text-sm">
-                          {followerUser?.full_name?.[0] || '?'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium text-sm text-slate-800 truncate">{followerUser?.full_name || 'Usuário'}</p>
-                          <PlanBadge user={followerUser} />
-                        </div>
-                        <p className="text-xs text-slate-500 truncate">{followerUser?.email}</p>
-                      </div>
-                    </Link>
-                  );
-                })
-              )}
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
-
-      {/* Following Dialog */}
-      <Dialog open={showFollowing} onOpenChange={setShowFollowing}>
-        <DialogContent className="sm:max-w-md max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle>Seguindo ({following.length})</DialogTitle>
-          </DialogHeader>
-          <ScrollArea className="max-h-[60vh] pr-2">
-            <div className="space-y-2">
-              {following.length === 0 ? (
-                <p className="text-center text-slate-500 py-4">Não está seguindo ninguém</p>
-              ) : (
-                following.map((follow) => {
-                  const followingUser = allUsers.find(u => u.email === follow.following_email);
-                  return (
-                    <Link 
-                      key={follow.id}
-                      to={`${createPageUrl('SocialProfile')}?email=${follow.following_email}`}
-                      onClick={() => setShowFollowing(false)}
-                      className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl border border-slate-100"
-                    >
-                      <Avatar className="w-11 h-11 flex-shrink-0">
-                        <AvatarImage src={followingUser?.profile_photo} />
-                        <AvatarFallback className="bg-[#0056ff] text-white text-sm">
-                          {followingUser?.full_name?.[0] || '?'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium text-sm text-slate-800 truncate">{followingUser?.full_name || 'Usuário'}</p>
-                          <PlanBadge user={followingUser} />
-                        </div>
-                        <p className="text-xs text-slate-500 truncate">{followingUser?.email}</p>
-                      </div>
-                    </Link>
-                  );
-                })
-              )}
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
