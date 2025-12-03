@@ -887,50 +887,51 @@ export default function ProfessionalResume() {
               </div>
             )}
 
-            {/* Botão Salvar/Editar no final do formulário */}
-            <div className="pt-6 mt-6 border-t space-y-3">
-              {isEditing ? (
-                <Button 
-                  type="button"
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-12"
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                      Salvando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-5 h-5 mr-2" />
-                      Salvar Currículo
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <div className="space-y-3">
-                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
-                    <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="font-medium text-green-800">Currículo salvo com sucesso!</p>
-                      <p className="text-sm text-green-600">Última atualização: {new Date(resume?.updated_date || resume?.created_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                    </div>
-                  </div>
-                  <Button 
-                    type="button"
-                    onClick={() => setIsEditing(true)}
-                    variant="outline"
-                    className="w-full rounded-xl h-12 border-[#0056ff] text-[#0056ff] hover:bg-[#0056ff]/10"
-                  >
-                    <Edit className="w-5 h-5 mr-2" />
-                    Editar Currículo
-                  </Button>
-                </div>
-              )}
-            </div>
           </CardContent>
         </Card>
+
+        {/* Botão Salvar/Editar fixo no final */}
+        <div className="mt-6 space-y-3">
+          {isEditing ? (
+            <Button 
+              type="button"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl h-14 text-base shadow-lg"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5 mr-2" />
+                  Salvar Currículo
+                </>
+              )}
+            </Button>
+          ) : (
+            <div className="space-y-3">
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+                <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-medium text-green-800">Currículo salvo com sucesso!</p>
+                  <p className="text-sm text-green-600">Última atualização: {new Date(resume?.updated_date || resume?.created_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
+              </div>
+              <Button 
+                type="button"
+                onClick={() => setIsEditing(true)}
+                variant="outline"
+                className="w-full rounded-xl h-14 border-[#0056ff] text-[#0056ff] hover:bg-[#0056ff]/10 text-base"
+              >
+                <Edit className="w-5 h-5 mr-2" />
+                Editar Currículo
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
 
