@@ -27,20 +27,25 @@ export default function FloatingUsersList({ user, isOpen, onClose }) {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [usersData, followsData] = await Promise.all([
-        base44.entities.User.list('-created_date', 500),
-        base44.entities.Follow.list('-created_date', 1000)
-      ]);
+      // Buscar todos os dados
+      const usersData = await base44.entities.User.list('-created_date', 500);
+      const followsData = await base44.entities.Follow.list('-created_date', 1000);
+      
+      console.log('Usuários carregados:', usersData?.length);
+      console.log('Follows carregados:', followsData?.length);
+      
       setAllUsers(usersData || []);
       setFollows(followsData || []);
       
       // Marcar quem o usuário segue
-      const myFollows = followsData.filter(f => f.follower_email === user.email);
+      const myFollows = (followsData || []).filter(f => f.follower_email === user?.email);
       const followingMap = {};
       myFollows.forEach(f => { followingMap[f.following_email] = f.id; });
       setFollowingIds(followingMap);
     } catch (e) {
       console.error('Erro ao carregar usuários:', e);
+      setAllUsers([]);
+      setFollows([]);
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +106,7 @@ export default function FloatingUsersList({ user, isOpen, onClose }) {
     }
   };
 
-  // Filtrar usuários
+  // Filtrar usuários - sem limite
   const filteredUsers = allUsers
     .filter(u => u.email !== user?.email)
     .filter(u => {
@@ -112,8 +117,7 @@ export default function FloatingUsersList({ user, isOpen, onClose }) {
       !searchTerm || 
       u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .slice(0, 50);
+    );
 
   const filterButtons = [
     { key: 'all', label: 'Todos', icon: Users },
