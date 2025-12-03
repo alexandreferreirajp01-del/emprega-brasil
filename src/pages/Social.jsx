@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
-  Users, Search, PenSquare, Bell, Loader2, Lock, Crown,
-  MessageSquare, RefreshCw, TrendingUp, Briefcase
+  PenSquare, Loader2, Lock, Crown,
+  MessageSquare, RefreshCw, Briefcase
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
@@ -125,10 +125,6 @@ export default function Social() {
           <div className="lg:col-span-1 space-y-4">
             <Card>
               <CardContent className="p-4 space-y-2">
-                <Link to={createPageUrl('ExploreUsers')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                  <Users className="w-5 h-5 text-[#0056ff]" />
-                  <span className="text-sm font-medium text-slate-700">Explorar Usuários</span>
-                </Link>
                 <Link to={createPageUrl('DirectMessages')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
                   <MessageSquare className="w-5 h-5 text-[#0056ff]" />
                   <span className="text-sm font-medium text-slate-700">Mensagens</span>
