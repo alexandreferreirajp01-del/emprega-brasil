@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
-  Home, Briefcase, Users, Crown, User, Menu, X, 
-  LogOut, MessageCircle, Newspaper
+  Home, Briefcase, Users, User, Menu, X, 
+  LogOut, Newspaper
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -119,8 +119,8 @@ export default function Layout({ children, currentPageName }) {
   const navItems = [
     { name: 'Início', icon: Home, page: 'Home' },
     { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-    { name: 'Social', icon: Users, page: 'Social' },
     { name: 'Notícias', icon: Newspaper, page: 'News' },
+    { name: 'Grupos', icon: Users, page: 'Groups' },
     { name: 'Perfil', icon: User, page: 'Profile' },
   ];
 
@@ -283,16 +283,6 @@ export default function Layout({ children, currentPageName }) {
                   </Button>
                 </Link>
               ))}
-
-              <Link to={createPageUrl('Groups')} onClick={() => setMobileMenuOpen(false)}>
-                <Button 
-                  variant={currentPageName === 'Groups' ? "secondary" : "ghost"}
-                  className={`w-full justify-start rounded-xl ${currentPageName === 'Groups' ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
-                >
-                  <Users className="w-5 h-5 mr-3" />
-                  Grupos
-                </Button>
-              </Link>
 
               <div className="pt-2 border-t">
                 {isVisitor ? (
