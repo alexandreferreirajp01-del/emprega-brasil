@@ -26,6 +26,7 @@ import ProfessionalResume from './pages/ProfessionalResume';
 import RecruiterArea from './pages/RecruiterArea';
 import EditProfile from './pages/EditProfile';
 import Social from './pages/Social';
+import SocialProfile from './pages/SocialProfile';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +59,7 @@ export const PAGES = {
     "RecruiterArea": RecruiterArea,
     "EditProfile": EditProfile,
     "Social": Social,
+    "SocialProfile": SocialProfile,
 }
 
 export const pagesConfig = {
