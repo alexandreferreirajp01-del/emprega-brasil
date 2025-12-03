@@ -32,15 +32,19 @@ export default function SavedResumes({ user, isAdmin, onBack }) {
   const loadResumes = async () => {
     setIsLoading(true);
     try {
+      // Sempre buscar todos e filtrar no cliente para evitar bugs do filter
+      const allResumes = await base44.entities.ProfessionalResume.list('-created_date', 500);
+      console.log('Todos os currículos:', allResumes);
+      
       let data;
       if (isAdmin) {
         // Admin vê todos os currículos
-        data = await base44.entities.ProfessionalResume.list('-created_date', 500);
+        data = allResumes;
       } else {
         // Usuário vê apenas seus currículos
-        data = await base44.entities.ProfessionalResume.filter({ user_email: user.email }, '-created_date', 100);
+        data = allResumes.filter(r => r.user_email === user?.email);
       }
-      console.log('Currículos carregados:', data);
+      console.log('Currículos filtrados:', data);
       setResumes(data || []);
     } catch (e) {
       console.error('Erro ao carregar currículos:', e);

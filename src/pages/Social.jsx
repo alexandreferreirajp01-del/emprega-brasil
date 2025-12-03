@@ -462,36 +462,45 @@ function FollowRequestsSection({ user, follows, allUsers, onRefresh }) {
   return null;
 }
 
-// Users Section
+// Users Section - Lista completa de usuários
 function UsersSection({ user, allUsers, profiles, myFollows, onRefresh }) {
   const [isFollowing, setIsFollowing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const followingEmails = myFollows.map(f => f.following_email);
+  const [localFollows, setLocalFollows] = useState(myFollows);
+  
+  // Atualizar localFollows quando myFollows mudar
+  React.useEffect(() => {
+    setLocalFollows(myFollows);
+  }, [myFollows]);
 
+  // Mostrar TODOS os usuários (exceto o próprio), sem limite
   const filteredUsers = allUsers
-    .filter(u => u.email !== user.email)
+    .filter(u => u.email !== user?.email)
     .filter(u => 
       !searchTerm || 
       u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .slice(0, searchTerm ? 20 : 10);
+    );
 
   const handleFollow = async (targetEmail) => {
     if (isFollowing) return;
     setIsFollowing(true);
     
     try {
-      const existing = myFollows.find(f => f.following_email === targetEmail);
+      const existing = localFollows.find(f => f.following_email === targetEmail);
       if (existing) {
         await base44.entities.Follow.delete(existing.id);
+        // Atualizar imediatamente no estado local
+        setLocalFollows(prev => prev.filter(f => f.id !== existing.id));
       } else {
         // Seguir diretamente sem aprovação
-        await base44.entities.Follow.create({
+        const newFollow = await base44.entities.Follow.create({
           follower_email: user.email,
           following_email: targetEmail,
           status: 'accepted'
         });
+        // Atualizar imediatamente no estado local
+        setLocalFollows(prev => [...prev, newFollow]);
         
         // Notificar
         await base44.entities.SocialNotification.create({
@@ -503,11 +512,18 @@ function UsersSection({ user, allUsers, profiles, myFollows, onRefresh }) {
           message: `${user.full_name || 'Alguém'} começou a seguir você`
         });
       }
-      onRefresh();
     } catch (e) {
       console.warn('Erro:', e);
     }
     setIsFollowing(false);
+  };
+  
+  // Função para obter tipo de conta
+  const getUserType = (u) => {
+    if (u.role === 'admin' || u.subscription_type === 'admin') return { label: 'Admin', color: 'bg-purple-100 text-purple-700' };
+    if (u.subscription_type === 'recruiter') return { label: 'Recrutador', color: 'bg-blue-100 text-blue-700' };
+    if (u.subscription_type === 'premium') return { label: 'Premium', color: 'bg-amber-100 text-amber-700' };
+    return { label: 'Básico', color: 'bg-slate-100 text-slate-600' };
   };
 
   return (
@@ -530,39 +546,45 @@ function UsersSection({ user, allUsers, profiles, myFollows, onRefresh }) {
           />
         </div>
         
-        <div className="space-y-3">
+        <div className="space-y-3 max-h-[400px] overflow-y-auto">
           {filteredUsers.length === 0 ? (
             <p className="text-center text-slate-500 py-4 text-sm">Nenhum usuário encontrado</p>
-          ) : filteredUsers.map(u => {
-            const profile = profiles.find(p => p.user_email === u.email);
-            const follow = myFollows.find(f => f.following_email === u.email);
-            
-            return (
-              <div key={u.id} className="flex items-center gap-3">
-                <Link to={`${createPageUrl('SocialProfile')}?email=${u.email}`}>
-                  <Avatar className="w-10 h-10">
-                    <AvatarImage src={u.profile_photo} />
-                    <AvatarFallback className="bg-[#0056ff] text-white">
-                      {u.full_name?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{u.full_name}</p>
-                  <p className="text-xs text-slate-500 truncate">{profile?.occupation || 'Profissional'}</p>
-                </div>
-                <Button
-                  size="sm"
-                  variant={follow ? 'outline' : 'default'}
-                  onClick={() => handleFollow(u.email)}
-                  disabled={isFollowing}
-                  className="rounded-full h-8"
-                >
-                  {follow ? 'Seguindo' : 'Seguir'}
-                </Button>
-              </div>
-            );
-          })}
+          ) : (
+            <>
+              <p className="text-xs text-slate-400 mb-2">{filteredUsers.length} usuário(s) encontrado(s)</p>
+              {filteredUsers.map(u => {
+                const profile = profiles.find(p => p.user_email === u.email);
+                const follow = localFollows.find(f => f.following_email === u.email);
+                const userType = getUserType(u);
+                
+                return (
+                  <div key={u.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50">
+                    <Link to={`${createPageUrl('SocialProfile')}?email=${u.email}`}>
+                      <Avatar className="w-12 h-12">
+                        <AvatarImage src={u.profile_photo} />
+                        <AvatarFallback className="bg-[#0056ff] text-white">
+                          {u.full_name?.[0] || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{u.full_name || 'Usuário'}</p>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${userType.color}`}>{userType.label}</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={follow ? 'outline' : 'default'}
+                      onClick={() => handleFollow(u.email)}
+                      disabled={isFollowing}
+                      className={`rounded-full h-8 ${!follow ? 'bg-[#0056ff] hover:bg-[#0044cc]' : ''}`}
+                    >
+                      {follow ? 'Seguindo' : 'Seguir'}
+                    </Button>
+                  </div>
+                );
+              })}
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
