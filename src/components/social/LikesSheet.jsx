@@ -82,7 +82,7 @@ export default function LikesSheet({ post, user, allUsers, isOpen, onClose }) {
                   >
                     <Avatar className="w-12 h-12">
                       <AvatarImage src={like.user_photo || likeUser?.profile_photo} />
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                      <AvatarFallback className="bg-[#0056ff] text-white font-semibold">
                         {like.user_name?.[0] || '?'}
                       </AvatarFallback>
                     </Avatar>

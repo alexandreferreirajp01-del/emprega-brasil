@@ -85,7 +85,7 @@ export default function CreatePostSheet({ user, isOpen, onClose, onSuccess }) {
           <Button 
             onClick={handleSubmit}
             disabled={isSubmitting || (!content.trim() && !imageUrl)}
-            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-5"
+            className="bg-[#0056ff] hover:bg-[#0044cc] text-white rounded-xl px-5"
           >
             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Publicar'}
           </Button>
@@ -96,7 +96,7 @@ export default function CreatePostSheet({ user, isOpen, onClose, onSuccess }) {
           <div className="flex gap-3">
             <Avatar className="w-10 h-10">
               <AvatarImage src={user?.profile_photo} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+              <AvatarFallback className="bg-[#0056ff] text-white font-semibold">
                 {user?.full_name?.[0] || '?'}
               </AvatarFallback>
             </Avatar>

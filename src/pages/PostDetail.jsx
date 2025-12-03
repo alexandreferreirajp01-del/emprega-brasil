@@ -157,9 +157,9 @@ export default function PostDetail() {
             to={`${createPageUrl('SocialProfile')}?email=${post.author_email}`}
             className="flex items-center gap-3"
           >
-            <Avatar className="w-10 h-10 ring-2 ring-pink-500 ring-offset-2">
+            <Avatar className="w-10 h-10">
               <AvatarImage src={post.author_photo || authorUser?.profile_photo} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+              <AvatarFallback className="bg-[#0056ff] text-white font-semibold">
                 {post.author_name?.[0]}
               </AvatarFallback>
             </Avatar>
@@ -278,7 +278,7 @@ export default function PostDetail() {
             variant="ghost" 
             onClick={handleComment}
             disabled={!newComment.trim() || isSending}
-            className="text-blue-500 font-semibold"
+            className="text-[#0056ff] font-semibold"
           >
             {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Publicar'}
           </Button>

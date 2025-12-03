@@ -120,7 +120,7 @@ export default function EditProfile() {
           <Button 
             onClick={handleSave}
             disabled={saving}
-            className="bg-blue-500 hover:bg-blue-600 rounded-full"
+            className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
             Salvar
@@ -138,7 +138,7 @@ export default function EditProfile() {
                 {user?.full_name?.[0]}
               </AvatarFallback>
             </Avatar>
-            <label className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-2 cursor-pointer">
+            <label className="absolute bottom-0 right-0 bg-[#0056ff] text-white rounded-full p-2 cursor-pointer">
               <input 
                 type="file" 
                 accept="image/*" 
@@ -153,7 +153,7 @@ export default function EditProfile() {
               )}
             </label>
           </div>
-          <p className="text-sm text-blue-500 mt-2">Alterar foto</p>
+          <p className="text-sm text-[#0056ff] mt-2">Alterar foto</p>
         </div>
 
         {/* Form */}

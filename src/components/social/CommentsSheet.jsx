@@ -176,7 +176,7 @@ export default function CommentsSheet({ post, user, isOpen, onClose }) {
             size="icon" 
             onClick={handleSend}
             disabled={!newComment.trim() || isSending}
-            className="rounded-full bg-blue-500 hover:bg-blue-600"
+            className="rounded-full bg-[#0056ff] hover:bg-[#0044cc]"
           >
             {isSending ? (
               <Loader2 className="w-4 h-4 animate-spin" />

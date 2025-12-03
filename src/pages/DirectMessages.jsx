@@ -166,7 +166,7 @@ export default function DirectMessages() {
             >
               <Avatar className="w-10 h-10">
                 <AvatarImage src={selectedChat.user?.profile_photo} />
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                <AvatarFallback className="bg-[#0056ff] text-white font-semibold">
                   {selectedChat.user?.full_name?.[0] || '?'}
                 </AvatarFallback>
               </Avatar>
@@ -184,7 +184,7 @@ export default function DirectMessages() {
             <div className="text-center py-12">
               <Avatar className="w-20 h-20 mx-auto mb-4">
                 <AvatarImage src={selectedChat.user?.profile_photo} />
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-2xl">
+                <AvatarFallback className="bg-[#0056ff] text-white text-2xl font-semibold">
                   {selectedChat.user?.full_name?.[0]}
                 </AvatarFallback>
               </Avatar>
@@ -202,7 +202,7 @@ export default function DirectMessages() {
                   <div 
                     className={`max-w-[75%] rounded-2xl px-4 py-2 ${
                       isMe 
-                        ? 'bg-blue-500 text-white rounded-br-md' 
+                        ? 'bg-[#0056ff] text-white rounded-br-md' 
                         : 'bg-white text-slate-800 rounded-bl-md shadow-sm'
                     }`}
                   >
@@ -240,7 +240,7 @@ export default function DirectMessages() {
             size="icon"
             onClick={handleSend}
             disabled={!newMessage.trim() || isSending}
-            className="rounded-full bg-blue-500 hover:bg-blue-600"
+            className="rounded-full bg-[#0056ff] hover:bg-[#0044cc]"
           >
             {isSending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -304,7 +304,7 @@ export default function DirectMessages() {
               >
                 <Avatar className="w-14 h-14">
                   <AvatarImage src={targetUser?.profile_photo} />
-                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                  <AvatarFallback className="bg-[#0056ff] text-white font-semibold">
                     {targetUser?.full_name?.[0] || '?'}
                   </AvatarFallback>
                 </Avatar>
@@ -321,7 +321,7 @@ export default function DirectMessages() {
                   </p>
                 </div>
                 {conv.unread > 0 && (
-                  <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                  <div className="w-5 h-5 bg-[#0056ff] rounded-full flex items-center justify-center">
                     <span className="text-[10px] text-white font-bold">{conv.unread}</span>
                   </div>
                 )}
