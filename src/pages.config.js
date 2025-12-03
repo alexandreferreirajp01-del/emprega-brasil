@@ -21,13 +21,8 @@ import VagasPorIA from './pages/VagasPorIA';
 import VagasHomeOffice from './pages/VagasHomeOffice';
 import Favoritos from './pages/Favoritos';
 import Historico from './pages/Historico';
-import Social from './pages/Social';
-import SocialProfile from './pages/SocialProfile';
-import PostDetail from './pages/PostDetail';
 import ActivateBasic from './pages/ActivateBasic';
-import Messages from './pages/Messages';
 import ProfessionalResume from './pages/ProfessionalResume';
-import Inbox from './pages/Inbox';
 import RecruiterArea from './pages/RecruiterArea';
 import __Layout from './Layout.jsx';
 
@@ -56,13 +51,8 @@ export const PAGES = {
     "VagasHomeOffice": VagasHomeOffice,
     "Favoritos": Favoritos,
     "Historico": Historico,
-    "Social": Social,
-    "SocialProfile": SocialProfile,
-    "PostDetail": PostDetail,
     "ActivateBasic": ActivateBasic,
-    "Messages": Messages,
     "ProfessionalResume": ProfessionalResume,
-    "Inbox": Inbox,
     "RecruiterArea": RecruiterArea,
 }
 
