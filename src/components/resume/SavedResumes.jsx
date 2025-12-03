@@ -290,10 +290,22 @@ export default function SavedResumes({ user, isAdmin, onBack }) {
                   <Download className="w-4 h-4 mr-2" />
                   Baixar PDF
                 </Button>
-                <Button variant="destructive" onClick={() => { setDeleteId(selectedResume.id); }}>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Excluir
-                </Button>
+                {selectedResume.resume_file_url && (
+                  <Button 
+                    variant="outline"
+                    onClick={() => window.open(selectedResume.resume_file_url, '_blank')}
+                    className="flex-1"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Arquivo
+                  </Button>
+                )}
+                {(isAdmin || selectedResume.user_email === user?.email) && (
+                  <Button variant="destructive" onClick={() => { setDeleteId(selectedResume.id); }}>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Excluir
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -410,14 +422,16 @@ export default function SavedResumes({ user, isAdmin, onBack }) {
                         <Download className="w-4 h-4 mr-1" />
                         PDF
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={(e) => { e.stopPropagation(); setDeleteId(resume.id); }}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      {(isAdmin || resume.user_email === user?.email) && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={(e) => { e.stopPropagation(); setDeleteId(resume.id); }}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>
