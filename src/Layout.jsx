@@ -119,8 +119,8 @@ export default function Layout({ children, currentPageName }) {
   const navItems = [
     { name: 'Início', icon: Home, page: 'Home' },
     { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
+    { name: 'Social', icon: Users, page: 'Social' },
     { name: 'Notícias', icon: Newspaper, page: 'News' },
-    { name: 'Grupos', icon: Users, page: 'Groups' },
     { name: 'Perfil', icon: User, page: 'Profile' },
   ];
 
