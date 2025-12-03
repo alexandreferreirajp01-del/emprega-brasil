@@ -16,56 +16,94 @@ export default function SocialUsers({ user }) {
   const [sortBy, setSortBy] = useState('name');
   const [followingMap, setFollowingMap] = useState({});
   const [followersCount, setFollowersCount] = useState({});
+  const [processingFollow, setProcessingFollow] = useState(null);
   const queryClient = useQueryClient();
 
+  // Buscar TODOS os usuários sem filtro restritivo de subscription_type
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['social-users'],
     queryFn: async () => {
-      const allUsers = await base44.entities.User.list('-created_date', 500);
-      return allUsers.filter(u => 
-        u.subscription_type && ['basic', 'premium', 'recruiter', 'admin'].includes(u.subscription_type)
-      );
-    }
+      const allUsers = await base44.entities.User.list('-created_date', 1000);
+      // Retornar todos os usuários que têm nome
+      return allUsers.filter(u => u.full_name);
+    },
+    staleTime: 30000
   });
 
-  const { data: follows = [] } = useQuery({
+  const { data: follows = [], refetch: refetchFollows } = useQuery({
     queryKey: ['all-follows'],
     queryFn: () => base44.entities.Follow.list('-created_date', 10000),
+    staleTime: 5000
   });
 
+  // Atualizar mapa de seguidos quando dados mudam
   useEffect(() => {
-    if (user && follows.length > 0) {
+    if (user && follows) {
       const myFollows = {};
       const counts = {};
+      
       follows.forEach(f => {
         if (f.follower_email === user.email) {
           myFollows[f.following_email] = f.id;
         }
         counts[f.following_email] = (counts[f.following_email] || 0) + 1;
       });
+      
       setFollowingMap(myFollows);
       setFollowersCount(counts);
     }
   }, [user, follows]);
 
-  const followMutation = useMutation({
-    mutationFn: async (targetEmail) => {
-      if (followingMap[targetEmail]) {
-        await base44.entities.Follow.delete(followingMap[targetEmail]);
+  // Função de seguir com atualização otimista
+  const handleFollow = async (targetEmail) => {
+    if (!user || processingFollow) return;
+    
+    setProcessingFollow(targetEmail);
+    
+    const wasFollowing = !!followingMap[targetEmail];
+    const existingFollowId = followingMap[targetEmail];
+
+    // Atualização otimista do estado local
+    if (wasFollowing) {
+      setFollowingMap(prev => {
+        const newMap = { ...prev };
+        delete newMap[targetEmail];
+        return newMap;
+      });
+      setFollowersCount(prev => ({
+        ...prev,
+        [targetEmail]: Math.max((prev[targetEmail] || 1) - 1, 0)
+      }));
+    } else {
+      setFollowingMap(prev => ({
+        ...prev,
+        [targetEmail]: 'temp-id'
+      }));
+      setFollowersCount(prev => ({
+        ...prev,
+        [targetEmail]: (prev[targetEmail] || 0) + 1
+      }));
+    }
+
+    try {
+      if (wasFollowing && existingFollowId) {
+        await base44.entities.Follow.delete(existingFollowId);
       } else {
         await base44.entities.Follow.create({
           follower_email: user.email,
           following_email: targetEmail
         });
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-follows'] });
+      // Atualizar dados do servidor
+      await refetchFollows();
+      queryClient.invalidateQueries({ queryKey: ['profile-follows'] });
+    } catch (error) {
+      console.error('Erro ao seguir/deixar de seguir:', error);
+      // Reverter em caso de erro
+      await refetchFollows();
+    } finally {
+      setProcessingFollow(null);
     }
-  });
-
-  const handleFollow = (targetEmail) => {
-    followMutation.mutate(targetEmail);
   };
 
   const getPlanBadge = (u) => {
@@ -83,12 +121,12 @@ export default function SocialUsers({ user }) {
 
   const filteredUsers = users
     .filter(u => u.email !== user?.email)
-    .filter(u => !search || u.full_name?.toLowerCase().includes(search.toLowerCase()))
+    .filter(u => !search || u.full_name?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === 'followers') return (followersCount[b.email] || 0) - (followersCount[a.email] || 0);
       if (sortBy === 'plan') {
-        const order = { admin: 0, recruiter: 1, premium: 2, basic: 3 };
-        return (order[a.subscription_type] || 3) - (order[b.subscription_type] || 3);
+        const order = { admin: 0, recruiter: 1, premium: 2, basic: 3, undefined: 4 };
+        return (order[a.subscription_type] || 4) - (order[b.subscription_type] || 4);
       }
       return (a.full_name || '').localeCompare(b.full_name || '');
     });
@@ -126,67 +164,77 @@ export default function SocialUsers({ user }) {
         </Select>
       </div>
 
+      {/* Info */}
+      <p className="text-sm text-slate-500">{filteredUsers.length} usuários encontrados</p>
+
       {/* Users List */}
       {filteredUsers.length === 0 ? (
         <div className="text-center py-12 text-slate-500">Nenhum usuário encontrado.</div>
       ) : (
         <div className="space-y-3">
-          {filteredUsers.map(u => (
-            <Card key={u.id} className="shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4">
-                  <Link to={`${createPageUrl('SocialProfile')}?email=${u.email}`}>
-                    <Avatar className="w-14 h-14">
-                      <AvatarImage src={u.profile_photo} />
-                      <AvatarFallback className="bg-[#0056ff] text-white text-lg">
-                        {u.full_name?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Link>
-                  <div className="flex-1 min-w-0">
-                    <Link 
-                      to={`${createPageUrl('SocialProfile')}?email=${u.email}`}
-                      className="font-semibold text-slate-800 hover:text-[#0056ff] hover:underline block truncate"
-                    >
-                      {u.full_name || 'Usuário'}
+          {filteredUsers.map(u => {
+            const isFollowingUser = !!followingMap[u.email];
+            const isProcessing = processingFollow === u.email;
+            
+            return (
+              <Card key={u.id} className="shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <Link to={`${createPageUrl('SocialProfile')}?email=${u.email}`}>
+                      <Avatar className="w-14 h-14 ring-2 ring-slate-100">
+                        <AvatarImage src={u.profile_photo} />
+                        <AvatarFallback className="bg-[#0056ff] text-white text-lg">
+                          {u.full_name?.[0] || '?'}
+                        </AvatarFallback>
+                      </Avatar>
                     </Link>
-                    <div className="flex items-center gap-2 mt-1">
-                      {getPlanBadge(u)}
-                      <span className="text-xs text-slate-500">
-                        {followersCount[u.email] || 0} seguidores
-                      </span>
+                    <div className="flex-1 min-w-0">
+                      <Link 
+                        to={`${createPageUrl('SocialProfile')}?email=${u.email}`}
+                        className="font-semibold text-slate-800 hover:text-[#0056ff] hover:underline block truncate"
+                      >
+                        {u.full_name || 'Usuário'}
+                      </Link>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {getPlanBadge(u)}
+                        <span className="text-xs text-slate-500">
+                          {followersCount[u.email] || 0} seguidores
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Button
+                        variant={isFollowingUser ? "outline" : "default"}
+                        size="sm"
+                        onClick={() => handleFollow(u.email)}
+                        disabled={isProcessing}
+                        className={`rounded-xl min-w-[100px] ${isFollowingUser ? "" : "bg-[#0056ff] hover:bg-[#0044cc]"}`}
+                      >
+                        {isProcessing ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : isFollowingUser ? (
+                          <>
+                            <UserMinus className="w-4 h-4 mr-1" />
+                            Seguindo
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus className="w-4 h-4 mr-1" />
+                            Seguir
+                          </>
+                        )}
+                      </Button>
+                      <Link to={`${createPageUrl('SocialChat')}?email=${u.email}`}>
+                        <Button variant="outline" size="sm" className="rounded-xl">
+                          <MessageCircle className="w-4 h-4" />
+                        </Button>
+                      </Link>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={followingMap[u.email] ? "outline" : "default"}
-                      size="sm"
-                      onClick={() => handleFollow(u.email)}
-                      disabled={followMutation.isPending}
-                      className={followingMap[u.email] ? "rounded-xl" : "rounded-xl bg-[#0056ff] hover:bg-[#0044cc]"}
-                    >
-                      {followingMap[u.email] ? (
-                        <>
-                          <UserMinus className="w-4 h-4 mr-1" />
-                          Seguindo
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus className="w-4 h-4 mr-1" />
-                          Seguir
-                        </>
-                      )}
-                    </Button>
-                    <Link to={`${createPageUrl('SocialChat')}?email=${u.email}`}>
-                      <Button variant="outline" size="sm" className="rounded-xl">
-                        <MessageCircle className="w-4 h-4" />
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
