@@ -25,7 +25,6 @@ import ActivateBasic from './pages/ActivateBasic';
 import ProfessionalResume from './pages/ProfessionalResume';
 import RecruiterArea from './pages/RecruiterArea';
 import EditProfile from './pages/EditProfile';
-import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -57,7 +56,6 @@ export const PAGES = {
     "ProfessionalResume": ProfessionalResume,
     "RecruiterArea": RecruiterArea,
     "EditProfile": EditProfile,
-    "Notifications": Notifications,
 }
 
 export const pagesConfig = {
