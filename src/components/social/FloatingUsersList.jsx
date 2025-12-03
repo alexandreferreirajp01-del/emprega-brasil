@@ -27,23 +27,30 @@ export default function FloatingUsersList({ user, isOpen, onClose }) {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Buscar todos os dados
-      const usersData = await base44.entities.User.list('-created_date', 500);
-      const followsData = await base44.entities.Follow.list('-created_date', 1000);
+      // Buscar todos os dados em paralelo
+      const [usersData, followsData] = await Promise.all([
+        base44.entities.User.list('-created_date', 1000).catch(e => { console.error('Erro User.list:', e); return []; }),
+        base44.entities.Follow.list('-created_date', 1000).catch(e => { console.error('Erro Follow.list:', e); return []; })
+      ]);
       
-      console.log('Usuários carregados:', usersData?.length);
-      console.log('Follows carregados:', followsData?.length);
+      console.log('FloatingUsersList - Usuários carregados:', usersData);
+      console.log('FloatingUsersList - Total usuários:', usersData?.length || 0);
+      console.log('FloatingUsersList - Follows carregados:', followsData?.length || 0);
       
-      setAllUsers(usersData || []);
-      setFollows(followsData || []);
+      // Garantir que é um array
+      const users = Array.isArray(usersData) ? usersData : [];
+      const follows = Array.isArray(followsData) ? followsData : [];
+      
+      setAllUsers(users);
+      setFollows(follows);
       
       // Marcar quem o usuário segue
-      const myFollows = (followsData || []).filter(f => f.follower_email === user?.email);
+      const myFollows = follows.filter(f => f.follower_email === user?.email);
       const followingMap = {};
       myFollows.forEach(f => { followingMap[f.following_email] = f.id; });
       setFollowingIds(followingMap);
     } catch (e) {
-      console.error('Erro ao carregar usuários:', e);
+      console.error('Erro geral ao carregar usuários:', e);
       setAllUsers([]);
       setFollows([]);
     } finally {

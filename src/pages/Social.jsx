@@ -80,22 +80,27 @@ export default function Social() {
     const loadAllData = async () => {
       setDataLoading(true);
       
+      console.log('Social - Carregando dados para usuário:', user?.email);
+      
       const [postsData, followsData, likesData, commentsData, usersData, profilesData, notificationsData] = await Promise.all([
         safeFetch(() => base44.entities.SocialPost.list('-created_date', 100)),
-        safeFetch(() => base44.entities.Follow.list('-created_date', 500)),
+        safeFetch(() => base44.entities.Follow.list('-created_date', 1000)),
         safeFetch(() => base44.entities.SocialLike.list('-created_date', 1000)),
         safeFetch(() => base44.entities.SocialComment.list('-created_date', 500)),
-        safeFetch(() => base44.entities.User.list('-created_date', 500)),
-        safeFetch(() => base44.entities.UserProfile.list('-created_date', 200)),
+        safeFetch(() => base44.entities.User.list('-created_date', 1000)),
+        safeFetch(() => base44.entities.UserProfile.list('-created_date', 500)),
         safeFetch(() => base44.entities.SocialNotification.list('-created_date', 100))
       ]);
+
+      console.log('Social - Usuários carregados:', usersData?.length);
+      console.log('Social - Usuários data:', usersData);
 
       if (mounted) {
         setPosts(postsData.filter(p => p.status === 'active' || !p.status));
         setFollows(followsData);
         setLikes(likesData);
         setComments(commentsData.filter(c => c.status === 'active' || !c.status));
-        setAllUsers(usersData);
+        setAllUsers(Array.isArray(usersData) ? usersData : []);
         setProfiles(profilesData);
         setNotifications(notificationsData.filter(n => n.user_email === user.email));
         setDataLoading(false);
