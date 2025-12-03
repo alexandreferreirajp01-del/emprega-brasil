@@ -121,34 +121,8 @@ export default function Social() {
       <div className="max-w-4xl mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           
-          {/* Sidebar - Profile Card */}
+          {/* Sidebar - Quick Links */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Mini Profile */}
-            <Card className="overflow-hidden">
-              <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] h-16" />
-              <CardContent className="pt-0 pb-4 -mt-8">
-                <Link to={`${createPageUrl('SocialProfile')}?email=${user.email}`}>
-                  <Avatar className="w-16 h-16 border-4 border-white mx-auto">
-                    <AvatarImage src={user.profile_photo} />
-                    <AvatarFallback className="bg-[#0056ff] text-white text-xl font-semibold">
-                      {user.full_name?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
-                <div className="text-center mt-2">
-                  <Link 
-                    to={`${createPageUrl('SocialProfile')}?email=${user.email}`}
-                    className="font-semibold text-slate-800 hover:text-[#0056ff]"
-                  >
-                    {user.full_name}
-                  </Link>
-                  <p className="text-sm text-slate-500 capitalize">{user.subscription_type || 'Usuário'}</p>
-                </div>
-
-              </CardContent>
-            </Card>
-
-            {/* Quick Links */}
             <Card>
               <CardContent className="p-4 space-y-2">
                 <Link to={createPageUrl('ExploreUsers')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
