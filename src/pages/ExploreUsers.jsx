@@ -40,22 +40,26 @@ export default function ExploreUsers() {
   const loadData = async (currentUser) => {
     try {
       const [usersData, followingData] = await Promise.all([
-        base44.entities.User.list('-created_date', 500),
+        base44.entities.User.list('-created_date', 1000),
         base44.entities.Follow.filter({ follower_email: currentUser.email })
       ]);
       
-      // Filter out current user and visitors
+      // Filter out current user only (show all subscription types except visitor)
       const filteredUsers = (usersData || []).filter(u => 
-        u.email !== currentUser.email && u.subscription_type !== 'visitor'
+        u.email !== currentUser.email && 
+        u.subscription_type !== 'visitor' &&
+        u.email // ensure has email
       );
       setUsers(filteredUsers);
       setFollowing(followingData || []);
       
       // Create map for quick lookup
       const map = {};
-      followingData?.forEach(f => { map[f.following_email] = f.id; });
+      (followingData || []).forEach(f => { map[f.following_email] = f.id; });
       setFollowingMap(map);
-    } catch (e) {}
+    } catch (e) {
+      console.error('Error loading users:', e);
+    }
     setLoading(false);
   };
 
@@ -79,8 +83,26 @@ export default function ExploreUsers() {
           following_email: targetEmail
         });
         setFollowingMap(prev => ({ ...prev, [targetEmail]: newFollow.id }));
+        
+        // Create notification for followed user
+        const targetUser = users.find(u => u.email === targetEmail);
+        try {
+          await base44.entities.SocialNotification.create({
+            user_email: targetEmail,
+            from_email: user.email,
+            from_name: user.full_name,
+            from_photo: user.profile_photo,
+            type: 'follow',
+            message: `${user.full_name} começou a seguir você`,
+            is_read: false
+          });
+        } catch (notifError) {
+          console.log('Could not create notification');
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('Error following user:', e);
+    }
     
     setLoadingFollow(prev => ({ ...prev, [targetEmail]: false }));
   };
