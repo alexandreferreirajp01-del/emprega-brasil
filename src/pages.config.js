@@ -24,9 +24,6 @@ import Historico from './pages/Historico';
 import ActivateBasic from './pages/ActivateBasic';
 import ProfessionalResume from './pages/ProfessionalResume';
 import RecruiterArea from './pages/RecruiterArea';
-import Social from './pages/Social';
-import DirectMessages from './pages/DirectMessages';
-import PostDetail from './pages/PostDetail';
 import EditProfile from './pages/EditProfile';
 import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
@@ -59,9 +56,6 @@ export const PAGES = {
     "ActivateBasic": ActivateBasic,
     "ProfessionalResume": ProfessionalResume,
     "RecruiterArea": RecruiterArea,
-    "Social": Social,
-    "DirectMessages": DirectMessages,
-    "PostDetail": PostDetail,
     "EditProfile": EditProfile,
     "Notifications": Notifications,
 }
