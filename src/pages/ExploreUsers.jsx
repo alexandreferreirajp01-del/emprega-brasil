@@ -154,9 +154,9 @@ export default function ExploreUsers() {
           {filteredUsers.map(u => (
             <div key={u.id} className="flex items-center gap-3 p-4">
               <Link to={`${createPageUrl('SocialProfile')}?email=${u.email}`}>
-                <Avatar className="w-14 h-14 ring-2 ring-pink-500 ring-offset-2">
+                <Avatar className="w-14 h-14 border-2 border-slate-200">
                   <AvatarImage src={u.profile_photo} />
-                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                  <AvatarFallback className="bg-[#0056ff] text-white font-semibold">
                     {u.full_name?.[0] || '?'}
                   </AvatarFallback>
                 </Avatar>
@@ -179,7 +179,7 @@ export default function ExploreUsers() {
                   variant={followingMap[u.email] ? 'outline' : 'default'}
                   size="sm"
                   onClick={() => handleFollow(u.email)}
-                  className={`rounded-full ${!followingMap[u.email] ? 'bg-blue-500 hover:bg-blue-600' : ''}`}
+                  className={`rounded-xl ${!followingMap[u.email] ? 'bg-[#0056ff] hover:bg-[#0044cc]' : ''}`}
                 >
                   {followingMap[u.email] ? (
                     <>

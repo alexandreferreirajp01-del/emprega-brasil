@@ -130,9 +130,9 @@ export default function SocialProfile() {
         {/* Profile Header */}
         <div className="p-4">
           <div className="flex items-start gap-6">
-            <Avatar className="w-20 h-20 ring-2 ring-pink-500 ring-offset-2">
+            <Avatar className="w-20 h-20 border-2 border-slate-200">
               <AvatarImage src={profileUser?.profile_photo} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-2xl">
+              <AvatarFallback className="bg-[#0056ff] text-white text-2xl font-semibold">
                 {profileUser?.full_name?.[0] || '?'}
               </AvatarFallback>
             </Avatar>
@@ -204,7 +204,7 @@ export default function SocialProfile() {
           <div className="flex gap-2 mt-4">
             {isOwnProfile ? (
               <Link to={createPageUrl('EditProfile')} className="flex-1">
-                <Button variant="outline" className="w-full rounded-lg">
+                <Button variant="outline" className="w-full rounded-xl">
                   <Edit className="w-4 h-4 mr-2" />
                   Editar perfil
                 </Button>
@@ -213,7 +213,7 @@ export default function SocialProfile() {
               <>
                 <Button
                   onClick={handleFollow}
-                  className={`flex-1 rounded-lg ${isFollowing ? '' : 'bg-blue-500 hover:bg-blue-600'}`}
+                  className={`flex-1 rounded-xl ${isFollowing ? '' : 'bg-[#0056ff] hover:bg-[#0044cc]'}`}
                   variant={isFollowing ? 'outline' : 'default'}
                 >
                   {isFollowing ? (
@@ -229,7 +229,7 @@ export default function SocialProfile() {
                   )}
                 </Button>
                 <Link to={`${createPageUrl('DirectMessages')}?with=${targetEmail}`}>
-                  <Button variant="outline" className="rounded-lg">
+                  <Button variant="outline" className="rounded-xl">
                     <MessageCircle className="w-4 h-4" />
                   </Button>
                 </Link>
@@ -265,7 +265,7 @@ export default function SocialProfile() {
                     {post.image_url ? (
                       <img src={post.image_url} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center p-2 bg-gradient-to-br from-purple-100 to-pink-100">
+                      <div className="w-full h-full flex items-center justify-center p-2 bg-slate-100">
                         <p className="text-xs text-slate-600 line-clamp-4 text-center">
                           {post.content}
                         </p>

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  Home, Search, PlusSquare, Heart, User, Loader2, Lock, Crown,
-  Send, RefreshCw
+  Users, Search, Plus, Bell, Loader2, Lock, Crown,
+  MessageCircle, RefreshCw
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
@@ -18,7 +18,6 @@ export default function Social() {
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
-  const [activeTab, setActiveTab] = useState('feed');
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [showComments, setShowComments] = useState(false);
@@ -67,16 +66,16 @@ export default function Social() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
       </div>
     );
   }
 
   if (!user || !canAccess) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
-        <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-6">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
+        <div className="w-20 h-20 bg-[#0056ff] rounded-2xl flex items-center justify-center mb-6">
           <Lock className="w-10 h-10 text-white" />
         </div>
         <h1 className="text-2xl font-bold text-slate-800 mb-2">Social Vagas Abertas</h1>
@@ -84,7 +83,7 @@ export default function Social() {
           Escolha um plano para acessar a rede social
         </p>
         <Link to={createPageUrl('Subscription')}>
-          <Button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full px-8">
+          <Button className="bg-[#0056ff] hover:bg-[#0044cc] text-white rounded-xl px-8">
             <Crown className="w-5 h-5 mr-2" />
             Ver Planos
           </Button>
@@ -94,67 +93,71 @@ export default function Social() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-16">
+    <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white border-b px-4 py-3">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Social
-          </h1>
-          <div className="flex items-center gap-2">
+      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-8 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-white">Social</h1>
+              <p className="text-white/70 text-sm">Conecte-se com profissionais</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="text-white hover:bg-white/10 rounded-xl"
+              >
+                <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </Button>
+              <Link to={createPageUrl('DirectMessages')}>
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 rounded-xl">
+                  <MessageCircle className="w-5 h-5" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="flex gap-3">
             <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleRefresh}
-              disabled={isRefreshing}
+              onClick={() => setShowCreatePost(true)}
+              className="bg-white text-[#0056ff] hover:bg-white/90 rounded-xl flex-1"
             >
-              <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <Plus className="w-5 h-5 mr-2" />
+              Nova Publicação
             </Button>
-            <Link to={createPageUrl('DirectMessages')}>
-              <Button variant="ghost" size="icon">
-                <Send className="w-5 h-5" />
+            <Link to={createPageUrl('ExploreUsers')} className="flex-1">
+              <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-xl">
+                <Users className="w-5 h-5 mr-2" />
+                Explorar
               </Button>
             </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Stories-like bar */}
-      <div className="border-b bg-white">
-        <div className="max-w-lg mx-auto px-4 py-3 overflow-x-auto">
-          <div className="flex gap-4">
-            <button 
-              onClick={() => setShowCreatePost(true)}
-              className="flex flex-col items-center gap-1 flex-shrink-0"
-            >
-              <div className="w-16 h-16 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center">
-                <PlusSquare className="w-6 h-6 text-slate-400" />
-              </div>
-              <span className="text-xs text-slate-500">Publicar</span>
-            </button>
           </div>
         </div>
       </div>
 
       {/* Feed */}
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-2xl mx-auto px-4 -mt-4">
         {posts.length === 0 ? (
-          <div className="p-8 text-center">
-            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Home className="w-12 h-12 text-slate-300" />
+          <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+            <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Users className="w-10 h-10 text-slate-300" />
             </div>
-            <h3 className="font-semibold text-slate-600 mb-2">Nenhuma publicação</h3>
+            <h3 className="font-semibold text-slate-700 mb-2">Nenhuma publicação</h3>
             <p className="text-slate-500 text-sm mb-4">Seja o primeiro a compartilhar algo!</p>
             <Button 
               onClick={() => setShowCreatePost(true)}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full"
+              className="bg-[#0056ff] hover:bg-[#0044cc] text-white rounded-xl"
             >
-              <PlusSquare className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2" />
               Criar publicação
             </Button>
           </div>
         ) : (
-          <div className="divide-y">
+          <div className="space-y-4">
             {posts.map(post => (
               <PostCard 
                 key={post.id}
@@ -175,35 +178,6 @@ export default function Social() {
           </div>
         )}
       </div>
-
-      {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t z-40">
-        <div className="max-w-lg mx-auto flex items-center justify-around h-14">
-          <button 
-            onClick={() => setActiveTab('feed')}
-            className={activeTab === 'feed' ? 'text-black' : 'text-slate-400'}
-          >
-            <Home className="w-6 h-6" />
-          </button>
-          <Link to={createPageUrl('ExploreUsers')}>
-            <Search className="w-6 h-6 text-slate-400" />
-          </Link>
-          <button onClick={() => setShowCreatePost(true)}>
-            <PlusSquare className="w-6 h-6 text-slate-400" />
-          </button>
-          <Link to={createPageUrl('Notifications')}>
-            <Heart className="w-6 h-6 text-slate-400" />
-          </Link>
-          <Link to={`${createPageUrl('SocialProfile')}?email=${user.email}`}>
-            <Avatar className="w-7 h-7 ring-1 ring-slate-200">
-              <AvatarImage src={user.profile_photo} />
-              <AvatarFallback className="bg-slate-200 text-xs">
-                {user.full_name?.[0]}
-              </AvatarFallback>
-            </Avatar>
-          </Link>
-        </div>
-      </nav>
 
       {/* Sheets */}
       <CreatePostSheet 

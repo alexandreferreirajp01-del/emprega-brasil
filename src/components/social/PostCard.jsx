@@ -3,8 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  Heart, MessageCircle, Share2, MoreHorizontal, Trash2, Flag, 
-  Bookmark, Send, Play
+  Heart, MessageCircle, Share2, MoreHorizontal, Trash2, Flag
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -98,33 +97,36 @@ export default function PostCard({ post, user, allUsers, onRefresh, onCommentCli
   const contentTruncated = post.content?.length > 200 && !showFullContent;
 
   return (
-    <Card className="rounded-none border-x-0 border-t-0 bg-white">
+    <Card className="rounded-2xl bg-white shadow-sm border-0">
       <CardContent className="p-0">
         {/* Header */}
-        <div className="flex items-center justify-between p-3">
+        <div className="flex items-center justify-between p-4">
           <Link 
             to={`${createPageUrl('SocialProfile')}?email=${post.author_email}`}
             className="flex items-center gap-3"
           >
-            <Avatar className="w-10 h-10 ring-2 ring-pink-500 ring-offset-2">
+            <Avatar className="w-11 h-11">
               <AvatarImage src={post.author_photo || author?.profile_photo} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+              <AvatarFallback className="bg-[#0056ff] text-white font-semibold">
                 {post.author_name?.[0] || '?'}
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-semibold text-sm">{post.author_name || 'Usuário'}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-sm text-slate-800">{post.author_name || 'Usuário'}</p>
+                <UserBadge user={author} />
+              </div>
               <p className="text-xs text-slate-500">{moment(post.created_date).fromNow()}</p>
             </div>
           </Link>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="w-5 h-5" />
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                <MoreHorizontal className="w-5 h-5 text-slate-500" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="rounded-xl">
               {(isOwner || isAdmin) && (
                 <DropdownMenuItem onClick={handleDelete} className="text-red-600">
                   <Trash2 className="w-4 h-4 mr-2" />
@@ -139,92 +141,94 @@ export default function PostCard({ post, user, allUsers, onRefresh, onCommentCli
           </DropdownMenu>
         </div>
 
+        {/* Content */}
+        {post.content && (
+          <div className="px-4 pb-3">
+            <p className="text-sm text-slate-700 whitespace-pre-line">
+              {contentTruncated ? post.content.slice(0, 200) + '...' : post.content}
+            </p>
+            {post.content.length > 200 && (
+              <button 
+                onClick={() => setShowFullContent(!showFullContent)}
+                className="text-[#0056ff] text-sm font-medium mt-1"
+              >
+                {showFullContent ? 'Ver menos' : 'Ver mais'}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Image/Video */}
         {post.image_url && (
-          <div className="relative bg-black">
+          <div className="relative">
             <img 
               src={post.image_url} 
               alt="" 
-              className="w-full max-h-[500px] object-contain"
+              className="w-full max-h-[400px] object-cover"
               onDoubleClick={handleLike}
             />
           </div>
         )}
         
         {post.video_url && (
-          <div className="relative bg-black">
+          <div className="relative">
             <video 
               src={post.video_url} 
               controls 
-              className="w-full max-h-[500px]"
+              className="w-full max-h-[400px]"
             />
           </div>
         )}
 
         {/* Actions */}
-        <div className="p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-4">
-              <button 
+        <div className="p-4 pt-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="ghost"
+                size="sm"
                 onClick={handleLike}
                 disabled={isLiking}
-                className="hover:opacity-60 transition-opacity"
+                className={`rounded-full px-3 ${liked ? 'text-red-500' : 'text-slate-600'}`}
               >
-                <Heart 
-                  className={`w-7 h-7 ${liked ? 'fill-red-500 text-red-500' : 'text-slate-800'}`} 
-                />
-              </button>
-              <button 
+                <Heart className={`w-5 h-5 mr-1.5 ${liked ? 'fill-current' : ''}`} />
+                <span className="text-sm">{likesCount > 0 ? likesCount : ''}</span>
+              </Button>
+              <Button 
+                variant="ghost"
+                size="sm"
                 onClick={() => onCommentClick?.(post)}
-                className="hover:opacity-60 transition-opacity"
+                className="rounded-full px-3 text-slate-600"
               >
-                <MessageCircle className="w-7 h-7 text-slate-800" />
-              </button>
-              <button 
+                <MessageCircle className="w-5 h-5 mr-1.5" />
+                <span className="text-sm">{post.comments_count > 0 ? post.comments_count : ''}</span>
+              </Button>
+              <Button 
+                variant="ghost"
+                size="sm"
                 onClick={handleShare}
-                className="hover:opacity-60 transition-opacity"
+                className="rounded-full px-3 text-slate-600"
               >
-                <Send className="w-7 h-7 text-slate-800" />
-              </button>
+                <Share2 className="w-5 h-5" />
+              </Button>
             </div>
-            <button className="hover:opacity-60 transition-opacity">
-              <Bookmark className="w-7 h-7 text-slate-800" />
-            </button>
           </div>
 
-          {/* Likes */}
+          {/* Likes count clickable */}
           {likesCount > 0 && (
             <button 
               onClick={() => onLikesClick?.(post)}
-              className="font-semibold text-sm mb-1 hover:opacity-60"
+              className="text-sm text-slate-500 mt-2 hover:text-[#0056ff]"
             >
               {likesCount} curtida{likesCount !== 1 ? 's' : ''}
             </button>
-          )}
-
-          {/* Content */}
-          {post.content && (
-            <div className="text-sm">
-              <span className="font-semibold mr-2">{post.author_name}</span>
-              <span className="whitespace-pre-line">
-                {contentTruncated ? post.content.slice(0, 200) + '...' : post.content}
-              </span>
-              {post.content.length > 200 && (
-                <button 
-                  onClick={() => setShowFullContent(!showFullContent)}
-                  className="text-slate-500 ml-1"
-                >
-                  {showFullContent ? 'menos' : 'mais'}
-                </button>
-              )}
-            </div>
           )}
 
           {/* Comments count */}
           {(post.comments_count || 0) > 0 && (
             <button 
               onClick={() => onCommentClick?.(post)}
-              className="text-slate-500 text-sm mt-1"
+              className="text-sm text-slate-500 block hover:text-[#0056ff]"
             >
               Ver {post.comments_count} comentário{post.comments_count !== 1 ? 's' : ''}
             </button>
