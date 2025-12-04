@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 
 const menuItems = [
   { id: 'admin', name: 'Painel Administrativo', icon: Shield, color: 'red', page: 'Admin', description: 'Gerenciar vagas, usuários e comunidade' },
+  { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real do aplicativo' },
   { id: 'divider1', type: 'divider', label: 'Painel Base44' },
   { id: 'overview', name: 'Overview', icon: BarChart3, color: 'slate', external: true, description: 'Visão geral do aplicativo' },
   { id: 'users', name: 'Users', icon: Users, color: 'blue', external: true, description: 'Gerenciar usuários' },
