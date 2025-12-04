@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Users, MessageCircle, Rss } from "lucide-react";
+import { Loader2, BookOpen, Wrench } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 
-import FeedTab from "@/components/social/FeedTab";
-import UsuariosTab from "@/components/social/UsuariosTab";
-import MensagensTab from "@/components/social/MensagensTab";
+import BibliotecaTab from "@/components/comunidade/BibliotecaTab";
+import FerramentasTab from "@/components/comunidade/FerramentasTab";
 
 export default function Comunidade() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
-  const urlParams = new URLSearchParams(window.location.search);
-  const tabInicial = urlParams.get('tab') || 'feed';
-  const [tab, setTab] = useState(tabInicial);
+  const [tab, setTab] = useState('biblioteca');
 
   useEffect(() => {
     const init = async () => {
@@ -41,39 +37,31 @@ export default function Comunidade() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 pt-6 pb-4 px-4">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold text-white">Comunidade</h1>
-          <p className="text-white/70 text-sm">Conecte-se com outros profissionais</p>
+          <p className="text-white/70 text-sm">Recursos profissionais para sua carreira</p>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-4">
+      <div className="max-w-4xl mx-auto px-4 py-4">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="w-full bg-white shadow rounded-xl p-1 grid grid-cols-3">
-            <TabsTrigger value="feed" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-              <Rss className="w-4 h-4 mr-2" />
-              Feed
+          <TabsList className="w-full bg-white shadow rounded-xl p-1 grid grid-cols-2">
+            <TabsTrigger value="biblioteca" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              <BookOpen className="w-4 h-4 mr-2" />
+              Biblioteca
             </TabsTrigger>
-            <TabsTrigger value="usuarios" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-              <Users className="w-4 h-4 mr-2" />
-              Usuários
-            </TabsTrigger>
-            <TabsTrigger value="mensagens" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Mensagens
+            <TabsTrigger value="ferramentas" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              <Wrench className="w-4 h-4 mr-2" />
+              Ferramentas
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="feed" className="mt-4">
-            <FeedTab user={user} />
+          <TabsContent value="biblioteca" className="mt-4">
+            <BibliotecaTab user={user} />
           </TabsContent>
 
-          <TabsContent value="usuarios" className="mt-4">
-            <UsuariosTab user={user} />
-          </TabsContent>
-
-          <TabsContent value="mensagens" className="mt-4">
-            <MensagensTab user={user} />
+          <TabsContent value="ferramentas" className="mt-4">
+            <FerramentasTab user={user} />
           </TabsContent>
         </Tabs>
       </div>
