@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   ArrowLeft, Newspaper, Trash2, Loader2, CheckCircle, Plus, X, 
-  Save, Star, Link2, Eye, Edit
+  Save, Star, Link2, Eye, Edit, Info, AlertCircle
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -26,6 +27,54 @@ const CATEGORIES = [
   'Eventos',
   'Geral'
 ];
+
+// Limites de caracteres (Base44 suporta até 100.000 para campos de texto)
+const CHAR_LIMITS = {
+  title: 500,
+  subtitle: 2000,
+  author_name: 200,
+  external_link: 2000,
+  content_block: 100000 // Rich text por bloco
+};
+
+// Componente de input com contador
+const InputWithCounter = ({ value, onChange, maxLength, label, placeholder, className = '', required = false }) => {
+  const charCount = (value || '').length;
+  const percent = (charCount / maxLength) * 100;
+  const isOver = charCount > maxLength;
+  const isWarning = percent >= 80 && !isOver;
+  
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <Label className={required ? "after:content-['*'] after:ml-0.5 after:text-red-500" : ""}>
+          {label}
+        </Label>
+      </div>
+      <Input
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`${className} ${isOver ? 'border-red-500 bg-red-50' : isWarning ? 'border-amber-400' : ''}`}
+      />
+      <div className={`flex items-center justify-between text-xs ${
+        isOver ? 'text-red-600' : isWarning ? 'text-amber-600' : 'text-slate-400'
+      }`}>
+        <span>
+          {isOver ? (
+            <span className="flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              Limite excedido
+            </span>
+          ) : isWarning ? 'Aproximando do limite' : ''}
+        </span>
+        <span className="font-mono">
+          {charCount.toLocaleString()} / {maxLength.toLocaleString()}
+        </span>
+      </div>
+    </div>
+  );
+};
 
 export default function GerenciarNoticias() {
   const [user, setUser] = useState(null);
@@ -127,11 +176,42 @@ export default function GerenciarNoticias() {
     },
   });
 
+  // Verificar se há campos acima do limite
+  const getPlainTextLength = (html) => {
+    if (!html) return 0;
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    return (temp.textContent || temp.innerText || '').length;
+  };
+
+  const validationErrors = useMemo(() => {
+    const errors = [];
+    if ((form.title || '').length > CHAR_LIMITS.title) errors.push('Título');
+    if ((form.subtitle || '').length > CHAR_LIMITS.subtitle) errors.push('Subtítulo');
+    if ((form.author_name || '').length > CHAR_LIMITS.author_name) errors.push('Autor');
+    if ((form.external_link || '').length > CHAR_LIMITS.external_link) errors.push('Link externo');
+    
+    form.blocks.forEach((block, i) => {
+      if (block.type === 'content' && getPlainTextLength(block.content) > CHAR_LIMITS.content_block) {
+        errors.push(`Bloco de texto ${i + 1}`);
+      }
+    });
+    
+    return errors;
+  }, [form]);
+
+  const canSave = validationErrors.length === 0 && form.title && form.category && form.author_name;
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
     if (!form.title || !form.category || !form.author_name) {
       showToast('Preencha os campos obrigatórios', 'error');
+      return;
+    }
+
+    if (validationErrors.length > 0) {
+      showToast(`Campos acima do limite: ${validationErrors.join(', ')}`, 'error');
       return;
     }
 
@@ -198,6 +278,32 @@ export default function GerenciarNoticias() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        {/* Painel informativo de limites */}
+        {showForm && (
+          <Alert className="bg-blue-50 border-blue-200">
+            <Info className="w-4 h-4 text-blue-600" />
+            <AlertDescription className="text-sm text-blue-800">
+              <strong>Limites de caracteres (Base44):</strong>{' '}
+              Título: {CHAR_LIMITS.title.toLocaleString()} • 
+              Subtítulo: {CHAR_LIMITS.subtitle.toLocaleString()} • 
+              Autor: {CHAR_LIMITS.author_name.toLocaleString()} • 
+              Link: {CHAR_LIMITS.external_link.toLocaleString()} • 
+              Conteúdo por bloco: {CHAR_LIMITS.content_block.toLocaleString()}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Alerta de validação */}
+        {showForm && validationErrors.length > 0 && (
+          <Alert className="bg-red-50 border-red-200">
+            <AlertCircle className="w-4 h-4 text-red-600" />
+            <AlertDescription className="text-sm text-red-800">
+              <strong>Campos acima do limite:</strong> {validationErrors.join(', ')}. 
+              Reduza o texto para poder salvar.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Botão Nova Notícia */}
         {!showForm ? (
           <Button onClick={() => { resetForm(); setShowForm(true); }} className="bg-red-600 hover:bg-red-700 rounded-xl">
@@ -218,33 +324,30 @@ export default function GerenciarNoticias() {
             <CardContent className="p-6">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Título */}
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">Título *</Label>
-                  <Input
-                    value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    placeholder="Digite o título da notícia..."
-                    className="rounded-xl h-12 text-lg"
-                    maxLength={500}
-                  />
-                </div>
+                <InputWithCounter
+                  label="Título"
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  placeholder="Digite o título da notícia..."
+                  maxLength={CHAR_LIMITS.title}
+                  className="rounded-xl h-12 text-lg"
+                  required
+                />
 
                 {/* Subtítulo */}
-                <div className="space-y-2">
-                  <Label>Subtítulo (opcional)</Label>
-                  <Input
-                    value={form.subtitle}
-                    onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
-                    placeholder="Uma breve descrição que aparece abaixo do título..."
-                    className="rounded-xl"
-                    maxLength={1000}
-                  />
-                </div>
+                <InputWithCounter
+                  label="Subtítulo (opcional)"
+                  value={form.subtitle}
+                  onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
+                  placeholder="Uma breve descrição que aparece abaixo do título..."
+                  maxLength={CHAR_LIMITS.subtitle}
+                  className="rounded-xl"
+                />
 
                 {/* Categoria e Autor */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Categoria *</Label>
+                    <Label className="after:content-['*'] after:ml-0.5 after:text-red-500">Categoria</Label>
                     <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
                       <SelectTrigger className="rounded-xl h-11">
                         <SelectValue />
@@ -256,30 +359,26 @@ export default function GerenciarNoticias() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Autor *</Label>
-                    <Input
-                      value={form.author_name}
-                      onChange={(e) => setForm({ ...form, author_name: e.target.value })}
-                      placeholder="Nome do autor"
-                      className="rounded-xl h-11"
-                    />
-                  </div>
+                  <InputWithCounter
+                    label="Autor"
+                    value={form.author_name}
+                    onChange={(e) => setForm({ ...form, author_name: e.target.value })}
+                    placeholder="Nome do autor"
+                    maxLength={CHAR_LIMITS.author_name}
+                    className="rounded-xl h-11"
+                    required
+                  />
                 </div>
 
                 {/* Link Externo */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Link2 className="w-4 h-4" />
-                    Link Externo (opcional)
-                  </Label>
-                  <Input
-                    value={form.external_link}
-                    onChange={(e) => setForm({ ...form, external_link: e.target.value })}
-                    placeholder="https://..."
-                    className="rounded-xl"
-                  />
-                </div>
+                <InputWithCounter
+                  label="Link Externo (opcional)"
+                  value={form.external_link}
+                  onChange={(e) => setForm({ ...form, external_link: e.target.value })}
+                  placeholder="https://..."
+                  maxLength={CHAR_LIMITS.external_link}
+                  className="rounded-xl"
+                />
 
                 {/* Blocos de Conteúdo */}
                 <div className="space-y-3">
@@ -314,8 +413,8 @@ export default function GerenciarNoticias() {
                 <div className="flex gap-3 pt-4 border-t">
                   <Button 
                     type="submit" 
-                    className="flex-1 bg-red-600 hover:bg-red-700 rounded-xl h-12 text-base"
-                    disabled={createNewsMutation.isPending || updateNewsMutation.isPending}
+                    className={`flex-1 rounded-xl h-12 text-base ${canSave ? 'bg-red-600 hover:bg-red-700' : 'bg-slate-300 cursor-not-allowed'}`}
+                    disabled={!canSave || createNewsMutation.isPending || updateNewsMutation.isPending}
                   >
                     {(createNewsMutation.isPending || updateNewsMutation.isPending) ? (
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Switch } from "@/components/ui/switch";
 import {
   Bold, Italic, Underline, Link2, AlignLeft, AlignCenter, AlignRight,
-  List, ListOrdered, Quote, Type, Palette, X
+  List, ListOrdered, Quote, Type, Palette, X, AlertCircle, CheckCircle2
 } from "lucide-react";
 
 const COLORS = [
@@ -14,7 +14,18 @@ const COLORS = [
   '#22C55E', '#14B8A6', '#3B82F6', '#8B5CF6', '#EC4899', '#0056ff'
 ];
 
-export default function NewsRichTextEditor({ value, onChange }) {
+// Limite máximo de caracteres (texto puro, sem HTML)
+const MAX_CHARS = 100000;
+
+// Função para extrair texto puro do HTML
+const getPlainTextLength = (html) => {
+  if (!html) return 0;
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  return (temp.textContent || temp.innerText || '').length;
+};
+
+export default function NewsRichTextEditor({ value, onChange, maxChars = MAX_CHARS }) {
   const editorRef = useRef(null);
   const [showLinkPopup, setShowLinkPopup] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
@@ -22,6 +33,12 @@ export default function NewsRichTextEditor({ value, onChange }) {
   const [linkUnderline, setLinkUnderline] = useState(true);
   const [linkNewTab, setLinkNewTab] = useState(true);
   const [savedSelection, setSavedSelection] = useState(null);
+
+  // Calcular caracteres usados (apenas texto, sem HTML)
+  const charCount = useMemo(() => getPlainTextLength(value), [value]);
+  const charPercent = (charCount / maxChars) * 100;
+  const isOverLimit = charCount > maxChars;
+  const isWarning = charPercent >= 80 && !isOverLimit;
 
   const execCommand = useCallback((command, value = null) => {
     document.execCommand(command, false, value);
@@ -231,13 +248,45 @@ export default function NewsRichTextEditor({ value, onChange }) {
         contentEditable
         onInput={handleChange}
         onBlur={handleChange}
+        onPaste={(e) => {
+          // Permitir colar mas verificar depois
+          setTimeout(handleChange, 0);
+        }}
         dangerouslySetInnerHTML={{ __html: value || '' }}
-        className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
+        className={`min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none ${isOverLimit ? 'bg-red-50 border-red-300' : ''}`}
         style={{ 
           lineHeight: '1.7',
           wordBreak: 'break-word'
         }}
       />
+      
+      {/* Contador de caracteres */}
+      <div className={`flex items-center justify-between px-3 py-2 text-xs border-t ${
+        isOverLimit ? 'bg-red-50 text-red-600' : isWarning ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-500'
+      }`}>
+        <div className="flex items-center gap-2">
+          {isOverLimit ? (
+            <>
+              <AlertCircle className="w-3.5 h-3.5" />
+              <span>Limite excedido! Reduza o texto para salvar.</span>
+            </>
+          ) : isWarning ? (
+            <>
+              <AlertCircle className="w-3.5 h-3.5" />
+              <span>Aproximando do limite</span>
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+              <span>Dentro do limite</span>
+            </>
+          )}
+        </div>
+        <div className="font-mono">
+          <span className={isOverLimit ? 'font-bold' : ''}>{charCount.toLocaleString()}</span>
+          <span className="text-slate-400"> / {maxChars.toLocaleString()}</span>
+        </div>
+      </div>
       
       <style>{`
         [contenteditable] a {

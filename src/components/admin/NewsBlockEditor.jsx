@@ -10,6 +10,8 @@ import {
 import { base44 } from "@/api/base44Client";
 import NewsRichTextEditor from "./NewsRichTextEditor";
 
+const MAX_CONTENT_CHARS = 100000;
+
 export default function NewsBlockEditor({ blocks, onChange }) {
   const [uploading, setUploading] = useState({});
 
@@ -131,7 +133,7 @@ export default function NewsBlockEditor({ blocks, onChange }) {
               </div>
 
               {/* Conteúdo do bloco */}
-              {block.type === 'image' ? (
+              {block.type === 'image' && (
                 <div className="space-y-3">
                   {block.image_url && (
                     <div className="relative">
@@ -182,10 +184,13 @@ export default function NewsBlockEditor({ blocks, onChange }) {
                     />
                   </div>
                 </div>
-              ) : (
+              )}
+              
+              {block.type === 'content' && (
                 <NewsRichTextEditor
                   value={block.content || ''}
                   onChange={(html) => updateBlock(index, 'content', html)}
+                  maxChars={MAX_CONTENT_CHARS}
                 />
               )}
             </CardContent>
