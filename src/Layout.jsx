@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
         Home, Briefcase, User, Menu, X, 
-        LogOut, Newspaper
+        LogOut, Newspaper, Users
       } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -116,12 +116,13 @@ export default function Layout({ children, currentPageName }) {
   const canUseResume = user?.subscription_type === 'premium';
 
   // Menu principal limpo - apenas itens básicos
-  const navItems = [
-    { name: 'Início', icon: Home, page: 'Home' },
-      { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-      { name: 'Notícias', icon: Newspaper, page: 'News' },
-      { name: 'Perfil', icon: User, page: 'Profile' },
-  ];
+      const navItems = [
+        { name: 'Início', icon: Home, page: 'Home' },
+          { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
+          { name: 'Comunidade', icon: Users, page: 'Comunidade' },
+          { name: 'Notícias', icon: Newspaper, page: 'News' },
+          { name: 'Perfil', icon: User, page: 'Profile' },
+      ];
 
   const handleLogout = () => {
     localStorage.clear();
