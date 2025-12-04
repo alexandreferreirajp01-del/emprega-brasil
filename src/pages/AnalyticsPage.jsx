@@ -293,7 +293,7 @@ export default function AnalyticsPage() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-purple-600" />
-              Atividade dos Últimos 7 Dias
+              Atividade no Período Selecionado
             </CardTitle>
           </CardHeader>
           <CardContent>
