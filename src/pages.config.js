@@ -33,6 +33,7 @@ import GerenciarUsuarios from './pages/GerenciarUsuarios';
 import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarNoticias from './pages/GerenciarNoticias';
 import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
+import ListaTransmissao from './pages/ListaTransmissao';
 import __Layout from './Layout.jsx';
 
 
@@ -72,6 +73,7 @@ export const PAGES = {
     "GerenciarComunidade": GerenciarComunidade,
     "GerenciarNoticias": GerenciarNoticias,
     "GerenciarSolicitacoes": GerenciarSolicitacoes,
+    "ListaTransmissao": ListaTransmissao,
 }
 
 export const pagesConfig = {
