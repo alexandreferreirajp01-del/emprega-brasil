@@ -29,6 +29,11 @@ import Configuracoes from './pages/Configuracoes';
 import BibliotecaAdmin from './pages/BibliotecaAdmin';
 import AnalyticsPage from './pages/AnalyticsPage';
 import PaymentsPage from './pages/PaymentsPage';
+import GerenciarVagas from './pages/GerenciarVagas';
+import GerenciarUsuarios from './pages/GerenciarUsuarios';
+import GerenciarComunidade from './pages/GerenciarComunidade';
+import GerenciarNoticias from './pages/GerenciarNoticias';
+import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
 import __Layout from './Layout.jsx';
 
 
@@ -64,6 +69,11 @@ export const PAGES = {
     "BibliotecaAdmin": BibliotecaAdmin,
     "AnalyticsPage": AnalyticsPage,
     "PaymentsPage": PaymentsPage,
+    "GerenciarVagas": GerenciarVagas,
+    "GerenciarUsuarios": GerenciarUsuarios,
+    "GerenciarComunidade": GerenciarComunidade,
+    "GerenciarNoticias": GerenciarNoticias,
+    "GerenciarSolicitacoes": GerenciarSolicitacoes,
 }
 
 export const pagesConfig = {
