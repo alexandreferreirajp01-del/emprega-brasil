@@ -200,56 +200,70 @@ export default function News() {
                   ))}
                 </>
               ) : (
-                filteredNews.filter(n => n.id !== featuredNews?.id).map((item) => (
-                  <div key={item.id}>
-                    <Link to={createPageUrl('NewsDetail') + `?id=${item.id}`}>
-                      <article className="py-4 hover:bg-slate-50 transition-colors cursor-pointer group flex flex-col sm:flex-row gap-4">
-                        {item.image_url && (
-                          <div className="relative w-full sm:w-40 h-32 sm:h-24 flex-shrink-0 overflow-hidden rounded">
-                            <img 
-                              src={item.image_url} 
-                              alt={item.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                            {item.video_url && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                <PlayCircle className="w-10 h-10 text-white drop-shadow-lg" />
+                filteredNews.filter(n => n.id !== featuredNews?.id).map((item) => {
+                  // Buscar primeira imagem dos blocos se não tiver image_url principal
+                  const imageUrl = item.image_url || 
+                    (item.blocks?.find(b => b.type === 'image' && b.image_url)?.image_url) || 
+                    null;
+                  
+                  return (
+                    <div key={item.id}>
+                      <Link to={createPageUrl('NewsDetail') + `?id=${item.id}`}>
+                        <article className="py-4 hover:bg-slate-50 transition-colors cursor-pointer group flex flex-row gap-4">
+                          {/* Imagem - sempre mostrar área, com placeholder se não tiver */}
+                          <div className="relative w-32 sm:w-40 h-24 flex-shrink-0 overflow-hidden rounded bg-slate-100">
+                            {imageUrl ? (
+                              <img 
+                                src={imageUrl} 
+                                alt={item.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Newspaper className="w-8 h-8 text-slate-300" />
                               </div>
                             )}
                           </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge className="bg-[#0056ff]/10 text-[#0056ff] border-0 text-xs rounded-sm px-2 py-0.5">
-                              {item.category || 'Geral'}
-                            </Badge>
-                            <span className="text-xs text-slate-400">
-                              {formatTimeAgo(item.created_date)}
-                            </span>
-                          </div>
-                          <h3 className="font-bold text-slate-900 group-hover:text-[#0056ff] transition-colors line-clamp-2 text-lg leading-snug mb-1">
-                            {item.title}
-                          </h3>
-                          {item.subtitle && (
-                            <p className="text-sm text-slate-600 line-clamp-2">{item.subtitle}</p>
-                          )}
-                          <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
-                            {item.author_name && (
-                              <span className="flex items-center gap-1">
-                                <User className="w-3 h-3" />
-                                {item.author_name}
+                          
+                          {/* Conteúdo */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              {item.is_featured && (
+                                <Badge className="bg-yellow-500 text-white border-0 text-xs rounded-sm px-2 py-0.5">
+                                  Destaque
+                                </Badge>
+                              )}
+                              <Badge className="bg-[#0056ff]/10 text-[#0056ff] border-0 text-xs rounded-sm px-2 py-0.5">
+                                {item.category || 'Geral'}
+                              </Badge>
+                              <span className="text-xs text-slate-400">
+                                {formatTimeAgo(item.created_date)}
                               </span>
+                            </div>
+                            <h3 className="font-bold text-slate-900 group-hover:text-[#0056ff] transition-colors line-clamp-2 text-base sm:text-lg leading-snug mb-1">
+                              {item.title}
+                            </h3>
+                            {item.subtitle && (
+                              <p className="text-sm text-slate-600 line-clamp-2 hidden sm:block">{item.subtitle}</p>
                             )}
-                            <span className="flex items-center gap-1">
-                              <Eye className="w-3 h-3" />
-                              {item.views_count || 0}
-                            </span>
+                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                              {item.author_name && (
+                                <span className="flex items-center gap-1">
+                                  <User className="w-3 h-3" />
+                                  {item.author_name}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <Eye className="w-3 h-3" />
+                                {item.views_count || 0}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </article>
-                    </Link>
-                  </div>
-                ))
+                        </article>
+                      </Link>
+                    </div>
+                  );
+                })
               )}
 
               {filteredNews.length === 0 && !isLoading && (
