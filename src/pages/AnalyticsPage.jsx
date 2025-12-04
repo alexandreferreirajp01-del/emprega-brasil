@@ -101,12 +101,37 @@ export default function AnalyticsPage() {
     staleTime: 60000
   });
 
-  // Cálculos
-  const totalLikes = posts.reduce((sum, p) => sum + (p.total_curtidas || 0), 0);
-  const totalComments = posts.reduce((sum, p) => sum + (p.total_comentarios || 0), 0);
-  const premiumUsers = users.filter(u => u.subscription_type === 'premium').length;
-  const recruiterUsers = users.filter(u => u.subscription_type === 'recruiter').length;
-  const basicUsers = users.filter(u => u.subscription_type === 'basic' || !u.subscription_type).length;
+  // Aplicar filtro
+  const applyFilter = () => {
+    setAppliedStartDate(startDate);
+    setAppliedEndDate(endDate);
+  };
+
+  // Filtrar dados por período
+  const filterByDate = (items) => {
+    return items.filter(item => {
+      if (!item.created_date) return false;
+      const itemDate = item.created_date.split('T')[0];
+      return itemDate >= appliedStartDate && itemDate <= appliedEndDate;
+    });
+  };
+
+  const filteredUsers = filterByDate(users);
+  const filteredJobs = filterByDate(jobs);
+  const filteredPosts = filterByDate(posts);
+  const filteredComments = filterByDate(comments);
+  const filteredFavorites = filterByDate(favorites);
+  const filteredViewHistory = filterByDate(viewHistory);
+  const filteredVisits = filterByDate(visits);
+  const filteredMessages = filterByDate(messages);
+  const filteredSavedPosts = filterByDate(savedPosts);
+
+  // Cálculos com dados filtrados
+  const totalLikes = filteredPosts.reduce((sum, p) => sum + (p.total_curtidas || 0), 0);
+  const totalComments = filteredPosts.reduce((sum, p) => sum + (p.total_comentarios || 0), 0);
+  const premiumUsers = filteredUsers.filter(u => u.subscription_type === 'premium').length;
+  const recruiterUsers = filteredUsers.filter(u => u.subscription_type === 'recruiter').length;
+  const basicUsers = filteredUsers.filter(u => u.subscription_type === 'basic' || !u.subscription_type).length;
 
   // Dados por tipo de usuário
   const userTypeData = [
