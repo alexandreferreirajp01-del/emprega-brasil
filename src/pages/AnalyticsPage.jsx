@@ -368,7 +368,7 @@ export default function AnalyticsPage() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-purple-800">
               <Clock className="w-5 h-5" />
-              Resumo em Tempo Real
+              Resumo de Hoje
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -376,34 +376,64 @@ export default function AnalyticsPage() {
               <div className="p-3 bg-white rounded-xl">
                 <p className="text-2xl font-bold text-purple-600">{users.filter(u => {
                   const d = new Date(u.created_date);
-                  const today = new Date();
-                  return d.toDateString() === today.toDateString();
+                  const todayDate = new Date();
+                  return d.toDateString() === todayDate.toDateString();
                 }).length}</p>
                 <p className="text-xs text-slate-600">Novos usuários hoje</p>
               </div>
               <div className="p-3 bg-white rounded-xl">
                 <p className="text-2xl font-bold text-green-600">{jobs.filter(j => {
                   const d = new Date(j.created_date);
-                  const today = new Date();
-                  return d.toDateString() === today.toDateString();
+                  const todayDate = new Date();
+                  return d.toDateString() === todayDate.toDateString();
                 }).length}</p>
                 <p className="text-xs text-slate-600">Vagas hoje</p>
               </div>
               <div className="p-3 bg-white rounded-xl">
                 <p className="text-2xl font-bold text-blue-600">{posts.filter(p => {
                   const d = new Date(p.created_date);
-                  const today = new Date();
-                  return d.toDateString() === today.toDateString();
+                  const todayDate = new Date();
+                  return d.toDateString() === todayDate.toDateString();
                 }).length}</p>
                 <p className="text-xs text-slate-600">Posts hoje</p>
               </div>
               <div className="p-3 bg-white rounded-xl">
                 <p className="text-2xl font-bold text-amber-600">{visits.filter(v => {
                   const d = new Date(v.created_date);
-                  const today = new Date();
-                  return d.toDateString() === today.toDateString();
+                  const todayDate = new Date();
+                  return d.toDateString() === todayDate.toDateString();
                 }).length}</p>
                 <p className="text-xs text-slate-600">Visitas hoje</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Totais Gerais */}
+        <Card className="rounded-xl border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2 text-blue-800">
+              <BarChart3 className="w-5 h-5" />
+              Totais Gerais (Todos os tempos)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              <div className="p-3 bg-white rounded-xl">
+                <p className="text-2xl font-bold text-blue-600">{users.length}</p>
+                <p className="text-xs text-slate-600">Total Usuários</p>
+              </div>
+              <div className="p-3 bg-white rounded-xl">
+                <p className="text-2xl font-bold text-green-600">{jobs.length}</p>
+                <p className="text-xs text-slate-600">Total Vagas</p>
+              </div>
+              <div className="p-3 bg-white rounded-xl">
+                <p className="text-2xl font-bold text-purple-600">{posts.length}</p>
+                <p className="text-xs text-slate-600">Total Posts</p>
+              </div>
+              <div className="p-3 bg-white rounded-xl">
+                <p className="text-2xl font-bold text-amber-600">{visits.length}</p>
+                <p className="text-xs text-slate-600">Total Visitas</p>
               </div>
             </div>
           </CardContent>
