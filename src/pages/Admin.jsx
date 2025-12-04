@@ -28,6 +28,7 @@ import ChatManager from "@/components/admin/ChatManager";
 import NotificationSender from "@/components/admin/NotificationSender";
 import RecruiterRequestsPanel from "@/components/admin/RecruiterRequestsPanel";
 import BibliotecaManager from "@/components/admin/BibliotecaManager";
+import ConfiguracoesPainel from "@/components/admin/ConfiguracoesPainel";
 
 
 const JOB_FUNCTIONS = [
@@ -372,6 +373,10 @@ export default function Admin() {
             <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
               <Shield className="w-4 h-4 mr-2" />
               Configurações
+            </TabsTrigger>
+            <TabsTrigger value="guia-painel" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <Key className="w-4 h-4 mr-2" />
+              Guia Base44
             </TabsTrigger>
           </TabsList>
 
@@ -1151,6 +1156,11 @@ export default function Admin() {
                 <PaymentsManager showToast={showToast} />
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          {/* Guia do Painel Base44 */}
+          <TabsContent value="guia-painel" className="space-y-6">
+            <ConfiguracoesPainel />
           </TabsContent>
         </Tabs>
       </div>
