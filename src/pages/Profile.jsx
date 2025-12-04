@@ -359,7 +359,7 @@ export default function Profile() {
                     <span className="text-xs">Histórico</span>
                   </Button>
                 </Link>
-                <Link to={createPageUrl('Comunidade') + '?tab=inbox'}>
+                <Link to={createPageUrl('Comunidade') + '?tab=mensagens'}>
                   <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1">
                     <MessageCircle className="w-5 h-5 text-green-500" />
                     <span className="text-xs">Mensagens</span>
