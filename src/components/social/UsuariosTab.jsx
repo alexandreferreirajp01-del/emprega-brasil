@@ -19,15 +19,25 @@ export default function UsuariosTab({ user }) {
   const carregarUsuarios = async () => {
     setLoading(true);
     setErro(null);
-    try {
-      const lista = await base44.entities.User.list('-created_date', 300);
-      setUsuarios(lista || []);
-    } catch (e) {
-      console.error('Erro:', e);
-      setErro('Falha ao carregar. Tente novamente.');
-    } finally {
-      setLoading(false);
+    
+    for (let tentativa = 0; tentativa < 3; tentativa++) {
+      try {
+        const lista = await base44.entities.User.list('-created_date', 300);
+        if (Array.isArray(lista)) {
+          setUsuarios(lista);
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        console.warn(`Tentativa ${tentativa + 1} falhou:`, e);
+        if (tentativa < 2) {
+          await new Promise(r => setTimeout(r, 500 * (tentativa + 1)));
+        }
+      }
     }
+    
+    setErro('Falha ao carregar. Tente novamente.');
+    setLoading(false);
   };
 
   useEffect(() => {
