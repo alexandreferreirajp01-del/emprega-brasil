@@ -140,24 +140,25 @@ export default function AnalyticsPage() {
     { name: 'Recrutador', value: recruiterUsers, color: '#8b5cf6' },
   ];
 
-  // Dados dos últimos 7 dias
-  const getLast7Days = () => {
+  // Dados do período selecionado
+  const getDateRange = () => {
     const days = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      days.push(date.toISOString().split('T')[0]);
+    const start = new Date(appliedStartDate);
+    const end = new Date(appliedEndDate);
+    
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      days.push(new Date(d).toISOString().split('T')[0]);
     }
     return days;
   };
 
-  const last7Days = getLast7Days();
+  const dateRange = getDateRange();
   
-  const activityData = last7Days.map(day => {
-    const dayVisits = visits.filter(v => v.created_date?.startsWith(day)).length;
-    const dayPosts = posts.filter(p => p.created_date?.startsWith(day)).length;
-    const dayJobs = jobs.filter(j => j.created_date?.startsWith(day)).length;
-    const dayUsers = users.filter(u => u.created_date?.startsWith(day)).length;
+  const activityData = dateRange.map(day => {
+    const dayVisits = filteredVisits.filter(v => v.created_date?.startsWith(day)).length;
+    const dayPosts = filteredPosts.filter(p => p.created_date?.startsWith(day)).length;
+    const dayJobs = filteredJobs.filter(j => j.created_date?.startsWith(day)).length;
+    const dayUsers = filteredUsers.filter(u => u.created_date?.startsWith(day)).length;
     
     return {
       day: new Date(day).toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit' }),
@@ -168,8 +169,8 @@ export default function AnalyticsPage() {
     };
   });
 
-  // Jobs por tipo
-  const jobsByType = jobs.reduce((acc, job) => {
+  // Jobs por tipo (filtrado)
+  const jobsByType = filteredJobs.reduce((acc, job) => {
     const type = job.job_type || 'Outros';
     acc[type] = (acc[type] || 0) + 1;
     return acc;
