@@ -51,10 +51,27 @@ export default function Mensagens() {
     return [email1, email2].sort().join('_');
   };
 
-  const { data: usuarios = [] } = useQuery({
+  // Verifica se o usuário tem permissão para ver lista de usuários
+  const canListUsers = user?.subscription_type === 'premium' || 
+                       user?.subscription_type === 'basic' || 
+                       user?.subscription_type === 'recruiter' || 
+                       user?.subscription_type === 'admin' || 
+                       user?.role === 'admin';
+
+  const { data: usuarios = [], isLoading: loadingUsuarios } = useQuery({
     queryKey: ['usuarios-para-mensagem'],
-    queryFn: () => base44.entities.User.list('full_name', 200),
-    enabled: showNovaConversa
+    queryFn: async () => {
+      // Tentar buscar usuários - vai funcionar se tiver permissão RLS
+      try {
+        const result = await base44.entities.User.list('full_name', 200);
+        return result || [];
+      } catch (e) {
+        console.warn('Erro ao listar usuários:', e);
+        return [];
+      }
+    },
+    enabled: showNovaConversa && canListUsers,
+    retry: 1
   });
 
   const { data: todasMensagens = [] } = useQuery({
