@@ -98,8 +98,6 @@ export default function FeedPostCard({ post, user, isSalvo }) {
     return labels[plano] || 'Básico';
   };
 
-import TimeAgo from "@/components/common/TimeAgo";
-
   return (
     <Card className="rounded-xl overflow-hidden">
       <CardContent className="p-0">
