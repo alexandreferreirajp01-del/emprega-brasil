@@ -176,14 +176,24 @@ export default function News() {
                       </div>
                     )}
                     {!featuredNews.image_url && (
-                      <div className="p-6 bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white">
-                        <Badge className="bg-white/20 text-white border-0 rounded-sm mb-3">
+                      <div className="p-6 bg-white border rounded-lg">
+                        <Badge className="bg-[#0056ff] text-white border-0 rounded-sm mb-3">
                           Destaque
                         </Badge>
-                        <h2 className="text-2xl md:text-3xl font-bold mb-2">{featuredNews.title}</h2>
+                        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">{featuredNews.title}</h2>
                         {featuredNews.subtitle && (
-                          <p className="text-white/80">{featuredNews.subtitle}</p>
+                          <p className="text-slate-600">{featuredNews.subtitle}</p>
                         )}
+                        <div className="flex items-center gap-4 text-slate-400 text-sm mt-4">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            {formatTimeAgo(featuredNews.created_date)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-4 h-4" />
+                            {featuredNews.views_count || 0} visualizações
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>

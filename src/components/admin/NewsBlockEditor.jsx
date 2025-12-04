@@ -205,6 +205,34 @@ export default function NewsBlockEditor({ blocks, onChange }) {
           <p className="text-sm">Clique nos botões acima para adicionar imagens ou textos</p>
         </div>
       )}
+
+      {/* Botão adicional no final para adicionar mais blocos */}
+      {blocks.length > 0 && (
+        <div className="flex justify-center gap-2 pt-4 border-t border-dashed">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => addBlock('image')}
+            className="rounded-lg"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            <Image className="w-4 h-4 mr-1" />
+            Imagem
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => addBlock('content')}
+            className="rounded-lg"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            <FileText className="w-4 h-4 mr-1" />
+            Texto
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
