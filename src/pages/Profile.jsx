@@ -10,7 +10,7 @@ import {
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
   Heart, History, FileText, Lock, Briefcase, Settings,
-  PlusCircle, Sparkles, Home, MessageCircle
+  PlusCircle, Sparkles, Home
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -359,19 +359,13 @@ export default function Profile() {
                     <span className="text-xs">Histórico</span>
                   </Button>
                 </Link>
-                <Link to={createPageUrl('Comunidade') + '?tab=mensagens'}>
-                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1">
-                    <MessageCircle className="w-5 h-5 text-green-500" />
-                    <span className="text-xs">Mensagens</span>
-                  </Button>
-                </Link>
                 <Link to={createPageUrl('Comunidade')}>
                   <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1">
                     <User className="w-5 h-5 text-blue-500" />
                     <span className="text-xs">Comunidade</span>
                   </Button>
                 </Link>
-                <Link to={createPageUrl('ProfessionalResume')} className="col-span-2">
+                <Link to={createPageUrl('ProfessionalResume')}>
                   <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
                     <FileText className="w-5 h-5 text-blue-500" />
                     <span className="text-xs">{canViewResumes ? 'Ver Currículos' : 'Currículo'}</span>
