@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 
 const menuItems = [
   { id: 'divider0', type: 'divider', label: 'Gerenciamento' },
+  { id: 'transmissao', name: 'Lista de Transmissão', icon: MessageSquare, color: 'green', page: 'ListaTransmissao', description: 'Enviar mensagens em massa' },
   { id: 'vagas', name: 'Gerenciar Vagas', icon: Briefcase, color: 'blue', page: 'GerenciarVagas', description: 'Visualizar e excluir vagas' },
   { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'indigo', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários' },
   { id: 'comunidade', name: 'Gerenciar Comunidade', icon: MessageSquare, color: 'purple', page: 'GerenciarComunidade', description: 'Posts, comentários e chat' },
