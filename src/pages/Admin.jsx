@@ -27,6 +27,7 @@ import ChatManager from "@/components/admin/ChatManager";
 
 import NotificationSender from "@/components/admin/NotificationSender";
 import RecruiterRequestsPanel from "@/components/admin/RecruiterRequestsPanel";
+import BibliotecaManager from "@/components/admin/BibliotecaManager";
 
 
 const JOB_FUNCTIONS = [
@@ -360,16 +361,19 @@ export default function Admin() {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="biblioteca" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <Globe className="w-4 h-4 mr-2" />
+              Biblioteca
+            </TabsTrigger>
             <TabsTrigger value="analytics-internal" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
               <BarChart3 className="w-4 h-4 mr-2" />
               Análises Internas
             </TabsTrigger>
-
-              <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-                <Shield className="w-4 h-4 mr-2" />
-                Configurações
-              </TabsTrigger>
-              </TabsList>
+            <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <Shield className="w-4 h-4 mr-2" />
+              Configurações
+            </TabsTrigger>
+          </TabsList>
 
           {/* Jobs Tab */}
           <TabsContent value="jobs" className="space-y-6">
@@ -849,6 +853,11 @@ export default function Admin() {
                 <ChatManager showToast={showToast} />
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          {/* Biblioteca Tab */}
+          <TabsContent value="biblioteca" className="space-y-6">
+            <BibliotecaManager showToast={showToast} />
           </TabsContent>
 
           {/* Analytics Internal Tab - Contains Cities, Analytics */}

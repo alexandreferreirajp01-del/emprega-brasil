@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Send, ArrowLeft, MessageCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Loader2, Send, ArrowLeft, MessageCircle, Plus, Search, Users } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +15,8 @@ export default function Mensagens() {
   const [loading, setLoading] = useState(true);
   const [conversaAtiva, setConversaAtiva] = useState(null);
   const [novaMensagem, setNovaMensagem] = useState('');
+  const [showNovaConversa, setShowNovaConversa] = useState(false);
+  const [buscaUsuario, setBuscaUsuario] = useState('');
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -22,7 +25,6 @@ export default function Mensagens() {
         const u = await base44.auth.me();
         setUser(u);
         
-        // Verificar se veio com destinatário na URL
         const params = new URLSearchParams(window.location.search);
         const destEmail = params.get('para');
         const destNome = params.get('nome');
@@ -48,6 +50,12 @@ export default function Mensagens() {
     return [email1, email2].sort().join('_');
   };
 
+  const { data: usuarios = [] } = useQuery({
+    queryKey: ['usuarios-para-mensagem'],
+    queryFn: () => base44.entities.User.list('full_name', 200),
+    enabled: showNovaConversa
+  });
+
   const { data: todasMensagens = [] } = useQuery({
     queryKey: ['mensagens-usuario', user?.email],
     queryFn: async () => {
@@ -58,10 +66,9 @@ export default function Mensagens() {
       );
     },
     enabled: !!user?.email,
-    refetchInterval: 5000
+    refetchInterval: 3000
   });
 
-  // Agrupar conversas
   const conversas = React.useMemo(() => {
     if (!user || !todasMensagens.length) return [];
     
@@ -75,7 +82,8 @@ export default function Mensagens() {
           email: outroEmail,
           nome: outroNome,
           ultimaMensagem: msg.conteudo,
-          data: msg.created_date
+          data: msg.created_date,
+          naoLida: msg.destinatario_email === user.email && !msg.lida
         });
       }
     });
@@ -106,14 +114,42 @@ export default function Mensagens() {
       remetente_email: user.email,
       remetente_nome: user.full_name || 'Usuário',
       destinatario_email: conversaAtiva.email,
+      destinatario_nome: conversaAtiva.nome,
       conteudo: novaMensagem
     });
+  };
+
+  const iniciarConversa = (usuario) => {
+    setConversaAtiva({
+      email: usuario.email,
+      nome: usuario.full_name || usuario.email,
+      foto: usuario.profile_photo || ''
+    });
+    setShowNovaConversa(false);
+    setBuscaUsuario('');
+  };
+
+  const usuariosFiltrados = usuarios.filter(u => 
+    u.email !== user?.email && 
+    (u.full_name?.toLowerCase().includes(buscaUsuario.toLowerCase()) ||
+     u.email?.toLowerCase().includes(buscaUsuario.toLowerCase()))
+  );
+
+  const formatarData = (data) => {
+    const d = new Date(data);
+    const agora = new Date();
+    const diff = agora - d;
+    const minutos = Math.floor(diff / 60000);
+    if (minutos < 60) return `${minutos}m`;
+    const horas = Math.floor(minutos / 60);
+    if (horas < 24) return `${horas}h`;
+    return d.toLocaleDateString('pt-BR');
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
       </div>
     );
   }
@@ -121,38 +157,96 @@ export default function Mensagens() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-gradient-to-r from-green-600 to-green-700 pt-6 pb-4 px-4">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
-          {conversaAtiva && (
-            <Button variant="ghost" size="icon" onClick={() => setConversaAtiva(null)} className="text-white">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          )}
-          <div>
-            <h1 className="text-2xl font-bold text-white">
-              {conversaAtiva ? conversaAtiva.nome : 'Mensagens'}
-            </h1>
-            <p className="text-white/70 text-sm">
-              {conversaAtiva ? 'Conversa' : 'Suas conversas'}
-            </p>
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {conversaAtiva && (
+              <Button variant="ghost" size="icon" onClick={() => setConversaAtiva(null)} className="text-white hover:bg-white/20">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            )}
+            <div>
+              <h1 className="text-2xl font-bold text-white">
+                {conversaAtiva ? conversaAtiva.nome : 'Mensagens'}
+              </h1>
+              <p className="text-white/70 text-sm">
+                {conversaAtiva ? 'Conversa' : 'Suas conversas'}
+              </p>
+            </div>
           </div>
+          {!conversaAtiva && (
+            <Dialog open={showNovaConversa} onOpenChange={setShowNovaConversa}>
+              <DialogTrigger asChild>
+                <Button className="bg-white/20 hover:bg-white/30 text-white rounded-full" size="icon">
+                  <Plus className="w-5 h-5" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Nova Mensagem
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      value={buscaUsuario}
+                      onChange={(e) => setBuscaUsuario(e.target.value)}
+                      placeholder="Buscar usuário..."
+                      className="pl-10 rounded-xl"
+                    />
+                  </div>
+                  <ScrollArea className="h-[300px]">
+                    <div className="space-y-2">
+                      {usuariosFiltrados.map((u) => (
+                        <div
+                          key={u.id}
+                          onClick={() => iniciarConversa(u)}
+                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
+                        >
+                          <Avatar className="w-10 h-10">
+                            <AvatarImage src={u.profile_photo} />
+                            <AvatarFallback className="bg-green-100 text-green-700">
+                              {u.full_name?.[0] || u.email?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-slate-800 truncate">{u.full_name || 'Usuário'}</p>
+                            <p className="text-sm text-slate-500 truncate">{u.email}</p>
+                          </div>
+                        </div>
+                      ))}
+                      {usuariosFiltrados.length === 0 && (
+                        <p className="text-center text-slate-500 py-4">Nenhum usuário encontrado</p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4">
         {!conversaAtiva ? (
-          // Lista de Conversas
           <div className="space-y-2">
             {conversas.length === 0 ? (
               <div className="text-center py-12 text-slate-500">
                 <MessageCircle className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                <p>Nenhuma conversa ainda.</p>
-                <p className="text-sm">Visite o perfil de alguém para iniciar!</p>
+                <p className="font-medium">Nenhuma conversa ainda</p>
+                <p className="text-sm mb-4">Clique no + para iniciar uma nova conversa</p>
+                <Button onClick={() => setShowNovaConversa(true)} className="bg-green-600 hover:bg-green-700 rounded-xl">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nova Mensagem
+                </Button>
               </div>
             ) : (
               conversas.map((conv) => (
                 <Card
                   key={conv.email}
-                  className="rounded-xl cursor-pointer hover:shadow-md transition-shadow"
+                  className={`rounded-xl cursor-pointer hover:shadow-md transition-shadow ${conv.naoLida ? 'border-green-300 bg-green-50' : ''}`}
                   onClick={() => setConversaAtiva(conv)}
                 >
                   <CardContent className="p-4 flex items-center gap-3">
@@ -162,38 +256,47 @@ export default function Mensagens() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-slate-800 truncate">{conv.nome}</p>
-                      <p className="text-sm text-slate-500 truncate">{conv.ultimaMensagem}</p>
+                      <div className="flex items-center justify-between">
+                        <p className={`font-semibold truncate ${conv.naoLida ? 'text-green-700' : 'text-slate-800'}`}>{conv.nome}</p>
+                        <span className="text-xs text-slate-400">{formatarData(conv.data)}</span>
+                      </div>
+                      <p className={`text-sm truncate ${conv.naoLida ? 'text-green-600 font-medium' : 'text-slate-500'}`}>{conv.ultimaMensagem}</p>
                     </div>
+                    {conv.naoLida && (
+                      <div className="w-3 h-3 bg-green-500 rounded-full" />
+                    )}
                   </CardContent>
                 </Card>
               ))
             )}
           </div>
         ) : (
-          // Conversa Ativa
           <Card className="rounded-xl h-[calc(100vh-220px)] flex flex-col">
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-3">
-                {mensagensConversa.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${msg.remetente_email === user.email ? 'justify-end' : 'justify-start'}`}
-                  >
+                {mensagensConversa.length === 0 ? (
+                  <p className="text-center text-slate-400 py-8">Nenhuma mensagem ainda. Envie a primeira!</p>
+                ) : (
+                  mensagensConversa.map((msg) => (
                     <div
-                      className={`max-w-[80%] p-3 rounded-2xl ${
-                        msg.remetente_email === user.email
-                          ? 'bg-green-600 text-white rounded-br-md'
-                          : 'bg-slate-100 text-slate-800 rounded-bl-md'
-                      }`}
+                      key={msg.id}
+                      className={`flex ${msg.remetente_email === user.email ? 'justify-end' : 'justify-start'}`}
                     >
-                      <p className="text-sm">{msg.conteudo}</p>
-                      <p className={`text-xs mt-1 ${msg.remetente_email === user.email ? 'text-green-100' : 'text-slate-400'}`}>
-                        {new Date(msg.created_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
+                      <div
+                        className={`max-w-[80%] p-3 rounded-2xl ${
+                          msg.remetente_email === user.email
+                            ? 'bg-green-600 text-white rounded-br-md'
+                            : 'bg-slate-100 text-slate-800 rounded-bl-md'
+                        }`}
+                      >
+                        <p className="text-sm whitespace-pre-wrap">{msg.conteudo}</p>
+                        <p className={`text-xs mt-1 ${msg.remetente_email === user.email ? 'text-green-100' : 'text-slate-400'}`}>
+                          {new Date(msg.created_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </ScrollArea>
             
