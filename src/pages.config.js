@@ -22,6 +22,8 @@ import Historico from './pages/Historico';
 import ActivateBasic from './pages/ActivateBasic';
 import ProfessionalResume from './pages/ProfessionalResume';
 import RecruiterArea from './pages/RecruiterArea';
+import Comunidade from './pages/Comunidade';
+import ChatDireto from './pages/ChatDireto';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +52,8 @@ export const PAGES = {
     "ActivateBasic": ActivateBasic,
     "ProfessionalResume": ProfessionalResume,
     "RecruiterArea": RecruiterArea,
+    "Comunidade": Comunidade,
+    "ChatDireto": ChatDireto,
 }
 
 export const pagesConfig = {
