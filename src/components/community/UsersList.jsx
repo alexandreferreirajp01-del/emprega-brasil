@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, MessageCircle, Loader2, Crown, Shield, Briefcase } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function UsersList({ user }) {
@@ -109,7 +109,10 @@ export default function UsersList({ user }) {
             <Card key={u.id} className="rounded-xl hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <Link 
+                    to={createPageUrl('UserProfile') + `?email=${encodeURIComponent(u.email)}`}
+                    className="flex items-center gap-3 flex-1"
+                  >
                     <Avatar className="w-12 h-12">
                       <AvatarImage src={u.profile_photo} />
                       <AvatarFallback className="bg-[#0056ff] text-white">
@@ -122,7 +125,7 @@ export default function UsersList({ user }) {
                         {getBadge(u)}
                       </div>
                     </div>
-                  </div>
+                  </Link>
                   <Button
                     onClick={() => handleMessage(u)}
                     className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
