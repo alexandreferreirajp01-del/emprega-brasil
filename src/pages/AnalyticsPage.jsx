@@ -231,6 +231,45 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {/* Filtro de Datas */}
+        <Card className="rounded-xl">
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-end gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="w-5 h-5 text-purple-600" />
+                <span className="font-medium text-slate-700">Filtrar por período:</span>
+              </div>
+              <div className="flex-1 min-w-[150px]">
+                <Label className="text-xs text-slate-500">Data Início</Label>
+                <Input 
+                  type="date" 
+                  value={startDate} 
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="rounded-lg"
+                />
+              </div>
+              <div className="flex-1 min-w-[150px]">
+                <Label className="text-xs text-slate-500">Data Fim</Label>
+                <Input 
+                  type="date" 
+                  value={endDate} 
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="rounded-lg"
+                />
+              </div>
+              <Button 
+                onClick={applyFilter}
+                className="bg-purple-600 hover:bg-purple-700 rounded-xl h-10"
+              >
+                Aplicar Filtro
+              </Button>
+            </div>
+            <p className="text-xs text-slate-500 mt-2">
+              Mostrando dados de {new Date(appliedStartDate).toLocaleDateString('pt-BR')} até {new Date(appliedEndDate).toLocaleDateString('pt-BR')}
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {stats.map((stat, i) => (
