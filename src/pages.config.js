@@ -25,8 +25,6 @@ import RecruiterArea from './pages/RecruiterArea';
 import Utilidades from './pages/Utilidades';
 import Feed from './pages/Feed';
 import Mensagens from './pages/Mensagens';
-import BibliotecaAdmin from './pages/BibliotecaAdmin';
-import GuiaBase44 from './pages/GuiaBase44';
 import Configuracoes from './pages/Configuracoes';
 import __Layout from './Layout.jsx';
 
@@ -59,8 +57,6 @@ export const PAGES = {
     "Utilidades": Utilidades,
     "Feed": Feed,
     "Mensagens": Mensagens,
-    "BibliotecaAdmin": BibliotecaAdmin,
-    "GuiaBase44": GuiaBase44,
     "Configuracoes": Configuracoes,
 }
 
