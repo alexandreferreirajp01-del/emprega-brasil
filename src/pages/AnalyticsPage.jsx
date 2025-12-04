@@ -187,20 +187,16 @@ export default function AnalyticsPage() {
   }
 
   const stats = [
-    { label: 'Total Usuários', value: users.length, icon: Users, color: 'blue', change: `+${users.filter(u => {
-      const d = new Date(u.created_date);
-      const now = new Date();
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }).length} este mês` },
-    { label: 'Vagas Publicadas', value: jobs.length, icon: Briefcase, color: 'green' },
-    { label: 'Posts no Feed', value: posts.length, icon: FileText, color: 'purple' },
-    { label: 'Visualizações', value: viewHistory.length, icon: Eye, color: 'cyan' },
+    { label: 'Novos Usuários', value: filteredUsers.length, icon: Users, color: 'blue' },
+    { label: 'Vagas Publicadas', value: filteredJobs.length, icon: Briefcase, color: 'green' },
+    { label: 'Posts no Feed', value: filteredPosts.length, icon: FileText, color: 'purple' },
+    { label: 'Visualizações', value: filteredViewHistory.length, icon: Eye, color: 'cyan' },
     { label: 'Curtidas', value: totalLikes, icon: Heart, color: 'red' },
     { label: 'Comentários', value: totalComments, icon: MessageCircle, color: 'amber' },
-    { label: 'Favoritos', value: favorites.length, icon: Bookmark, color: 'pink' },
-    { label: 'Mensagens', value: messages.length, icon: MessageCircle, color: 'indigo' },
-    { label: 'Visitas App', value: visits.length, icon: TrendingUp, color: 'emerald' },
-    { label: 'Posts Salvos', value: savedPosts.length, icon: Bookmark, color: 'orange' },
+    { label: 'Favoritos', value: filteredFavorites.length, icon: Bookmark, color: 'pink' },
+    { label: 'Mensagens', value: filteredMessages.length, icon: MessageCircle, color: 'indigo' },
+    { label: 'Visitas App', value: filteredVisits.length, icon: TrendingUp, color: 'emerald' },
+    { label: 'Posts Salvos', value: filteredSavedPosts.length, icon: Bookmark, color: 'orange' },
     { label: 'Usuários Premium', value: premiumUsers, icon: Crown, color: 'yellow' },
     { label: 'Recrutadores', value: recruiterUsers, icon: UserPlus, color: 'violet' },
   ];
