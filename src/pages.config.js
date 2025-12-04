@@ -26,6 +26,7 @@ import Utilidades from './pages/Utilidades';
 import Feed from './pages/Feed';
 import Mensagens from './pages/Mensagens';
 import Configuracoes from './pages/Configuracoes';
+import BibliotecaAdmin from './pages/BibliotecaAdmin';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +59,7 @@ export const PAGES = {
     "Feed": Feed,
     "Mensagens": Mensagens,
     "Configuracoes": Configuracoes,
+    "BibliotecaAdmin": BibliotecaAdmin,
 }
 
 export const pagesConfig = {

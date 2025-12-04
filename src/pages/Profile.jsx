@@ -9,7 +9,7 @@ import {
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
   Heart, History, FileText, Lock, Briefcase, Settings,
-  PlusCircle, Sparkles, Home, MessageCircle
+  PlusCircle, Sparkles, Home, MessageCircle, BookOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -235,21 +235,7 @@ export default function Profile() {
 
             {isAdmin && (
               <>
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  <Link to={createPageUrl('Admin')}>
-                    <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-red-300 bg-red-50 hover:bg-red-100">
-                      <Shield className="w-5 h-5 text-red-600" />
-                      <span className="text-red-700 font-medium text-sm">Painel Admin</span>
-                    </Button>
-                  </Link>
-                  <Link to={createPageUrl('Configuracoes')}>
-                    <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100">
-                      <Settings className="w-5 h-5 text-slate-600" />
-                      <span className="text-slate-700 font-medium text-sm">Configurações</span>
-                    </Button>
-                  </Link>
-                </div>
-                <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="grid grid-cols-3 gap-2 mb-3">
                   <Link to={createPageUrl('PostarVaga')}>
                     <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 border-blue-300 bg-blue-50 hover:bg-blue-100">
                       <PlusCircle className="w-4 h-4 text-blue-600" />
@@ -266,6 +252,20 @@ export default function Profile() {
                     <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 border-green-300 bg-green-50 hover:bg-green-100">
                       <Home className="w-4 h-4 text-green-600" />
                       <span className="text-[10px] text-green-700">Home Office</span>
+                    </Button>
+                  </Link>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <Link to={createPageUrl('BibliotecaAdmin')}>
+                    <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-amber-300 bg-amber-50 hover:bg-amber-100">
+                      <BookOpen className="w-5 h-5 text-amber-600" />
+                      <span className="text-amber-700 font-medium text-sm">Biblioteca</span>
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl('Configuracoes')}>
+                    <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100">
+                      <Settings className="w-5 h-5 text-slate-600" />
+                      <span className="text-slate-700 font-medium text-sm">Configurações</span>
                     </Button>
                   </Link>
                 </div>
