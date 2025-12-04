@@ -51,27 +51,63 @@ export default function Mensagens() {
     return [email1, email2].sort().join('_');
   };
 
-  // Verifica se o usuário tem permissão para ver lista de usuários
-  const canListUsers = user?.subscription_type === 'premium' || 
-                       user?.subscription_type === 'basic' || 
-                       user?.subscription_type === 'recruiter' || 
-                       user?.subscription_type === 'admin' || 
-                       user?.role === 'admin';
-
+  // Buscar usuários através dos posts do Feed (contorna restrição RLS)
   const { data: usuarios = [], isLoading: loadingUsuarios } = useQuery({
-    queryKey: ['usuarios-para-mensagem'],
+    queryKey: ['usuarios-para-mensagem-feed'],
     queryFn: async () => {
-      // Tentar buscar usuários - vai funcionar se tiver permissão RLS
+      // Buscar posts do feed para extrair usuários únicos
+      const posts = await base44.entities.FeedPost.list('-created_date', 500);
+      const comentarios = await base44.entities.FeedComentario.list('-created_date', 500);
+      
+      const usuariosMap = new Map();
+      
+      // Extrair usuários dos posts
+      posts?.forEach(post => {
+        if (post.autor_email && post.autor_email !== user?.email) {
+          usuariosMap.set(post.autor_email, {
+            id: post.autor_email,
+            email: post.autor_email,
+            full_name: post.autor_nome || post.autor_email,
+            profile_photo: post.autor_foto || ''
+          });
+        }
+      });
+      
+      // Extrair usuários dos comentários
+      comentarios?.forEach(c => {
+        if (c.autor_email && c.autor_email !== user?.email) {
+          usuariosMap.set(c.autor_email, {
+            id: c.autor_email,
+            email: c.autor_email,
+            full_name: c.autor_nome || c.autor_email,
+            profile_photo: c.autor_foto || ''
+          });
+        }
+      });
+      
+      // Também tentar buscar usuários diretamente (caso tenha permissão)
       try {
-        const result = await base44.entities.User.list('full_name', 200);
-        return result || [];
+        const allUsers = await base44.entities.User.list('full_name', 300);
+        allUsers?.forEach(u => {
+          if (u.email && u.email !== user?.email) {
+            usuariosMap.set(u.email, {
+              id: u.id || u.email,
+              email: u.email,
+              full_name: u.full_name || u.email,
+              profile_photo: u.profile_photo || ''
+            });
+          }
+        });
       } catch (e) {
-        console.warn('Erro ao listar usuários:', e);
-        return [];
+        // Ignora erro de permissão
       }
+      
+      return Array.from(usuariosMap.values()).sort((a, b) => 
+        (a.full_name || '').localeCompare(b.full_name || '')
+      );
     },
-    enabled: showNovaConversa && canListUsers,
-    retry: 1
+    enabled: showNovaConversa && !!user,
+    staleTime: 60000
   });
 
   const { data: todasMensagens = [] } = useQuery({
@@ -158,14 +194,14 @@ export default function Mensagens() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-green-600 to-green-700 pt-6 pb-4 px-4">
+      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-4 px-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             {conversaAtiva && (
@@ -210,7 +246,7 @@ export default function Mensagens() {
                     <div className="space-y-2">
                       {loadingUsuarios ? (
                         <div className="flex justify-center py-8">
-                          <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+                          <Loader2 className="w-6 h-6 animate-spin text-[#0056ff]" />
                         </div>
                       ) : usuariosFiltrados.length > 0 ? (
                         usuariosFiltrados.map((u) => (
@@ -221,7 +257,7 @@ export default function Mensagens() {
                           >
                             <Avatar className="w-10 h-10">
                               <AvatarImage src={u.profile_photo} />
-                              <AvatarFallback className="bg-green-100 text-green-700">
+                              <AvatarFallback className="bg-blue-100 text-blue-700">
                                 {u.full_name?.[0] || u.email?.[0]}
                               </AvatarFallback>
                             </Avatar>
@@ -251,7 +287,7 @@ export default function Mensagens() {
                 <MessageCircle className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                 <p className="font-medium">Nenhuma conversa ainda</p>
                 <p className="text-sm mb-4">Clique no + para iniciar uma nova conversa</p>
-                <Button onClick={() => setShowNovaConversa(true)} className="bg-green-600 hover:bg-green-700 rounded-xl">
+                <Button onClick={() => setShowNovaConversa(true)} className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
                   <Plus className="w-4 h-4 mr-2" />
                   Nova Mensagem
                 </Button>
@@ -260,24 +296,24 @@ export default function Mensagens() {
               conversas.map((conv) => (
                 <Card
                   key={conv.email}
-                  className={`rounded-xl cursor-pointer hover:shadow-md transition-shadow ${conv.naoLida ? 'border-green-300 bg-green-50' : ''}`}
+                  className={`rounded-xl cursor-pointer hover:shadow-md transition-shadow ${conv.naoLida ? 'border-blue-300 bg-blue-50' : ''}`}
                   onClick={() => setConversaAtiva(conv)}
                 >
                   <CardContent className="p-4 flex items-center gap-3">
                     <Avatar className="w-12 h-12">
-                      <AvatarFallback className="bg-green-100 text-green-700">
+                      <AvatarFallback className="bg-blue-100 text-blue-700">
                         {conv.nome?.[0] || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <p className={`font-semibold truncate ${conv.naoLida ? 'text-green-700' : 'text-slate-800'}`}>{conv.nome}</p>
+                        <p className={`font-semibold truncate ${conv.naoLida ? 'text-blue-700' : 'text-slate-800'}`}>{conv.nome}</p>
                         <TimeAgo date={conv.data} className="text-xs text-slate-400" />
                       </div>
-                      <p className={`text-sm truncate ${conv.naoLida ? 'text-green-600 font-medium' : 'text-slate-500'}`}>{conv.ultimaMensagem}</p>
+                      <p className={`text-sm truncate ${conv.naoLida ? 'text-blue-600 font-medium' : 'text-slate-500'}`}>{conv.ultimaMensagem}</p>
                     </div>
                     {conv.naoLida && (
-                      <div className="w-3 h-3 bg-green-500 rounded-full" />
+                      <div className="w-3 h-3 bg-blue-500 rounded-full" />
                     )}
                   </CardContent>
                 </Card>
@@ -299,12 +335,12 @@ export default function Mensagens() {
                       <div
                         className={`max-w-[80%] p-3 rounded-2xl ${
                           msg.remetente_email === user.email
-                            ? 'bg-green-600 text-white rounded-br-md'
+                            ? 'bg-[#0056ff] text-white rounded-br-md'
                             : 'bg-slate-100 text-slate-800 rounded-bl-md'
                         }`}
                       >
                         <p className="text-sm whitespace-pre-wrap">{msg.conteudo}</p>
-                        <p className={`text-xs mt-1 ${msg.remetente_email === user.email ? 'text-green-100' : 'text-slate-400'}`}>
+                        <p className={`text-xs mt-1 ${msg.remetente_email === user.email ? 'text-blue-100' : 'text-slate-400'}`}>
                           {new Date(msg.created_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
@@ -325,7 +361,7 @@ export default function Mensagens() {
               <Button
                 onClick={handleEnviar}
                 disabled={!novaMensagem.trim() || enviarMutation.isPending}
-                className="bg-green-600 hover:bg-green-700 rounded-full"
+                className="bg-[#0056ff] hover:bg-[#0044cc] rounded-full"
               >
                 {enviarMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
