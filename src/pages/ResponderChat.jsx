@@ -1,29 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  ArrowLeft, Send, Loader2, MessageCircle, User, 
-  RefreshCw, Clock, CheckCheck, Search
+  ArrowLeft, Send, Loader2, MessageCircle, 
+  RefreshCw, Search, User, Crown, Briefcase, Eye
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function ResponderChat() {
-  const [user, setUser] = useState(null);
+  const [adminUser, setAdminUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [newMessage, setNewMessage] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [replyText, setReplyText] = useState('');
   const [sending, setSending] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [allMessages, setAllMessages] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   const messagesEndRef = useRef(null);
-  const queryClient = useQueryClient();
 
+  // Check admin access
   useEffect(() => {
     const checkAdmin = async () => {
       try {
@@ -35,7 +36,7 @@ export default function ResponderChat() {
           window.location.href = createPageUrl('Home');
           return;
         }
-        setUser(currentUser);
+        setAdminUser(currentUser);
       } catch {
         window.location.href = createPageUrl('Splash');
       } finally {
@@ -45,125 +46,122 @@ export default function ResponderChat() {
     checkAdmin();
   }, []);
 
-  // Fetch all messages
-  const { data: messages = [], refetch: refetchMessages } = useQuery({
-    queryKey: ['chat-messages'],
-    queryFn: () => base44.entities.MensagemDireta.list('-created_date', 1000),
-    enabled: !!user,
-    refetchInterval: 10000,
-  });
+  // Load all support messages
+  const loadMessages = async () => {
+    setRefreshing(true);
+    try {
+      const messages = await base44.entities.SupportChat.list('-created_date', 1000);
+      setAllMessages(messages || []);
+    } catch (e) {
+      console.error('Error loading messages:', e);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
-  // Group messages by conversation
+  useEffect(() => {
+    if (adminUser) {
+      loadMessages();
+      const interval = setInterval(loadMessages, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [adminUser]);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [selectedChat, allMessages]);
+
+  // Group messages by sender
   const conversations = React.useMemo(() => {
     const convMap = {};
     
-    messages.forEach(msg => {
-      // Get the other user (not admin)
-      const otherEmail = msg.remetente_email === user?.email 
-        ? msg.destinatario_email 
-        : msg.remetente_email;
+    allMessages.forEach(msg => {
+      // Skip admin responses (they are keyed differently)
+      if (msg.sender_id?.startsWith('admin_to_')) return;
       
-      if (!otherEmail || otherEmail === user?.email) return;
+      const senderId = msg.sender_id;
+      if (!senderId) return;
       
-      if (!convMap[otherEmail]) {
-        convMap[otherEmail] = {
-          email: otherEmail,
-          name: msg.remetente_email === otherEmail ? msg.remetente_nome : 'Usuário',
+      if (!convMap[senderId]) {
+        convMap[senderId] = {
+          senderId,
+          senderName: msg.sender_name || 'Usuário',
+          senderType: msg.sender_type || 'visitor',
           messages: [],
           lastMessage: null,
           unreadCount: 0,
         };
       }
       
-      convMap[otherEmail].messages.push(msg);
+      convMap[senderId].messages.push(msg);
       
-      // Count unread messages from user
-      if (msg.remetente_email !== user?.email && !msg.lida) {
-        convMap[otherEmail].unreadCount++;
+      // Count unread
+      if (!msg.is_from_admin && !msg.is_read) {
+        convMap[senderId].unreadCount++;
       }
       
-      // Update last message
-      if (!convMap[otherEmail].lastMessage || 
-          new Date(msg.created_date) > new Date(convMap[otherEmail].lastMessage.created_date)) {
-        convMap[otherEmail].lastMessage = msg;
+      // Track last message
+      if (!convMap[senderId].lastMessage || 
+          new Date(msg.created_date) > new Date(convMap[senderId].lastMessage.created_date)) {
+        convMap[senderId].lastMessage = msg;
       }
     });
+
+    // Add admin responses to conversations
+    allMessages.forEach(msg => {
+      if (msg.sender_id?.startsWith('admin_to_')) {
+        const targetId = msg.sender_id.replace('admin_to_', '');
+        if (convMap[targetId]) {
+          convMap[targetId].messages.push(msg);
+        }
+      }
+    });
+
+    // Sort messages within each conversation
+    Object.values(convMap).forEach(conv => {
+      conv.messages.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+    });
     
+    // Sort conversations by last activity
     return Object.values(convMap).sort((a, b) => {
       const dateA = new Date(a.lastMessage?.created_date || 0);
       const dateB = new Date(b.lastMessage?.created_date || 0);
       return dateB - dateA;
     });
-  }, [messages, user]);
+  }, [allMessages]);
 
-  // Selected conversation messages
-  const selectedMessages = React.useMemo(() => {
-    if (!selectedUser) return [];
-    const conv = conversations.find(c => c.email === selectedUser);
-    return conv ? conv.messages.sort((a, b) => 
-      new Date(a.created_date) - new Date(b.created_date)
-    ) : [];
-  }, [conversations, selectedUser]);
+  // Get current conversation
+  const currentConversation = conversations.find(c => c.senderId === selectedChat);
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [selectedMessages]);
-
-  // Mark messages as read
-  useEffect(() => {
-    if (selectedUser && user) {
-      const unreadMessages = selectedMessages.filter(
-        m => m.remetente_email === selectedUser && !m.lida
-      );
-      
-      unreadMessages.forEach(async (msg) => {
-        try {
-          await base44.entities.MensagemDireta.update(msg.id, { lida: true });
-        } catch (e) {
-          console.error('Error marking as read:', e);
-        }
-      });
-      
-      if (unreadMessages.length > 0) {
-        queryClient.invalidateQueries({ queryKey: ['chat-messages'] });
-      }
-    }
-  }, [selectedUser, selectedMessages, user]);
-
-  // Send message mutation
-  const sendMutation = useMutation({
-    mutationFn: async (content) => {
-      const conversaId = [user.email, selectedUser].sort().join('_');
-      return base44.entities.MensagemDireta.create({
-        conversa_id: conversaId,
-        remetente_email: user.email,
-        remetente_nome: user.full_name || 'Admin',
-        destinatario_email: selectedUser,
-        conteudo: content,
-        lida: false,
-      });
-    },
-    onSuccess: () => {
-      setNewMessage('');
-      queryClient.invalidateQueries({ queryKey: ['chat-messages'] });
-    },
-  });
-
-  const handleSend = async () => {
-    if (!newMessage.trim() || !selectedUser) return;
+  // Send reply
+  const handleSendReply = async () => {
+    if (!replyText.trim() || !selectedChat || sending) return;
+    
     setSending(true);
     try {
-      await sendMutation.mutateAsync(newMessage.trim());
+      await base44.entities.SupportChat.create({
+        sender_id: `admin_to_${selectedChat}`,
+        sender_name: adminUser?.full_name || 'Suporte',
+        sender_type: 'admin',
+        message: replyText.trim(),
+        is_from_admin: true,
+        is_read: false,
+      });
+      
+      setReplyText('');
+      await loadMessages();
+    } catch (e) {
+      console.error('Error sending reply:', e);
     } finally {
       setSending(false);
     }
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      handleSendReply();
     }
   };
 
@@ -183,12 +181,32 @@ export default function ResponderChat() {
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
   };
 
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case 'premium': return <Crown className="w-3 h-3 text-yellow-500" />;
+      case 'recruiter': return <Briefcase className="w-3 h-3 text-purple-500" />;
+      case 'admin': return <Crown className="w-3 h-3 text-red-500" />;
+      default: return <User className="w-3 h-3 text-slate-400" />;
+    }
+  };
+
+  const getTypeBadge = (type) => {
+    const colors = {
+      visitor: 'bg-slate-100 text-slate-600',
+      basic: 'bg-blue-100 text-blue-600',
+      premium: 'bg-yellow-100 text-yellow-700',
+      recruiter: 'bg-purple-100 text-purple-700',
+      admin: 'bg-red-100 text-red-700',
+    };
+    return colors[type] || colors.visitor;
+  };
+
   const filteredConversations = conversations.filter(conv => 
-    conv.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conv.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    conv.senderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    conv.senderId?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+  const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
 
   if (loading) {
     return (
@@ -215,18 +233,20 @@ export default function ResponderChat() {
                 Responder Chat
               </h1>
               <p className="text-white/70 text-sm mt-1">
-                {conversations.length} conversas • {totalUnread > 0 && (
-                  <span className="text-yellow-300">{totalUnread} não lidas</span>
+                {conversations.length} conversas
+                {totalUnread > 0 && (
+                  <span className="text-yellow-300 ml-2">• {totalUnread} não lidas</span>
                 )}
               </p>
             </div>
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => refetchMessages()}
+              onClick={loadMessages}
+              disabled={refreshing}
               className="bg-white/10 border-white/30 text-white hover:bg-white/20"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
+              <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               Atualizar
             </Button>
           </div>
@@ -237,7 +257,7 @@ export default function ResponderChat() {
         <Card className="rounded-2xl shadow-lg overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-3 h-[600px]">
             {/* Conversations List */}
-            <div className="border-r bg-slate-50">
+            <div className="border-r bg-slate-50 flex flex-col">
               <div className="p-3 border-b bg-white">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -249,43 +269,53 @@ export default function ResponderChat() {
                   />
                 </div>
               </div>
-              <ScrollArea className="h-[calc(600px-57px)]">
+              
+              <ScrollArea className="flex-1">
                 {filteredConversations.length === 0 ? (
                   <div className="p-8 text-center text-slate-400">
                     <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>Nenhuma conversa</p>
+                    <p className="font-medium">Nenhuma conversa</p>
+                    <p className="text-sm">Aguardando mensagens</p>
                   </div>
                 ) : (
                   filteredConversations.map(conv => (
                     <button
-                      key={conv.email}
-                      onClick={() => setSelectedUser(conv.email)}
-                      className={`w-full p-3 flex items-start gap-3 hover:bg-slate-100 transition-colors border-b ${
-                        selectedUser === conv.email ? 'bg-cyan-50 border-l-4 border-l-cyan-500' : ''
+                      key={conv.senderId}
+                      onClick={() => setSelectedChat(conv.senderId)}
+                      className={`w-full p-3 flex items-start gap-3 hover:bg-slate-100 transition-colors border-b text-left ${
+                        selectedChat === conv.senderId ? 'bg-cyan-50 border-l-4 border-l-cyan-500' : ''
                       }`}
                     >
                       <Avatar className="w-10 h-10 flex-shrink-0">
-                        <AvatarFallback className="bg-cyan-100 text-cyan-700">
-                          {conv.name?.[0] || conv.email[0].toUpperCase()}
+                        <AvatarFallback className="bg-cyan-100 text-cyan-700 text-sm">
+                          {conv.senderName?.[0]?.toUpperCase() || '?'}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex-1 min-w-0 text-left">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium text-slate-800 truncate text-sm">
-                            {conv.name || conv.email.split('@')[0]}
-                          </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {getTypeIcon(conv.senderType)}
+                            <span className="font-medium text-slate-800 text-sm truncate">
+                              {conv.senderName}
+                            </span>
+                          </div>
                           {conv.unreadCount > 0 && (
-                            <Badge className="bg-cyan-500 text-white text-xs ml-2">
+                            <Badge className="bg-cyan-500 text-white text-xs px-1.5">
                               {conv.unreadCount}
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs text-slate-500 truncate">
-                          {conv.lastMessage?.conteudo || 'Sem mensagens'}
+                        <p className="text-xs text-slate-500 truncate mt-0.5">
+                          {conv.lastMessage?.message || 'Sem mensagens'}
                         </p>
-                        <p className="text-xs text-slate-400 mt-0.5">
-                          {formatTime(conv.lastMessage?.created_date)}
-                        </p>
+                        <div className="flex items-center justify-between mt-1">
+                          <Badge className={`text-[10px] px-1.5 py-0 ${getTypeBadge(conv.senderType)}`}>
+                            {conv.senderType}
+                          </Badge>
+                          <span className="text-[10px] text-slate-400">
+                            {formatTime(conv.lastMessage?.created_date)}
+                          </span>
+                        </div>
                       </div>
                     </button>
                   ))
@@ -295,33 +325,36 @@ export default function ResponderChat() {
 
             {/* Chat Area */}
             <div className="md:col-span-2 flex flex-col bg-white">
-              {selectedUser ? (
+              {selectedChat && currentConversation ? (
                 <>
                   {/* Chat Header */}
                   <div className="p-4 border-b bg-slate-50 flex items-center gap-3">
                     <Avatar className="w-10 h-10">
                       <AvatarFallback className="bg-cyan-100 text-cyan-700">
-                        {conversations.find(c => c.email === selectedUser)?.name?.[0] || 
-                         selectedUser[0].toUpperCase()}
+                        {currentConversation.senderName?.[0]?.toUpperCase() || '?'}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <p className="font-medium text-slate-800">
-                        {conversations.find(c => c.email === selectedUser)?.name || 
-                         selectedUser.split('@')[0]}
-                      </p>
-                      <p className="text-xs text-slate-500">{selectedUser}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-slate-800">
+                          {currentConversation.senderName}
+                        </p>
+                        <Badge className={`text-xs ${getTypeBadge(currentConversation.senderType)}`}>
+                          {currentConversation.senderType}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-slate-500">{currentConversation.senderId}</p>
                     </div>
                   </div>
 
                   {/* Messages */}
                   <ScrollArea className="flex-1 p-4">
                     <div className="space-y-3">
-                      {selectedMessages.map((msg, index) => {
-                        const isAdmin = msg.remetente_email === user?.email;
+                      {currentConversation.messages.map((msg, idx) => {
+                        const isAdmin = msg.is_from_admin;
                         return (
                           <div
-                            key={msg.id || index}
+                            key={msg.id || idx}
                             className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
@@ -331,13 +364,12 @@ export default function ResponderChat() {
                                   : 'bg-slate-100 text-slate-800 rounded-bl-md'
                               }`}
                             >
-                              <p className="text-sm whitespace-pre-wrap">{msg.conteudo}</p>
-                              <div className={`flex items-center justify-end gap-1 mt-1 ${
+                              <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
+                              <p className={`text-[10px] mt-1 text-right ${
                                 isAdmin ? 'text-cyan-200' : 'text-slate-400'
                               }`}>
-                                <span className="text-xs">{formatTime(msg.created_date)}</span>
-                                {isAdmin && <CheckCheck className="w-3 h-3" />}
-                              </div>
+                                {formatTime(msg.created_date)}
+                              </p>
                             </div>
                           </div>
                         );
@@ -346,20 +378,20 @@ export default function ResponderChat() {
                     </div>
                   </ScrollArea>
 
-                  {/* Input */}
+                  {/* Reply Input */}
                   <div className="p-4 border-t bg-slate-50">
                     <div className="flex gap-2">
                       <Input
                         placeholder="Digite sua resposta..."
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyPress={handleKeyPress}
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         disabled={sending}
                         className="flex-1 rounded-xl"
                       />
                       <Button
-                        onClick={handleSend}
-                        disabled={sending || !newMessage.trim()}
+                        onClick={handleSendReply}
+                        disabled={sending || !replyText.trim()}
                         className="bg-cyan-600 hover:bg-cyan-700 rounded-xl px-4"
                       >
                         {sending ? (
