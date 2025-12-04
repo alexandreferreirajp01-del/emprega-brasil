@@ -1,23 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-// Converte qualquer data para horário de Brasília (UTC-3)
+// Pegar "agora" em horário de Brasília usando Intl API (mais preciso)
+function getNowBrasilia() {
+  // Usa a API Intl para obter a hora atual em Brasília
+  const now = new Date();
+  const brasiliaString = now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+  return new Date(brasiliaString);
+}
+
+// Converte qualquer data para comparação em Brasília
 function toBrasiliaTime(dateInput) {
+  if (!dateInput) return null;
+  
   const date = new Date(dateInput);
   if (isNaN(date.getTime())) return null;
   
-  // Offset de Brasília: -3 horas (sem horário de verão atualmente)
-  const BRASILIA_OFFSET = -3 * 60; // em minutos
-  
-  // Pegar o offset UTC do horário original
-  const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
-  
-  // Aplicar offset de Brasília
-  return new Date(utcTime + (BRASILIA_OFFSET * 60000));
-}
-
-// Pegar "agora" em horário de Brasília
-function getNowBrasilia() {
-  return toBrasiliaTime(new Date());
+  // Se a data já veio como ISO string do servidor (UTC), converte para Brasília
+  const brasiliaString = date.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+  return new Date(brasiliaString);
 }
 
 // Formatar data completa no padrão brasileiro
@@ -50,16 +50,20 @@ export function getTimeAgo(dateString) {
   if (!dateString) return '';
   
   try {
+    // Converter ambas as datas para Brasília para comparação justa
     const dateBrasilia = toBrasiliaTime(dateString);
     if (!dateBrasilia) return '';
     
     const nowBrasilia = getNowBrasilia();
+    
+    // Calcular diferença em milissegundos
     const diffMs = nowBrasilia.getTime() - dateBrasilia.getTime();
     
-    // Se a data for no futuro
-    if (diffMs < 0) return 'Agora mesmo';
+    // Se a data for no futuro (tolerância de 1 minuto para pequenas discrepâncias)
+    if (diffMs < -60000) return 'Agora mesmo';
     
-    const diffSeconds = Math.floor(diffMs / 1000);
+    // Converter para segundos
+    const diffSeconds = Math.max(0, Math.floor(diffMs / 1000));
     const diffMinutes = Math.floor(diffSeconds / 60);
     const diffHours = Math.floor(diffMinutes / 60);
     const diffDays = Math.floor(diffHours / 24);
@@ -75,14 +79,14 @@ export function getTimeAgo(dateString) {
     if (diffHours === 1) return 'Há 1 hora';
     if (diffHours < 24) return `Há ${diffHours} horas`;
     
-    // Ontem
+    // 1 dia
     if (diffDays === 1) {
       return `Ontem às ${formatHora(dateString)}`;
     }
     
-    // Dias (até 7 dias)
-    if (diffDays === 2) return '2 dias atrás';
-    if (diffDays < 7) return `${diffDays} dias atrás`;
+    // 2-6 dias
+    if (diffDays === 2) return 'Há 2 dias';
+    if (diffDays < 7) return `Há ${diffDays} dias`;
     
     // Após 7 dias, mostrar data completa
     return formatDataCompleta(dateString);
