@@ -34,6 +34,7 @@ import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarNoticias from './pages/GerenciarNoticias';
 import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
 import ListaTransmissao from './pages/ListaTransmissao';
+import ResponderChat from './pages/ResponderChat';
 import __Layout from './Layout.jsx';
 
 
@@ -74,6 +75,7 @@ export const PAGES = {
     "GerenciarNoticias": GerenciarNoticias,
     "GerenciarSolicitacoes": GerenciarSolicitacoes,
     "ListaTransmissao": ListaTransmissao,
+    "ResponderChat": ResponderChat,
 }
 
 export const pagesConfig = {
