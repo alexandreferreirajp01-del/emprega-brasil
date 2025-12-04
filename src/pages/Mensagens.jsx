@@ -208,25 +208,30 @@ export default function Mensagens() {
                   </div>
                   <ScrollArea className="h-[300px]">
                     <div className="space-y-2">
-                      {usuariosFiltrados.map((u) => (
-                        <div
-                          key={u.id}
-                          onClick={() => iniciarConversa(u)}
-                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
-                        >
-                          <Avatar className="w-10 h-10">
-                            <AvatarImage src={u.profile_photo} />
-                            <AvatarFallback className="bg-green-100 text-green-700">
-                              {u.full_name?.[0] || u.email?.[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-slate-800 truncate">{u.full_name || 'Usuário'}</p>
-                            <p className="text-sm text-slate-500 truncate">{u.email}</p>
-                          </div>
+                      {loadingUsuarios ? (
+                        <div className="flex justify-center py-8">
+                          <Loader2 className="w-6 h-6 animate-spin text-green-600" />
                         </div>
-                      ))}
-                      {usuariosFiltrados.length === 0 && (
+                      ) : usuariosFiltrados.length > 0 ? (
+                        usuariosFiltrados.map((u) => (
+                          <div
+                            key={u.id}
+                            onClick={() => iniciarConversa(u)}
+                            className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
+                          >
+                            <Avatar className="w-10 h-10">
+                              <AvatarImage src={u.profile_photo} />
+                              <AvatarFallback className="bg-green-100 text-green-700">
+                                {u.full_name?.[0] || u.email?.[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-slate-800 truncate">{u.full_name || 'Usuário'}</p>
+                              <p className="text-sm text-slate-500 truncate">{u.email}</p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
                         <p className="text-center text-slate-500 py-4">Nenhum usuário encontrado</p>
                       )}
                     </div>
