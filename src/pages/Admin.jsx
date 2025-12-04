@@ -27,8 +27,6 @@ import ChatManager from "@/components/admin/ChatManager";
 
 import NotificationSender from "@/components/admin/NotificationSender";
 import RecruiterRequestsPanel from "@/components/admin/RecruiterRequestsPanel";
-import BibliotecaManager from "@/components/admin/BibliotecaManager";
-import ConfiguracoesPainel from "@/components/admin/ConfiguracoesPainel";
 
 
 const JOB_FUNCTIONS = [
@@ -348,35 +346,32 @@ export default function Admin() {
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <Tabs defaultValue="jobs" className="space-y-6">
-          <TabsList className="bg-white shadow-sm rounded-xl p-1 flex-wrap">
-            <TabsTrigger value="jobs" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <Briefcase className="w-4 h-4 mr-2" />
-              Vagas
+          <TabsList className="bg-white shadow-sm rounded-xl p-1 grid grid-cols-2 sm:grid-cols-4 gap-1 w-full">
+            <TabsTrigger value="jobs" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <Briefcase className="w-4 h-4 mr-1 sm:mr-2" />
+              <span>Vagas</span>
             </TabsTrigger>
-            <TabsTrigger value="communication" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Comunicação
+            <TabsTrigger value="communication" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-[#0056ff] data-[state=active]:text-white relative">
+              <MessageSquare className="w-4 h-4 mr-1 sm:mr-2" />
+              <span>Comunicação</span>
               {(pendingPosts.length + pendingComments.length) > 0 && (
-                <Badge className="ml-2 bg-purple-500 text-white border-0 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                <Badge className="absolute -top-1 -right-1 bg-purple-500 text-white border-0 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
                   {pendingPosts.length + pendingComments.length}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="biblioteca" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <Globe className="w-4 h-4 mr-2" />
-              Biblioteca
+            <TabsTrigger value="analytics-internal" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
+              <BarChart3 className="w-4 h-4 mr-1 sm:mr-2" />
+              <span>Análises</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics-internal" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Análises Internas
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <Shield className="w-4 h-4 mr-2" />
-              Configurações
-            </TabsTrigger>
-            <TabsTrigger value="guia-painel" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <Key className="w-4 h-4 mr-2" />
-              Guia Base44
+            <TabsTrigger value="settings" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-[#0056ff] data-[state=active]:text-white relative">
+              <Shield className="w-4 h-4 mr-1 sm:mr-2" />
+              <span>Config</span>
+              {pendingUsers.length > 0 && (
+                <Badge className="absolute -top-1 -right-1 bg-amber-500 text-white border-0 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
+                  {pendingUsers.length}
+                </Badge>
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -860,11 +855,6 @@ export default function Admin() {
             </Tabs>
           </TabsContent>
 
-          {/* Biblioteca Tab */}
-          <TabsContent value="biblioteca" className="space-y-6">
-            <BibliotecaManager showToast={showToast} />
-          </TabsContent>
-
           {/* Analytics Internal Tab - Contains Cities, Analytics */}
           <TabsContent value="analytics-internal" className="space-y-6">
             <Tabs defaultValue="analytics" className="space-y-4">
@@ -1156,11 +1146,6 @@ export default function Admin() {
                 <PaymentsManager showToast={showToast} />
               </TabsContent>
             </Tabs>
-          </TabsContent>
-
-          {/* Guia do Painel Base44 */}
-          <TabsContent value="guia-painel" className="space-y-6">
-            <ConfiguracoesPainel />
           </TabsContent>
         </Tabs>
       </div>
