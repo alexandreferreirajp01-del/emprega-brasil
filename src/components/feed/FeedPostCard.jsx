@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Heart, MessageCircle, Bookmark, Share2, Send, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, MessageCircle, Bookmark, Share2, Send, Loader2, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import TimeAgo from "@/components/common/TimeAgo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -13,9 +13,24 @@ export default function FeedPostCard({ post, user, isSalvo }) {
   const [showComentarios, setShowComentarios] = useState(false);
   const [novoComentario, setNovoComentario] = useState('');
   const [imagemAtual, setImagemAtual] = useState(0);
+  const [viewCount, setViewCount] = useState(post.views || 0);
   const queryClient = useQueryClient();
 
   const curtido = post.curtidas?.includes(user?.email);
+
+  // Incrementar view ao renderizar
+  useEffect(() => {
+    const incrementView = async () => {
+      try {
+        const newViews = (post.views || 0) + 1;
+        await base44.entities.FeedPost.update(post.id, { views: newViews });
+        setViewCount(newViews);
+      } catch (e) {
+        // silently fail
+      }
+    };
+    incrementView();
+  }, [post.id]);
 
   const { data: comentarios = [] } = useQuery({
     queryKey: ['comentarios', post.id],
@@ -161,6 +176,10 @@ export default function FeedPostCard({ post, user, isSalvo }) {
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm">{post.total_comentarios || 0}</span>
           </button>
+          <div className="flex items-center gap-1 text-slate-400">
+            <Eye className="w-4 h-4" />
+            <span className="text-sm">{viewCount}</span>
+          </div>
           <button onClick={() => salvarMutation.mutate()} className={`flex items-center gap-1 ${isSalvo ? 'text-purple-500' : 'text-slate-500'}`}>
             <Bookmark className={`w-5 h-5 ${isSalvo ? 'fill-current' : ''}`} />
           </button>
