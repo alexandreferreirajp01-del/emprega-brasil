@@ -22,6 +22,9 @@ import Historico from './pages/Historico';
 import ActivateBasic from './pages/ActivateBasic';
 import ProfessionalResume from './pages/ProfessionalResume';
 import RecruiterArea from './pages/RecruiterArea';
+import Utilidades from './pages/Utilidades';
+import Feed from './pages/Feed';
+import Mensagens from './pages/Mensagens';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +53,9 @@ export const PAGES = {
     "ActivateBasic": ActivateBasic,
     "ProfessionalResume": ProfessionalResume,
     "RecruiterArea": RecruiterArea,
+    "Utilidades": Utilidades,
+    "Feed": Feed,
+    "Mensagens": Mensagens,
 }
 
 export const pagesConfig = {
