@@ -14,9 +14,15 @@ export default function UsersList({ user }) {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
-  const { data: users = [], isLoading } = useQuery({
+  const { data: users = [], isLoading, error } = useQuery({
     queryKey: ['all-users'],
-    queryFn: () => base44.entities.User.list('-created_date', 200),
+    queryFn: async () => {
+      const result = await base44.entities.User.list('-created_date', 500);
+      return result || [];
+    },
+    retry: 3,
+    retryDelay: 1000,
+    staleTime: 30000,
   });
 
   const filteredUsers = users.filter(u => 
@@ -76,10 +82,25 @@ export default function UsersList({ user }) {
         <div className="flex justify-center py-8">
           <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
         </div>
+      ) : error ? (
+        <Card className="rounded-xl">
+          <CardContent className="p-8 text-center">
+            <p className="text-red-500">Erro ao carregar usuários. Tente novamente.</p>
+            <Button 
+              variant="outline" 
+              className="mt-4"
+              onClick={() => window.location.reload()}
+            >
+              Recarregar
+            </Button>
+          </CardContent>
+        </Card>
       ) : filteredUsers.length === 0 ? (
         <Card className="rounded-xl">
           <CardContent className="p-8 text-center">
-            <p className="text-slate-500">Nenhum usuário encontrado.</p>
+            <p className="text-slate-500">
+              {search ? 'Nenhum usuário encontrado com esse nome.' : 'Nenhum usuário cadastrado ainda.'}
+            </p>
           </CardContent>
         </Card>
       ) : (
