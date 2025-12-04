@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { 
   ArrowLeft, Loader2, Shield, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
-  ExternalLink, Lock
+  ExternalLink, Lock, CreditCard
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";

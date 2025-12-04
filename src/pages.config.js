@@ -28,6 +28,7 @@ import Mensagens from './pages/Mensagens';
 import Configuracoes from './pages/Configuracoes';
 import BibliotecaAdmin from './pages/BibliotecaAdmin';
 import AnalyticsPage from './pages/AnalyticsPage';
+import PaymentsPage from './pages/PaymentsPage';
 import __Layout from './Layout.jsx';
 
 
@@ -62,6 +63,7 @@ export const PAGES = {
     "Configuracoes": Configuracoes,
     "BibliotecaAdmin": BibliotecaAdmin,
     "AnalyticsPage": AnalyticsPage,
+    "PaymentsPage": PaymentsPage,
 }
 
 export const pagesConfig = {

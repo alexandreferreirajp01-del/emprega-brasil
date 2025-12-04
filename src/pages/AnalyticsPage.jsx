@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   ArrowLeft, Loader2, Users, Briefcase, Eye, Heart, 
   MessageCircle, TrendingUp, Clock, Calendar, BarChart3,
-  FileText, Bookmark, Bell, Share2, UserPlus, Crown
+  FileText, Bookmark, Bell, Share2, UserPlus, Crown, Filter
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -15,6 +17,14 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 export default function AnalyticsPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // Filtro de datas
+  const today = new Date().toISOString().split('T')[0];
+  const defaultStartDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const [startDate, setStartDate] = useState(defaultStartDate);
+  const [endDate, setEndDate] = useState(today);
+  const [appliedStartDate, setAppliedStartDate] = useState(defaultStartDate);
+  const [appliedEndDate, setAppliedEndDate] = useState(today);
 
   useEffect(() => {
     const checkAdmin = async () => {
