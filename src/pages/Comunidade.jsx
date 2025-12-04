@@ -11,7 +11,11 @@ import InboxList from "@/components/community/InboxList";
 export default function Comunidade() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('feed');
+  
+  // Check URL param for initial tab
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialTab = urlParams.get('tab') || 'feed';
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
     const loadUser = async () => {
