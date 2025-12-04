@@ -5,35 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 import { 
-        User, Mail, Phone, Crown, Camera, LogOut, 
-        Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
-        Heart, History, FileText, Lock, Briefcase, Settings,
-        PlusCircle, Sparkles, Home, MessageCircle, BookOpen, Key
-      } from "lucide-react";
+  User, Mail, Phone, Crown, Camera, LogOut, 
+  Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
+  Heart, History, FileText, Lock, Briefcase, Settings,
+  PlusCircle, Sparkles, Home, MessageCircle
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
-
-// Função de fetch com retry robusto
-async function fetchWithRetry(fetchFn, maxRetries = 5) {
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const result = await fetchFn();
-      if (result && result.length >= 0) {
-        return result;
-      }
-    } catch (error) {
-      console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
-    }
-    if (attempt < maxRetries - 1) {
-      await new Promise(r => setTimeout(r, 400 * Math.pow(2, attempt)));
-    }
-  }
-  return [];
-}
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -42,7 +23,6 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
   const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
-
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -67,12 +47,9 @@ export default function Profile() {
     loadUser();
   }, []);
 
-
-
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     setIsSaving(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -93,11 +70,7 @@ export default function Profile() {
         full_name: editForm.full_name,
         phone: editForm.phone
       });
-      setUser(prev => ({ 
-        ...prev, 
-        full_name: editForm.full_name,
-        phone: editForm.phone
-      }));
+      setUser(prev => ({ ...prev, full_name: editForm.full_name, phone: editForm.phone }));
       setIsEditing(false);
       showToast('Perfil atualizado com sucesso!');
     } catch (e) {
@@ -113,70 +86,6 @@ export default function Profile() {
     window.location.href = createPageUrl('Splash');
   };
 
-  const hasPremiumAccess = user?.subscription_type === 'premium' || 
-    user?.subscription_type === 'admin' || 
-    user?.subscription_type === 'recruiter' ||
-    user?.role === 'admin';
-  
-  const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || 
-    user?.role === 'admin' || 
-    user?.subscription_type === 'admin';
-  
-  const isRecruiter = user?.subscription_type === 'recruiter';
-  
-  // Currículo: apenas Premium pode preencher, Recrutador/Admin só visualizam
-  const canFillResume = user?.subscription_type === 'premium';
-  const canViewResumes = isRecruiter || isAdmin;
-
-  const getSubscriptionBadge = () => {
-    if (user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin') {
-      return (
-        <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1">
-          <Shield className="w-4 h-4 mr-2" />
-          Administrador
-        </Badge>
-      );
-    }
-    if (user?.subscription_type === 'recruiter') {
-      return (
-        <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1">
-          <Briefcase className="w-4 h-4 mr-2" />
-          Recrutador
-        </Badge>
-      );
-    }
-    if (user?.subscription_type === 'premium') {
-      return (
-        <Badge className="bg-green-100 text-green-700 border-0 px-4 py-1">
-          <Crown className="w-4 h-4 mr-2" />
-          Membro Premium
-        </Badge>
-      );
-    }
-    if (user?.subscription_type === 'basic') {
-      return (
-        <Badge className="bg-blue-100 text-blue-700 border-0 px-4 py-1">
-          <User className="w-4 h-4 mr-2" />
-          Membro Básico (Grátis)
-        </Badge>
-      );
-    }
-    if (user?.access_status === 'pending') {
-      return (
-        <Badge className="bg-amber-100 text-amber-700 border-0 px-4 py-1">
-          <Clock className="w-4 h-4 mr-2" />
-          Aguardando Aprovação
-        </Badge>
-      );
-    }
-    return (
-      <Badge className="bg-slate-100 text-slate-600 border-0 px-4 py-1">
-        <User className="w-4 h-4 mr-2" />
-        Visitante
-      </Badge>
-    );
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -185,20 +94,36 @@ export default function Profile() {
     );
   }
 
+  const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
+  const isRecruiter = user?.subscription_type === 'recruiter';
+  const canFillResume = user?.subscription_type === 'premium';
+  const canViewResumes = isRecruiter || isAdmin;
+
+  const getSubscriptionBadge = () => {
+    if (isAdmin) {
+      return <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1"><Shield className="w-4 h-4 mr-2" />Administrador</Badge>;
+    }
+    if (isRecruiter) {
+      return <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1"><Briefcase className="w-4 h-4 mr-2" />Recrutador</Badge>;
+    }
+    if (user?.subscription_type === 'premium') {
+      return <Badge className="bg-green-100 text-green-700 border-0 px-4 py-1"><Crown className="w-4 h-4 mr-2" />Membro Premium</Badge>;
+    }
+    if (user?.subscription_type === 'basic') {
+      return <Badge className="bg-blue-100 text-blue-700 border-0 px-4 py-1"><User className="w-4 h-4 mr-2" />Membro Básico</Badge>;
+    }
+    return <Badge className="bg-slate-100 text-slate-600 border-0 px-4 py-1"><User className="w-4 h-4 mr-2" />Visitante</Badge>;
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      {/* Toast */}
       <AnimatePresence>
         {toast && (
           <motion.div
-            initial={{ opacity: 0, y: -50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -50, scale: 0.9 }}
-            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl ${
-              toast.type === 'error' 
-                ? 'bg-gradient-to-r from-red-500 to-red-600 text-white' 
-                : 'bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white'
-            }`}
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl ${toast.type === 'error' ? 'bg-red-500' : 'bg-[#0056ff]'} text-white`}
           >
             <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5" />
@@ -208,265 +133,159 @@ export default function Profile() {
         )}
       </AnimatePresence>
 
-      {/* Header */}
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-8 pb-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
         </div>
       </div>
 
-      {/* Profile Card */}
       <div className="max-w-2xl mx-auto px-4 -mt-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Card className="shadow-xl rounded-3xl overflow-hidden">
-            <CardContent className="p-8">
-              {/* Avatar Section */}
-              <div className="flex flex-col items-center mb-8">
-                <div className="relative mb-4">
-                  <Avatar className="w-28 h-28 border-4 border-white shadow-lg">
-                    <AvatarImage src={user?.profile_photo} />
-                    <AvatarFallback className="bg-[#0056ff] text-white text-3xl">
-                      {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <label className="absolute bottom-0 right-0 w-10 h-10 bg-[#0056ff] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#0044cc] transition-colors">
-                    <Camera className="w-5 h-5 text-white" />
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      className="hidden" 
-                      onChange={handlePhotoChange}
-                      disabled={isSaving}
-                    />
-                  </label>
-                </div>
-                <h2 className="text-2xl font-bold text-slate-800 mb-2">
-                  {user?.full_name || 'Usuário'}
-                </h2>
-                {getSubscriptionBadge()}
+        <Card className="shadow-xl rounded-3xl overflow-hidden">
+          <CardContent className="p-6 sm:p-8">
+            <div className="flex flex-col items-center mb-6">
+              <div className="relative mb-4">
+                <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-white shadow-lg">
+                  <AvatarImage src={user?.profile_photo} />
+                  <AvatarFallback className="bg-[#0056ff] text-white text-2xl sm:text-3xl">
+                    {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <label className="absolute bottom-0 right-0 w-9 h-9 sm:w-10 sm:h-10 bg-[#0056ff] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#0044cc]">
+                  <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={isSaving} />
+                </label>
               </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">{user?.full_name || 'Usuário'}</h2>
+              {getSubscriptionBadge()}
+            </div>
 
-              {/* User Info - Editable */}
-              {isEditing ? (
-                <div className="space-y-4 mb-8">
-                  <div className="space-y-2">
-                    <Label>Nome Completo</Label>
-                    <Input
-                      value={editForm.full_name}
-                      onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                      placeholder="Seu nome completo"
-                      className="rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Telefone</Label>
-                    <Input
-                      value={editForm.phone}
-                      onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                      placeholder="(00) 00000-0000"
-                      className="rounded-xl"
-                    />
-                  </div>
-                  <div className="flex gap-3 pt-2">
-                    <Button 
-                      onClick={handleSaveProfile}
-                      disabled={isSaving}
-                      className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl flex-1"
-                    >
-                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                      Salvar
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        setIsEditing(false);
-                        setEditForm({
-                          full_name: user?.full_name || '',
-                          phone: user?.phone || ''
-                        });
-                      }}
-                      className="rounded-xl"
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      Cancelar
-                    </Button>
-                  </div>
+            {isEditing ? (
+              <div className="space-y-4 mb-6">
+                <div className="space-y-2">
+                  <Label>Nome Completo</Label>
+                  <Input value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} placeholder="Seu nome" className="rounded-xl" />
                 </div>
-              ) : (
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                    <Mail className="w-5 h-5 text-slate-400" />
-                    <div className="flex-1">
-                      <p className="text-sm text-slate-500">E-mail</p>
-                      <p className="font-medium text-slate-800">{user?.email || 'Não informado'}</p>
-                    </div>
-                    <button 
-                      onClick={() => setIsEditing(true)}
-                      className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
-                    >
-                      <Edit className="w-4 h-4 text-slate-400" />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                    <Phone className="w-5 h-5 text-slate-400" />
-                    <div className="flex-1">
-                      <p className="text-sm text-slate-500">Telefone</p>
-                      <p className="font-medium text-slate-800">{user?.phone || 'Não informado'}</p>
-                    </div>
-                    <button 
-                      onClick={() => setIsEditing(true)}
-                      className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
-                    >
-                      <Edit className="w-4 h-4 text-slate-400" />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                    <Calendar className="w-5 h-5 text-slate-400" />
-                    <div className="flex-1">
-                      <p className="text-sm text-slate-500">Membro desde</p>
-                      <p className="font-medium text-slate-800">
-                        {user?.created_date 
-                          ? new Date(user.created_date).toLocaleDateString('pt-BR', { 
-                              day: '2-digit', 
-                              month: 'long', 
-                              year: 'numeric' 
-                            })
-                          : 'Não informado'}
-                      </p>
-                    </div>
-                  </div>
-
-
+                <div className="space-y-2">
+                  <Label>Telefone</Label>
+                  <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} placeholder="(00) 00000-0000" className="rounded-xl" />
                 </div>
-              )}
-
-              {/* Minhas Seções */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <Link to={createPageUrl('Favoritos')}>
-                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1">
-                    <Heart className="w-5 h-5 text-red-500" />
-                    <span className="text-xs">Favoritas</span>
+                <div className="flex gap-3">
+                  <Button onClick={handleSaveProfile} disabled={isSaving} className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl flex-1">
+                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}Salvar
                   </Button>
-                </Link>
-                <Link to={createPageUrl('Historico')}>
-                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1">
-                    <History className="w-5 h-5 text-purple-500" />
-                    <span className="text-xs">Histórico</span>
-                  </Button>
-                </Link>
-                <Link to={createPageUrl('Mensagens')}>
-                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1">
-                    <MessageCircle className="w-5 h-5 text-green-500" />
-                    <span className="text-xs">Mensagens</span>
-                  </Button>
-                </Link>
-                <Link to={createPageUrl('ProfessionalResume')}>
-                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
-                    <FileText className="w-5 h-5 text-blue-500" />
-                    <span className="text-xs">{canViewResumes ? 'Ver Currículos' : 'Currículo'}</span>
-                    {!canFillResume && !canViewResumes && (
-                      <Lock className="w-3 h-3 absolute top-2 right-2 text-amber-500" />
-                    )}
-                  </Button>
-                </Link>
+                  <Button variant="outline" onClick={() => setIsEditing(false)} className="rounded-xl"><X className="w-4 h-4 mr-2" />Cancelar</Button>
+                </div>
               </div>
-
-              {/* Área do Recrutador - apenas para recrutadores */}
-              {(isRecruiter && !isAdmin) && (
-                <Link to={createPageUrl('RecruiterArea')} className="block mb-4">
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-purple-300 bg-purple-50 hover:bg-purple-100"
-                  >
-                    <Briefcase className="w-5 h-5 text-purple-600" />
-                    <span className="text-purple-700 font-medium">Área do Recrutador</span>
-                  </Button>
-                </Link>
-              )}
-
-              {/* Painel do Administrador - apenas para admins */}
-              {isAdmin && (
-                <>
-                  <Link to={createPageUrl('Admin')} className="block mb-4">
-                    <Button 
-                      variant="outline" 
-                      className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-red-300 bg-red-50 hover:bg-red-100"
-                    >
-                      <Settings className="w-5 h-5 text-red-600" />
-                      <span className="text-red-700 font-medium">Painel do Administrador</span>
-                    </Button>
-                  </Link>
-
-                  {/* Funções de Admin para postar */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    <Link to={createPageUrl('PostarVaga')}>
-                      <Button variant="outline" className="w-full h-16 rounded-xl flex-col gap-1 border-blue-300 bg-blue-50 hover:bg-blue-100">
-                        <PlusCircle className="w-5 h-5 text-blue-600" />
-                        <span className="text-xs text-blue-700">Postar Vaga</span>
-                      </Button>
-                    </Link>
-                    <Link to={createPageUrl('VagasPorIA')}>
-                      <Button variant="outline" className="w-full h-16 rounded-xl flex-col gap-1 border-purple-300 bg-purple-50 hover:bg-purple-100">
-                        <Sparkles className="w-5 h-5 text-purple-600" />
-                        <span className="text-xs text-purple-700">Vagas por IA</span>
-                      </Button>
-                    </Link>
-                    <Link to={createPageUrl('VagasHomeOffice')}>
-                      <Button variant="outline" className="w-full h-16 rounded-xl flex-col gap-1 border-green-300 bg-green-50 hover:bg-green-100">
-                        <Home className="w-5 h-5 text-green-600" />
-                        <span className="text-xs text-green-700">Home Office</span>
-                      </Button>
-                    </Link>
+            ) : (
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                  <Mail className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-500">E-mail</p>
+                    <p className="font-medium text-slate-800 text-sm truncate">{user?.email}</p>
                   </div>
-
-                  {/* Ferramentas Admin */}
-                  <div className="grid grid-cols-2 gap-3 mb-6">
-                    <Link to={createPageUrl('BibliotecaAdmin')}>
-                      <Button variant="outline" className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-amber-300 bg-amber-50 hover:bg-amber-100">
-                        <BookOpen className="w-5 h-5 text-amber-600" />
-                        <span className="text-xs text-amber-700">Editar Biblioteca</span>
-                      </Button>
-                    </Link>
-                    <Link to={createPageUrl('GuiaBase44')}>
-                      <Button variant="outline" className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-indigo-300 bg-indigo-50 hover:bg-indigo-100">
-                        <Key className="w-5 h-5 text-indigo-600" />
-                        <span className="text-xs text-indigo-700">Guia Base44</span>
-                      </Button>
-                    </Link>
+                  <button onClick={() => setIsEditing(true)} className="p-2 hover:bg-slate-200 rounded-lg"><Edit className="w-4 h-4 text-slate-400" /></button>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                  <Phone className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-500">Telefone</p>
+                    <p className="font-medium text-slate-800 text-sm">{user?.phone || 'Não informado'}</p>
                   </div>
-                </>
-              )}
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                  <Calendar className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-500">Membro desde</p>
+                    <p className="font-medium text-slate-800 text-sm">
+                      {user?.created_date ? new Date(user.created_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Não informado'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
-              {/* Actions */}
-              <div className="space-y-3">
-                {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.role !== 'admin' && user?.email !== 'alexandreferreirajp01@gmail.com' && (
-                  <Link to={createPageUrl('Subscription')} className="block">
-                    <Button className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
-                      <Crown className="w-5 h-5 mr-2" />
-                      {user?.subscription_type === 'basic' ? 'Fazer Upgrade para Premium' : 'Assinar um Plano'}
-                    </Button>
-                  </Link>
-                )}
-
-                <Button 
-                  variant="outline" 
-                  className="w-full h-12 rounded-xl text-red-600 border-red-200 hover:bg-red-50"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="w-5 h-5 mr-2" />
-                  Sair da Conta
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <Link to={createPageUrl('Favoritos')}>
+                <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1"><Heart className="w-5 h-5 text-red-500" /><span className="text-xs">Favoritas</span></Button>
+              </Link>
+              <Link to={createPageUrl('Historico')}>
+                <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1"><History className="w-5 h-5 text-purple-500" /><span className="text-xs">Histórico</span></Button>
+              </Link>
+              <Link to={createPageUrl('Mensagens')}>
+                <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1"><MessageCircle className="w-5 h-5 text-green-500" /><span className="text-xs">Mensagens</span></Button>
+              </Link>
+              <Link to={createPageUrl('ProfessionalResume')}>
+                <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
+                  <FileText className="w-5 h-5 text-blue-500" />
+                  <span className="text-xs">{canViewResumes ? 'Ver Currículos' : 'Currículo'}</span>
+                  {!canFillResume && !canViewResumes && <Lock className="w-3 h-3 absolute top-2 right-2 text-amber-500" />}
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+              </Link>
+            </div>
 
+            {(isRecruiter && !isAdmin) && (
+              <Link to={createPageUrl('RecruiterArea')} className="block mb-4">
+                <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-purple-300 bg-purple-50 hover:bg-purple-100">
+                  <Briefcase className="w-5 h-5 text-purple-600" />
+                  <span className="text-purple-700 font-medium text-sm">Área do Recrutador</span>
+                </Button>
+              </Link>
+            )}
+
+            {isAdmin && (
+              <>
+                <Link to={createPageUrl('Admin')} className="block mb-3">
+                  <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-red-300 bg-red-50 hover:bg-red-100">
+                    <Shield className="w-5 h-5 text-red-600" />
+                    <span className="text-red-700 font-medium text-sm">Painel Administrativo</span>
+                  </Button>
+                </Link>
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  <Link to={createPageUrl('PostarVaga')}>
+                    <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 border-blue-300 bg-blue-50 hover:bg-blue-100">
+                      <PlusCircle className="w-4 h-4 text-blue-600" />
+                      <span className="text-[10px] text-blue-700">Postar Vaga</span>
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl('VagasPorIA')}>
+                    <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 border-purple-300 bg-purple-50 hover:bg-purple-100">
+                      <Sparkles className="w-4 h-4 text-purple-600" />
+                      <span className="text-[10px] text-purple-700">Vagas IA</span>
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl('VagasHomeOffice')}>
+                    <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 border-green-300 bg-green-50 hover:bg-green-100">
+                      <Home className="w-4 h-4 text-green-600" />
+                      <span className="text-[10px] text-green-700">Home Office</span>
+                    </Button>
+                  </Link>
+                </div>
+                <Link to={createPageUrl('Configuracoes')} className="block mb-4">
+                  <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100">
+                    <Settings className="w-5 h-5 text-slate-600" />
+                    <span className="text-slate-700 font-medium text-sm">Configurações Gerais</span>
+                  </Button>
+                </Link>
+              </>
+            )}
+
+            <div className="space-y-3">
+              {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.role !== 'admin' && (
+                <Link to={createPageUrl('Subscription')} className="block">
+                  <Button className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
+                    <Crown className="w-5 h-5 mr-2" />
+                    {user?.subscription_type === 'basic' ? 'Upgrade para Premium' : 'Assinar Plano'}
+                  </Button>
+                </Link>
+              )}
+              <Button variant="outline" className="w-full h-12 rounded-xl text-red-600 border-red-200 hover:bg-red-50" onClick={handleLogout}>
+                <LogOut className="w-5 h-5 mr-2" />Sair da Conta
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

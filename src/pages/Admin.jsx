@@ -346,27 +346,23 @@ export default function Admin() {
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <Tabs defaultValue="jobs" className="space-y-6">
-          <TabsList className="bg-white shadow-sm rounded-xl p-1 grid grid-cols-2 sm:grid-cols-4 gap-1 w-full">
+          <TabsList className="bg-white shadow-sm rounded-xl p-1 grid grid-cols-3 gap-1 w-full">
             <TabsTrigger value="jobs" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <Briefcase className="w-4 h-4 mr-1 sm:mr-2" />
+              <Briefcase className="w-4 h-4 mr-1" />
               <span>Vagas</span>
             </TabsTrigger>
             <TabsTrigger value="communication" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-[#0056ff] data-[state=active]:text-white relative">
-              <MessageSquare className="w-4 h-4 mr-1 sm:mr-2" />
-              <span>Comunicação</span>
+              <MessageSquare className="w-4 h-4 mr-1" />
+              <span>Comunic.</span>
               {(pendingPosts.length + pendingComments.length) > 0 && (
                 <Badge className="absolute -top-1 -right-1 bg-purple-500 text-white border-0 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
                   {pendingPosts.length + pendingComments.length}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="analytics-internal" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-              <BarChart3 className="w-4 h-4 mr-1 sm:mr-2" />
-              <span>Análises</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-[#0056ff] data-[state=active]:text-white relative">
-              <Shield className="w-4 h-4 mr-1 sm:mr-2" />
-              <span>Config</span>
+            <TabsTrigger value="users" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-[#0056ff] data-[state=active]:text-white relative">
+              <Users className="w-4 h-4 mr-1" />
+              <span>Usuários</span>
               {pendingUsers.length > 0 && (
                 <Badge className="absolute -top-1 -right-1 bg-amber-500 text-white border-0 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
                   {pendingUsers.length}
@@ -855,116 +851,25 @@ export default function Admin() {
             </Tabs>
           </TabsContent>
 
-          {/* Analytics Internal Tab - Contains Cities, Analytics */}
-          <TabsContent value="analytics-internal" className="space-y-6">
-            <Tabs defaultValue="analytics" className="space-y-4">
-              <TabsList className="bg-slate-100 rounded-xl p-1">
-                <TabsTrigger value="analytics" className="rounded-lg">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Analytics
-                </TabsTrigger>
-                <TabsTrigger value="cities" className="rounded-lg">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Cidades
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Analytics Sub-Tab */}
-              <TabsContent value="analytics">
-                <AnalyticsDashboard />
-              </TabsContent>
-
-              {/* Cities Sub-Tab */}
-              <TabsContent value="cities" className="space-y-6">
-            <Card className="rounded-xl">
-              <CardContent className="p-4">
-                <div className="flex gap-3">
-                  <Input
-                    value={newCity}
-                    onChange={(e) => setNewCity(e.target.value)}
-                    placeholder="Nome da cidade"
-                    className="rounded-lg"
-                  />
-                  <Button 
-                    onClick={() => newCity && createCityMutation.mutate(newCity)}
-                    disabled={!newCity || createCityMutation.isPending}
-                    className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
-                  >
-                    <Plus className="w-5 h-5 mr-2" />
-                    Adicionar
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <Input
-                placeholder="Pesquisar cidade..."
-                value={citySearch}
-                onChange={(e) => setCitySearch(e.target.value)}
-                className="pl-10 rounded-xl"
-              />
-            </div>
-
-            <Card className="rounded-xl">
-              <CardHeader>
-                <CardTitle className="text-lg">Cidades Cadastradas ({cities.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px] pr-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {filteredCities.map((city) => (
-                      <div 
-                        key={city.id} 
-                        className="flex items-center justify-between p-3 bg-slate-50 rounded-lg group hover:bg-slate-100 transition-colors"
-                      >
-                        <span className="text-sm text-slate-700">{city.name}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                          onClick={() => deleteCityMutation.mutate(city.id)}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
-
-
-
-          {/* Settings Tab - Contains Users, Codes, Payments */}
-          <TabsContent value="settings" className="space-y-6">
-            <Tabs defaultValue="users" className="space-y-4">
-              <TabsList className="bg-slate-100 rounded-xl p-1">
-                <TabsTrigger value="users" className="rounded-lg">
-                  <Users className="w-4 h-4 mr-2" />
+          {/* Users Tab */}
+          <TabsContent value="users" className="space-y-6">
+            <Tabs defaultValue="users-list" className="space-y-4">
+              <TabsList className="bg-slate-100 rounded-xl p-1 grid grid-cols-3 w-full">
+                <TabsTrigger value="users-list" className="rounded-lg text-xs">
+                  <Users className="w-4 h-4 mr-1" />
                   Usuários
-                  {pendingUsers.length > 0 && (
-                    <Badge className="ml-2 bg-amber-500 text-white border-0 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                      {pendingUsers.length}
-                    </Badge>
-                  )}
                 </TabsTrigger>
-                <TabsTrigger value="requests" className="rounded-lg">
-                  <Briefcase className="w-4 h-4 mr-2" />
+                <TabsTrigger value="requests" className="rounded-lg text-xs">
+                  <Briefcase className="w-4 h-4 mr-1" />
                   Solicitações
                 </TabsTrigger>
-                <TabsTrigger value="payments" className="rounded-lg">
-                  <CreditCard className="w-4 h-4 mr-2" />
+                <TabsTrigger value="payments" className="rounded-lg text-xs">
+                  <CreditCard className="w-4 h-4 mr-1" />
                   Pagamentos
                 </TabsTrigger>
               </TabsList>
 
-              {/* Users Sub-Tab */}
-              <TabsContent value="users" className="space-y-6">
+              <TabsContent value="users-list" className="space-y-6">
                 {/* Pending Users */}
                 {pendingUsers.length > 0 && (
                   <Card className="rounded-xl border-amber-200 bg-amber-50">
@@ -1141,7 +1046,6 @@ export default function Admin() {
                 <RecruiterRequestsPanel showToast={showToast} />
               </TabsContent>
 
-              {/* Payments Sub-Tab */}
               <TabsContent value="payments">
                 <PaymentsManager showToast={showToast} />
               </TabsContent>
