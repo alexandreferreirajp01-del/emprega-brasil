@@ -17,6 +17,11 @@ export default function Layout({ children, currentPageName }) {
   const [isVisitor, setIsVisitor] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Scroll para o topo ao mudar de página
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [currentPageName]);
+
   // Pages that don't need layout
   const noLayoutPages = ['Splash', 'Login', 'Register'];
 

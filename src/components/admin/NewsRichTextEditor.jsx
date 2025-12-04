@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,22 +34,36 @@ export default function NewsRichTextEditor({ value, onChange, maxChars = MAX_CHA
   const [linkNewTab, setLinkNewTab] = useState(true);
   const [savedSelection, setSavedSelection] = useState(null);
 
-  // Calcular caracteres usados (apenas texto, sem HTML)
-  const charCount = useMemo(() => getPlainTextLength(value), [value]);
+  // Estado local para contador (evita recálculo constante)
+  const [charCount, setCharCount] = useState(0);
   const charPercent = (charCount / maxChars) * 100;
   const isOverLimit = charCount > maxChars;
   const isWarning = charPercent >= 80 && !isOverLimit;
 
-  const execCommand = useCallback((command, value = null) => {
-    document.execCommand(command, false, value);
+  // Atualizar contador apenas quando necessário
+  useEffect(() => {
+    const count = getPlainTextLength(value);
+    setCharCount(count);
+  }, [value]);
+
+  const execCommand = useCallback((command, val = null) => {
+    document.execCommand(command, false, val);
     editorRef.current?.focus();
     handleChange();
   }, []);
 
+  // Debounce para evitar travamento
+  const debounceRef = useRef(null);
+  
   const handleChange = useCallback(() => {
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
     }
+    debounceRef.current = setTimeout(() => {
+      if (editorRef.current) {
+        onChange(editorRef.current.innerHTML);
+      }
+    }, 150);
   }, [onChange]);
 
   const saveSelection = () => {
@@ -247,10 +261,13 @@ export default function NewsRichTextEditor({ value, onChange, maxChars = MAX_CHA
         ref={editorRef}
         contentEditable
         onInput={handleChange}
-        onBlur={handleChange}
+        onBlur={() => {
+          if (debounceRef.current) clearTimeout(debounceRef.current);
+          if (editorRef.current) onChange(editorRef.current.innerHTML);
+        }}
         onPaste={(e) => {
-          // Permitir colar mas verificar depois
-          setTimeout(handleChange, 0);
+          // Deixar o navegador processar, depois atualizar com delay
+          setTimeout(handleChange, 300);
         }}
         dangerouslySetInnerHTML={{ __html: value || '' }}
         className={`min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none ${isOverLimit ? 'bg-red-50 border-red-300' : ''}`}
