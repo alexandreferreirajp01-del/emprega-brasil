@@ -130,7 +130,59 @@ export default function News() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-8 space-y-6">
-
+            {/* Featured News - Estilo G1 */}
+            {featuredNews && selectedCategory === 'all' && !searchTerm && (
+              <div>
+                <Link to={createPageUrl('NewsDetail') + `?id=${featuredNews.id}`}>
+                  <div className="relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer group">
+                    {featuredNews.image_url && (
+                      <div className="relative h-72 md:h-96 overflow-hidden">
+                        <img 
+                          src={featuredNews.image_url} 
+                          alt={featuredNews.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        <div className="absolute top-4 left-4">
+                          <Badge className="bg-[#0056ff] text-white border-0 rounded-sm px-3 py-1 text-xs uppercase font-bold">
+                            Destaque
+                          </Badge>
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                          <h2 className="text-2xl md:text-4xl font-bold text-white mb-3 leading-tight">
+                            {featuredNews.title}
+                          </h2>
+                          {featuredNews.subtitle && (
+                            <p className="text-white/90 text-lg line-clamp-2 mb-4">{featuredNews.subtitle}</p>
+                          )}
+                          <div className="flex items-center gap-4 text-white/70 text-sm">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              {formatTimeAgo(featuredNews.created_date)}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Eye className="w-4 h-4" />
+                              {featuredNews.views_count || 0} visualizações
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {!featuredNews.image_url && (
+                      <div className="p-6 bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white rounded-lg">
+                        <Badge className="bg-white/20 text-white border-0 rounded-sm mb-3">
+                          Destaque
+                        </Badge>
+                        <h2 className="text-2xl md:text-3xl font-bold mb-2">{featuredNews.title}</h2>
+                        {featuredNews.subtitle && (
+                          <p className="text-white/80">{featuredNews.subtitle}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              </div>
+            )}
 
             {/* News List - Estilo G1 */}
             <div className="space-y-1 divide-y divide-slate-100">
@@ -148,7 +200,7 @@ export default function News() {
                   ))}
                 </>
               ) : (
-                filteredNews.map((item) => (
+                filteredNews.filter(n => n.id !== featuredNews?.id).map((item) => (
                   <div key={item.id}>
                     <Link to={createPageUrl('NewsDetail') + `?id=${item.id}`}>
                       <article className="py-4 hover:bg-slate-50 transition-colors cursor-pointer group flex flex-col sm:flex-row gap-4">
@@ -167,12 +219,7 @@ export default function News() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            {item.is_featured && (
-                              <Badge className="bg-yellow-500 text-white border-0 text-xs rounded-sm px-2 py-0.5">
-                                ⭐ Destaque
-                              </Badge>
-                            )}
+                          <div className="flex items-center gap-2 mb-1">
                             <Badge className="bg-[#0056ff]/10 text-[#0056ff] border-0 text-xs rounded-sm px-2 py-0.5">
                               {item.category || 'Geral'}
                             </Badge>
