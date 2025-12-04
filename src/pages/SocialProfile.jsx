@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  ArrowLeft, UserPlus, UserMinus, MessageCircle, Edit, 
+  ArrowLeft, MessageCircle, Edit, 
   Loader2, Crown, Shield, Briefcase, User, MapPin, ExternalLink,
   Grid
 } from "lucide-react";
@@ -19,11 +18,6 @@ import SocialPostCard from "@/components/social/SocialPostCard";
 export default function SocialProfile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followId, setFollowId] = useState(null);
-  const [processingFollow, setProcessingFollow] = useState(false);
-  const [localFollowersCount, setLocalFollowersCount] = useState(0);
-  const queryClient = useQueryClient();
 
   const urlParams = new URLSearchParams(window.location.search);
   const profileEmail = urlParams.get('email');
@@ -65,67 +59,6 @@ export default function SocialProfile() {
     queryFn: () => base44.entities.SocialPost.filter({ author_email: profileEmail, status: 'active' }, '-created_date', 100),
     enabled: !!profileEmail
   });
-
-  const { data: follows = [], refetch: refetchFollows } = useQuery({
-    queryKey: ['profile-follows', profileEmail],
-    queryFn: () => base44.entities.Follow.list('-created_date', 10000),
-    enabled: !!profileEmail,
-    staleTime: 5000
-  });
-
-  const followersCount = follows.filter(f => f.following_email === profileEmail).length;
-  const followingCount = follows.filter(f => f.follower_email === profileEmail).length;
-
-  // Atualizar estado local quando dados mudam
-  useEffect(() => {
-    setLocalFollowersCount(followersCount);
-  }, [followersCount]);
-
-  useEffect(() => {
-    if (user && follows.length >= 0) {
-      const myFollow = follows.find(f => f.follower_email === user.email && f.following_email === profileEmail);
-      setIsFollowing(!!myFollow);
-      setFollowId(myFollow?.id || null);
-    }
-  }, [user, follows, profileEmail]);
-
-  // Função de seguir com atualização otimista
-  const handleFollow = async () => {
-    if (!user || processingFollow) return;
-    
-    setProcessingFollow(true);
-    
-    const wasFollowing = isFollowing;
-    const existingFollowId = followId;
-
-    // Atualização otimista
-    setIsFollowing(!wasFollowing);
-    setLocalFollowersCount(prev => wasFollowing ? Math.max(prev - 1, 0) : prev + 1);
-
-    try {
-      if (wasFollowing && existingFollowId) {
-        await base44.entities.Follow.delete(existingFollowId);
-        setFollowId(null);
-      } else {
-        const newFollow = await base44.entities.Follow.create({
-          follower_email: user.email,
-          following_email: profileEmail
-        });
-        setFollowId(newFollow.id);
-      }
-      // Atualizar dados do servidor
-      await refetchFollows();
-      queryClient.invalidateQueries({ queryKey: ['all-follows'] });
-    } catch (error) {
-      console.error('Erro ao seguir/deixar de seguir:', error);
-      // Reverter em caso de erro
-      setIsFollowing(wasFollowing);
-      setLocalFollowersCount(followersCount);
-      await refetchFollows();
-    } finally {
-      setProcessingFollow(false);
-    }
-  };
 
   const isOwnProfile = user?.email === profileEmail;
 
@@ -203,20 +136,10 @@ export default function SocialProfile() {
             </div>
           </div>
 
-          {/* Stats - Grid organizado */}
-          <div className="grid grid-cols-3 gap-4 bg-slate-50 rounded-2xl p-4 mb-6">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-slate-800">{posts.length}</p>
-              <p className="text-sm text-slate-500">Publicações</p>
-            </div>
-            <div className="text-center border-x border-slate-200">
-              <p className="text-2xl font-bold text-slate-800">{localFollowersCount}</p>
-              <p className="text-sm text-slate-500">Seguidores</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-slate-800">{followingCount}</p>
-              <p className="text-sm text-slate-500">Seguindo</p>
-            </div>
+          {/* Stats - Apenas publicações */}
+          <div className="bg-slate-50 rounded-2xl p-4 mb-6 text-center">
+            <p className="text-2xl font-bold text-slate-800">{posts.length}</p>
+            <p className="text-sm text-slate-500">Publicações</p>
           </div>
 
           {/* Botões de Ação */}
@@ -229,35 +152,12 @@ export default function SocialProfile() {
                 </Button>
               </Link>
             ) : (
-              <>
-                <Button
-                  variant={isFollowing ? "outline" : "default"}
-                  size="lg"
-                  onClick={handleFollow}
-                  disabled={processingFollow}
-                  className={`rounded-xl px-6 min-w-[140px] ${isFollowing ? "" : "bg-[#0056ff] hover:bg-[#0044cc]"}`}
-                >
-                  {processingFollow ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : isFollowing ? (
-                    <>
-                      <UserMinus className="w-4 h-4 mr-2" />
-                      Seguindo
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Seguir
-                    </>
-                  )}
+              <Link to={`${createPageUrl('SocialChat')}?email=${profileEmail}`}>
+                <Button size="lg" className="rounded-xl px-8 bg-[#0056ff] hover:bg-[#0044cc]">
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                  Enviar Mensagem
                 </Button>
-                <Link to={`${createPageUrl('SocialChat')}?email=${profileEmail}`}>
-                  <Button variant="outline" size="lg" className="rounded-xl px-6">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Mensagem
-                  </Button>
-                </Link>
-              </>
+              </Link>
             )}
           </div>
 
