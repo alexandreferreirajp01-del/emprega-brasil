@@ -20,20 +20,19 @@ export default function UsuariosTab({ user }) {
     setLoading(true);
     setErro(null);
     
-    for (let tentativa = 0; tentativa < 3; tentativa++) {
+    for (let tentativa = 0; tentativa < 5; tentativa++) {
       try {
-        const lista = await base44.entities.User.list('-created_date', 300);
-        if (Array.isArray(lista)) {
+        const lista = await base44.entities.User.filter({}, '-created_date', 300);
+        if (lista && Array.isArray(lista)) {
           setUsuarios(lista);
+          setErro(null);
           setLoading(false);
           return;
         }
       } catch (e) {
-        console.warn(`Tentativa ${tentativa + 1} falhou:`, e);
-        if (tentativa < 2) {
-          await new Promise(r => setTimeout(r, 500 * (tentativa + 1)));
-        }
+        console.warn(`Tentativa ${tentativa + 1} falhou:`, e.message);
       }
+      await new Promise(r => setTimeout(r, 800 * (tentativa + 1)));
     }
     
     setErro('Falha ao carregar. Tente novamente.');
