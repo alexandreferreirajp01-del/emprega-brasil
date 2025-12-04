@@ -2,11 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Bloquear tradução automática do navegador em elementos críticos */
-[translate="no"],
-.notranslate,
-[data-translate="no"] {
-  translate: no;
+/* Bloquear tradução automática do navegador - GLOBAL */
+html, body, #root, [translate="no"], .notranslate, [data-translate="no"] {
+  translate: no !important;
+}
+
+/* Classe universal anti-tradução */
+* {
+  -webkit-locale: "pt-BR" !important;
+}
+
+/* Forçar que elementos não sejam traduzidos */
+.notranslate, [translate="no"] {
+  -webkit-transform: none;
+  transform: none;
 }
 
 /* Safe area for iOS/Android */

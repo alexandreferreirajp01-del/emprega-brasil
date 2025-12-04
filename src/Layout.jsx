@@ -135,8 +135,50 @@ export default function Layout({ children, currentPageName }) {
     window.location.href = createPageUrl('Splash');
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+  // Bloquear tradução no HTML root
+    useEffect(() => {
+      // Aplicar atributos anti-tradução no HTML e body
+      document.documentElement.setAttribute('translate', 'no');
+      document.documentElement.setAttribute('lang', 'pt-BR');
+      document.documentElement.classList.add('notranslate');
+      document.body.setAttribute('translate', 'no');
+      document.body.classList.add('notranslate');
+
+      // Criar meta tags de bloqueio se não existirem
+      const metaTags = [
+        { name: 'google', content: 'notranslate' },
+        { name: 'googlebot', content: 'notranslate' },
+        { httpEquiv: 'Content-Language', content: 'pt-BR' },
+      ];
+
+      metaTags.forEach(meta => {
+        const selector = meta.name ? `meta[name="${meta.name}"]` : `meta[http-equiv="${meta.httpEquiv}"]`;
+        if (!document.querySelector(selector)) {
+          const tag = document.createElement('meta');
+          if (meta.name) tag.setAttribute('name', meta.name);
+          if (meta.httpEquiv) tag.setAttribute('http-equiv', meta.httpEquiv);
+          tag.setAttribute('content', meta.content);
+          document.head.appendChild(tag);
+        }
+      });
+
+      // Bloquear eventos de tradução
+      const blockTranslation = (e) => {
+        if (e.type === 'DOMNodeInserted' && e.target.nodeName === 'FONT') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      };
+
+      document.addEventListener('DOMNodeInserted', blockTranslation, true);
+
+      return () => {
+        document.removeEventListener('DOMNodeInserted', blockTranslation, true);
+      };
+    }, []);
+
+    return (
+        <div className="min-h-screen bg-slate-50 flex flex-col notranslate" translate="no" lang="pt-BR">
       {/* PWA/APK Meta Tags - Injeta no head */}
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -144,7 +186,10 @@ export default function Layout({ children, currentPageName }) {
       <meta name="theme-color" content="#0056ff" />
       <meta name="application-name" content="Vagas Abertas PB" />
       <meta name="apple-mobile-web-app-title" content="Vagas Abertas PB" />
+      {/* Bloqueio total de tradução - todos os navegadores */}
       <meta name="google" content="notranslate" />
+      <meta name="googlebot" content="notranslate" />
+      <meta httpEquiv="Content-Language" content="pt-BR" />
       <style>{`
         /* Safe area para notch de celulares */
         :root {
