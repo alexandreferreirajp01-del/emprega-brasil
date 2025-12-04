@@ -82,11 +82,6 @@ export default function FeedPostCard({ post, user, isSalvo }) {
     }
   };
 
-  const getPlanoLabel = (plano) => {
-    const labels = { admin: 'Admin', recruiter: 'Recrutador', premium: 'Premium', basic: 'Básico' };
-    return labels[plano] || 'Básico';
-  };
-
   const getPlanoColor = (plano) => {
     const colors = {
       admin: 'bg-purple-100 text-purple-700',
@@ -95,6 +90,11 @@ export default function FeedPostCard({ post, user, isSalvo }) {
       basic: 'bg-slate-100 text-slate-700'
     };
     return colors[plano] || 'bg-slate-100 text-slate-700';
+  };
+
+  const getPlanoLabel = (plano) => {
+    const labels = { admin: 'Admin', recruiter: 'Recrutador', premium: 'Premium', basic: 'Básico' };
+    return labels[plano] || 'Básico';
   };
 
   const formatarData = (data) => {
@@ -113,7 +113,6 @@ export default function FeedPostCard({ post, user, isSalvo }) {
   return (
     <Card className="rounded-xl overflow-hidden">
       <CardContent className="p-0">
-        {/* Header */}
         <div className="p-4 flex items-center gap-3">
           <Avatar className="w-10 h-10">
             <AvatarImage src={post.autor_foto} />
@@ -132,19 +131,13 @@ export default function FeedPostCard({ post, user, isSalvo }) {
           </div>
         </div>
 
-        {/* Conteúdo */}
         {post.conteudo && (
           <p className="px-4 pb-3 text-slate-700 whitespace-pre-wrap">{post.conteudo}</p>
         )}
 
-        {/* Imagens */}
         {post.imagens?.length > 0 && (
           <div className="relative">
-            <img
-              src={post.imagens[imagemAtual]}
-              alt=""
-              className="w-full max-h-96 object-cover"
-            />
+            <img src={post.imagens[imagemAtual]} alt="" className="w-full max-h-96 object-cover" />
             {post.imagens.length > 1 && (
               <>
                 <button
@@ -163,10 +156,7 @@ export default function FeedPostCard({ post, user, isSalvo }) {
                 </button>
                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
                   {post.imagens.map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 h-2 rounded-full ${i === imagemAtual ? 'bg-white' : 'bg-white/50'}`}
-                    />
+                    <div key={i} className={`w-2 h-2 rounded-full ${i === imagemAtual ? 'bg-white' : 'bg-white/50'}`} />
                   ))}
                 </div>
               </>
@@ -174,26 +164,16 @@ export default function FeedPostCard({ post, user, isSalvo }) {
           </div>
         )}
 
-        {/* Ações */}
         <div className="p-4 flex items-center gap-4 border-t">
-          <button
-            onClick={() => curtirMutation.mutate()}
-            className={`flex items-center gap-1 ${curtido ? 'text-red-500' : 'text-slate-500'}`}
-          >
+          <button onClick={() => curtirMutation.mutate()} className={`flex items-center gap-1 ${curtido ? 'text-red-500' : 'text-slate-500'}`}>
             <Heart className={`w-5 h-5 ${curtido ? 'fill-current' : ''}`} />
             <span className="text-sm">{post.total_curtidas || 0}</span>
           </button>
-          <button
-            onClick={() => setShowComentarios(!showComentarios)}
-            className="flex items-center gap-1 text-slate-500"
-          >
+          <button onClick={() => setShowComentarios(!showComentarios)} className="flex items-center gap-1 text-slate-500">
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm">{post.total_comentarios || 0}</span>
           </button>
-          <button
-            onClick={() => salvarMutation.mutate()}
-            className={`flex items-center gap-1 ${isSalvo ? 'text-purple-500' : 'text-slate-500'}`}
-          >
+          <button onClick={() => salvarMutation.mutate()} className={`flex items-center gap-1 ${isSalvo ? 'text-purple-500' : 'text-slate-500'}`}>
             <Bookmark className={`w-5 h-5 ${isSalvo ? 'fill-current' : ''}`} />
           </button>
           <button onClick={handleCompartilhar} className="text-slate-500 ml-auto">
@@ -201,7 +181,6 @@ export default function FeedPostCard({ post, user, isSalvo }) {
           </button>
         </div>
 
-        {/* Comentários */}
         {showComentarios && (
           <div className="px-4 pb-4 border-t pt-4 space-y-3">
             <div className="flex gap-2">
@@ -221,15 +200,12 @@ export default function FeedPostCard({ post, user, isSalvo }) {
                 {comentarMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
             </div>
-
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {comentarios.map((c) => (
                 <div key={c.id} className="flex gap-2">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={c.autor_foto} />
-                    <AvatarFallback className="bg-slate-100 text-slate-600 text-xs">
-                      {c.autor_nome?.[0]}
-                    </AvatarFallback>
+                    <AvatarFallback className="bg-slate-100 text-slate-600 text-xs">{c.autor_nome?.[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 bg-slate-50 rounded-xl p-2">
                     <span className="font-semibold text-sm text-slate-800">{c.autor_nome}</span>
