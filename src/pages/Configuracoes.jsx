@@ -17,6 +17,7 @@ const menuItems = [
   { id: 'historico', name: 'Histórico', icon: History, color: 'purple', page: 'Historico', description: 'Vagas visualizadas recentemente' },
   { id: 'mensagens', name: 'Mensagens', icon: MessageCircle, color: 'green', page: 'Mensagens', description: 'Conversas diretas entre usuários' },
   { id: 'curriculos', name: 'Ver Currículos', icon: FileText, color: 'blue', page: 'ProfessionalResume', description: 'Visualizar currículos de candidatos' },
+  { id: 'responder-chat', name: 'Responder Chat', icon: MessageSquare, color: 'cyan', page: 'ResponderChat', description: 'Responder mensagens dos usuários' },
   { id: 'divider0', type: 'divider', label: 'Gerenciamento' },
   { id: 'transmissao', name: 'Lista de Transmissão', icon: MessageSquare, color: 'green', page: 'ListaTransmissao', description: 'Enviar mensagens em massa' },
   { id: 'vagas', name: 'Gerenciar Vagas', icon: Briefcase, color: 'blue', page: 'GerenciarVagas', description: 'Visualizar e excluir vagas' },
