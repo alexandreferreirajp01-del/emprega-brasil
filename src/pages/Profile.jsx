@@ -359,13 +359,10 @@ export default function Profile() {
                     <span className="text-xs">Histórico</span>
                   </Button>
                 </Link>
-                <Link to={createPageUrl('Inbox')}>
+                <Link to={createPageUrl('Social')}>
                   <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
                     <Mail className="w-5 h-5 text-green-500" />
                     <span className="text-xs">Mensagens</span>
-                    {!hasPremiumAccess && (
-                      <Lock className="w-3 h-3 absolute top-2 right-2 text-amber-500" />
-                    )}
                   </Button>
                 </Link>
                 <Link to={createPageUrl('ProfessionalResume')}>

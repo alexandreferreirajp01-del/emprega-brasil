@@ -25,7 +25,6 @@ export default function SocialUsers({ user }) {
     
     try {
       const allUsers = await base44.entities.User.list('-created_date', 1000);
-      // Filtrar apenas usuários com nome
       const validUsers = (allUsers || []).filter(u => u.full_name && u.full_name.trim());
       setUsers(validUsers);
     } catch (error) {
@@ -93,11 +92,11 @@ export default function SocialUsers({ user }) {
         </div>
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger className="w-32">
-            <SelectValue />
+            <SelectValue placeholder="Ordenar" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="name">A-Z</SelectItem>
-            <SelectItem value="plan">Plano</SelectItem>
+            <SelectItem value="name">Ordem alfabética</SelectItem>
+            <SelectItem value="plan">Por plano</SelectItem>
           </SelectContent>
         </Select>
         <Button 
@@ -110,11 +109,6 @@ export default function SocialUsers({ user }) {
           <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
         </Button>
       </div>
-
-      {/* Contador */}
-      <p className="text-sm text-slate-500">
-        {filteredUsers.length} usuário{filteredUsers.length !== 1 ? 's' : ''} encontrado{filteredUsers.length !== 1 ? 's' : ''}
-      </p>
 
       {/* Lista */}
       {filteredUsers.length === 0 ? (
@@ -130,9 +124,9 @@ export default function SocialUsers({ user }) {
           {filteredUsers.map(u => (
             <Card key={u.id} className="shadow-sm hover:shadow-md transition-all">
               <CardContent className="p-4">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <Link to={`${createPageUrl('SocialProfile')}?email=${u.email}`} className="flex-shrink-0">
-                    <Avatar className="w-14 h-14 ring-2 ring-slate-100">
+                    <Avatar className="w-12 h-12 ring-2 ring-slate-100">
                       <AvatarImage src={u.profile_photo} />
                       <AvatarFallback className="bg-[#0056ff] text-white text-lg font-semibold">
                         {u.full_name?.[0]?.toUpperCase() || '?'}
@@ -146,13 +140,13 @@ export default function SocialUsers({ user }) {
                     >
                       {u.full_name || 'Usuário'}
                     </Link>
-                    <div className="mt-1.5">
+                    <div className="mt-1">
                       {getPlanBadge(u)}
                     </div>
                   </div>
                   <Link to={`${createPageUrl('SocialChat')}?email=${u.email}`} className="flex-shrink-0">
-                    <Button className="rounded-xl bg-[#0056ff] hover:bg-[#0044cc] shadow-sm">
-                      <MessageCircle className="w-4 h-4 mr-2" />
+                    <Button size="sm" className="rounded-xl bg-[#0056ff] hover:bg-[#0044cc]">
+                      <MessageCircle className="w-4 h-4 mr-1.5" />
                       Mensagem
                     </Button>
                   </Link>
