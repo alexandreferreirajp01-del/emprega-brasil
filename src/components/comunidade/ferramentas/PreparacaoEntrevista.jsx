@@ -81,7 +81,6 @@ Inclua:
 
         {preparacao && (
           <div className="space-y-4 pt-4 border-t">
-            {/* Perguntas */}
             <div className="p-4 bg-purple-50 rounded-xl">
               <h4 className="font-semibold text-purple-700 flex items-center gap-2 mb-3">
                 <MessageSquare className="w-4 h-4" />
@@ -91,13 +90,12 @@ Inclua:
                 {preparacao.perguntas?.map((p, i) => (
                   <div key={i} className="bg-white p-3 rounded-lg">
                     <p className="font-medium text-slate-800">{i+1}. {p.pergunta}</p>
-                    <p className="text-sm text-slate-600 mt-1">💡 {p.dica}</p>
+                    <p className="text-sm text-slate-600 mt-1">{p.dica}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* O que pesquisar */}
             <div className="p-4 bg-blue-50 rounded-xl">
               <h4 className="font-semibold text-blue-700 flex items-center gap-2 mb-2">
                 <Target className="w-4 h-4" />
@@ -106,19 +104,16 @@ Inclua:
               <p className="text-slate-700">{preparacao.pesquisar}</p>
             </div>
 
-            {/* Vestimenta */}
             <div className="p-4 bg-green-50 rounded-xl">
-              <h4 className="font-semibold text-green-700 mb-2">👔 Como se Vestir</h4>
+              <h4 className="font-semibold text-green-700 mb-2">Como se Vestir</h4>
               <p className="text-slate-700">{preparacao.vestimenta}</p>
             </div>
 
-            {/* Erros */}
             <div className="p-4 bg-red-50 rounded-xl">
-              <h4 className="font-semibold text-red-700 mb-2">⚠️ Erros a Evitar</h4>
+              <h4 className="font-semibold text-red-700 mb-2">Erros a Evitar</h4>
               <p className="text-slate-700">{preparacao.erros_evitar}</p>
             </div>
 
-            {/* Perguntas para fazer */}
             <div className="p-4 bg-yellow-50 rounded-xl">
               <h4 className="font-semibold text-yellow-700 flex items-center gap-2 mb-2">
                 <Lightbulb className="w-4 h-4" />

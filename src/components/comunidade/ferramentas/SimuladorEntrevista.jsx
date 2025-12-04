@@ -47,7 +47,6 @@ export default function SimuladorEntrevista({ user }) {
     setResposta('');
 
     if (perguntaIndex >= 5) {
-      // Gerar avaliação final
       try {
         const response = await base44.integrations.Core.InvokeLLM({
           prompt: `Avalie as respostas desta entrevista para a vaga de "${vaga}":
@@ -69,7 +68,6 @@ Dê uma nota de 1 a 10, pontos fortes, pontos a melhorar e dicas.`,
         console.error(e);
       }
     } else {
-      // Próxima pergunta
       try {
         const response = await base44.integrations.Core.InvokeLLM({
           prompt: `Considerando a entrevista para "${vaga}" e a resposta anterior "${resposta}", gere a próxima pergunta. Apenas a pergunta.`,
@@ -128,15 +126,15 @@ Dê uma nota de 1 a 10, pontos fortes, pontos a melhorar e dicas.`,
             
             <div className="space-y-3">
               <div className="p-4 bg-green-50 rounded-xl">
-                <p className="font-semibold text-green-700 mb-1">✅ Pontos Fortes</p>
+                <p className="font-semibold text-green-700 mb-1">Pontos Fortes</p>
                 <p className="text-slate-700">{avaliacao.pontos_fortes}</p>
               </div>
               <div className="p-4 bg-orange-50 rounded-xl">
-                <p className="font-semibold text-orange-700 mb-1">⚠️ Pontos a Melhorar</p>
+                <p className="font-semibold text-orange-700 mb-1">Pontos a Melhorar</p>
                 <p className="text-slate-700">{avaliacao.pontos_melhorar}</p>
               </div>
               <div className="p-4 bg-blue-50 rounded-xl">
-                <p className="font-semibold text-blue-700 mb-1">💡 Dicas</p>
+                <p className="font-semibold text-blue-700 mb-1">Dicas</p>
                 <p className="text-slate-700">{avaliacao.dicas}</p>
               </div>
             </div>

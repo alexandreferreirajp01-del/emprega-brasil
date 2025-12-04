@@ -87,7 +87,6 @@ export default function ChecklistCandidato({ user }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6 space-y-4">
-        {/* Barra de Progresso */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-slate-600">Progresso</span>
@@ -102,7 +101,6 @@ export default function ChecklistCandidato({ user }) {
           <p className="text-sm text-slate-500">{completos.length} de {CHECKLIST_ITEMS.length} itens concluídos</p>
         </div>
 
-        {/* Lista de Items */}
         <div className="space-y-2">
           {CHECKLIST_ITEMS.map((item) => (
             <div 
