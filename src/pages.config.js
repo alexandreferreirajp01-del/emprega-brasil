@@ -5,7 +5,6 @@ import JobDetail from './pages/JobDetail';
 import Groups from './pages/Groups';
 import Subscription from './pages/Subscription';
 import Profile from './pages/Profile';
-import Admin from './pages/Admin';
 import PendingAccess from './pages/PendingAccess';
 import News from './pages/News';
 import NewsDetail from './pages/NewsDetail';
@@ -45,7 +44,6 @@ export const PAGES = {
     "Groups": Groups,
     "Subscription": Subscription,
     "Profile": Profile,
-    "Admin": Admin,
     "PendingAccess": PendingAccess,
     "News": News,
     "NewsDetail": NewsDetail,

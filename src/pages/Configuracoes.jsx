@@ -2,32 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
-  ArrowLeft, Loader2, Shield, Key, Users, Database, BarChart3, 
+  ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
-  ExternalLink, Lock, CreditCard
+  ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 
 const menuItems = [
-  { id: 'admin', name: 'Painel Administrativo', icon: Shield, color: 'red', page: 'Admin', description: 'Gerenciar vagas, usuários e comunidade' },
-  { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real do aplicativo' },
-  { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos e assinaturas' },
-  { id: 'divider1', type: 'divider', label: 'Painel Base44' },
-  { id: 'overview', name: 'Overview', icon: BarChart3, color: 'slate', external: true, description: 'Visão geral do aplicativo' },
-  { id: 'users', name: 'Users', icon: Users, color: 'blue', external: true, description: 'Gerenciar usuários' },
-  { id: 'data', name: 'Data', icon: Database, color: 'green', external: true, description: 'Ver e editar dados' },
-  { id: 'analytics', name: 'Analytics', icon: BarChart3, color: 'purple', external: true, description: 'Estatísticas e métricas' },
-  { id: 'domains', name: 'Domains', icon: Globe, color: 'cyan', external: true, description: 'Domínio personalizado' },
-  { id: 'integrations', name: 'Integrations', icon: Plug, color: 'orange', external: true, description: 'Serviços externos' },
-  { id: 'security', name: 'Security', icon: Lock, color: 'red', external: true, description: 'Segurança e permissões' },
-  { id: 'code', name: 'Code', icon: Code, color: 'slate', external: true, description: 'Código fonte' },
-  { id: 'agents', name: 'Agents', icon: Bot, color: 'violet', external: true, description: 'Agentes de IA' },
-  { id: 'logs', name: 'Logs', icon: FileText, color: 'amber', external: true, description: 'Registros e debug' },
-  { id: 'api', name: 'API', icon: Code, color: 'indigo', external: true, description: 'Documentação API' },
-  { id: 'settings', name: 'Settings', icon: Settings, color: 'slate', external: true, description: 'Configurações do app' },
-  { id: 'secrets', name: 'Secrets', icon: Key, color: 'rose', external: true, description: 'Chaves de API' },
+  { id: 'divider0', type: 'divider', label: 'Gerenciamento' },
+  { id: 'vagas', name: 'Gerenciar Vagas', icon: Briefcase, color: 'blue', page: 'GerenciarVagas', description: 'Visualizar e excluir vagas' },
+  { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'indigo', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários' },
+  { id: 'comunidade', name: 'Gerenciar Comunidade', icon: MessageSquare, color: 'purple', page: 'GerenciarComunidade', description: 'Posts, comentários e chat' },
+  { id: 'noticias', name: 'Gerenciar Notícias', icon: Newspaper, color: 'red', page: 'GerenciarNoticias', description: 'Publicar e gerenciar notícias' },
+  { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores' },
+  { id: 'divider1', type: 'divider', label: 'Ferramentas' },
+  { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real' },
+  { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos' },
+  { id: 'divider2', type: 'divider', label: 'Painel Base44' },
+  { id: 'base44', name: 'Abrir Painel Base44', icon: Settings, color: 'slate', external: true, description: 'Overview, Users, Data, Analytics, Domains, Integrations, Security, Code, Agents, Logs, API, Settings, Secrets' },
 ];
 
 const colorClasses = {
