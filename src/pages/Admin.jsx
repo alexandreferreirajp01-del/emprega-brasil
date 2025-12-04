@@ -24,7 +24,7 @@ import { createPageUrl } from "@/utils";
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import PaymentsManager from "@/components/admin/PaymentsManager";
 import ChatManager from "@/components/admin/ChatManager";
-import SocialAdminPanel from "@/components/admin/SocialAdminPanel";
+
 import NotificationSender from "@/components/admin/NotificationSender";
 import RecruiterRequestsPanel from "@/components/admin/RecruiterRequestsPanel";
 
@@ -364,10 +364,7 @@ export default function Admin() {
               <BarChart3 className="w-4 h-4 mr-2" />
               Análises Internas
             </TabsTrigger>
-            <TabsTrigger value="social" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
-                <Users className="w-4 h-4 mr-2" />
-                Social
-              </TabsTrigger>
+
               <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-[#0056ff] data-[state=active]:text-white">
                 <Shield className="w-4 h-4 mr-2" />
                 Configurações
@@ -937,10 +934,7 @@ export default function Admin() {
             </Tabs>
           </TabsContent>
 
-          {/* Social Tab */}
-          <TabsContent value="social" className="space-y-6">
-            <SocialAdminPanel showToast={showToast} />
-          </TabsContent>
+
 
           {/* Settings Tab - Contains Users, Codes, Payments */}
           <TabsContent value="settings" className="space-y-6">
