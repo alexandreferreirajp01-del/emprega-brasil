@@ -51,60 +51,20 @@ export default function Mensagens() {
     return [email1, email2].sort().join('_');
   };
 
-  // Buscar usuários através dos posts do Feed (contorna restrição RLS)
+  // Buscar todos os usuários cadastrados
   const { data: usuarios = [], isLoading: loadingUsuarios } = useQuery({
-    queryKey: ['usuarios-para-mensagem-feed'],
+    queryKey: ['todos-usuarios-mensagem'],
     queryFn: async () => {
-      // Buscar posts do feed para extrair usuários únicos
-      const posts = await base44.entities.FeedPost.list('-created_date', 500);
-      const comentarios = await base44.entities.FeedComentario.list('-created_date', 500);
-      
-      const usuariosMap = new Map();
-      
-      // Extrair usuários dos posts
-      posts?.forEach(post => {
-        if (post.autor_email && post.autor_email !== user?.email) {
-          usuariosMap.set(post.autor_email, {
-            id: post.autor_email,
-            email: post.autor_email,
-            full_name: post.autor_nome || post.autor_email,
-            profile_photo: post.autor_foto || ''
-          });
-        }
-      });
-      
-      // Extrair usuários dos comentários
-      comentarios?.forEach(c => {
-        if (c.autor_email && c.autor_email !== user?.email) {
-          usuariosMap.set(c.autor_email, {
-            id: c.autor_email,
-            email: c.autor_email,
-            full_name: c.autor_nome || c.autor_email,
-            profile_photo: c.autor_foto || ''
-          });
-        }
-      });
-      
-      // Também tentar buscar usuários diretamente (caso tenha permissão)
-      try {
-        const allUsers = await base44.entities.User.list('full_name', 300);
-        allUsers?.forEach(u => {
-          if (u.email && u.email !== user?.email) {
-            usuariosMap.set(u.email, {
-              id: u.id || u.email,
-              email: u.email,
-              full_name: u.full_name || u.email,
-              profile_photo: u.profile_photo || ''
-            });
-          }
-        });
-      } catch (e) {
-        // Ignora erro de permissão
-      }
-      
-      return Array.from(usuariosMap.values()).sort((a, b) => 
-        (a.full_name || '').localeCompare(b.full_name || '')
-      );
+      const allUsers = await base44.entities.User.list('full_name', 1000);
+      return (allUsers || [])
+        .filter(u => u.email && u.email !== user?.email)
+        .map(u => ({
+          id: u.id || u.email,
+          email: u.email,
+          full_name: u.full_name || u.email,
+          profile_photo: u.profile_photo || ''
+        }))
+        .sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
     },
     enabled: showNovaConversa && !!user,
     staleTime: 60000
