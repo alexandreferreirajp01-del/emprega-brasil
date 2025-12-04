@@ -362,7 +362,6 @@ export default function Profile() {
                 <Link to={createPageUrl('Social')}>
                   <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
                     <Mail className="w-5 h-5 text-green-500" />
-                    <span className="text-xs">Mensagens</span>
                   </Button>
                 </Link>
                 <Link to={createPageUrl('ProfessionalResume')}>
