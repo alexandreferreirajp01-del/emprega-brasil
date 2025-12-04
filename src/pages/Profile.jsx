@@ -359,12 +359,7 @@ export default function Profile() {
                     <span className="text-xs">Histórico</span>
                   </Button>
                 </Link>
-                <Link to={createPageUrl('Social')}>
-                  <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
-                    <Mail className="w-5 h-5 text-green-500" />
-                  </Button>
-                </Link>
-                <Link to={createPageUrl('ProfessionalResume')}>
+                <Link to={createPageUrl('ProfessionalResume')} className="col-span-2">
                   <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
                     <FileText className="w-5 h-5 text-blue-500" />
                     <span className="text-xs">{canViewResumes ? 'Ver Currículos' : 'Currículo'}</span>
