@@ -118,10 +118,9 @@ export default function Layout({ children, currentPageName }) {
   // Menu principal limpo - apenas itens básicos
   const navItems = [
     { name: 'Início', icon: Home, page: 'Home' },
-    { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-    { name: 'Social', icon: Users, page: 'Social' },
-    { name: 'Notícias', icon: Newspaper, page: 'News' },
-    { name: 'Perfil', icon: User, page: 'Profile' },
+      { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
+      { name: 'Notícias', icon: Newspaper, page: 'News' },
+      { name: 'Perfil', icon: User, page: 'Profile' },
   ];
 
   const handleLogout = () => {
