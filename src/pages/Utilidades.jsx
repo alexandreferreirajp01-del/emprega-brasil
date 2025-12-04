@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, BookOpen, Wrench } from "lucide-react";
+import { Loader2, BookOpen, Wrench, Lock, Crown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
+import { Link } from "react-router-dom";
 import BibliotecaSection from "@/components/utilidades/BibliotecaSection";
 import FerramentasSection from "@/components/utilidades/FerramentasSection";
 
@@ -33,6 +36,33 @@ export default function Utilidades() {
     );
   }
 
+  // Verificar acesso premium
+  const hasPremiumAccess = user?.subscription_type === 'premium' || 
+    user?.subscription_type === 'admin' || 
+    user?.role === 'admin';
+
+  // Componente de bloqueio para não-premium
+  const LockedContent = () => (
+    <Card className="mt-6 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+      <CardContent className="p-8 text-center">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Lock className="w-8 h-8 text-amber-600" />
+        </div>
+        <h3 className="text-xl font-bold text-slate-800 mb-2">Conteúdo Exclusivo Premium</h3>
+        <p className="text-slate-600 mb-6 max-w-md mx-auto">
+          A Biblioteca e Ferramentas são recursos exclusivos para membros Premium. 
+          Faça upgrade e tenha acesso a materiais profissionais para impulsionar sua carreira!
+        </p>
+        <Link to={createPageUrl('Subscription')}>
+          <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl px-8 py-3">
+            <Crown className="w-5 h-5 mr-2" />
+            Seja Premium Agora
+          </Button>
+        </Link>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 pt-6 pb-4 px-4">
@@ -43,26 +73,30 @@ export default function Utilidades() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-4">
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="w-full bg-white shadow rounded-xl p-1 grid grid-cols-2">
-            <TabsTrigger value="biblioteca" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-              <BookOpen className="w-4 h-4 mr-2" />
-              Biblioteca
-            </TabsTrigger>
-            <TabsTrigger value="ferramentas" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-              <Wrench className="w-4 h-4 mr-2" />
-              Ferramentas
-            </TabsTrigger>
-          </TabsList>
+        {hasPremiumAccess ? (
+          <Tabs value={tab} onValueChange={setTab}>
+            <TabsList className="w-full bg-white shadow rounded-xl p-1 grid grid-cols-2">
+              <TabsTrigger value="biblioteca" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Biblioteca
+              </TabsTrigger>
+              <TabsTrigger value="ferramentas" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                <Wrench className="w-4 h-4 mr-2" />
+                Ferramentas
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="biblioteca" className="mt-4">
-            <BibliotecaSection user={user} />
-          </TabsContent>
+            <TabsContent value="biblioteca" className="mt-4">
+              <BibliotecaSection user={user} />
+            </TabsContent>
 
-          <TabsContent value="ferramentas" className="mt-4">
-            <FerramentasSection user={user} />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="ferramentas" className="mt-4">
+              <FerramentasSection user={user} />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <LockedContent />
+        )}
       </div>
     </div>
   );

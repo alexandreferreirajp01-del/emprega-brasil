@@ -7,11 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { 
-  User, Mail, Phone, Crown, Camera, LogOut, 
-  Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
-  Heart, History, FileText, Lock, Briefcase, Settings,
-  PlusCircle, Sparkles, Home, MessageCircle
-} from "lucide-react";
+        User, Mail, Phone, Crown, Camera, LogOut, 
+        Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
+        Heart, History, FileText, Lock, Briefcase, Settings,
+        PlusCircle, Sparkles, Home, MessageCircle, BookOpen, Key
+      } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -378,7 +378,7 @@ export default function Profile() {
 
               {/* Área do Recrutador - apenas para recrutadores */}
               {(isRecruiter && !isAdmin) && (
-                <Link to={createPageUrl('RecruiterArea')} className="block mb-6">
+                <Link to={createPageUrl('RecruiterArea')} className="block mb-4">
                   <Button 
                     variant="outline" 
                     className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-purple-300 bg-purple-50 hover:bg-purple-100"
@@ -401,9 +401,9 @@ export default function Profile() {
                       <span className="text-red-700 font-medium">Painel do Administrador</span>
                     </Button>
                   </Link>
-                  
+
                   {/* Funções de Admin para postar */}
-                  <div className="grid grid-cols-3 gap-3 mb-6">
+                  <div className="grid grid-cols-3 gap-3 mb-4">
                     <Link to={createPageUrl('PostarVaga')}>
                       <Button variant="outline" className="w-full h-16 rounded-xl flex-col gap-1 border-blue-300 bg-blue-50 hover:bg-blue-100">
                         <PlusCircle className="w-5 h-5 text-blue-600" />
@@ -420,6 +420,22 @@ export default function Profile() {
                       <Button variant="outline" className="w-full h-16 rounded-xl flex-col gap-1 border-green-300 bg-green-50 hover:bg-green-100">
                         <Home className="w-5 h-5 text-green-600" />
                         <span className="text-xs text-green-700">Home Office</span>
+                      </Button>
+                    </Link>
+                  </div>
+
+                  {/* Ferramentas Admin */}
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <Link to={createPageUrl('BibliotecaAdmin')}>
+                      <Button variant="outline" className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-amber-300 bg-amber-50 hover:bg-amber-100">
+                        <BookOpen className="w-5 h-5 text-amber-600" />
+                        <span className="text-xs text-amber-700">Editar Biblioteca</span>
+                      </Button>
+                    </Link>
+                    <Link to={createPageUrl('GuiaBase44')}>
+                      <Button variant="outline" className="w-full h-14 rounded-xl flex items-center justify-center gap-2 border-indigo-300 bg-indigo-50 hover:bg-indigo-100">
+                        <Key className="w-5 h-5 text-indigo-600" />
+                        <span className="text-xs text-indigo-700">Guia Base44</span>
                       </Button>
                     </Link>
                   </div>
