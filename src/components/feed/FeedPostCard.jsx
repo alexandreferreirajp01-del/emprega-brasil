@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Heart, MessageCircle, Bookmark, Share2, Send, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import TimeAgo from "@/components/common/TimeAgo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function FeedPostCard({ post, user, isSalvo }) {
@@ -97,18 +98,7 @@ export default function FeedPostCard({ post, user, isSalvo }) {
     return labels[plano] || 'Básico';
   };
 
-  const formatarData = (data) => {
-    const d = new Date(data);
-    const agora = new Date();
-    const diff = agora - d;
-    const minutos = Math.floor(diff / 60000);
-    if (minutos < 60) return `${minutos}m`;
-    const horas = Math.floor(minutos / 60);
-    if (horas < 24) return `${horas}h`;
-    const dias = Math.floor(horas / 24);
-    if (dias < 7) return `${dias}d`;
-    return d.toLocaleDateString('pt-BR');
-  };
+import TimeAgo from "@/components/common/TimeAgo";
 
   return (
     <Card className="rounded-xl overflow-hidden">
@@ -127,7 +117,7 @@ export default function FeedPostCard({ post, user, isSalvo }) {
                 {getPlanoLabel(post.autor_plano)}
               </Badge>
             </div>
-            <span className="text-xs text-slate-500">{formatarData(post.created_date)}</span>
+            <TimeAgo date={post.created_date} className="text-xs text-slate-500" />
           </div>
         </div>
 

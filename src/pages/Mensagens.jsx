@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2, Send, ArrowLeft, MessageCircle, Plus, Search, Users } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import TimeAgo from "@/components/common/TimeAgo";
 import { createPageUrl } from "@/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -135,16 +136,7 @@ export default function Mensagens() {
      u.email?.toLowerCase().includes(buscaUsuario.toLowerCase()))
   );
 
-  const formatarData = (data) => {
-    const d = new Date(data);
-    const agora = new Date();
-    const diff = agora - d;
-    const minutos = Math.floor(diff / 60000);
-    if (minutos < 60) return `${minutos}m`;
-    const horas = Math.floor(minutos / 60);
-    if (horas < 24) return `${horas}h`;
-    return d.toLocaleDateString('pt-BR');
-  };
+
 
   if (loading) {
     return (
@@ -258,7 +250,7 @@ export default function Mensagens() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <p className={`font-semibold truncate ${conv.naoLida ? 'text-green-700' : 'text-slate-800'}`}>{conv.nome}</p>
-                        <span className="text-xs text-slate-400">{formatarData(conv.data)}</span>
+                        <TimeAgo date={conv.data} className="text-xs text-slate-400" />
                       </div>
                       <p className={`text-sm truncate ${conv.naoLida ? 'text-green-600 font-medium' : 'text-slate-500'}`}>{conv.ultimaMensagem}</p>
                     </div>
