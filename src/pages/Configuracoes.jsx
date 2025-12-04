@@ -5,13 +5,18 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 
 const menuItems = [
+  { id: 'dividerInteracoes', type: 'divider', label: 'Interações' },
+  { id: 'favoritas', name: 'Favoritas', icon: Heart, color: 'red', page: 'Favoritos', description: 'Vagas salvas como favoritas' },
+  { id: 'historico', name: 'Histórico', icon: History, color: 'purple', page: 'Historico', description: 'Vagas visualizadas recentemente' },
+  { id: 'mensagens', name: 'Mensagens', icon: MessageCircle, color: 'green', page: 'Mensagens', description: 'Conversas diretas entre usuários' },
+  { id: 'curriculos', name: 'Ver Currículos', icon: FileText, color: 'blue', page: 'ProfessionalResume', description: 'Visualizar currículos de candidatos' },
   { id: 'divider0', type: 'divider', label: 'Gerenciamento' },
   { id: 'transmissao', name: 'Lista de Transmissão', icon: MessageSquare, color: 'green', page: 'ListaTransmissao', description: 'Enviar mensagens em massa' },
   { id: 'vagas', name: 'Gerenciar Vagas', icon: Briefcase, color: 'blue', page: 'GerenciarVagas', description: 'Visualizar e excluir vagas' },

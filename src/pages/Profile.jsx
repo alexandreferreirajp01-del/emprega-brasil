@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
-  Heart, History, FileText, Lock, Briefcase, Settings, MessageCircle
+  Lock, Briefcase, Settings
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -95,8 +95,6 @@ export default function Profile() {
 
   const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
   const isRecruiter = user?.subscription_type === 'recruiter';
-  const canFillResume = user?.subscription_type === 'premium';
-  const canViewResumes = isRecruiter || isAdmin;
 
   const getSubscriptionBadge = () => {
     if (isAdmin) {
@@ -204,24 +202,7 @@ export default function Profile() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <Link to={createPageUrl('Favoritos')}>
-                <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1"><Heart className="w-5 h-5 text-red-500" /><span className="text-xs">Favoritas</span></Button>
-              </Link>
-              <Link to={createPageUrl('Historico')}>
-                <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1"><History className="w-5 h-5 text-purple-500" /><span className="text-xs">Histórico</span></Button>
-              </Link>
-              <Link to={createPageUrl('Mensagens')}>
-                <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1"><MessageCircle className="w-5 h-5 text-green-500" /><span className="text-xs">Mensagens</span></Button>
-              </Link>
-              <Link to={createPageUrl('ProfessionalResume')}>
-                <Button variant="outline" className="w-full h-14 rounded-xl flex-col gap-1 relative">
-                  <FileText className="w-5 h-5 text-blue-500" />
-                  <span className="text-xs">{canViewResumes ? 'Ver Currículos' : 'Currículo'}</span>
-                  {!canFillResume && !canViewResumes && <Lock className="w-3 h-3 absolute top-2 right-2 text-amber-500" />}
-                </Button>
-              </Link>
-            </div>
+
 
             {(isRecruiter && !isAdmin) && (
               <Link to={createPageUrl('RecruiterArea')} className="block mb-4">
