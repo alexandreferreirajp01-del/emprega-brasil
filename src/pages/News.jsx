@@ -12,6 +12,7 @@ import { createPageUrl } from "@/utils";
 
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import TimeAgo from "@/components/common/TimeAgo";
 
 export default function News() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,30 +45,7 @@ export default function News() {
     return matchesSearch && matchesCategory;
   });
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
 
-  const formatTimeAgo = (dateStr) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 60) return `${diffMins} min atrás`;
-    if (diffHours < 24) return `${diffHours}h atrás`;
-    if (diffDays < 7) return `${diffDays} dias atrás`;
-    return formatDate(dateStr);
-  };
 
   return (
     <div className="min-h-screen bg-white pb-20">
@@ -158,7 +136,7 @@ export default function News() {
                           <div className="flex items-center gap-4 text-white/70 text-sm">
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
-                              {formatTimeAgo(featuredNews.created_date)}
+                              <TimeAgo date={featuredNews.created_date} />
                             </span>
                             <span className="flex items-center gap-1">
                               <Eye className="w-4 h-4" />
@@ -237,7 +215,7 @@ export default function News() {
                                 {item.category || 'Geral'}
                               </Badge>
                               <span className="text-xs text-slate-400">
-                                {formatTimeAgo(item.created_date)}
+                                <TimeAgo date={item.created_date} />
                               </span>
                             </div>
                             <h3 className="font-bold text-slate-900 group-hover:text-[#0056ff] transition-colors line-clamp-2 text-base sm:text-lg leading-snug mb-1">
@@ -298,7 +276,7 @@ export default function News() {
                       <p className="text-sm font-medium text-slate-800 group-hover:text-[#0056ff] transition-colors line-clamp-3">
                         {item.title}
                       </p>
-                      <p className="text-xs text-slate-400 mt-1">{formatTimeAgo(item.created_date)}</p>
+                      <p className="text-xs text-slate-400 mt-1"><TimeAgo date={item.created_date} /></p>
                     </div>
                   </Link>
                 ))}
