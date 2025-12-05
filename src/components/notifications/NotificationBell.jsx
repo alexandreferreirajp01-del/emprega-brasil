@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Bell, Briefcase, Check, X } from "lucide-react";
+import { Bell, Briefcase, Check, Newspaper, Gift, Sparkles, MessageCircle, Trash2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -17,48 +17,47 @@ export default function NotificationBell({ user }) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  // Buscar notificações do usuário
+  // Buscar APENAS notificações do usuário ou globais (sent_to_all)
   const { data: notifications = [] } = useQuery({
     queryKey: ['user-notifications', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
       try {
-        return await base44.entities.Notification.filter(
+        // Buscar notificações pessoais
+        const personal = await base44.entities.Notification.filter(
           { user_email: user.email },
           '-created_date',
-          50
+          100
         ) || [];
+        return personal;
       } catch (e) {
         return [];
       }
     },
     enabled: !!user?.email,
-    refetchInterval: 15000, // Atualiza a cada 15 segundos
+    refetchInterval: 30000,
   });
 
-  // Buscar notificações globais (enviadas para todos)
-  const { data: globalNotifications = [] } = useQuery({
-    queryKey: ['global-notifications'],
-    queryFn: async () => {
-      try {
-        return await base44.entities.Notification.filter(
-          { sent_to_all: true },
-          '-created_date',
-          50
-        ) || [];
-      } catch (e) {
-        return [];
-      }
-    },
-    refetchInterval: 15000,
-  });
+  // Remover duplicatas baseado em título + mensagem + data (arredondada ao minuto)
+  const uniqueNotifications = useMemo(() => {
+    const seen = new Map();
+    
+    return notifications
+      .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))
+      .filter(n => {
+        // Criar chave única baseada no conteúdo
+        const dateKey = n.created_date ? new Date(n.created_date).toISOString().slice(0, 16) : '';
+        const key = `${n.title}_${n.message?.slice(0, 50)}_${dateKey}`;
+        
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.set(key, true);
+        return true;
+      });
+  }, [notifications]);
 
-  // Combinar notificações pessoais e globais
-  const allNotifications = [...notifications, ...globalNotifications]
-    .filter((n, i, arr) => arr.findIndex(x => x.id === n.id) === i)
-    .sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
-
-  const unreadCount = allNotifications.filter(n => !n.is_read).length;
+  const unreadCount = uniqueNotifications.filter(n => !n.is_read).length;
 
   // Marcar como lida
   const markAsReadMutation = useMutation({
@@ -67,22 +66,28 @@ export default function NotificationBell({ user }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['global-notifications'] });
     }
   });
 
   // Marcar todas como lidas
   const markAllAsRead = async () => {
-    const unread = allNotifications.filter(n => !n.is_read);
-    for (const n of unread) {
-      try {
-        await base44.entities.Notification.update(n.id, { is_read: true });
-      } catch (e) {
-        // Ignorar erros individuais
-      }
-    }
+    const unread = uniqueNotifications.filter(n => !n.is_read);
+    await Promise.all(unread.map(n => 
+      base44.entities.Notification.update(n.id, { is_read: true }).catch(() => {})
+    ));
     queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
-    queryClient.invalidateQueries({ queryKey: ['global-notifications'] });
+  };
+
+  // Deletar notificação
+  const deleteNotification = async (e, notificationId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await base44.entities.Notification.delete(notificationId);
+      queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
+    } catch (e) {
+      // Ignorar
+    }
   };
 
   const formatTimeAgo = (date) => {
@@ -101,6 +106,26 @@ export default function NotificationBell({ user }) {
     return past.toLocaleDateString('pt-BR');
   };
 
+  const getNotificationIcon = (notification) => {
+    switch (notification.type) {
+      case 'news': return <Newspaper className="w-5 h-5" />;
+      case 'promo': return <Gift className="w-5 h-5" />;
+      case 'chat': return <MessageCircle className="w-5 h-5" />;
+      case 'highlight': return <Sparkles className="w-5 h-5" />;
+      default: return <Briefcase className="w-5 h-5" />;
+    }
+  };
+
+  const getIconStyle = (type) => {
+    switch (type) {
+      case 'news': return 'bg-green-100 text-green-600';
+      case 'promo': return 'bg-purple-100 text-purple-600';
+      case 'chat': return 'bg-blue-100 text-blue-600';
+      case 'highlight': return 'bg-yellow-100 text-yellow-600';
+      default: return 'bg-slate-100 text-slate-600';
+    }
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -111,18 +136,19 @@ export default function NotificationBell({ user }) {
         >
           <Bell className="w-5 h-5 text-slate-600" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+            <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-80 p-0" 
+        className="w-80 sm:w-96 p-0 max-h-[80vh] flex flex-col" 
         align="end"
         sideOffset={8}
       >
-        <div className="p-3 border-b flex items-center justify-between">
+        {/* Header fixo */}
+        <div className="p-3 border-b flex items-center justify-between bg-white sticky top-0 z-10">
           <h3 className="font-semibold text-slate-800">Notificações</h3>
           {unreadCount > 0 && (
             <Button 
@@ -137,15 +163,16 @@ export default function NotificationBell({ user }) {
           )}
         </div>
 
-        <ScrollArea className="max-h-[400px]">
-          {allNotifications.length === 0 ? (
+        {/* Lista com scroll */}
+        <ScrollArea className="flex-1 max-h-[400px] overflow-y-auto">
+          {uniqueNotifications.length === 0 ? (
             <div className="p-8 text-center text-slate-400">
               <Bell className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p className="text-sm">Nenhuma notificação</p>
             </div>
           ) : (
             <div className="divide-y">
-              {allNotifications.slice(0, 20).map((notification) => (
+              {uniqueNotifications.slice(0, 30).map((notification) => (
                 <Link
                   key={notification.id}
                   to={notification.job_id ? `${createPageUrl('JobDetail')}?id=${notification.job_id}` : '#'}
@@ -153,21 +180,18 @@ export default function NotificationBell({ user }) {
                     if (!notification.is_read) {
                       markAsReadMutation.mutate(notification.id);
                     }
-                    setOpen(false);
+                    if (notification.job_id) {
+                      setOpen(false);
+                    }
                   }}
                 >
-                  <div className={`p-3 hover:bg-slate-50 transition-colors cursor-pointer ${!notification.is_read ? 'bg-blue-50' : ''}`}>
+                  <div className={`p-3 hover:bg-slate-50 transition-colors cursor-pointer group ${!notification.is_read ? 'bg-blue-50' : ''}`}>
                     <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        notification.type === 'job' ? 'bg-blue-100 text-blue-600' :
-                        notification.type === 'promo' ? 'bg-purple-100 text-purple-600' :
-                        notification.type === 'news' ? 'bg-green-100 text-green-600' :
-                        'bg-slate-100 text-slate-600'
-                      }`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getIconStyle(notification.type)}`}>
                         {notification.icon_url ? (
                           <img src={notification.icon_url} alt="" className="w-6 h-6 rounded-full object-cover" />
                         ) : (
-                          <Briefcase className="w-5 h-5" />
+                          getNotificationIcon(notification)
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -181,9 +205,17 @@ export default function NotificationBell({ user }) {
                           {formatTimeAgo(notification.created_date)}
                         </p>
                       </div>
-                      {!notification.is_read && (
-                        <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-2" />
-                      )}
+                      <div className="flex items-center gap-1">
+                        {!notification.is_read && (
+                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
+                        )}
+                        <button
+                          onClick={(e) => deleteNotification(e, notification.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded transition-opacity"
+                        >
+                          <Trash2 className="w-3 h-3 text-red-500" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -192,8 +224,9 @@ export default function NotificationBell({ user }) {
           )}
         </ScrollArea>
 
-        {allNotifications.length > 0 && (
-          <div className="p-2 border-t">
+        {/* Footer fixo */}
+        {uniqueNotifications.length > 0 && (
+          <div className="p-2 border-t bg-white sticky bottom-0">
             <Link to={createPageUrl('Jobs')} onClick={() => setOpen(false)}>
               <Button variant="ghost" className="w-full text-[#0056ff] text-sm">
                 Ver todas as vagas
