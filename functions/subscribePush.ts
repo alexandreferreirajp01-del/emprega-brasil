@@ -3,66 +3,90 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    
-    // Verificar autenticação (opcional - permite visitantes também)
-    let userEmail = '';
-    try {
-      const user = await base44.auth.me();
-      userEmail = user?.email || '';
-    } catch (e) {
-      // Usuário não logado, mas pode se inscrever
-    }
-
-    const { subscription, action } = await req.json();
-
-    if (action === 'unsubscribe') {
-      // Remover inscrição
-      const existing = await base44.asServiceRole.entities.PushSubscription.filter({
-        endpoint: subscription.endpoint
-      });
-      
-      for (const sub of existing) {
-        await base44.asServiceRole.entities.PushSubscription.delete(sub.id);
-      }
-      
-      return Response.json({ success: true, action: 'unsubscribed' });
-    }
+    const { subscription, action, visitorId } = await req.json();
 
     if (!subscription || !subscription.endpoint) {
       return Response.json({ error: 'Invalid subscription' }, { status: 400 });
     }
 
-    // Verificar se já existe
-    const existing = await base44.asServiceRole.entities.PushSubscription.filter({
-      endpoint: subscription.endpoint
-    });
+    // Tentar obter usuário (pode ser null para visitantes)
+    let user = null;
+    let userType = 'visitor';
+    let userEmail = null;
 
-    if (existing.length > 0) {
-      // Atualizar existente
-      await base44.asServiceRole.entities.PushSubscription.update(existing[0].id, {
-        p256dh: subscription.keys.p256dh,
-        auth: subscription.keys.auth,
-        user_email: userEmail,
-        user_agent: req.headers.get('user-agent') || '',
-        updated_at: new Date().toISOString()
-      });
-      
-      return Response.json({ success: true, action: 'updated' });
+    try {
+      user = await base44.auth.me();
+      if (user) {
+        userEmail = user.email;
+        if (user.role === 'admin' || user.subscription_type === 'admin') {
+          userType = 'admin';
+        } else if (user.subscription_type === 'recruiter') {
+          userType = 'recruiter';
+        } else if (user.subscription_type === 'premium') {
+          userType = 'premium';
+        } else {
+          userType = 'basic';
+        }
+      }
+    } catch (e) {
+      // Visitante - continua sem usuário
     }
 
-    // Criar nova inscrição
-    await base44.asServiceRole.entities.PushSubscription.create({
-      endpoint: subscription.endpoint,
-      p256dh: subscription.keys.p256dh,
-      auth: subscription.keys.auth,
-      user_email: userEmail,
-      user_agent: req.headers.get('user-agent') || ''
-    });
+    if (action === 'subscribe') {
+      // Verificar se já existe essa inscrição
+      const existingList = await base44.asServiceRole.entities.PushSubscription.filter({
+        endpoint: subscription.endpoint
+      });
 
-    return Response.json({ success: true, action: 'subscribed' });
+      const existingSub = existingList.length > 0 ? existingList[0] : null;
+
+      if (existingSub) {
+        // Atualizar inscrição existente
+        await base44.asServiceRole.entities.PushSubscription.update(existingSub.id, {
+          p256dh: subscription.keys?.p256dh,
+          auth: subscription.keys?.auth,
+          user_email: userEmail,
+          user_type: userType,
+          visitor_id: visitorId || existingSub.visitor_id,
+          device_info: req.headers.get('user-agent') || '',
+          is_active: true
+        });
+      } else {
+        // Criar nova inscrição
+        await base44.asServiceRole.entities.PushSubscription.create({
+          endpoint: subscription.endpoint,
+          p256dh: subscription.keys?.p256dh,
+          auth: subscription.keys?.auth,
+          user_email: userEmail,
+          user_type: userType,
+          visitor_id: visitorId || `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          device_info: req.headers.get('user-agent') || '',
+          is_active: true
+        });
+      }
+
+      return Response.json({ success: true, message: 'Subscribed' });
+
+    } else if (action === 'unsubscribe') {
+      // Desativar inscrição
+      const existingList = await base44.asServiceRole.entities.PushSubscription.filter({
+        endpoint: subscription.endpoint
+      });
+
+      if (existingList.length > 0) {
+        await base44.asServiceRole.entities.PushSubscription.update(existingList[0].id, {
+          is_active: false
+        });
+      }
+
+      return Response.json({ success: true, message: 'Unsubscribed' });
+
+    } else {
+      return Response.json({ error: 'Invalid action' }, { status: 400 });
+    }
 
   } catch (error) {
-    console.error('Subscribe error:', error);
+    console.error('Subscribe push error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
