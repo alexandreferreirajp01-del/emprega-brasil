@@ -16,6 +16,16 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray;
 }
 
+// Gerar ou recuperar ID de visitante
+function getVisitorId() {
+  let visitorId = localStorage.getItem('vagas_abertas_visitor_id');
+  if (!visitorId) {
+    visitorId = `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('vagas_abertas_visitor_id', visitorId);
+  }
+  return visitorId;
+}
+
 export default function PermissionPrompt() {
   const [step, setStep] = useState(0); // 0: hidden, 1: notifications, 2: location, 3: done
   const [loading, setLoading] = useState(false);
@@ -36,21 +46,32 @@ export default function PermissionPrompt() {
     const timeout = setTimeout(() => {
       setLoading(false);
       setStep(2);
-    }, 8000);
+    }, 10000);
     
     try {
       if ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window) {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
           try {
-            const registration = await navigator.serviceWorker.ready;
+            // Registrar service worker se necessário
+            let registration = await navigator.serviceWorker.getRegistration('/sw.js');
+            if (!registration) {
+              registration = await navigator.serviceWorker.register('/sw.js');
+            }
+            await navigator.serviceWorker.ready;
+            
+            // Inscrever para push
             const subscription = await registration.pushManager.subscribe({
               userVisibleOnly: true,
               applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
             });
+            
+            // Enviar para backend com visitorId
+            const visitorId = getVisitorId();
             await base44.functions.invoke('subscribePush', {
               subscription: subscription.toJSON(),
-              action: 'subscribe'
+              action: 'subscribe',
+              visitorId
             });
           } catch (e) {
             console.log('Push subscription error:', e);
@@ -90,7 +111,7 @@ export default function PermissionPrompt() {
 
   const skipCurrent = () => {
     if (step === 1) {
-      setStep(2); // Pular notificações, ir para localização
+      setStep(2);
     } else {
       finishSetup();
     }

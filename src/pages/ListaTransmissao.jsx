@@ -10,8 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { 
   ArrowLeft, Send, Users, Mail, Bell, Image, Link as LinkIcon, 
   Loader2, CheckCircle, AlertCircle, History, Plus, Trash2, 
-  Edit2, Eye, Clock, Crown, Briefcase, Shield, UserX
+  Edit2, Eye, Clock, Crown, Briefcase, Shield, UserX, Smartphone
 } from "lucide-react";
+import PushNotificationSender from "@/components/admin/PushNotificationSender";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
@@ -372,10 +373,14 @@ export default function ListaTransmissao() {
 
       <div className="max-w-4xl mx-auto px-4 -mt-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-3 mb-4">
+          <TabsList className="grid grid-cols-4 mb-4">
+            <TabsTrigger value="push" className="gap-2">
+              <Smartphone className="w-4 h-4" />
+              Push
+            </TabsTrigger>
             <TabsTrigger value="send" className="gap-2">
               <Send className="w-4 h-4" />
-              Enviar
+              Email
             </TabsTrigger>
             <TabsTrigger value="lists" className="gap-2">
               <Users className="w-4 h-4" />
@@ -386,6 +391,11 @@ export default function ListaTransmissao() {
               Histórico
             </TabsTrigger>
           </TabsList>
+
+          {/* Push Tab */}
+          <TabsContent value="push" className="space-y-4">
+            <PushNotificationSender onSuccess={() => queryClient.invalidateQueries({ queryKey: ['broadcast-history'] })} />
+          </TabsContent>
 
           {/* Send Tab */}
           <TabsContent value="send" className="space-y-4">
