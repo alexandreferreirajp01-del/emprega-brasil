@@ -204,10 +204,10 @@ export default function PermissionPrompt() {
                       </>
                     )}
                   </Button>
-                  
+
                   <Button
                     variant="ghost"
-                    onClick={skipCurrent}
+                    onClick={finishSetup}
                     disabled={loading}
                     className="w-full text-slate-500"
                   >
@@ -254,14 +254,6 @@ export default function PermissionPrompt() {
           </>
         )}
 
-        <div className="px-6 pb-4">
-          <button 
-            onClick={finishSetup}
-            className="w-full text-xs text-slate-400 hover:text-slate-600"
-          >
-            Configurar depois
-          </button>
-        </div>
       </div>
     </div>
   );

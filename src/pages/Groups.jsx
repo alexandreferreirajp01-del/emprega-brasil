@@ -45,7 +45,7 @@ const GROUPS = [
     id: 6,
     name: "Fórum de Discussões",
     type: "whatsapp",
-    link: "https://chat.whatsapp.com/CZlRimefW7q7enneeJuqyI",
+    link: "https://chat.whatsapp.com/HkXwefeKXubHdwZzneMzay",
     description: "Discussões e dúvidas sobre emprego"
   },
   {
