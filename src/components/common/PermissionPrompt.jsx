@@ -54,7 +54,7 @@ export default function PermissionPrompt() {
         return;
       }
 
-      // Solicitar permissão ANTES de registrar SW
+      // Solicitar permissão
       const permission = await Notification.requestPermission();
       
       if (permission !== 'granted') {
@@ -64,13 +64,16 @@ export default function PermissionPrompt() {
         return;
       }
 
-      // Registrar service worker
-      let registration = await navigator.serviceWorker.getRegistration('/sw.js');
-      if (!registration) {
-        registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
+      // Aguardar SW estar pronto
       await navigator.serviceWorker.ready;
+      const registration = await navigator.serviceWorker.getRegistration('/');
+      
+      if (!registration) {
+        console.error('SW não encontrado');
+        setLoading(false);
+        setStep(2);
+        return;
+      }
       
       // Inscrever para push
       const subscription = await registration.pushManager.subscribe({

@@ -80,19 +80,25 @@ export function usePushNotifications() {
         return false;
       }
 
-      // Registrar service worker
-      let registration = await navigator.serviceWorker.getRegistration('/sw.js');
-      if (!registration) {
-        registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
+      // Aguardar service worker estar pronto
       await navigator.serviceWorker.ready;
+      const registration = await navigator.serviceWorker.getRegistration('/');
 
-      // Inscrever para push
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-      });
+      if (!registration) {
+        console.error('Service Worker não encontrado');
+        return false;
+      }
+
+      // Verificar se já está inscrito
+      let subscription = await registration.pushManager.getSubscription();
+      
+      if (!subscription) {
+        // Inscrever para push
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+      }
 
       // Enviar para o servidor
       const deviceId = getDeviceId();

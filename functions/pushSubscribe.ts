@@ -1,7 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 
-// Novo sistema de inscrição push - versão 2.0
+// Sistema de inscrição push - versão 2.1
 Deno.serve(async (req) => {
+  console.log('[Push Subscribe] Requisição recebida');
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
@@ -58,6 +59,7 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.PushSubscription.create(subscriptionData);
       }
 
+      console.log('[Push Subscribe] Sucesso:', uniqueDeviceId);
       return Response.json({ 
         success: true, 
         message: 'Inscrito com sucesso',

@@ -9,6 +9,7 @@ const VAPID_EMAIL = 'mailto:alexandreferreirajp01@gmail.com';
 webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
 Deno.serve(async (req) => {
+  console.log('[Push Send] Requisição recebida');
   try {
     const base44 = createClientFromRequest(req);
     
