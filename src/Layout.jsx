@@ -10,6 +10,7 @@ import { base44 } from "@/api/base44Client";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingButtons from "@/components/common/FloatingButtons";
 import PermissionPrompt from "@/components/common/PermissionPrompt";
+import PushManager from "@/components/push/PushManager";
 import NotificationBell from "@/components/notifications/NotificationBell";
 
 export default function Layout({ children, currentPageName }) {
@@ -432,6 +433,9 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Permission Prompt - aparece na primeira instalação */}
       <PermissionPrompt />
+
+      {/* Push Manager - reforço para ativar push */}
+      <PushManager />
       </div>
       );
       }

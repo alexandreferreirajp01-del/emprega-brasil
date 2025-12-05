@@ -98,7 +98,7 @@ export default function PushNotificationSender({ onSuccess }) {
         .map(e => e.trim().toLowerCase())
         .filter(e => e && e.includes('@'));
 
-      const response = await base44.functions.invoke('sendPushNotification', {
+      const response = await base44.functions.invoke('pushSend', {
         title: title.trim(),
         message: message.trim(),
         image: imageUrl || null,
