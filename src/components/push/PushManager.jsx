@@ -71,20 +71,22 @@ export function usePushNotifications() {
     if (!isPushSupported()) return false;
 
     try {
-      // Registrar service worker
-      let registration = await navigator.serviceWorker.getRegistration('/sw.js');
-      if (!registration) {
-        registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-      }
-      await navigator.serviceWorker.ready;
-
-      // Solicitar permissão
+      // Solicitar permissão PRIMEIRO
       const permission = await Notification.requestPermission();
       setPermission(permission);
 
       if (permission !== 'granted') {
+        console.log('Permissão negada');
         return false;
       }
+
+      // Registrar service worker
+      let registration = await navigator.serviceWorker.getRegistration('/sw.js');
+      if (!registration) {
+        registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      await navigator.serviceWorker.ready;
 
       // Inscrever para push
       const subscription = await registration.pushManager.subscribe({
@@ -94,13 +96,14 @@ export function usePushNotifications() {
 
       // Enviar para o servidor
       const deviceId = getDeviceId();
-      await base44.functions.invoke('pushSubscribe', {
+      const result = await base44.functions.invoke('pushSubscribe', {
         subscription: subscription.toJSON(),
         action: 'subscribe',
         deviceId,
         deviceInfo: navigator.userAgent
       });
 
+      console.log('Push subscribed:', result);
       setIsSubscribed(true);
       localStorage.setItem('vagas_push_subscribed', 'true');
       return true;

@@ -45,59 +45,62 @@ export default function PermissionPrompt() {
   const subscribePush = async () => {
     setLoading(true);
     
-    const timeout = setTimeout(() => {
+    try {
+      // Verificar suporte
+      if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+        console.log('Push não suportado');
+        setLoading(false);
+        setStep(2);
+        return;
+      }
+
+      // Solicitar permissão ANTES de registrar SW
+      const permission = await Notification.requestPermission();
+      
+      if (permission !== 'granted') {
+        console.log('Permissão negada:', permission);
+        setLoading(false);
+        setStep(2);
+        return;
+      }
+
+      // Registrar service worker
+      let registration = await navigator.serviceWorker.getRegistration('/sw.js');
+      if (!registration) {
+        registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      await navigator.serviceWorker.ready;
+      
+      // Inscrever para push
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+      
+      // Enviar ao servidor
+      const deviceId = getDeviceId();
+      const result = await base44.functions.invoke('pushSubscribe', {
+        subscription: subscription.toJSON(),
+        action: 'subscribe',
+        deviceId,
+        deviceInfo: navigator.userAgent
+      });
+      
+      console.log('Push subscribed:', result);
+      localStorage.setItem('vagas_push_subscribed', 'true');
+      setSuccess(true);
+      
+      setTimeout(() => {
+        setLoading(false);
+        setStep(2);
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Erro ao ativar push:', error);
       setLoading(false);
       setStep(2);
-    }, 15000);
-    
-    try {
-      if ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window) {
-        // Registrar service worker
-        let registration = await navigator.serviceWorker.getRegistration('/sw.js');
-        if (!registration) {
-          registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-        }
-        await navigator.serviceWorker.ready;
-        
-        // Solicitar permissão
-        const permission = await Notification.requestPermission();
-        
-        if (permission === 'granted') {
-          try {
-            const subscription = await registration.pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-            });
-            
-            const deviceId = getDeviceId();
-            await base44.functions.invoke('pushSubscribe', {
-              subscription: subscription.toJSON(),
-              action: 'subscribe',
-              deviceId,
-              deviceInfo: navigator.userAgent
-            });
-            
-            localStorage.setItem('vagas_push_subscribed', 'true');
-            setSuccess(true);
-            
-            setTimeout(() => {
-              clearTimeout(timeout);
-              setLoading(false);
-              setStep(2);
-            }, 1000);
-            return;
-          } catch (e) {
-            console.log('Push subscription error:', e);
-          }
-        }
-      }
-    } catch (e) {
-      console.log('Notification error:', e);
     }
-    
-    clearTimeout(timeout);
-    setLoading(false);
-    setStep(2);
   };
 
   const requestLocation = async () => {
