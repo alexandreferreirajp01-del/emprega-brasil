@@ -9,8 +9,8 @@ import {
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
-import NotificationSender from "@/components/admin/NotificationSender";
-import PostScheduler from "@/components/admin/PostScheduler";
+import NotificationTemplateSelector from "@/components/admin/NotificationTemplateSelector";
+import AdvancedScheduler from "@/components/admin/AdvancedScheduler";
 
 const JOB_FUNCTIONS = [
   "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
@@ -62,6 +62,7 @@ export default function PostsEmMassa() {
   const [lastCreatedJob, setLastCreatedJob] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [showScheduler, setShowScheduler] = useState(false);
+  const [notificationData, setNotificationData] = useState(null);
 
   // Verificar autenticação
   React.useEffect(() => {
@@ -544,53 +545,56 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
 
         {/* Vagas Extraídas */}
         {extractedJobs.length > 0 && !results && (
-          <Card className="rounded-2xl">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                Vagas Extraídas
-                <Badge className="ml-auto bg-green-100 text-green-700">
-                  {extractedJobs.length} vagas
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="max-h-96 overflow-y-auto space-y-3">
-                {extractedJobs.map((job, i) => (
-                  <div key={i} className="p-4 bg-slate-50 rounded-xl">
-                    <h4 className="font-semibold text-slate-800 mb-2">{job.title}</h4>
-                    <div className="space-y-1 text-sm text-slate-600">
-                      <p>🏢 {job.company}</p>
-                      {job.city && <p>📍 {job.city}</p>}
-                      {job.salary_range && <p>💰 {job.salary_range}</p>}
-                      {job.job_function && <p>💼 {job.job_function}</p>}
-                      {job.job_type && <p>📋 {job.job_type}</p>}
+          <div className="space-y-6">
+            <Card className="rounded-2xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  Vagas Extraídas
+                  <Badge className="ml-auto bg-green-100 text-green-700">
+                    {extractedJobs.length} vagas
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="max-h-96 overflow-y-auto space-y-3">
+                  {extractedJobs.map((job, i) => (
+                    <div key={i} className="p-4 bg-slate-50 rounded-xl">
+                      <h4 className="font-semibold text-slate-800 mb-2">{job.title}</h4>
+                      <div className="space-y-1 text-sm text-slate-600">
+                        <p>🏢 {job.company}</p>
+                        {job.city && <p>📍 {job.city}</p>}
+                        {job.salary_range && <p>💰 {job.salary_range}</p>}
+                        {job.job_function && <p>💼 {job.job_function}</p>}
+                        {job.job_type && <p>📋 {job.job_type}</p>}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
-              <Button
-                onClick={publishPosts}
-                disabled={processing}
-                className="w-full h-12 bg-purple-600 hover:bg-purple-700 rounded-xl"
-              >
-                {processing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Publicando...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-5 h-5 mr-2" />
-                    {postMode === 'auto' && `Publicar e Notificar ${extractedJobs.length} Vagas`}
-                    {postMode === 'manual' && `Publicar ${extractedJobs.length} Vagas`}
-                    {postMode === 'grouped' && 'Publicar Vaga Agrupada'}
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
+            {/* Notification Template Selector */}
+            <NotificationTemplateSelector
+              onNotificationDataChange={setNotificationData}
+              jobTitle={extractedJobs[0]?.title}
+              jobCompany={extractedJobs[0]?.company}
+              jobCity={extractedJobs[0]?.city}
+            />
+
+            {/* Scheduler com Repetição */}
+            <AdvancedScheduler
+              jobData={{ extractedJobs, postMode }}
+              notificationData={notificationData}
+              postType="job_mass"
+              onScheduled={() => {
+                reset();
+                alert('Posts agendados com sucesso!');
+              }}
+              onPublishNow={publishPosts}
+              showToast={(msg) => alert(msg)}
+            />
+          </div>
         )}
 
         {/* Scheduler */}

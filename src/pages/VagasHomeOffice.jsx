@@ -12,8 +12,8 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useMutation } from "@tanstack/react-query";
-import NotificationSender from "@/components/admin/NotificationSender";
-import PostScheduler from "@/components/admin/PostScheduler";
+import NotificationTemplateSelector from "@/components/admin/NotificationTemplateSelector";
+import AdvancedScheduler from "@/components/admin/AdvancedScheduler";
 
 export default function VagasHomeOffice() {
   const [user, setUser] = useState(null);
@@ -28,6 +28,7 @@ export default function VagasHomeOffice() {
   const [showNotificationSender, setShowNotificationSender] = useState(false);
   const [lastCreatedJob, setLastCreatedJob] = useState(null);
   const [showScheduler, setShowScheduler] = useState(false);
+  const [notificationData, setNotificationData] = useState(null);
   const textareaRef = useRef(null);
   
   const showToast = (msg) => {
@@ -507,11 +508,18 @@ Retorne JSON com array "vagas".`,
           </Card>
         </div>
 
-        {/* Scheduler */}
+        {/* Template + Scheduler */}
         {showScheduler && !showNotificationSender && (
-          <div className="mt-6">
-            <PostScheduler
+          <div className="mt-6 space-y-6">
+            <NotificationTemplateSelector
+              onNotificationDataChange={setNotificationData}
+              jobTitle={`${extractedJobs.length} Vagas Home Office`}
+              jobCompany="Diversas Empresas"
+              jobCity="Brasil"
+            />
+            <AdvancedScheduler
               jobData={{ title: `${extractedJobs.length} Vagas Home Office`, extractedJobs }}
+              notificationData={notificationData}
               postType="job_homeoffice"
               onScheduled={() => {
                 setShowScheduler(false);
@@ -527,15 +535,14 @@ Retorne JSON com array "vagas".`,
           </div>
         )}
 
-        {/* Notification Sender para Home Office */}
+        {/* Notification Template */}
         {showNotificationSender && lastCreatedJob && !showScheduler && (
           <div className="mt-6">
-            <NotificationSender
-              showToast={showToast}
-              job={lastCreatedJob}
-              notificationType="job"
-              isHomeOffice={true}
-              onClose={() => setShowNotificationSender(false)}
+            <NotificationTemplateSelector
+              onNotificationDataChange={setNotificationData}
+              jobTitle={lastCreatedJob.title}
+              jobCompany="Diversas Empresas"
+              jobCity={lastCreatedJob.city}
             />
           </div>
         )}

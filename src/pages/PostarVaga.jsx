@@ -10,8 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Camera, Loader2, Save, X, CheckCircle, Phone, Mail, Briefcase, Search, Crown, Star, Globe, Bell } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
-import NotificationSender from "@/components/admin/NotificationSender";
-import PostScheduler from "@/components/admin/PostScheduler";
+import NotificationTemplateSelector from "@/components/admin/NotificationTemplateSelector";
+import AdvancedScheduler from "@/components/admin/AdvancedScheduler";
 
 // Função para enviar notificações ao criar vaga (email + push para TODOS)
 const sendJobNotification = async (jobId, jobTitle, jobCompany, isHomeOffice = false) => {
@@ -123,6 +123,7 @@ export default function PostarVaga() {
   const [lastCreatedJob, setLastCreatedJob] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [showScheduler, setShowScheduler] = useState(false);
+  const [notificationData, setNotificationData] = useState(null);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -648,11 +649,18 @@ export default function PostarVaga() {
           </CardContent>
         </Card>
 
-        {/* Agendamento */}
+        {/* Template + Agendamento */}
         {showScheduler && !showNotificationSender && (
-          <div className="mt-6">
-            <PostScheduler
+          <div className="mt-6 space-y-6">
+            <NotificationTemplateSelector
+              onNotificationDataChange={setNotificationData}
+              jobTitle={formData.title}
+              jobCompany={formData.company}
+              jobCity={formData.city}
+            />
+            <AdvancedScheduler
               jobData={formData}
+              notificationData={notificationData}
               postType="job"
               onScheduled={() => {
                 setShowScheduler(false);
@@ -661,7 +669,7 @@ export default function PostarVaga() {
                   salary_range: '', contact_phone: '', contact_email: '', image_url: '',
                   is_premium: false, is_featured: false, website: ''
                 });
-                showToast('Vaga agendada com sucesso!');
+                showToast('Vaga agendada!');
               }}
               onPublishNow={handleSubmit}
               showToast={showToast}
@@ -669,7 +677,7 @@ export default function PostarVaga() {
             <Button 
               variant="ghost" 
               onClick={() => setShowScheduler(false)}
-              className="w-full mt-2"
+              className="w-full"
             >
               Cancelar
             </Button>
@@ -679,13 +687,11 @@ export default function PostarVaga() {
         {/* Enviar Notificação após publicar vaga */}
         {showNotificationSender && lastCreatedJob && !showScheduler && (
           <div className="mt-6">
-            <NotificationSender 
-              showToast={showToast}
-              job={lastCreatedJob}
-              onClose={() => {
-                setShowNotificationSender(false);
-                setLastCreatedJob(null);
-              }}
+            <NotificationTemplateSelector
+              onNotificationDataChange={setNotificationData}
+              jobTitle={lastCreatedJob.title}
+              jobCompany={formData.company}
+              jobCity={lastCreatedJob.city}
             />
             <Button 
               variant="ghost" 

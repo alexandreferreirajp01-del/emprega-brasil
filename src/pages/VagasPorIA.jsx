@@ -15,8 +15,8 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useMutation } from "@tanstack/react-query";
-import NotificationSender from "@/components/admin/NotificationSender";
-import PostScheduler from "@/components/admin/PostScheduler";
+import NotificationTemplateSelector from "@/components/admin/NotificationTemplateSelector";
+import AdvancedScheduler from "@/components/admin/AdvancedScheduler";
 import {
   Select,
   SelectContent,
@@ -122,6 +122,7 @@ export default function VagasPorIA() {
   const [showNotificationSender, setShowNotificationSender] = useState(false);
   const [lastCreatedJob, setLastCreatedJob] = useState(null);
   const [showScheduler, setShowScheduler] = useState(false);
+  const [notificationData, setNotificationData] = useState(null);
   
   const showToast = (msg) => {
     alert(msg);
@@ -666,11 +667,18 @@ WhatsApp: (83) 99999-9999"
           </Card>
         </div>
 
-        {/* Scheduler */}
+        {/* Template + Scheduler */}
         {showScheduler && !showNotificationSender && (
-          <div className="mt-6">
-            <PostScheduler
+          <div className="mt-6 space-y-6">
+            <NotificationTemplateSelector
+              onNotificationDataChange={setNotificationData}
+              jobTitle={title}
+              jobCompany={company}
+              jobCity={city}
+            />
+            <AdvancedScheduler
               jobData={{ title, company, job_function: jobFunction, city, description, salary_range: salary }}
+              notificationData={notificationData}
               postType="job_ai"
               onScheduled={() => {
                 setShowScheduler(false);
@@ -686,14 +694,14 @@ WhatsApp: (83) 99999-9999"
           </div>
         )}
 
-        {/* Notification Sender */}
+        {/* Notification Template */}
         {showNotificationSender && lastCreatedJob && !showScheduler && (
           <div className="mt-6">
-            <NotificationSender
-              showToast={showToast}
-              job={lastCreatedJob}
-              notificationType="job"
-              onClose={() => setShowNotificationSender(false)}
+            <NotificationTemplateSelector
+              onNotificationDataChange={setNotificationData}
+              jobTitle={lastCreatedJob.title}
+              jobCompany={company}
+              jobCity={lastCreatedJob.city}
             />
           </div>
         )}

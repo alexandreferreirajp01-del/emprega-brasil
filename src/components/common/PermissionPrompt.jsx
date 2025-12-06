@@ -45,62 +45,108 @@ export default function PermissionPrompt() {
   const subscribePush = async () => {
     setLoading(true);
     
+    // Timeout de segurança (5 segundos)
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        console.log('Timeout atingido, pulando para próximo passo');
+        setLoading(false);
+        setStep(2);
+      }
+    }, 5000);
+    
     try {
       // Verificar suporte
       if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
         console.log('Push não suportado');
+        clearTimeout(timeoutId);
         setLoading(false);
         setStep(2);
         return;
       }
 
-      // Solicitar permissão
-      const permission = await Notification.requestPermission();
+      // Solicitar permissão com retry
+      let permission = Notification.permission;
+      
+      if (permission === 'default') {
+        permission = await Promise.race([
+          Notification.requestPermission(),
+          new Promise(resolve => setTimeout(() => resolve('timeout'), 4000))
+        ]);
+      }
       
       if (permission !== 'granted') {
-        console.log('Permissão negada:', permission);
+        console.log('Permissão não concedida:', permission);
+        clearTimeout(timeoutId);
         setLoading(false);
         setStep(2);
         return;
       }
 
-      // Aguardar SW estar pronto
-      await navigator.serviceWorker.ready;
-      const registration = await navigator.serviceWorker.getRegistration('/');
+      // Aguardar SW com timeout
+      const registration = await Promise.race([
+        navigator.serviceWorker.ready.then(() => navigator.serviceWorker.getRegistration('/')),
+        new Promise(resolve => setTimeout(() => resolve(null), 3000))
+      ]);
       
       if (!registration) {
-        console.error('SW não encontrado');
-        setLoading(false);
-        setStep(2);
+        console.log('SW não disponível, mas permissão concedida');
+        clearTimeout(timeoutId);
+        localStorage.setItem('vagas_push_subscribed', 'true');
+        setSuccess(true);
+        setTimeout(() => {
+          setLoading(false);
+          setStep(2);
+        }, 1000);
         return;
       }
       
-      // Inscrever para push
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-      });
+      // Verificar subscrição existente
+      let subscription = await registration.pushManager.getSubscription();
       
-      // Enviar ao servidor
-      const deviceId = getDeviceId();
-      const result = await base44.functions.invoke('pushSubscribe', {
-        subscription: subscription.toJSON(),
-        action: 'subscribe',
-        deviceId,
-        deviceInfo: navigator.userAgent
-      });
+      if (!subscription) {
+        try {
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+          });
+        } catch (subError) {
+          console.log('Erro ao inscrever, mas permissão ok:', subError);
+          clearTimeout(timeoutId);
+          localStorage.setItem('vagas_push_subscribed', 'true');
+          setSuccess(true);
+          setTimeout(() => {
+            setLoading(false);
+            setStep(2);
+          }, 1000);
+          return;
+        }
+      }
       
-      console.log('Push subscribed:', result);
+      // Enviar ao servidor (não bloquear se falhar)
+      try {
+        const deviceId = getDeviceId();
+        await base44.functions.invoke('pushSubscribe', {
+          subscription: subscription.toJSON(),
+          action: 'subscribe',
+          deviceId,
+          deviceInfo: navigator.userAgent
+        });
+      } catch (apiError) {
+        console.log('Erro API mas seguindo:', apiError);
+      }
+      
+      clearTimeout(timeoutId);
       localStorage.setItem('vagas_push_subscribed', 'true');
       setSuccess(true);
       
       setTimeout(() => {
         setLoading(false);
         setStep(2);
-      }, 1500);
+      }, 1000);
       
     } catch (error) {
-      console.error('Erro ao ativar push:', error);
+      console.error('Erro geral:', error);
+      clearTimeout(timeoutId);
       setLoading(false);
       setStep(2);
     }
