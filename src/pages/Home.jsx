@@ -81,12 +81,11 @@ export default function Home() {
       const publishedNews = newsResult.filter(n => n.status === 'published' || !n.status);
       if (isMounted) setNews(publishedNews);
 
-      // Carregar posts
+      // Carregar posts do Feed
       const postsResult = await fetchWithRetry(() => 
-        base44.entities.Post.list('-created_date', 50)
+        base44.entities.FeedPost.list('-created_date', 50)
       );
-      const approvedPosts = postsResult.filter(p => p.status === 'approved' || !p.status);
-      if (isMounted) setPosts(approvedPosts);
+      if (isMounted) setPosts(postsResult);
     };
 
     loadData();
@@ -119,9 +118,9 @@ export default function Home() {
   ];
 
   const tabs = [
-    { id: 'jobs', label: 'Vagas', icon: Briefcase, count: jobs.length },
-    { id: 'news', label: 'Notícias', icon: Newspaper, count: news.length },
-    { id: 'feed', label: 'Feed', icon: MessageCircle, count: posts.length },
+    { id: 'jobs', label: 'Vagas', icon: Briefcase },
+    { id: 'news', label: 'Notícias', icon: Newspaper },
+    { id: 'feed', label: 'Feed', icon: MessageCircle },
   ];
 
   return (
@@ -138,7 +137,7 @@ export default function Home() {
           <div className="text-center mb-6 sm:mb-8 px-2">
                   <Badge className="bg-white/20 text-white border-0 mb-3 sm:mb-4 px-3 sm:px-4 py-1 text-xs sm:text-sm">
                     <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    +{jobs.length} vagas disponíveis
+                    +{jobs.length} {jobs.length === 1 ? 'vaga disponível' : 'vagas disponíveis'}
                   </Badge>
                   <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-3 sm:mb-4 leading-tight">
                     Encontre Sua Próxima<br />Oportunidade
@@ -311,20 +310,20 @@ export default function Home() {
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
             {/* Tab Navigation */}
-            <Card className="rounded-2xl border-0 shadow-lg overflow-hidden">
-              <div className="flex border-b">
+            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden">
+              <div className="flex border-b bg-white">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex-1 py-3 px-2 text-center transition-all duration-300 ${
+                    className={`flex-1 py-2.5 sm:py-3 px-1 sm:px-2 text-center transition-all duration-300 relative ${
                       activeTab === tab.id 
                         ? 'bg-[#0056ff] text-white' 
                         : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   >
-                    <tab.icon className="w-4 h-4 mx-auto mb-1" />
-                    <span className="text-xs font-medium">{tab.label}</span>
+                    <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mx-auto mb-0.5 sm:mb-1" />
+                    <span className="text-[10px] sm:text-xs font-medium block">{tab.label}</span>
                   </button>
                 ))}
               </div>
@@ -391,20 +390,27 @@ export default function Home() {
                   <div className="divide-y">
                     {posts.slice(0, 8).map((post) => (
                       <Link key={post.id} to={createPageUrl('Feed')}>
-                        <div className="p-4 hover:bg-purple-50 transition-colors cursor-pointer">
+                        <div className="p-3 sm:p-4 hover:bg-purple-50 transition-colors cursor-pointer">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                              <MessageCircle className="w-3 h-3 text-purple-600" />
-                            </div>
-                            <span className="text-xs text-slate-500">{post.author_name || 'Usuário'}</span>
+                            {post.autor_foto ? (
+                              <img src={post.autor_foto} alt="" className="w-6 h-6 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                                <MessageCircle className="w-3 h-3 text-purple-600" />
+                              </div>
+                            )}
+                            <span className="text-xs text-slate-500 font-medium">{post.autor_nome || 'Usuário'}</span>
+                            <span className="text-xs text-slate-400 ml-auto">
+                              <TimeAgo date={post.created_date} />
+                            </span>
                           </div>
-                          <p className="text-slate-800 text-sm line-clamp-2">{post.content}</p>
+                          <p className="text-slate-800 text-sm line-clamp-3 leading-relaxed">{post.conteudo}</p>
                           <div className="flex items-center gap-3 mt-2">
                             <span className="text-xs text-slate-400 flex items-center gap-1">
-                              <Heart className="w-3 h-3" /> {post.likes_count || 0}
+                              <Heart className="w-3 h-3" /> {post.total_curtidas || 0}
                             </span>
                             <span className="text-xs text-slate-400 flex items-center gap-1">
-                              <MessageCircle className="w-3 h-3" /> {post.comments_count || 0}
+                              <MessageCircle className="w-3 h-3" /> {post.total_comentarios || 0}
                             </span>
                           </div>
                         </div>
