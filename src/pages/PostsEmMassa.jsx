@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, Upload, Loader2, Sparkles, Image as ImageIcon, 
-  FileText, CheckCircle, AlertCircle, Zap, Eye, Trash2, Send
+  FileText, CheckCircle, AlertCircle, Zap, Eye, Trash2, Send, Bell, X
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";

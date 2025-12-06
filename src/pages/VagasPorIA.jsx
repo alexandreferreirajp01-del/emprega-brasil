@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Sparkles, Wand2, Briefcase, MapPin, DollarSign, 
   Phone, Link as LinkIcon, FileText, Loader2, Check,
-  Star, Crown, ArrowLeft, Copy, Building2, Search as SearchIcon
+  Star, Crown, ArrowLeft, Copy, Building2, Search as SearchIcon, Bell, X
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
