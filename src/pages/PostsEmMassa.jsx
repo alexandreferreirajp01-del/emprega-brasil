@@ -577,9 +577,27 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
             {/* Notification Template Selector */}
             <NotificationTemplateSelector
               onNotificationDataChange={setNotificationData}
+              onSendNotification={async () => {
+                await publishPosts();
+                if (notificationData && notificationData.title && notificationData.message) {
+                  // Enviar notificação push
+                  try {
+                    await base44.functions.invoke('pushSend', {
+                      title: notificationData.title,
+                      message: notificationData.message,
+                      icon: notificationData.icon,
+                      targetGroups: notificationData.premiumOnly ? ['premium'] : ['visitor', 'basic', 'premium', 'recruiter', 'admin']
+                    });
+                  } catch (e) {
+                    console.error('Erro ao enviar push:', e);
+                  }
+                }
+              }}
+              onSkipNotification={publishPosts}
               jobTitle={extractedJobs[0]?.title}
               jobCompany={extractedJobs[0]?.company}
               jobCity={extractedJobs[0]?.city}
+              isLoading={processing}
             />
 
             {/* Scheduler com Repetição */}

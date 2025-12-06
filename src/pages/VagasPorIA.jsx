@@ -699,9 +699,28 @@ WhatsApp: (83) 99999-9999"
           <div className="mt-6">
             <NotificationTemplateSelector
               onNotificationDataChange={setNotificationData}
+              onSendNotification={async () => {
+                if (notificationData && notificationData.title && notificationData.message) {
+                  try {
+                    await base44.functions.invoke('pushSend', {
+                      title: notificationData.title,
+                      message: notificationData.message,
+                      icon: notificationData.icon,
+                      url: `/jobs?id=${lastCreatedJob.id}`,
+                      targetGroups: notificationData.premiumOnly ? ['premium'] : ['visitor', 'basic', 'premium', 'recruiter', 'admin']
+                    });
+                    showToast('Notificação enviada!');
+                  } catch (e) {
+                    console.error('Erro:', e);
+                  }
+                }
+                setShowNotificationSender(false);
+              }}
+              onSkipNotification={() => setShowNotificationSender(false)}
               jobTitle={lastCreatedJob.title}
               jobCompany={company}
               jobCity={lastCreatedJob.city}
+              isLoading={false}
             />
           </div>
         )}

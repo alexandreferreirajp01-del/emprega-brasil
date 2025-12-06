@@ -689,20 +689,33 @@ export default function PostarVaga() {
           <div className="mt-6">
             <NotificationTemplateSelector
               onNotificationDataChange={setNotificationData}
-              jobTitle={lastCreatedJob.title}
-              jobCompany={formData.company}
-              jobCity={lastCreatedJob.city}
-            />
-            <Button 
-              variant="ghost" 
-              onClick={() => {
+              onSendNotification={async () => {
+                if (notificationData && notificationData.title && notificationData.message) {
+                  try {
+                    await base44.functions.invoke('pushSend', {
+                      title: notificationData.title,
+                      message: notificationData.message,
+                      icon: notificationData.icon,
+                      url: `/jobs?id=${lastCreatedJob.id}`,
+                      targetGroups: notificationData.premiumOnly ? ['premium'] : ['visitor', 'basic', 'premium', 'recruiter', 'admin']
+                    });
+                    showToast('Notificação enviada!');
+                  } catch (e) {
+                    console.error('Erro:', e);
+                  }
+                }
                 setShowNotificationSender(false);
                 setLastCreatedJob(null);
               }}
-              className="w-full mt-2 text-slate-500"
-            >
-              Pular notificação
-            </Button>
+              onSkipNotification={() => {
+                setShowNotificationSender(false);
+                setLastCreatedJob(null);
+              }}
+              jobTitle={lastCreatedJob.title}
+              jobCompany={formData.company}
+              jobCity={lastCreatedJob.city}
+              isLoading={false}
+            />
           </div>
         )}
       </div>
