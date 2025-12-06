@@ -7,7 +7,6 @@ import {
   Sparkles, Wand2, Loader2, Check, ArrowLeft, Copy, 
   Home, ExternalLink, Briefcase, X, Crown, Star, Bell
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
