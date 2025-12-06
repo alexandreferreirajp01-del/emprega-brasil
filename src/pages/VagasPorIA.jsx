@@ -742,13 +742,13 @@ WhatsApp: (83) 99999-9999"
                    }
 
                    showToast('Notificação enviada!');
-                 } catch (e) {
+                   } catch (e) {
                    console.error('Erro:', e);
-                 }
-               }
-               setShowNotificationSender(false);
-              }
-              onSkipNotification={() => setShowNotificationSender(false)}
+                   }
+                   }
+                   setShowNotificationSender(false);
+                   }}
+                   onSkipNotification={() => setShowNotificationSender(false)}
               jobTitle={lastCreatedJob.title}
               jobCompany={company}
               jobCity={lastCreatedJob.city}
