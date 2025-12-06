@@ -225,7 +225,12 @@ export default function Jobs() {
       job.job_function?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesCity = selectedCity === 'all' || job.city === selectedCity;
-    const matchesType = selectedType === 'all' || job.job_type === selectedType;
+    
+    // Match by contract_types array or legacy job_type
+    const matchesType = selectedType === 'all' || 
+      job.job_type === selectedType ||
+      (job.contract_types && job.contract_types.includes(selectedType));
+    
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     
     return matchesSearch && matchesCity && matchesType && matchesFunction;
@@ -386,12 +391,15 @@ export default function Jobs() {
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="CLT">CLT</SelectItem>
-                  <SelectItem value="Home Office">Home Office</SelectItem>
-                  <SelectItem value="Estágio">Estágio</SelectItem>
-                  <SelectItem value="Temporário">Temporário</SelectItem>
-                  <SelectItem value="Jovem Aprendiz">Jovem Aprendiz</SelectItem>
-                  <SelectItem value="Freelancer">Freelancer</SelectItem>
                   <SelectItem value="PJ">PJ</SelectItem>
+                  <SelectItem value="Autônomo">Autônomo</SelectItem>
+                  <SelectItem value="Estágio">Estágio</SelectItem>
+                  <SelectItem value="Jovem Aprendiz">Jovem Aprendiz</SelectItem>
+                  <SelectItem value="Temporário">Temporário</SelectItem>
+                  <SelectItem value="Freelancer">Freelancer</SelectItem>
+                  <SelectItem value="Trainee">Trainee</SelectItem>
+                  <SelectItem value="Banco de Talentos">Banco de Talentos</SelectItem>
+                  <SelectItem value="Home Office">Home Office</SelectItem>
                   <SelectItem value="PCD">PCD</SelectItem>
                 </SelectContent>
               </Select>
@@ -592,11 +600,17 @@ function JobCardContent({ job, viewCount }) {
               {job.city}
             </Badge>
           )}
-          {job.job_type && (
+          {job.contract_types && job.contract_types.length > 0 ? (
+            job.contract_types.map((type, i) => (
+              <Badge key={i} variant="secondary" className="rounded-full text-xs">
+                {type}
+              </Badge>
+            ))
+          ) : job.job_type ? (
             <Badge variant="secondary" className="rounded-full text-xs">
               {job.job_type}
             </Badge>
-          )}
+          ) : null}
           {job.job_function && (
             <Badge variant="outline" className="rounded-full text-xs">
               {job.job_function}
