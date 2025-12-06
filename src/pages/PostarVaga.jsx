@@ -11,6 +11,7 @@ import { Camera, Loader2, Save, X, CheckCircle, Phone, Mail, Briefcase, Search, 
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import NotificationSender from "@/components/admin/NotificationSender";
+import PostScheduler from "@/components/admin/PostScheduler";
 
 // Função para enviar notificações ao criar vaga (email + push para TODOS)
 const sendJobNotification = async (jobId, jobTitle, jobCompany, isHomeOffice = false) => {
@@ -121,6 +122,7 @@ export default function PostarVaga() {
   const [showNotificationSender, setShowNotificationSender] = useState(false);
   const [lastCreatedJob, setLastCreatedJob] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showScheduler, setShowScheduler] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -622,20 +624,60 @@ export default function PostarVaga() {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full bg-[#0056ff] hover:bg-[#0044cc] h-12"
-                disabled={submitting || !formData.title}
-              >
-                {submitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
-                Publicar Vaga
-              </Button>
+              <div className="flex gap-3">
+                <Button 
+                  type="button"
+                  variant="outline"
+                  className="flex-1 h-12"
+                  onClick={() => setShowScheduler(true)}
+                  disabled={!formData.title}
+                >
+                  <Bell className="w-5 h-5 mr-2" />
+                  Agendar
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="flex-1 bg-[#0056ff] hover:bg-[#0044cc] h-12"
+                  disabled={submitting || !formData.title}
+                >
+                  {submitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
+                  Publicar Agora
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
 
+        {/* Agendamento */}
+        {showScheduler && !showNotificationSender && (
+          <div className="mt-6">
+            <PostScheduler
+              jobData={formData}
+              postType="job"
+              onScheduled={() => {
+                setShowScheduler(false);
+                setFormData({
+                  title: '', company: '', job_function: '', city: '', description: '',
+                  salary_range: '', contact_phone: '', contact_email: '', image_url: '',
+                  is_premium: false, is_featured: false, website: ''
+                });
+                showToast('Vaga agendada com sucesso!');
+              }}
+              onPublishNow={handleSubmit}
+              showToast={showToast}
+            />
+            <Button 
+              variant="ghost" 
+              onClick={() => setShowScheduler(false)}
+              className="w-full mt-2"
+            >
+              Cancelar
+            </Button>
+          </div>
+        )}
+
         {/* Enviar Notificação após publicar vaga */}
-        {showNotificationSender && lastCreatedJob && (
+        {showNotificationSender && lastCreatedJob && !showScheduler && (
           <div className="mt-6">
             <NotificationSender 
               showToast={showToast}

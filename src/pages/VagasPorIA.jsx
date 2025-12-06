@@ -16,6 +16,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useMutation } from "@tanstack/react-query";
 import NotificationSender from "@/components/admin/NotificationSender";
+import PostScheduler from "@/components/admin/PostScheduler";
 import {
   Select,
   SelectContent,
@@ -120,6 +121,7 @@ export default function VagasPorIA() {
   const [funcSearch, setFuncSearch] = useState('');
   const [showNotificationSender, setShowNotificationSender] = useState(false);
   const [lastCreatedJob, setLastCreatedJob] = useState(null);
+  const [showScheduler, setShowScheduler] = useState(false);
   
   const showToast = (msg) => {
     alert(msg);
@@ -623,38 +625,69 @@ WhatsApp: (83) 99999-9999"
               )}
 
               {/* Botões de ação */}
-              <div className="flex gap-3 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={clearAll}
-                  className="flex-1"
-                >
-                  Limpar Tudo
-                </Button>
-                <Button
-                  onClick={() => createJobMutation.mutate()}
-                  disabled={!title || createJobMutation.isPending}
-                  className="flex-1 bg-[#0056ff] hover:bg-[#0044cc]"
-                >
-                  {createJobMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Publicando...
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4 mr-2" />
-                      Publicar Vaga
-                    </>
-                  )}
-                </Button>
+              <div className="space-y-3 pt-4">
+               <div className="flex gap-3">
+                 <Button
+                   variant="outline"
+                   onClick={clearAll}
+                   className="flex-1"
+                 >
+                   Limpar Tudo
+                 </Button>
+                 <Button
+                   onClick={() => setShowScheduler(true)}
+                   disabled={!title}
+                   variant="outline"
+                   className="flex-1"
+                 >
+                   <Bell className="w-4 h-4 mr-2" />
+                   Agendar
+                 </Button>
+               </div>
+               <Button
+                 onClick={() => createJobMutation.mutate()}
+                 disabled={!title || createJobMutation.isPending}
+                 className="w-full bg-[#0056ff] hover:bg-[#0044cc] h-12"
+               >
+                 {createJobMutation.isPending ? (
+                   <>
+                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                     Publicando...
+                   </>
+                 ) : (
+                   <>
+                     <Check className="w-4 h-4 mr-2" />
+                     Publicar Agora
+                   </>
+                 )}
+               </Button>
               </div>
             </CardContent>
           </Card>
         </div>
 
+        {/* Scheduler */}
+        {showScheduler && !showNotificationSender && (
+          <div className="mt-6">
+            <PostScheduler
+              jobData={{ title, company, job_function: jobFunction, city, description, salary_range: salary }}
+              postType="job_ai"
+              onScheduled={() => {
+                setShowScheduler(false);
+                clearAll();
+                showToast('Vaga agendada!');
+              }}
+              onPublishNow={() => {
+                setShowScheduler(false);
+                createJobMutation.mutate();
+              }}
+              showToast={showToast}
+            />
+          </div>
+        )}
+
         {/* Notification Sender */}
-        {showNotificationSender && lastCreatedJob && (
+        {showNotificationSender && lastCreatedJob && !showScheduler && (
           <div className="mt-6">
             <NotificationSender
               showToast={showToast}

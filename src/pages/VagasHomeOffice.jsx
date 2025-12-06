@@ -13,6 +13,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useMutation } from "@tanstack/react-query";
 import NotificationSender from "@/components/admin/NotificationSender";
+import PostScheduler from "@/components/admin/PostScheduler";
 
 export default function VagasHomeOffice() {
   const [user, setUser] = useState(null);
@@ -26,6 +27,7 @@ export default function VagasHomeOffice() {
   const [isFeatured, setIsFeatured] = useState(false);
   const [showNotificationSender, setShowNotificationSender] = useState(false);
   const [lastCreatedJob, setLastCreatedJob] = useState(null);
+  const [showScheduler, setShowScheduler] = useState(false);
   const textareaRef = useRef(null);
   
   const showToast = (msg) => {
@@ -462,18 +464,29 @@ Retorne JSON com array "vagas".`,
                   </div>
 
                   {/* Botões de ação */}
-                  <div className="flex gap-3 pt-4 border-t">
-                    <Button
-                      variant="outline"
-                      onClick={clearAll}
-                      className="flex-1"
-                    >
-                      Limpar Tudo
-                    </Button>
+                  <div className="space-y-3 pt-4 border-t">
+                    <div className="flex gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={clearAll}
+                        className="flex-1"
+                      >
+                        Limpar
+                      </Button>
+                      <Button
+                        onClick={() => setShowScheduler(true)}
+                        disabled={extractedJobs.length === 0}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        <Bell className="w-4 h-4 mr-2" />
+                        Agendar
+                      </Button>
+                    </div>
                     <Button
                       onClick={() => publishAllMutation.mutate()}
                       disabled={publishAllMutation.isPending || extractedJobs.length === 0}
-                      className="flex-1 bg-green-600 hover:bg-green-700"
+                      className="w-full bg-green-600 hover:bg-green-700 h-12"
                     >
                       {publishAllMutation.isPending ? (
                         <>
@@ -483,7 +496,7 @@ Retorne JSON com array "vagas".`,
                       ) : (
                         <>
                           <Check className="w-4 h-4 mr-2" />
-                          Publicar Todas ({extractedJobs.length})
+                          Publicar Todas Agora ({extractedJobs.length})
                         </>
                       )}
                     </Button>
@@ -494,8 +507,28 @@ Retorne JSON com array "vagas".`,
           </Card>
         </div>
 
+        {/* Scheduler */}
+        {showScheduler && !showNotificationSender && (
+          <div className="mt-6">
+            <PostScheduler
+              jobData={{ title: `${extractedJobs.length} Vagas Home Office`, extractedJobs }}
+              postType="job_homeoffice"
+              onScheduled={() => {
+                setShowScheduler(false);
+                clearAll();
+                showToast('Vagas agendadas!');
+              }}
+              onPublishNow={() => {
+                setShowScheduler(false);
+                publishAllMutation.mutate();
+              }}
+              showToast={showToast}
+            />
+          </div>
+        )}
+
         {/* Notification Sender para Home Office */}
-        {showNotificationSender && lastCreatedJob && (
+        {showNotificationSender && lastCreatedJob && !showScheduler && (
           <div className="mt-6">
             <NotificationSender
               showToast={showToast}

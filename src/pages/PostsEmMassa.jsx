@@ -10,6 +10,7 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import NotificationSender from "@/components/admin/NotificationSender";
+import PostScheduler from "@/components/admin/PostScheduler";
 
 const JOB_FUNCTIONS = [
   "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
@@ -60,6 +61,7 @@ export default function PostsEmMassa() {
   const [showNotification, setShowNotification] = useState(false);
   const [lastCreatedJob, setLastCreatedJob] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showScheduler, setShowScheduler] = useState(false);
 
   // Verificar autenticação
   React.useEffect(() => {
@@ -591,8 +593,28 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
           </Card>
         )}
 
+        {/* Scheduler */}
+        {showScheduler && extractedJobs.length > 0 && !results && (
+          <div className="space-y-4">
+            <PostScheduler
+              jobData={{ extractedJobs, postMode }}
+              postType="job_mass"
+              onScheduled={() => {
+                setShowScheduler(false);
+                reset();
+                alert('Posts agendados!');
+              }}
+              onPublishNow={() => {
+                setShowScheduler(false);
+                publishPosts();
+              }}
+              showToast={(msg) => alert(msg)}
+            />
+          </div>
+        )}
+
         {/* Painel de Notificações (modo manual) */}
-        {showNotification && lastCreatedJob && !results && (
+        {showNotification && lastCreatedJob && !results && !showScheduler && (
           <div className="space-y-4">
             <NotificationSender 
               showToast={(msg) => alert(msg)}
