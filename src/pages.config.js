@@ -36,6 +36,7 @@ import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
 import ListaTransmissao from './pages/ListaTransmissao';
 import ResponderChat from './pages/ResponderChat';
 import PostsEmMassa from './pages/PostsEmMassa';
+import BibliotecaProfissional from './pages/BibliotecaProfissional';
 import __Layout from './Layout.jsx';
 
 
@@ -78,6 +79,7 @@ export const PAGES = {
     "ListaTransmissao": ListaTransmissao,
     "ResponderChat": ResponderChat,
     "PostsEmMassa": PostsEmMassa,
+    "BibliotecaProfissional": BibliotecaProfissional,
 }
 
 export const pagesConfig = {
