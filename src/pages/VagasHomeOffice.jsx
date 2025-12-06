@@ -118,15 +118,15 @@ export default function VagasHomeOffice() {
           }
           
           if (wizardData.notification && firstJobId) {
-            const targetGroups = wizardData.notification.premiumOnly 
-              ? ['premium', 'admin'] 
-              : ['visitor', 'basic', 'premium', 'recruiter', 'admin'];
-            
-            await base44.functions.invoke('pushSend', {
-              title: wizardData.notification.title,
-              message: wizardData.notification.message,
-              url: `/jobs?id=${firstJobId}`,
-              targetGroups
+            const users = await base44.entities.User.list();
+            const targetUsers = wizardData.notification.premiumOnly 
+              ? users.filter(u => u.subscription_type === 'premium' || u.role === 'admin').map(u => u.email)
+              : users.map(u => u.email);
+
+            await base44.functions.invoke('sendNotifications', {
+              notification: wizardData.notification,
+              jobId: firstJobId,
+              targetUsers
             });
           }
           

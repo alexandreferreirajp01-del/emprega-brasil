@@ -146,6 +146,7 @@ export default function PostarVaga() {
       }
 
       const finalJobData = {
+        ...jobData,
         title: formData.title,
         company: formData.company,
         job_function: formData.job_function,
@@ -153,13 +154,10 @@ export default function PostarVaga() {
         description: formData.description,
         salary_range: formData.salary_range,
         image_url: formData.image_url,
-        application_link: applicationLink,
-        is_premium: jobData.is_premium,
-        is_featured: jobData.is_featured
+        application_link: applicationLink
       };
 
       if (wizardData.schedule) {
-        // Agendar
         await base44.entities.ScheduledPost.create({
           post_type: 'job',
           scheduled_date: new Date(`${wizardData.schedule.date}T${wizardData.schedule.time}`).toISOString(),
@@ -169,7 +167,6 @@ export default function PostarVaga() {
         });
         alert('Vaga agendada com sucesso!');
       } else {
-        // Publicar agora
         const isAdmin = currentUser.role === 'admin' || currentUser.subscription_type === 'admin';
         
         if (!isAdmin) {
@@ -186,32 +183,16 @@ export default function PostarVaga() {
           const createdJob = await base44.entities.Job.create(finalJobData);
           
           if (wizardData.notification) {
-            const targetGroups = wizardData.notification.premiumOnly 
-              ? ['premium', 'admin'] 
-              : ['visitor', 'basic', 'premium', 'recruiter', 'admin'];
-            
-            await base44.functions.invoke('pushSend', {
-              title: wizardData.notification.title,
-              message: wizardData.notification.message,
-              icon: wizardData.notification.icon,
-              url: `/jobs?id=${createdJob.id}`,
-              targetGroups
-            });
-
             const users = await base44.entities.User.list();
             const targetUsers = wizardData.notification.premiumOnly 
-              ? users.filter(u => u.subscription_type === 'premium' || u.role === 'admin')
-              : users;
+              ? users.filter(u => u.subscription_type === 'premium' || u.role === 'admin').map(u => u.email)
+              : users.map(u => u.email);
 
-            await Promise.all(targetUsers.map(u => 
-              base44.entities.Notification.create({
-                user_email: u.email,
-                title: wizardData.notification.title,
-                message: wizardData.notification.message,
-                type: 'job',
-                link: `/jobs?id=${createdJob.id}`
-              })
-            ));
+            await base44.functions.invoke('sendNotifications', {
+              notification: wizardData.notification,
+              jobId: createdJob.id,
+              targetUsers
+            });
           }
           
           alert('Vaga publicada com sucesso!');

@@ -6,9 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   ChevronRight, ChevronLeft, Crown, Star, Users, Bell, Send, 
-  Calendar, Check, Loader2, Eye, Globe, Clock, Zap, Edit, Mail
+  Calendar, Check, Loader2, Eye, Globe, Clock, Zap, Edit, Mail,
+  Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code
 } from "lucide-react";
 import {
   Select,
@@ -24,6 +26,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+const CONTRACT_TYPES = [
+  { id: 'CLT', label: 'CLT', icon: Briefcase },
+  { id: 'PJ', label: 'PJ', icon: FileText },
+  { id: 'Autônomo', label: 'Autônomo', icon: UserCheck },
+  { id: 'Estágio', label: 'Estágio', icon: GraduationCap },
+  { id: 'Jovem Aprendiz', label: 'Jovem Aprendiz', icon: GraduationCap },
+  { id: 'Temporário', label: 'Temporário', icon: Clock3 },
+  { id: 'Freelancer', label: 'Freelancer', icon: Code },
+  { id: 'Trainee', label: 'Trainee', icon: GraduationCap },
+  { id: 'Banco de Talentos', label: 'Banco de Talentos', icon: Users },
+];
+
 const NOTIFICATION_TEMPLATES = [
   { id: 'urgente', emoji: '🚨', title: 'URGENTE: Nova vaga!', msg: 'Vaga urgente! Processo seletivo relâmpago!' },
   { id: 'oportunidade', emoji: '⭐', title: 'OPORTUNIDADE DE OURO!', msg: 'Nova vaga incrível acabou de ser publicada!' },
@@ -33,6 +47,10 @@ const NOTIFICATION_TEMPLATES = [
   { id: 'empresa', emoji: '🏢', title: 'EMPRESA TOP!', msg: 'Grande empresa está contratando!' },
 ];
 
+function getBrasiliaTime() {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+}
+
 export default function UnifiedPostWizard({ 
   jobsData = [],
   onEditJob,
@@ -41,10 +59,10 @@ export default function UnifiedPostWizard({
   isLoading = false,
   toolType = 'job'
 }) {
-  const [step, setStep] = useState(2); // Começa na etapa 2 (revisão)
+  const [step, setStep] = useState(2);
   
-  // Etapa 2 - Edição (caso necessário)
-  const [editingIndex, setEditingIndex] = useState(null);
+  // Etapa 2 - Tipos de Contratação + Revisão
+  const [selectedContractTypes, setSelectedContractTypes] = useState([]);
   
   // Etapa 3 - Visibilidade
   const [isPremium, setIsPremium] = useState(false);
@@ -57,8 +75,13 @@ export default function UnifiedPostWizard({
   const [customTitle, setCustomTitle] = useState('');
   const [customMessage, setCustomMessage] = useState('');
   const [notificationIcon, setNotificationIcon] = useState('💼');
+  const [notifChannels, setNotifChannels] = useState({
+    email: false,
+    push: false,
+    bell: true,
+    whatsapp: false
+  });
   const [premiumOnlyNotif, setPremiumOnlyNotif] = useState(false);
-  const [sendEmailNotif, setSendEmailNotif] = useState(false);
   const [notificationConfigured, setNotificationConfigured] = useState(false);
   
   // Etapa 5 - Publicação
@@ -69,10 +92,15 @@ export default function UnifiedPostWizard({
   const template = NOTIFICATION_TEMPLATES.find(t => t.id === selectedTemplate);
   const jobCount = jobsData.length;
 
+  const toggleContractType = (type) => {
+    setSelectedContractTypes(prev => 
+      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+    );
+  };
+
   const getMinDateTime = () => {
-    const now = new Date();
-    const brasilia = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-    brasilia.setMinutes(brasilia.getMinutes() + 5); // Mínimo 5 min no futuro
+    const brasilia = getBrasiliaTime();
+    brasilia.setMinutes(brasilia.getMinutes() + 5);
     return {
       date: brasilia.toISOString().split('T')[0],
       time: brasilia.toTimeString().slice(0, 5)
@@ -85,13 +113,15 @@ export default function UnifiedPostWizard({
     setStep(4);
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
+    const brasiliaTime = getBrasiliaTime().toISOString();
+    
     const notificationData = sendNotification && notificationConfigured ? {
       title: customTitle || `${template.emoji} ${template.title}`,
       message: customMessage || template.msg,
       icon: notificationIcon,
-      premiumOnly: premiumOnlyNotif,
-      sendEmail: sendEmailNotif
+      channels: notifChannels,
+      premiumOnly: premiumOnlyNotif
     } : null;
 
     const scheduleData = publishMode === 'schedule' ? {
@@ -103,17 +133,19 @@ export default function UnifiedPostWizard({
     const finalData = {
       jobs: jobsData.map(j => ({
         ...j,
+        contract_types: selectedContractTypes,
         is_premium: isPremium,
-        is_featured: isFeatured
+        is_featured: isFeatured,
+        published_at: brasiliaTime
       })),
       notification: notificationData,
       schedule: scheduleData
     };
 
     if (publishMode === 'schedule') {
-      onSchedule?.(finalData);
+      await onSchedule?.(finalData);
     } else {
-      onPublish?.(finalData);
+      await onPublish?.(finalData);
     }
   };
 
@@ -123,10 +155,10 @@ export default function UnifiedPostWizard({
       <div className="bg-white p-4 rounded-xl shadow-sm">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold text-slate-600">Progresso</span>
-          <span className="text-xs text-slate-500">Etapa {step} de 4</span>
+          <span className="text-xs text-slate-500">Etapa {step - 1} de 4</span>
         </div>
         <div className="flex gap-2">
-          {[2, 3, 4, 5].map((s, i) => (
+          {[2, 3, 4, 5].map((s) => (
             <div key={s} className={`h-2 flex-1 rounded-full transition-all ${
               step >= s ? 'bg-blue-600' : 'bg-slate-200'
             }`} />
@@ -140,50 +172,82 @@ export default function UnifiedPostWizard({
         </div>
       </div>
 
-      {/* ETAPA 2 - Revisão */}
+      {/* ETAPA 2 - Tipos de Contratação + Revisão */}
       {step === 2 && (
         <Card className="rounded-xl">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Edit className="w-5 h-5 text-blue-600" />
+                <Briefcase className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-800">Revisão dos Dados</h3>
-                <p className="text-xs text-slate-500">{jobCount} vaga{jobCount > 1 ? 's' : ''} pronta{jobCount > 1 ? 's' : ''} para publicar</p>
+                <h3 className="font-semibold text-slate-800">Tipos de Contratação</h3>
+                <p className="text-xs text-slate-500">Selecione pelo menos um tipo</p>
               </div>
             </div>
 
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-              {jobsData.map((job, i) => (
-                <div key={i} className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <h4 className="font-semibold text-slate-800 flex-1">{job.title || 'Sem título'}</h4>
-                    <Badge variant="outline" className="text-xs">#{i + 1}</Badge>
-                  </div>
-                  <div className="space-y-1 text-xs text-slate-600">
-                    {job.company && <p>🏢 {job.company}</p>}
-                    {job.city && <p>📍 {job.city}</p>}
-                    {job.salary_range && <p>💰 {job.salary_range}</p>}
-                  </div>
-                  {editingIndex !== i && onEditJob && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onEditJob(i)}
-                      className="mt-2 h-8 text-xs"
-                    >
-                      <Edit className="w-3 h-3 mr-1" />
-                      Editar
-                    </Button>
-                  )}
+            <div className="grid grid-cols-2 gap-2">
+              {CONTRACT_TYPES.map((type) => {
+                const Icon = type.icon;
+                const isSelected = selectedContractTypes.includes(type.id);
+                return (
+                  <button
+                    key={type.id}
+                    onClick={() => toggleContractType(type.id)}
+                    className={`p-3 rounded-lg border-2 transition-all text-left ${
+                      isSelected 
+                        ? 'border-blue-600 bg-blue-50' 
+                        : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon className={`w-4 h-4 ${isSelected ? 'text-blue-600' : 'text-slate-400'}`} />
+                      <span className={`text-sm font-medium ${isSelected ? 'text-blue-900' : 'text-slate-700'}`}>
+                        {type.label}
+                      </span>
+                      {isSelected && <Check className="w-4 h-4 text-blue-600 ml-auto" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {selectedContractTypes.length > 0 && (
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <p className="text-xs font-semibold text-blue-900 mb-2">Selecionados:</p>
+                <div className="flex flex-wrap gap-1">
+                  {selectedContractTypes.map(type => (
+                    <Badge key={type} className="bg-blue-600 text-white text-xs">
+                      {type}
+                    </Badge>
+                  ))}
                 </div>
-              ))}
+              </div>
+            )}
+
+            <div className="pt-4 border-t">
+              <p className="text-xs font-semibold text-slate-700 mb-2">Vagas para Publicar:</p>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                {jobsData.map((job, i) => (
+                  <div key={i} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm text-slate-800">{job.title || 'Sem título'}</h4>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {job.company && <Badge variant="outline" className="text-xs">🏢 {job.company}</Badge>}
+                          {job.city && <Badge variant="outline" className="text-xs">📍 {job.city}</Badge>}
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="text-xs">#{i + 1}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <Button
               onClick={() => setStep(3)}
-              disabled={jobsData.length === 0}
+              disabled={selectedContractTypes.length === 0}
               className="w-full h-12 bg-blue-600 hover:bg-blue-700 rounded-xl"
             >
               Configurar Visibilidade
@@ -203,7 +267,7 @@ export default function UnifiedPostWizard({
               </div>
               <div>
                 <h3 className="font-semibold text-slate-800">Visibilidade</h3>
-                <p className="text-xs text-slate-500">Defina quem pode ver esta vaga</p>
+                <p className="text-xs text-slate-500">Defina quem pode ver</p>
               </div>
             </div>
 
@@ -262,9 +326,7 @@ export default function UnifiedPostWizard({
                 Voltar
               </Button>
               <Button
-                onClick={() => {
-                  setShowNotifDialog(true);
-                }}
+                onClick={() => setShowNotifDialog(true)}
                 className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 rounded-xl"
               >
                 Notificações
@@ -324,7 +386,7 @@ export default function UnifiedPostWizard({
             </div>
 
             {publishMode === 'schedule' && (
-              <div className="p-4 bg-blue-50 rounded-xl space-y-3 animate-in fade-in duration-300">
+              <div className="p-4 bg-blue-50 rounded-xl space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs text-slate-600 mb-1 block">Data</Label>
@@ -363,9 +425,10 @@ export default function UnifiedPostWizard({
 
             {/* Resumo Final */}
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-              <p className="text-xs font-semibold text-slate-700 mb-2">📋 Resumo da Publicação</p>
+              <p className="text-xs font-semibold text-slate-700 mb-2">📋 Resumo</p>
               <div className="space-y-1 text-xs text-slate-600">
                 <p>• {jobCount} vaga{jobCount > 1 ? 's' : ''}</p>
+                <p>• Tipos: {selectedContractTypes.join(', ')}</p>
                 <p>• Visibilidade: {isPremium ? '👑 Premium' : '🌍 Público'}</p>
                 {isFeatured && <p>• ⭐ Em destaque</p>}
                 <p>• Notificações: {sendNotification && notificationConfigured ? '✅ Configuradas' : '❌ Desativadas'}</p>
@@ -401,7 +464,7 @@ export default function UnifiedPostWizard({
         </Card>
       )}
 
-      {/* DIALOG DE NOTIFICAÇÕES - Etapa 3 */}
+      {/* DIALOG DE NOTIFICAÇÕES */}
       <Dialog open={showNotifDialog} onOpenChange={setShowNotifDialog}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -414,7 +477,7 @@ export default function UnifiedPostWizard({
           <div className="space-y-4 py-4">
             {/* Toggle Sim/Não */}
             <div className="p-4 bg-yellow-50 rounded-xl border-2 border-yellow-200">
-              <p className="text-sm font-semibold text-slate-800 mb-3">Enviar notificação aos usuários?</p>
+              <p className="text-sm font-semibold text-slate-800 mb-3">Enviar notificações?</p>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setSendNotification(false)}
@@ -423,7 +486,6 @@ export default function UnifiedPostWizard({
                   }`}
                 >
                   <p className="font-medium text-sm">Não</p>
-                  <p className="text-xs text-slate-500 mt-1">Só publicar</p>
                 </button>
                 <button
                   onClick={() => setSendNotification(true)}
@@ -432,14 +494,60 @@ export default function UnifiedPostWizard({
                   }`}
                 >
                   <p className="font-medium text-sm">Sim</p>
-                  <p className="text-xs text-slate-500 mt-1">Notificar</p>
                 </button>
               </div>
             </div>
 
-            {/* Se SIM - mostrar opções */}
             {sendNotification === true && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="space-y-4">
+                {/* Canais de Notificação */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-slate-700 block">Enviar para:</Label>
+                  
+                  <div className="flex items-center justify-between p-2.5 bg-blue-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-blue-600" />
+                      <span className="text-xs font-medium">Email</span>
+                    </div>
+                    <Checkbox 
+                      checked={notifChannels.email} 
+                      onCheckedChange={(c) => setNotifChannels(prev => ({ ...prev, email: c }))}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 bg-purple-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-purple-600" />
+                      <span className="text-xs font-medium">Push App</span>
+                    </div>
+                    <Checkbox 
+                      checked={notifChannels.push} 
+                      onCheckedChange={(c) => setNotifChannels(prev => ({ ...prev, push: c }))}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-4 h-4 text-green-600" />
+                      <span className="text-xs font-medium">Sininho Interno</span>
+                    </div>
+                    <Checkbox 
+                      checked={notifChannels.bell} 
+                      onCheckedChange={(c) => setNotifChannels(prev => ({ ...prev, bell: c }))}
+                    />
+                  </div>
+
+                  <div className="p-2.5 bg-slate-100 rounded-lg opacity-50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs">📱</span>
+                        <span className="text-xs font-medium text-slate-500">WhatsApp (em breve)</span>
+                      </div>
+                      <Checkbox disabled />
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <Label className="text-xs font-semibold text-slate-700 mb-2 block">Template</Label>
                   <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
@@ -497,22 +605,12 @@ export default function UnifiedPostWizard({
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2.5 bg-purple-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Crown className="w-4 h-4 text-purple-600" />
-                      <span className="text-xs font-medium">Apenas Premium</span>
-                    </div>
-                    <Switch checked={premiumOnlyNotif} onCheckedChange={setPremiumOnlyNotif} />
+                <div className="flex items-center justify-between p-2.5 bg-purple-50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Crown className="w-4 h-4 text-purple-600" />
+                    <span className="text-xs font-medium">Apenas Premium</span>
                   </div>
-
-                  <div className="flex items-center justify-between p-2.5 bg-blue-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-blue-600" />
-                      <span className="text-xs font-medium">Enviar Email</span>
-                    </div>
-                    <Switch checked={sendEmailNotif} onCheckedChange={setSendEmailNotif} />
-                  </div>
+                  <Switch checked={premiumOnlyNotif} onCheckedChange={setPremiumOnlyNotif} />
                 </div>
 
                 {/* Preview */}
