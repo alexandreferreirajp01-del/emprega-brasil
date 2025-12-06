@@ -297,21 +297,6 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
             });
 
             if (!firstJobId) firstJobId = createdJob.id;
-
-            // Se modo automático, enviar notificação automática
-            if (postMode === 'auto') {
-              try {
-                await base44.functions.invoke('notifyNewJob', {
-                  jobId: createdJob.id,
-                  jobTitle: job.title,
-                  jobCompany: job.company,
-                  isHomeOffice: job.work_mode?.toLowerCase().includes('home') || false
-                });
-              } catch (e) {
-                console.log('Erro ao enviar notificação automática:', e);
-              }
-            }
-
             successCount++;
           } catch (error) {
             console.error('Erro ao publicar vaga:', error);

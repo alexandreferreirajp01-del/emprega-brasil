@@ -13,20 +13,7 @@ import { createPageUrl } from "@/utils";
 import NotificationTemplateSelector from "@/components/admin/NotificationTemplateSelector";
 import AdvancedScheduler from "@/components/admin/AdvancedScheduler";
 
-// Função para enviar notificações ao criar vaga (email + push para TODOS)
-const sendJobNotification = async (jobId, jobTitle, jobCompany, isHomeOffice = false) => {
-  try {
-    const result = await base44.functions.invoke('notifyNewJob', {
-      jobId,
-      jobTitle,
-      jobCompany,
-      isHomeOffice
-    });
-    console.log('Notificações enviadas:', result?.data);
-  } catch (e) {
-    console.error('Erro ao enviar notificações:', e);
-  }
-};
+
 
 const JOB_FUNCTIONS = [
   "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
@@ -328,8 +315,6 @@ export default function PostarVaga() {
           title: formData.title,
           city: formData.city
         });
-        
-        sendJobNotification(createdJob?.id, formData.title, formData.company);
         
         setFormData({
           title: '', company: '', job_function: '', city: '', description: '',
