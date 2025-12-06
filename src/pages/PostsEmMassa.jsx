@@ -63,6 +63,7 @@ export default function PostsEmMassa() {
   const [currentUser, setCurrentUser] = useState(null);
   const [showScheduler, setShowScheduler] = useState(false);
   const [notificationData, setNotificationData] = useState(null);
+  const [notificationChoice, setNotificationChoice] = useState(null); // null, 'yes', 'no'
 
   // Verificar autenticação
   React.useEffect(() => {
@@ -312,15 +313,58 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
         firstJobId
       });
 
-      // Se modo manual, mostrar painel de notificações
-      if (postMode === 'manual' && firstJobId) {
-        setLastCreatedJob({ 
-          id: firstJobId, 
-          title: extractedJobs[0]?.title,
-          city: extractedJobs[0]?.city
-        });
-        setShowNotification(true);
+      // Se escolheu enviar notificação, enviar agora
+      if (notificationChoice === 'yes' && firstJobId && notificationData?.title && notificationData?.message) {
+        try {
+          const targetGroups = notificationData.premiumOnly ? ['premium', 'admin'] : ['visitor', 'basic', 'premium', 'recruiter', 'admin'];
+          
+          await base44.functions.invoke('pushSend', {
+            title: notificationData.title,
+            message: notificationData.message,
+            icon: notificationData.icon,
+            url: `/jobs?id=${firstJobId}`,
+            targetGroups
+          });
+
+          const users = await base44.entities.User.list();
+          const targetUsers = users.filter(u => {
+            if (notificationData.premiumOnly) {
+              return u.subscription_type === 'premium' || u.subscription_type === 'admin' || u.role === 'admin';
+            }
+            return true;
+          });
+
+          const notificationPromises = targetUsers.map(u => 
+            base44.entities.Notification.create({
+              user_email: u.email,
+              title: notificationData.title,
+              message: notificationData.message,
+              type: 'job',
+              is_read: false,
+              link: `/jobs?id=${firstJobId}`
+            })
+          );
+          await Promise.all(notificationPromises);
+
+          if (notificationData.sendEmail) {
+            for (const u of targetUsers) {
+              try {
+                await base44.integrations.Core.SendEmail({
+                  to: u.email,
+                  subject: notificationData.title,
+                  body: `${notificationData.message}\n\nAcesse: ${window.location.origin}/jobs?id=${firstJobId}`
+                });
+              } catch (e) {
+                console.error('Erro ao enviar email:', e);
+              }
+            }
+          }
+        } catch (e) {
+          console.error('Erro ao enviar notificações:', e);
+        }
       }
+
+      setNotificationChoice(null);
 
     } catch (error) {
       console.error('Erro completo ao publicar posts:', error);
@@ -560,12 +604,82 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
               </CardContent>
             </Card>
 
-            {/* Notification Template Selector */}
+            {/* BOTÃO DE PUBLICAR */}
+            <Card className="rounded-2xl">
+              <CardContent className="p-6 space-y-4">
+                <Button
+                  onClick={publishPosts}
+                  disabled={processing || notificationChoice === null}
+                  className="w-full h-14 bg-purple-600 hover:bg-purple-700 rounded-xl text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {processing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Publicando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      PUBLICAR VAGAS ({extractedJobs.length})
+                    </>
+                  )}
+                </Button>
+
+                {/* ESCOLHA DE NOTIFICAÇÃO - ABAIXO DO BOTÃO */}
+                {notificationChoice === null && (
+                  <Card className="rounded-xl border-2 border-yellow-200 bg-yellow-50">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3 mb-3">
+                        <Bell className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-1" />
+                        <div>
+                          <h3 className="font-semibold text-slate-800 text-sm mb-1">Enviar Notificação?</h3>
+                          <p className="text-xs text-slate-600">
+                            Escolha para habilitar a publicação
+                          </p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setNotificationChoice('no')}
+                          className="h-10 border-2 hover:border-slate-400 text-sm"
+                        >
+                          <X className="w-4 h-4 mr-1" />
+                          Não Enviar
+                        </Button>
+                        <Button
+                          onClick={() => setNotificationChoice('yes')}
+                          className="h-10 bg-green-600 hover:bg-green-700 text-sm"
+                        >
+                          <Bell className="w-4 h-4 mr-1" />
+                          Sim, Enviar
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {notificationChoice !== null && (
+                  <div className="text-center text-sm text-slate-500">
+                    Notificação: {notificationChoice === 'yes' ? '✅ Será enviada' : '❌ Não será enviada'}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setNotificationChoice(null)}
+                      className="ml-2 text-blue-600 hover:text-blue-700 h-auto py-1"
+                    >
+                      Alterar
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Notification Template Selector (removido botões) */}
             <NotificationTemplateSelector
               onNotificationDataChange={setNotificationData}
               onSendNotification={async () => {
-                await publishPosts();
-                if (notificationData && notificationData.title && notificationData.message && results?.firstJobId) {
+                if (notificationChoice === 'yes' && notificationData && notificationData.title && notificationData.message && results?.firstJobId) {
                   try {
                     const targetGroups = notificationData.premiumOnly ? ['premium', 'admin'] : ['visitor', 'basic', 'premium', 'recruiter', 'admin'];
                     

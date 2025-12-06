@@ -111,6 +111,7 @@ export default function PostarVaga() {
   const [currentUser, setCurrentUser] = useState(null);
   const [showScheduler, setShowScheduler] = useState(false);
   const [notificationData, setNotificationData] = useState(null);
+  const [notificationChoice, setNotificationChoice] = useState(null); // null, 'yes', 'no'
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -322,7 +323,12 @@ export default function PostarVaga() {
           is_premium: false, is_featured: false, website: ''
         });
         showToast('Vaga publicada!');
-        setShowNotificationSender(true);
+        
+        // Se escolheu enviar notificação, mostrar o sender
+        if (notificationChoice === 'yes') {
+          setShowNotificationSender(true);
+        }
+        setNotificationChoice(null);
       }
     } catch (err) {
       console.error('Erro completo ao publicar:', err);
@@ -614,25 +620,76 @@ export default function PostarVaga() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <Button 
-                  type="button"
-                  variant="outline"
-                  className="flex-1 h-12"
-                  onClick={() => setShowScheduler(true)}
-                  disabled={!formData.title}
-                >
-                  <Bell className="w-5 h-5 mr-2" />
-                  Agendar
-                </Button>
+              <div className="space-y-3">
                 <Button 
                   type="submit" 
-                  className="flex-1 bg-[#0056ff] hover:bg-[#0044cc] h-12"
-                  disabled={submitting || !formData.title}
+                  className="w-full bg-[#0056ff] hover:bg-[#0044cc] h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={submitting || !formData.title || notificationChoice === null}
                 >
                   {submitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
-                  Publicar Agora
+                  PUBLICAR VAGA
                 </Button>
+
+                {/* ESCOLHA DE NOTIFICAÇÃO - ABAIXO DO BOTÃO */}
+                {notificationChoice === null && (
+                  <Card className="rounded-xl border-2 border-yellow-200 bg-yellow-50">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3 mb-3">
+                        <Bell className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-1" />
+                        <div>
+                          <h3 className="font-semibold text-slate-800 text-sm mb-1">Enviar Notificação?</h3>
+                          <p className="text-xs text-slate-600">
+                            Escolha para habilitar a publicação
+                          </p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setNotificationChoice('no')}
+                          className="h-10 border-2 hover:border-slate-400 text-sm"
+                        >
+                          <X className="w-4 h-4 mr-1" />
+                          Não Enviar
+                        </Button>
+                        <Button
+                          onClick={() => setNotificationChoice('yes')}
+                          className="h-10 bg-green-600 hover:bg-green-700 text-sm"
+                        >
+                          <Bell className="w-4 h-4 mr-1" />
+                          Sim, Enviar
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {notificationChoice !== null && (
+                  <div className="text-center text-sm text-slate-500">
+                    Notificação: {notificationChoice === 'yes' ? '✅ Será enviada' : '❌ Não será enviada'}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setNotificationChoice(null)}
+                      className="ml-2 text-blue-600 hover:text-blue-700 h-auto py-1"
+                    >
+                      Alterar
+                    </Button>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    className="flex-1 h-10"
+                    onClick={() => setShowScheduler(true)}
+                    disabled={!formData.title}
+                  >
+                    <Bell className="w-4 h-4 mr-2" />
+                    Agendar
+                  </Button>
+                </div>
               </div>
             </form>
           </CardContent>

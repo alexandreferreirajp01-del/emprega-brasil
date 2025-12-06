@@ -30,6 +30,7 @@ export default function VagasHomeOffice() {
   const [showScheduler, setShowScheduler] = useState(false);
   const [notificationData, setNotificationData] = useState(null);
   const textareaRef = useRef(null);
+  const [notificationChoice, setNotificationChoice] = useState(null); // null, 'yes', 'no'
   
   const showToast = (msg) => {
     alert(msg);
@@ -234,10 +235,15 @@ Retorne JSON com array "vagas".`,
           title: `${extractedJobs.length} Vagas Home Office`,
           city: 'Brasil'
         });
-        setShowNotificationSender(true);
+        
+        // Se escolheu enviar notificação, mostrar o sender
+        if (notificationChoice === 'yes') {
+          setShowNotificationSender(true);
+        }
       }
       if (textareaRef.current) textareaRef.current.value = '';
       setExtractedJobs([]);
+      setNotificationChoice(null);
       setTimeout(() => setShowSuccess(false), 3000);
     },
     onError: (error) => {
@@ -459,8 +465,74 @@ Retorne JSON com array "vagas".`,
                     </div>
                   </div>
 
-                  {/* Botões de ação */}
+                  {/* BOTÃO PUBLICAR - FINAL DO FLUXO */}
                   <div className="space-y-3 pt-4 border-t">
+                    <Button
+                      onClick={() => publishAllMutation.mutate()}
+                      disabled={publishAllMutation.isPending || extractedJobs.length === 0 || notificationChoice === null}
+                      className="w-full bg-green-600 hover:bg-green-700 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {publishAllMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Publicando...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4 mr-2" />
+                          PUBLICAR VAGAS ({extractedJobs.length})
+                        </>
+                      )}
+                    </Button>
+
+                    {/* ESCOLHA DE NOTIFICAÇÃO - ABAIXO DO BOTÃO */}
+                    {notificationChoice === null && (
+                      <Card className="rounded-xl border-2 border-yellow-200 bg-yellow-50">
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-3 mb-3">
+                            <Bell className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-1" />
+                            <div>
+                              <h3 className="font-semibold text-slate-800 text-sm mb-1">Enviar Notificação?</h3>
+                              <p className="text-xs text-slate-600">
+                                Escolha para habilitar a publicação
+                              </p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button
+                              variant="outline"
+                              onClick={() => setNotificationChoice('no')}
+                              className="h-10 border-2 hover:border-slate-400 text-sm"
+                            >
+                              <X className="w-4 h-4 mr-1" />
+                              Não Enviar
+                            </Button>
+                            <Button
+                              onClick={() => setNotificationChoice('yes')}
+                              className="h-10 bg-green-600 hover:bg-green-700 text-sm"
+                            >
+                              <Bell className="w-4 h-4 mr-1" />
+                              Sim, Enviar
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {notificationChoice !== null && (
+                      <div className="text-center text-sm text-slate-500">
+                        Notificação: {notificationChoice === 'yes' ? '✅ Será enviada' : '❌ Não será enviada'}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setNotificationChoice(null)}
+                          className="ml-2 text-blue-600 hover:text-blue-700 h-auto py-1"
+                        >
+                          Alterar
+                        </Button>
+                      </div>
+                    )}
+
                     <div className="flex gap-3">
                       <Button
                         variant="outline"
@@ -479,23 +551,6 @@ Retorne JSON com array "vagas".`,
                         Agendar
                       </Button>
                     </div>
-                    <Button
-                      onClick={() => publishAllMutation.mutate()}
-                      disabled={publishAllMutation.isPending || extractedJobs.length === 0}
-                      className="w-full bg-green-600 hover:bg-green-700 h-12"
-                    >
-                      {publishAllMutation.isPending ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Publicando...
-                        </>
-                      ) : (
-                        <>
-                          <Check className="w-4 h-4 mr-2" />
-                          Publicar Todas Agora ({extractedJobs.length})
-                        </>
-                      )}
-                    </Button>
                   </div>
                 </>
               )}
