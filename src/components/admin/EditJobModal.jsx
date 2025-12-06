@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Edit, Save, Loader2, CheckCircle2, Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Users } from 'lucide-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
 const CONTRACT_TYPES = [
@@ -35,13 +35,7 @@ const CONTRACT_TYPES = [
   { id: 'Banco de Talentos', label: 'Banco de Talentos', icon: Users },
 ];
 
-const JOB_FUNCTIONS = [
-  "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
-  "Vendedor", "Atendente", "Recepcionista", "Motorista", "Operador de caixa",
-  "Técnico de enfermagem", "Professor", "Mecânico", "Eletricista", "Cozinheiro",
-  "Garçom", "Porteiro", "Zelador", "Engenheiro", "Advogado", "Contador",
-  "Designer", "Desenvolvedor", "Analista de TI", "Gerente", "Supervisor", "Outros"
-];
+// JOB_FUNCTIONS será carregado dinamicamente do banco de dados
 
 const CIDADES_PB = [
   "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
@@ -53,7 +47,24 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
   const [editedJob, setEditedJob] = useState({});
   const [citySearch, setCitySearch] = useState('');
   const [funcSearch, setFuncSearch] = useState('');
+  const [categorySearch, setCategorySearch] = useState('');
   const queryClient = useQueryClient();
+
+  // Buscar categorias profissionais
+  const { data: categories = [] } = useQuery({
+    queryKey: ['professional-categories'],
+    queryFn: () => base44.entities.ProfessionalCategory.list('category_order', 100),
+    enabled: isOpen,
+  });
+
+  // Extrair todas as funções únicas de todas as categorias
+  const allJobFunctions = React.useMemo(() => {
+    const functions = new Set();
+    categories.forEach(cat => {
+      cat.job_titles?.forEach(title => functions.add(title));
+    });
+    return Array.from(functions).sort();
+  }, [categories]);
 
   useEffect(() => {
     if (job) {
@@ -124,7 +135,8 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
   if (!job) return null;
 
   const filteredCities = CIDADES_PB.filter(c => c.toLowerCase().includes(citySearch.toLowerCase()));
-  const filteredFunctions = JOB_FUNCTIONS.filter(f => f.toLowerCase().includes(funcSearch.toLowerCase()));
+  const filteredFunctions = allJobFunctions.filter(f => f.toLowerCase().includes(funcSearch.toLowerCase()));
+  const filteredCategories = categories.filter(c => c.category_name.toLowerCase().includes(categorySearch.toLowerCase()));
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -210,28 +222,58 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
                   </div>
 
                   <div>
-                    <Label htmlFor="job_function">Função/Área</Label>
-                    <Select value={editedJob.job_function} onValueChange={(val) => handleSelectChange('job_function', val)}>
+                    <Label htmlFor="category">Categoria Profissional</Label>
+                    <Select value={editedJob.category} onValueChange={(val) => handleSelectChange('category', val)}>
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Selecione a função" />
+                        <SelectValue placeholder="Selecione a categoria" />
                       </SelectTrigger>
                       <SelectContent>
                         <div className="p-2 sticky top-0 bg-white border-b">
                           <Input
-                            placeholder="Buscar função..."
-                            value={funcSearch}
-                            onChange={(e) => setFuncSearch(e.target.value)}
+                            placeholder="Buscar categoria..."
+                            value={categorySearch}
+                            onChange={(e) => setCategorySearch(e.target.value)}
                             className="h-9"
                           />
                         </div>
                         <ScrollArea className="h-[200px]">
-                          {filteredFunctions.map(f => (
-                            <SelectItem key={f} value={f}>{f}</SelectItem>
+                          {filteredCategories.map(c => (
+                            <SelectItem key={c.id} value={c.category_name}>{c.category_name}</SelectItem>
                           ))}
                         </ScrollArea>
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="job_function">Função/Área</Label>
+                  <Select value={editedJob.job_function} onValueChange={(val) => handleSelectChange('job_function', val)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Selecione a função" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <div className="p-2 sticky top-0 bg-white border-b">
+                        <Input
+                          placeholder="Buscar função..."
+                          value={funcSearch}
+                          onChange={(e) => setFuncSearch(e.target.value)}
+                          className="h-9"
+                        />
+                      </div>
+                      <ScrollArea className="h-[200px]">
+                        {filteredFunctions.length > 0 ? (
+                          filteredFunctions.map(f => (
+                            <SelectItem key={f} value={f}>{f}</SelectItem>
+                          ))
+                        ) : (
+                          <div className="p-4 text-center text-slate-400 text-sm">
+                            Nenhuma função encontrada
+                          </div>
+                        )}
+                      </ScrollArea>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
