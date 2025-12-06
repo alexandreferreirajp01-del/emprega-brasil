@@ -10,14 +10,8 @@ import { Camera, Loader2, X, CheckCircle, Search, ArrowRight, Briefcase } from "
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
-
-const JOB_FUNCTIONS = [
-  "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
-  "Vendedor", "Atendente", "Recepcionista", "Motorista", "Operador de caixa",
-  "Técnico de enfermagem", "Professor", "Mecânico", "Eletricista", "Cozinheiro",
-  "Garçom", "Porteiro", "Zelador", "Outros"
-];
 
 const CIDADES_PB = [
   "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
@@ -46,6 +40,21 @@ export default function PostarVaga() {
 
   const [funcSearch, setFuncSearch] = useState('');
   const [citySearch, setCitySearch] = useState('');
+
+  // Buscar categorias profissionais
+  const { data: categories = [] } = useQuery({
+    queryKey: ['professional-categories'],
+    queryFn: () => base44.entities.ProfessionalCategory.list('category_order', 100),
+  });
+
+  // Extrair todos os cargos
+  const allJobFunctions = React.useMemo(() => {
+    const functions = new Set();
+    categories.forEach(cat => {
+      cat.job_titles?.forEach(title => functions.add(title));
+    });
+    return Array.from(functions).sort();
+  }, [categories]);
 
   useEffect(() => {
     const init = async () => {
@@ -101,6 +110,17 @@ export default function PostarVaga() {
       });
       
       if (result) {
+        // Classificar categoria automaticamente
+        let categoryData = null;
+        try {
+          categoryData = await base44.functions.invoke('classifyJobCategory', {
+            title: result.title || '',
+            description: result.description || ''
+          });
+        } catch (e) {
+          console.error('Erro ao classificar categoria:', e);
+        }
+
         setFormData(prev => ({
           ...prev,
           title: result.title || prev.title,
@@ -112,6 +132,7 @@ export default function PostarVaga() {
           contact_phone: result.contact_phone || prev.contact_phone,
           contact_email: result.contact_email || prev.contact_email,
           website: result.website || prev.website,
+          category: categoryData?.data?.category || prev.category,
         }));
       }
     } catch (err) {
@@ -327,7 +348,7 @@ export default function PostarVaga() {
                         />
                       </div>
                       <ScrollArea className="h-[200px]">
-                        {JOB_FUNCTIONS.filter(f => f.toLowerCase().includes(funcSearch.toLowerCase())).map(f => (
+                        {allJobFunctions.filter(f => f.toLowerCase().includes(funcSearch.toLowerCase())).map(f => (
                           <SelectItem key={f} value={f}>{f}</SelectItem>
                         ))}
                       </ScrollArea>
