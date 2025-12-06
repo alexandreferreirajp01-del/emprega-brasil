@@ -7,12 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   ArrowLeft, Users, Loader2, CheckCircle, Search, Clock, UserX, 
-  ChevronLeft, ChevronRight, Eye, Mail, Phone
+  ChevronLeft, ChevronRight, Eye, Mail, Phone, FileDown, RefreshCw, Filter
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from 'xlsx';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -22,9 +23,15 @@ export default function GerenciarUsuarios() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -67,10 +74,21 @@ export default function GerenciarUsuarios() {
     onError: () => showToast('Erro ao atualizar', 'error')
   });
 
-  const filteredUsers = users.filter(u =>
-    u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-    u.email?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = !search || 
+      u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+      u.email?.toLowerCase().includes(search.toLowerCase()) ||
+      u.phone?.includes(search) ||
+      u.id?.includes(search);
+    
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'blocked' && u.access_status === 'blocked') ||
+      (statusFilter === 'active' && u.access_status !== 'blocked');
+    
+    const matchesType = typeFilter === 'all' || u.subscription_type === typeFilter;
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
   const pendingUsers = users.filter(u => u.access_status === 'pending' || !u.access_status);
   
@@ -91,6 +109,104 @@ export default function GerenciarUsuarios() {
       case 'basic': return 'bg-slate-100 text-slate-600';
       default: return 'bg-gray-100 text-gray-600';
     }
+  };
+
+  const handleExportExcel = () => {
+    const data = filteredUsers.map(u => ({
+      'ID': u.id,
+      'Nome': u.full_name || '',
+      'Email': u.email || '',
+      'Telefone': u.phone || '',
+      'Tipo de Conta': u.subscription_type || 'basic',
+      'Status': u.access_status === 'blocked' ? 'Bloqueado' : 'Ativo',
+      'Data de Cadastro': new Date(u.created_date).toLocaleDateString('pt-BR'),
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Usuários');
+    
+    const colWidths = [
+      { wch: 25 }, { wch: 25 }, { wch: 30 }, { wch: 15 },
+      { wch: 15 }, { wch: 10 }, { wch: 15 }
+    ];
+    ws['!cols'] = colWidths;
+    
+    XLSX.writeFile(wb, `usuarios_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showToast('Excel exportado!');
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      const content = `
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              h1 { color: #4F46E5; margin-bottom: 10px; }
+              .info { color: #64748B; margin-bottom: 20px; font-size: 14px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th { background: #EEF2FF; padding: 12px; text-align: left; font-size: 12px; border: 1px solid #CBD5E1; }
+              td { padding: 10px; border: 1px solid #E2E8F0; font-size: 11px; }
+              tr:nth-child(even) { background: #F8FAFC; }
+              .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+              .admin { background: #F3E8FF; color: #7C3AED; }
+              .premium { background: #D1FAE5; color: #059669; }
+              .recruiter { background: #DBEAFE; color: #2563EB; }
+              .basic { background: #F1F5F9; color: #475569; }
+              .blocked { background: #FEE2E2; color: #DC2626; }
+            </style>
+          </head>
+          <body>
+            <h1>Usuários - Vagas Abertas Paraíba</h1>
+            <div class="info">
+              Total: ${filteredUsers.length} usuários<br>
+              Data: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Telefone</th>
+                  <th>Tipo</th>
+                  <th>Status</th>
+                  <th>Cadastro</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filteredUsers.map(u => `
+                  <tr>
+                    <td>${u.full_name || 'Sem nome'}</td>
+                    <td>${u.email || ''}</td>
+                    <td>${u.phone || '-'}</td>
+                    <td><span class="badge ${u.subscription_type || 'basic'}">${u.subscription_type || 'basic'}</span></td>
+                    <td>${u.access_status === 'blocked' ? '<span class="badge blocked">Bloqueado</span>' : 'Ativo'}</td>
+                    <td>${new Date(u.created_date).toLocaleDateString('pt-BR')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(content);
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+        showToast('PDF gerado!');
+      };
+    } catch (e) {
+      showToast('Erro ao gerar PDF', 'error');
+    }
+  };
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    showToast('Lista atualizada!');
   };
 
   if (loading) {
@@ -136,6 +252,35 @@ export default function GerenciarUsuarios() {
       </div>
 
       <div className="max-w-4xl mx-auto px-3 md:px-4 py-4 space-y-4">
+        {/* Export Buttons */}
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            onClick={handleRefresh} 
+            variant="outline" 
+            className="rounded-xl"
+            disabled={loadingUsers}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${loadingUsers ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
+          <Button 
+            onClick={handleExportExcel} 
+            variant="outline" 
+            className="rounded-xl text-green-600 hover:bg-green-50 border-green-200"
+          >
+            <FileDown className="w-4 h-4 mr-2" />
+            Exportar Excel
+          </Button>
+          <Button 
+            onClick={handleExportPDF} 
+            variant="outline" 
+            className="rounded-xl text-red-600 hover:bg-red-50 border-red-200"
+          >
+            <FileDown className="w-4 h-4 mr-2" />
+            Exportar PDF
+          </Button>
+        </div>
+
         {/* Pending Users */}
         {pendingUsers.length > 0 && (
           <Card className="rounded-xl border-amber-200 bg-amber-50">
@@ -180,19 +325,62 @@ export default function GerenciarUsuarios() {
           </Card>
         )}
 
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input
-            placeholder="Buscar usuário..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="pl-10 h-10 rounded-xl text-sm"
-          />
-        </div>
+        {/* Search and Filters */}
+        <Card className="rounded-xl">
+          <CardContent className="p-4 space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Buscar por nome, email, telefone ou ID..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pl-10 h-11 rounded-xl text-sm"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setCurrentPage(1); }}>
+                <SelectTrigger className="w-32 h-9 rounded-lg">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="active">Ativos</SelectItem>
+                  <SelectItem value="blocked">Bloqueados</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setCurrentPage(1); }}>
+                <SelectTrigger className="w-32 h-9 rounded-lg">
+                  <SelectValue placeholder="Tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="basic">Básico</SelectItem>
+                  <SelectItem value="premium">Premium</SelectItem>
+                  <SelectItem value="recruiter">Recrutador</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+              {(search || statusFilter !== 'all' || typeFilter !== 'all') && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => {
+                    setSearch('');
+                    setStatusFilter('all');
+                    setTypeFilter('all');
+                    setCurrentPage(1);
+                  }}
+                  className="h-9 text-red-500 hover:text-red-600 hover:bg-red-50"
+                >
+                  Limpar filtros
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Users List */}
         <Card className="rounded-xl overflow-hidden">
