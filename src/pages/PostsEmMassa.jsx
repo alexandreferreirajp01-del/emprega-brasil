@@ -271,7 +271,7 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
           company: 'Múltiplas Empresas',
           description: groupedDescription,
           image_url: images[0]?.url,
-          is_premium: false,
+          is_premium: notificationData?.premiumOnly || false,
           is_featured: false
         });
 
@@ -292,7 +292,7 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
               job_type: job.job_type,
               image_url: job.image_url,
               application_link: job.application_link,
-              is_premium: false,
+              is_premium: notificationData?.premiumOnly || false,
               is_featured: false
             });
 
@@ -565,17 +565,60 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
               onNotificationDataChange={setNotificationData}
               onSendNotification={async () => {
                 await publishPosts();
-                if (notificationData && notificationData.title && notificationData.message) {
-                  // Enviar notificação push
+                if (notificationData && notificationData.title && notificationData.message && results?.firstJobId) {
                   try {
+                    const targetGroups = notificationData.premiumOnly ? ['premium', 'admin'] : ['visitor', 'basic', 'premium', 'recruiter', 'admin'];
+                    
+                    // Enviar notificação push
                     await base44.functions.invoke('pushSend', {
                       title: notificationData.title,
                       message: notificationData.message,
                       icon: notificationData.icon,
-                      targetGroups: notificationData.premiumOnly ? ['premium'] : ['visitor', 'basic', 'premium', 'recruiter', 'admin']
+                      url: `/jobs?id=${results.firstJobId}`,
+                      targetGroups
                     });
+
+                    // Buscar usuários do grupo alvo para criar notificações no sininho
+                    const users = await base44.entities.User.list();
+                    const targetUsers = users.filter(u => {
+                      if (notificationData.premiumOnly) {
+                        return u.subscription_type === 'premium' || u.subscription_type === 'admin' || u.role === 'admin';
+                      }
+                      return true; // Todos
+                    });
+
+                    // Criar notificação no sininho para cada usuário
+                    const notificationPromises = targetUsers.map(u => 
+                      base44.entities.Notification.create({
+                        user_email: u.email,
+                        title: notificationData.title,
+                        message: notificationData.message,
+                        type: 'job',
+                        is_read: false,
+                        link: `/jobs?id=${results.firstJobId}`
+                      })
+                    );
+                    await Promise.all(notificationPromises);
+
+                    // Enviar emails se habilitado
+                    if (notificationData.sendEmail) {
+                      for (const u of targetUsers) {
+                        try {
+                          await base44.integrations.Core.SendEmail({
+                            to: u.email,
+                            subject: notificationData.title,
+                            body: `${notificationData.message}\n\nAcesse: ${window.location.origin}/jobs?id=${results.firstJobId}`
+                          });
+                        } catch (e) {
+                          console.error('Erro ao enviar email:', e);
+                        }
+                      }
+                    }
+
+                    alert('Notificações enviadas com sucesso!');
                   } catch (e) {
-                    console.error('Erro ao enviar push:', e);
+                    console.error('Erro ao enviar notificações:', e);
+                    alert('Erro ao enviar notificações');
                   }
                 }
               }}

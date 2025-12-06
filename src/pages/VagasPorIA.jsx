@@ -695,22 +695,59 @@ WhatsApp: (83) 99999-9999"
             <NotificationTemplateSelector
               onNotificationDataChange={setNotificationData}
               onSendNotification={async () => {
-                if (notificationData && notificationData.title && notificationData.message) {
-                  try {
-                    await base44.functions.invoke('pushSend', {
-                      title: notificationData.title,
-                      message: notificationData.message,
-                      icon: notificationData.icon,
-                      url: `/jobs?id=${lastCreatedJob.id}`,
-                      targetGroups: notificationData.premiumOnly ? ['premium'] : ['visitor', 'basic', 'premium', 'recruiter', 'admin']
-                    });
-                    showToast('Notificação enviada!');
-                  } catch (e) {
-                    console.error('Erro:', e);
-                  }
-                }
-                setShowNotificationSender(false);
-              }}
+               if (notificationData && notificationData.title && notificationData.message && lastCreatedJob?.id) {
+                 try {
+                   const targetGroups = notificationData.premiumOnly ? ['premium', 'admin'] : ['visitor', 'basic', 'premium', 'recruiter', 'admin'];
+
+                   await base44.functions.invoke('pushSend', {
+                     title: notificationData.title,
+                     message: notificationData.message,
+                     icon: notificationData.icon,
+                     url: `/jobs?id=${lastCreatedJob.id}`,
+                     targetGroups
+                   });
+
+                   const users = await base44.entities.User.list();
+                   const targetUsers = users.filter(u => {
+                     if (notificationData.premiumOnly) {
+                       return u.subscription_type === 'premium' || u.subscription_type === 'admin' || u.role === 'admin';
+                     }
+                     return true;
+                   });
+
+                   const notificationPromises = targetUsers.map(u => 
+                     base44.entities.Notification.create({
+                       user_email: u.email,
+                       title: notificationData.title,
+                       message: notificationData.message,
+                       type: 'job',
+                       is_read: false,
+                       link: `/jobs?id=${lastCreatedJob.id}`
+                     })
+                   );
+                   await Promise.all(notificationPromises);
+
+                   if (notificationData.sendEmail) {
+                     for (const u of targetUsers) {
+                       try {
+                         await base44.integrations.Core.SendEmail({
+                           to: u.email,
+                           subject: notificationData.title,
+                           body: `${notificationData.message}\n\nAcesse: ${window.location.origin}/jobs?id=${lastCreatedJob.id}`
+                         });
+                       } catch (e) {
+                         console.error('Erro ao enviar email:', e);
+                       }
+                     }
+                   }
+
+                   showToast('Notificação enviada!');
+                 } catch (e) {
+                   console.error('Erro:', e);
+                 }
+               }
+               setShowNotificationSender(false);
+              }
               onSkipNotification={() => setShowNotificationSender(false)}
               jobTitle={lastCreatedJob.title}
               jobCompany={company}
