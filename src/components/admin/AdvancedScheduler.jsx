@@ -313,9 +313,16 @@ export default function AdvancedScheduler({
         )}
 
         {/* Publicar Agora */}
-        {!isScheduled && (
+        {!isScheduled && onPublishNow && (
           <Button
-            onClick={onPublishNow}
+            onClick={() => {
+              try {
+                onPublishNow();
+              } catch (err) {
+                console.error('Erro ao publicar:', err);
+                showToast?.('Erro ao publicar', 'error');
+              }
+            }}
             className="w-full h-12 bg-green-600 hover:bg-green-700 rounded-xl"
           >
             <CheckCircle className="w-5 h-5 mr-2" />
