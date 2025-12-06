@@ -238,15 +238,6 @@ function Step3Notification({ enabled, template, premiumOnly, sendEmail, onChange
                 <Switch checked={sendEmail} onCheckedChange={(val) => onChange({ sendEmail: val })} />
               </div>
             </div>
-
-            {/* Preview */}
-            {template?.title && template?.message && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <p className="text-xs text-blue-600 font-medium mb-2">PREVIEW</p>
-                <p className="font-semibold text-slate-800">{template.title}</p>
-                <p className="text-sm text-slate-600 mt-1">{template.message}</p>
-              </div>
-            )}
           </>
         )}
       </CardContent>
@@ -340,6 +331,7 @@ export default function JobPostWizard({
     premiumOnly: false,
     sendEmail: false
   });
+  const [notificationChoiceMade, setNotificationChoiceMade] = useState(false);
   const [scheduling, setScheduling] = useState({
     enabled: false,
     date: '',
@@ -352,6 +344,9 @@ export default function JobPostWizard({
 
   const updateNotification = (updates) => {
     setNotification(prev => ({ ...prev, ...updates }));
+    if (updates.hasOwnProperty('enabled')) {
+      setNotificationChoiceMade(true);
+    }
   };
 
   const updateScheduling = (updates) => {
@@ -360,6 +355,7 @@ export default function JobPostWizard({
 
   const isValid = () => {
     if (!jobData.title || !jobData.company || !jobData.description) return false;
+    if (!notificationChoiceMade) return false;
     if (notification.enabled && (!notification.template?.title || !notification.template?.message)) return false;
     if (scheduling.enabled && (!scheduling.date || !scheduling.time)) return false;
     return true;
@@ -415,40 +411,11 @@ export default function JobPostWizard({
         onChange={updateScheduling}
       />
 
-      {/* Resumo */}
-      <Card className="rounded-2xl border-2 border-blue-200 bg-blue-50">
-        <CardContent className="p-6">
-          <h3 className="font-bold text-slate-800 mb-4">Resumo da Publicação</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-blue-600" />
-              <span><strong>Vaga:</strong> {jobData.title || '(não definido)'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4 text-purple-600" />
-              <span><strong>Visibilidade:</strong> {
-                visibility === 'all' ? 'Todos' :
-                visibility === 'premium' ? 'Premium' :
-                visibility === 'region' ? 'Região' : 'Privada'
-              }</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-green-600" />
-              <span><strong>Notificação:</strong> {notification.enabled ? 'Sim' : 'Não'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-orange-600" />
-              <span><strong>Agendamento:</strong> {scheduling.enabled ? `${scheduling.date} ${scheduling.time}` : 'Publicar agora'}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* BOTÃO ÚNICO FINAL */}
+      {/* BOTÃO DE PUBLICAR (DESABILITADO ATÉ ESCOLHER NOTIFICAÇÃO) */}
       <Button
         onClick={handlePublish}
         disabled={!isValid() || isPublishing}
-        className="w-full h-14 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl text-lg font-semibold"
+        className="w-full h-14 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isPublishing ? (
           <>
@@ -462,6 +429,60 @@ export default function JobPostWizard({
           </>
         )}
       </Button>
+
+      {/* ESCOLHA DE NOTIFICAÇÃO - ABAIXO DO BOTÃO */}
+      {!notificationChoiceMade && (
+        <Card className="rounded-2xl border-2 border-yellow-200 bg-yellow-50">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3 mb-4">
+              <Bell className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="font-bold text-slate-800 mb-1">Enviar Notificação?</h3>
+                <p className="text-sm text-slate-600">
+                  Escolha se deseja notificar os usuários sobre esta vaga para habilitar a publicação.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setNotification(prev => ({ ...prev, enabled: false }));
+                  setNotificationChoiceMade(true);
+                }}
+                className="h-12 border-2 hover:border-slate-400"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Não Enviar
+              </Button>
+              <Button
+                onClick={() => {
+                  setNotification(prev => ({ ...prev, enabled: true }));
+                  setNotificationChoiceMade(true);
+                }}
+                className="h-12 bg-green-600 hover:bg-green-700"
+              >
+                <Bell className="w-4 h-4 mr-2" />
+                Sim, Enviar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {notificationChoiceMade && (
+        <div className="text-center text-sm text-slate-500">
+          Notificação: {notification.enabled ? '✅ Será enviada' : '❌ Não será enviada'}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setNotificationChoiceMade(false)}
+            className="ml-2 text-blue-600 hover:text-blue-700"
+          >
+            Alterar
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
