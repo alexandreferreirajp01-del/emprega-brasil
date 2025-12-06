@@ -155,6 +155,32 @@ export default function Jobs() {
   }, []);
 
   // Auth check
+  // Buscar categorias profissionais
+  const { data: categories = [] } = useQuery({
+    queryKey: ['professional-categories'],
+    queryFn: () => base44.entities.ProfessionalCategory.list('category_order', 100),
+  });
+
+  // Extrair funções únicas baseadas na categoria selecionada
+  const availableFunctions = React.useMemo(() => {
+    if (selectedCategory === 'all') {
+      // Se nenhuma categoria selecionada, mostrar todas as funções das vagas
+      const functions = new Set();
+      jobs.forEach(job => {
+        if (job.job_function) functions.add(job.job_function);
+      });
+      return Array.from(functions).sort();
+    } else {
+      // Se categoria selecionada, mostrar funções dessa categoria
+      const category = categories.find(cat => cat.category_name === selectedCategory);
+      return category?.job_titles || [];
+    }
+  }, [selectedCategory, categories, jobs]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     const checkAuth = async () => {
       const visitorMode = localStorage.getItem('vagas_abertas_visitor_mode');
