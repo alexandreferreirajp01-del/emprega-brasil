@@ -253,58 +253,7 @@ export default function NotificationTemplateSelector({
           </div>
         </div>
 
-        {/* Preview da Notificação */}
-        <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-          <Label className="text-sm font-semibold text-slate-700 mb-3 block">Preview da Notificação</Label>
-          <div className="bg-white rounded-lg shadow-md p-4 flex items-start gap-3 mb-4">
-            <div className={`w-12 h-12 rounded-lg ${NOTIFICATION_ICONS.find(i => i.id === selectedIcon)?.color} flex items-center justify-center text-2xl flex-shrink-0`}>
-              {NOTIFICATION_ICONS.find(i => i.id === selectedIcon)?.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-slate-800 mb-1">{title || 'Título da notificação'}</p>
-              <p className="text-sm text-slate-600 line-clamp-2">{message || 'Mensagem da notificação'}</p>
-              {jobTitle && jobCity && (
-                <p className="text-xs text-blue-600 mt-1">
-                  💼 {jobTitle} - {jobCity}
-                </p>
-              )}
-            </div>
-          </div>
 
-          {/* Botões de Ação */}
-          <div className="space-y-3">
-            <Button
-              onClick={onSendNotification}
-              disabled={!title || !message || isLoading}
-              className={`w-full h-12 rounded-xl font-semibold transition-all ${
-                title && message && !isLoading
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Enviando...
-                </>
-              ) : (
-                <>
-                  <Bell className="w-5 h-5 mr-2" />
-                  Enviar Notificação
-                </>
-              )}
-            </Button>
-
-            <Button
-              onClick={onSkipNotification}
-              disabled={isLoading}
-              variant="outline"
-              className="w-full h-12 rounded-xl font-medium border-2 hover:bg-slate-50"
-            >
-              Não Enviar Notificação
-            </Button>
-          </div>
-        </div>
       </CardContent>
     </Card>
   );
