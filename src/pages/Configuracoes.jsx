@@ -5,7 +5,7 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
