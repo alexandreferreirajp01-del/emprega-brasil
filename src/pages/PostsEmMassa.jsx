@@ -4,19 +4,82 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, Upload, Loader2, Sparkles, Image as ImageIcon, 
-  FileText, CheckCircle, AlertCircle, Zap, Eye, Trash2
+  FileText, CheckCircle, AlertCircle, Zap, Eye, Trash2, Send
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import NotificationSender from "@/components/admin/NotificationSender";
+
+const JOB_FUNCTIONS = [
+  "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
+  "Analista de compras", "Analista de logística", "Analista de marketing",
+  "Analista de recursos humanos", "Analista de sistemas", "Atendente de balcão",
+  "Atendente de call center", "Auxiliar de limpeza", "Auxiliar de manutenção",
+  "Auxiliar de mecânico", "Auxiliar de produção", "Bibliotecário", "Biomédico",
+  "Bombeiro", "Cabeleireiro", "Caixa de supermercado", "Carpinteiro",
+  "Consultor de vendas", "Coordenador administrativo", "Coordenador de produção",
+  "Coordenador de recursos humanos", "Cozinheiro", "Designer gráfico",
+  "Desenvolvedor de software", "Digitador", "Eletricista", "Engenheiro civil",
+  "Engenheiro de produção", "Engenheiro eletricista", "Engenheiro mecânico",
+  "Farmacêutico", "Fisioterapeuta", "Garçom", "Jardineiro", "Jornalista",
+  "Motorista", "Nutricionista", "Operador de caixa", "Operador de máquinas",
+  "Pedreiro", "Pintor", "Professor", "Psicólogo", "Porteiro", "Recepcionista",
+  "Técnico de enfermagem", "Técnico em informática", "Técnico em manutenção",
+  "Vendedor", "Zelador", "Mecânico", "Balconista", "Copeiro", "Babá",
+  "Lavador de Carros", "Faturista", "Departamento Pessoal", "Repositor",
+  "Manobrista", "Tec Enfermagem", "Enfermeira", "Médica", "Gestor Comercial",
+  "Gerente", "Coordenador", "Assistente Fiscal", "Assistente contábil",
+  "Tec Segurança do trabalho", "Controladoria", "Compras", "Promotor de vendas",
+  "Carregador", "Estoquista", "Logística", "Panfletista", "Outros"
+];
+
+const CIDADES_PB = [
+  "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
+  "Patos", "Guarabira", "Cajazeiras", "Sousa", "Pombal", "Itabaiana",
+  "Monteiro", "Mamanguape", "Catolé do Rocha", "Princesa Isabel",
+  "Esperança", "Mari", "São Bento", "Conceição", "Itaporanga",
+  "Sapé", "Sumé", "Picuí", "Cuité", "Alhandra", "Pedras de Fogo"
+];
+
+const JOB_TYPES = [
+  "CLT", "PJ", "Estágio", "Temporário", "Jovem Aprendiz", "Freelancer", "MEI", "Autônomo"
+];
+
+const WORK_MODES = [
+  "Presencial", "Home Office", "Híbrido", "Remoto"
+];
 
 export default function PostsEmMassa() {
   const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [extractedJobs, setExtractedJobs] = useState([]);
-  const [postMode, setPostMode] = useState('separated'); // 'separated', 'grouped', 'batch'
+  const [postMode, setPostMode] = useState('auto'); // 'auto', 'manual', 'grouped'
   const [results, setResults] = useState(null);
+  const [showNotification, setShowNotification] = useState(false);
+  const [lastCreatedJob, setLastCreatedJob] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Verificar autenticação
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await base44.auth.me();
+        const isAdmin = user.email === 'alexandreferreirajp01@gmail.com' || 
+                        user.role === 'admin' || 
+                        user.subscription_type === 'admin';
+        if (!isAdmin) {
+          window.location.href = createPageUrl('Home');
+          return;
+        }
+        setCurrentUser(user);
+      } catch (e) {
+        window.location.href = createPageUrl('Splash');
+      }
+    };
+    checkAuth();
+  }, []);
 
   // Upload de imagens
   const handleImageUpload = async (e) => {
@@ -63,18 +126,24 @@ export default function PostsEmMassa() {
 
         // Usar IA para extrair vagas da imagem
         const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `Analise esta imagem e extraia TODAS as vagas de emprego presentes. 
+          prompt: `Analise esta imagem de vaga de emprego brasileira e extraia TODAS as vagas presentes. 
           
-Para cada vaga encontrada, retorne:
-- title: título da vaga
+Para cada vaga encontrada, extraia:
+- title: título/cargo da vaga (obrigatório)
 - company: nome da empresa
-- city: cidade (se mencionar)
-- salary_range: salário (se mencionar)
-- job_type: tipo (CLT, Home Office, etc)
-- description: descrição completa
-- application_link: como se candidatar
+- job_function: função (Vendedor, Atendente, etc)
+- city: cidade da Paraíba. Se bairros como Mangabeira, Manaíra, Tambaú = João Pessoa. Se Intermares = Cabedelo
+- description: descrição completa com requisitos, benefícios, horário
+- salary_range: salário ou faixa salarial
+- job_type: tipo (CLT, PJ, Estágio, Temporário, etc)
+- work_mode: modalidade (Presencial, Home Office, Híbrido, Remoto)
+- contact_phone: telefone/WhatsApp (com DDD 83)
+- contact_email: email de contato
+- application_link: link de candidatura ou site
+- benefits: benefícios oferecidos
+- requirements: requisitos necessários
 
-Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
+IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Extraia o máximo de informação possível.`,
           file_urls: [img.url],
           response_json_schema: {
             type: "object",
@@ -86,11 +155,17 @@ Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
                   properties: {
                     title: { type: "string" },
                     company: { type: "string" },
+                    job_function: { type: "string" },
                     city: { type: "string" },
+                    description: { type: "string" },
                     salary_range: { type: "string" },
                     job_type: { type: "string" },
-                    description: { type: "string" },
-                    application_link: { type: "string" }
+                    work_mode: { type: "string" },
+                    contact_phone: { type: "string" },
+                    contact_email: { type: "string" },
+                    application_link: { type: "string" },
+                    benefits: { type: "string" },
+                    requirements: { type: "string" }
                   }
                 }
               }
@@ -101,9 +176,54 @@ Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
         const jobs = result.jobs || [];
         
         jobs.forEach(job => {
+          // Encontrar cidade na lista
+          let foundCity = '';
+          if (job.city) {
+            const cityLower = job.city.toLowerCase();
+            foundCity = CIDADES_PB.find(c => c.toLowerCase() === cityLower) || 
+                        CIDADES_PB.find(c => cityLower.includes(c.toLowerCase())) || 
+                        job.city;
+          }
+
+          // Encontrar função na lista
+          let foundFunction = '';
+          if (job.job_function) {
+            const funcLower = job.job_function.toLowerCase();
+            foundFunction = JOB_FUNCTIONS.find(f => f.toLowerCase() === funcLower) || 
+                           JOB_FUNCTIONS.find(f => funcLower.includes(f.toLowerCase())) || 
+                           job.job_function;
+          }
+
+          // Montar descrição completa
+          let fullDescription = job.description || '';
+          if (job.requirements) fullDescription += `\n\nREQUISITOS:\n${job.requirements}`;
+          if (job.benefits) fullDescription += `\n\nBENEFÍCIOS:\n${job.benefits}`;
+          if (job.contact_phone) fullDescription += `\n\nCONTATO:\nWhatsApp: ${job.contact_phone}`;
+          if (job.contact_email) fullDescription += `\nEmail: ${job.contact_email}`;
+
+          // Determinar link de candidatura
+          let applicationLink = '';
+          if (job.application_link) {
+            applicationLink = job.application_link.startsWith('http') ? job.application_link : `https://${job.application_link}`;
+          } else if (job.contact_phone) {
+            let phone = job.contact_phone.replace(/\D/g, '');
+            if (phone.startsWith('0')) phone = phone.substring(1);
+            if (!phone.startsWith('55')) phone = '55' + phone;
+            applicationLink = `https://wa.me/${phone}`;
+          } else if (job.contact_email) {
+            applicationLink = `mailto:${job.contact_email}`;
+          }
+
           allJobs.push({
-            ...job,
-            imageUrl: img.url,
+            title: job.title,
+            company: job.company || 'Empresa não informada',
+            job_function: foundFunction,
+            city: foundCity,
+            description: fullDescription,
+            salary_range: job.salary_range,
+            job_type: job.job_type,
+            application_link: applicationLink,
+            image_url: img.url,
             imageName: img.name
           });
         });
@@ -132,32 +252,62 @@ Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
     setProcessing(true);
     let successCount = 0;
     let errorCount = 0;
+    let firstJobId = null;
 
     try {
       if (postMode === 'grouped') {
-        // Criar um único post com todas as vagas
-        const groupedContent = extractedJobs.map((job, i) => 
-          `📌 VAGA ${i + 1}: ${job.title}\n🏢 ${job.company}\n📍 ${job.city || 'Local não especificado'}\n💰 ${job.salary_range || 'A combinar'}\n📝 ${job.description}\n\n`
+        // Criar uma única vaga com todas as informações
+        const groupedTitle = `${extractedJobs.length} Vagas Disponíveis`;
+        const groupedDescription = extractedJobs.map((job, i) => 
+          `\n━━━━━━━━━━━━━━━━\n🔹 VAGA ${i + 1}: ${job.title}\n🏢 ${job.company}\n📍 ${job.city || 'Cidade não especificada'}\n💰 ${job.salary_range || 'A combinar'}\n📝 ${job.description}\n`
         ).join('');
 
-        await base44.entities.FeedPost.create({
-          autor_email: (await base44.auth.me()).email,
-          autor_nome: (await base44.auth.me()).full_name,
-          conteudo: groupedContent,
-          imagens: images.map(img => img.url)
+        const groupedJob = await base44.entities.Job.create({
+          title: groupedTitle,
+          company: 'Múltiplas Empresas',
+          description: groupedDescription,
+          image_url: images[0]?.url,
+          is_premium: false,
+          is_featured: false
         });
+
+        firstJobId = groupedJob.id;
         successCount = 1;
 
       } else {
         // Criar posts separados
         for (const job of extractedJobs) {
           try {
-            await base44.entities.FeedPost.create({
-              autor_email: (await base44.auth.me()).email,
-              autor_nome: (await base44.auth.me()).full_name,
-              conteudo: `📌 ${job.title}\n\n🏢 Empresa: ${job.company}\n📍 Local: ${job.city || 'Não especificado'}\n💰 Salário: ${job.salary_range || 'A combinar'}\n📋 Tipo: ${job.job_type || 'Não especificado'}\n\n${job.description}\n\n${job.application_link ? `📲 Como se candidatar: ${job.application_link}` : ''}`,
-              imagens: [job.imageUrl]
+            const createdJob = await base44.entities.Job.create({
+              title: job.title,
+              company: job.company,
+              job_function: job.job_function,
+              city: job.city,
+              description: job.description,
+              salary_range: job.salary_range,
+              job_type: job.job_type,
+              image_url: job.image_url,
+              application_link: job.application_link,
+              is_premium: false,
+              is_featured: false
             });
+
+            if (!firstJobId) firstJobId = createdJob.id;
+
+            // Se modo automático, enviar notificação automática
+            if (postMode === 'auto') {
+              try {
+                await base44.functions.invoke('notifyNewJob', {
+                  jobId: createdJob.id,
+                  jobTitle: job.title,
+                  jobCompany: job.company,
+                  isHomeOffice: job.work_mode?.toLowerCase().includes('home') || false
+                });
+              } catch (e) {
+                console.log('Erro ao enviar notificação automática:', e);
+              }
+            }
+
             successCount++;
           } catch (error) {
             console.error('Erro ao publicar vaga:', error);
@@ -169,8 +319,19 @@ Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
       setResults({
         success: successCount,
         error: errorCount,
-        total: postMode === 'grouped' ? 1 : extractedJobs.length
+        total: postMode === 'grouped' ? 1 : extractedJobs.length,
+        firstJobId
       });
+
+      // Se modo manual, mostrar painel de notificações
+      if (postMode === 'manual' && firstJobId) {
+        setLastCreatedJob({ 
+          id: firstJobId, 
+          title: extractedJobs[0]?.title,
+          city: extractedJobs[0]?.city
+        });
+        setShowNotification(true);
+      }
 
     } catch (error) {
       console.error('Erro ao publicar posts:', error);
@@ -188,6 +349,8 @@ Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
     setImages([]);
     setExtractedJobs([]);
     setResults(null);
+    setShowNotification(false);
+    setLastCreatedJob(null);
   };
 
   return (
@@ -294,22 +457,43 @@ Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
             </CardHeader>
             <CardContent className="space-y-3">
               <button
-                onClick={() => setPostMode('separated')}
+                onClick={() => setPostMode('auto')}
                 className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                  postMode === 'separated' 
+                  postMode === 'auto' 
                     ? 'border-purple-600 bg-purple-50' 
                     : 'border-slate-200 hover:border-purple-300'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div className={`w-5 h-5 rounded-full border-2 mt-0.5 ${
-                    postMode === 'separated' ? 'border-purple-600 bg-purple-600' : 'border-slate-300'
+                    postMode === 'auto' ? 'border-purple-600 bg-purple-600' : 'border-slate-300'
                   }`}>
-                    {postMode === 'separated' && <div className="w-2 h-2 bg-white rounded-full m-auto mt-1"></div>}
+                    {postMode === 'auto' && <div className="w-2 h-2 bg-white rounded-full m-auto mt-1"></div>}
                   </div>
                   <div>
-                    <p className="font-semibold text-slate-800">Posts Separados</p>
-                    <p className="text-sm text-slate-500">Criar um post individual para cada vaga encontrada</p>
+                    <p className="font-semibold text-slate-800">Publicar Automaticamente</p>
+                    <p className="text-sm text-slate-500">Cria posts e envia notificações automáticas para todas as vagas</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setPostMode('manual')}
+                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                  postMode === 'manual' 
+                    ? 'border-purple-600 bg-purple-50' 
+                    : 'border-slate-200 hover:border-purple-300'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 ${
+                    postMode === 'manual' ? 'border-purple-600 bg-purple-600' : 'border-slate-300'
+                  }`}>
+                    {postMode === 'manual' && <div className="w-2 h-2 bg-white rounded-full m-auto mt-1"></div>}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-800">Publicar Manualmente</p>
+                    <p className="text-sm text-slate-500">Cria posts separados e permite enviar notificações depois</p>
                   </div>
                 </div>
               </button>
@@ -330,7 +514,7 @@ Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
                   </div>
                   <div>
                     <p className="font-semibold text-slate-800">Post Agrupado</p>
-                    <p className="text-sm text-slate-500">Criar um único post com todas as vagas</p>
+                    <p className="text-sm text-slate-500">Cria um único post com todas as vagas</p>
                   </div>
                 </div>
               </button>
@@ -377,6 +561,7 @@ Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
                       <p>🏢 {job.company}</p>
                       {job.city && <p>📍 {job.city}</p>}
                       {job.salary_range && <p>💰 {job.salary_range}</p>}
+                      {job.job_function && <p>💼 {job.job_function}</p>}
                       {job.job_type && <p>📋 {job.job_type}</p>}
                     </div>
                   </div>
@@ -395,8 +580,10 @@ Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
                   </>
                 ) : (
                   <>
-                    <CheckCircle className="w-5 h-5 mr-2" />
-                    Publicar {postMode === 'grouped' ? '1 Post Agrupado' : `${extractedJobs.length} Posts`}
+                    <Send className="w-5 h-5 mr-2" />
+                    {postMode === 'auto' && `Publicar e Notificar ${extractedJobs.length} Vagas`}
+                    {postMode === 'manual' && `Publicar ${extractedJobs.length} Vagas`}
+                    {postMode === 'grouped' && 'Publicar Vaga Agrupada'}
                   </>
                 )}
               </Button>
@@ -404,20 +591,44 @@ Retorne TODAS as vagas encontradas, mesmo que sejam múltiplas.`,
           </Card>
         )}
 
+        {/* Painel de Notificações (modo manual) */}
+        {showNotification && lastCreatedJob && !results && (
+          <div className="space-y-4">
+            <NotificationSender 
+              showToast={(msg) => alert(msg)}
+              job={lastCreatedJob}
+              onClose={() => {
+                setShowNotification(false);
+                setResults({ success: extractedJobs.length, error: 0, total: extractedJobs.length });
+              }}
+            />
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setShowNotification(false);
+                setResults({ success: extractedJobs.length, error: 0, total: extractedJobs.length });
+              }}
+              className="w-full"
+            >
+              Pular Notificação
+            </Button>
+          </div>
+        )}
+
         {/* Resultados */}
-        {results && (
+        {results && !showNotification && (
           <Card className="rounded-2xl border-2 border-green-200">
             <CardContent className="p-6 text-center">
               <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-slate-800 mb-2">Publicação Concluída!</h3>
               <p className="text-slate-600 mb-6">
-                {results.success} de {results.total} posts publicados com sucesso
+                {results.success} de {results.total} vagas publicadas com sucesso na aba Vagas
               </p>
               <div className="flex gap-3">
-                <Link to={createPageUrl('Feed')} className="flex-1">
+                <Link to={createPageUrl('Jobs')} className="flex-1">
                   <Button className="w-full bg-purple-600 hover:bg-purple-700 rounded-xl">
                     <Eye className="w-5 h-5 mr-2" />
-                    Ver no Feed
+                    Ver Vagas
                   </Button>
                 </Link>
                 <Button 
