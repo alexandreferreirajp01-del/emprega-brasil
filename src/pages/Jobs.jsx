@@ -10,6 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Popover,
   PopoverContent,
@@ -130,6 +132,7 @@ export default function Jobs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedFunction, setSelectedFunction] = useState('all');
   const [citySearch, setCitySearch] = useState('');
   const [funcSearch, setFuncSearch] = useState('');
@@ -154,7 +157,6 @@ export default function Jobs() {
     if (searchParam) setSearchTerm(searchParam);
   }, []);
 
-  // Auth check
   // Buscar categorias profissionais
   const { data: categories = [] } = useQuery({
     queryKey: ['professional-categories'],
@@ -164,14 +166,12 @@ export default function Jobs() {
   // Extrair funções únicas baseadas na categoria selecionada
   const availableFunctions = React.useMemo(() => {
     if (selectedCategory === 'all') {
-      // Se nenhuma categoria selecionada, mostrar todas as funções das vagas
       const functions = new Set();
       jobs.forEach(job => {
         if (job.job_function) functions.add(job.job_function);
       });
       return Array.from(functions).sort();
     } else {
-      // Se categoria selecionada, mostrar funções dessa categoria
       const category = categories.find(cat => cat.category_name === selectedCategory);
       return category?.job_titles || [];
     }
@@ -252,30 +252,37 @@ export default function Jobs() {
     
     const matchesCity = selectedCity === 'all' || job.city === selectedCity;
     
-    // Match by contract_types array or legacy job_type
     const matchesType = selectedType === 'all' || 
       job.job_type === selectedType ||
       (job.contract_types && job.contract_types.includes(selectedType));
     
+    const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     
-    return matchesSearch && matchesCity && matchesType && matchesFunction;
+    return matchesSearch && matchesCity && matchesType && matchesCategory && matchesFunction;
   });
 
   const filteredCities = CIDADES_PB.filter(city =>
     city.toLowerCase().includes(citySearch.toLowerCase())
   );
 
+  const handleCategoryChange = (value) => {
+    setSelectedCategory(value);
+    setSelectedFunction('all');
+  };
+
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedCity('all');
     setSelectedType('all');
+    setSelectedCategory('all');
     setSelectedFunction('all');
     setCitySearch('');
     setFuncSearch('');
   };
 
-  const hasActiveFilters = searchTerm || selectedCity !== 'all' || selectedType !== 'all' || selectedFunction !== 'all';
+  const activeFiltersCount = [selectedCity, selectedType, selectedCategory, selectedFunction].filter(f => f !== 'all').length;
+  const hasActiveFilters = searchTerm || activeFiltersCount > 0;
 
   // Handle favorite
   const handleFavorite = async (job, e) => {
@@ -351,11 +358,30 @@ export default function Jobs() {
       </div>
 
       {/* Filters */}
-      <div className="max-w-6xl mx-auto px-4 -mt-4">
-        <Card className="shadow-lg rounded-xl">
+      <div className="max-w-6xl mx-auto px-4 -mt-4 mb-6">
+        <Card className="shadow-lg rounded-xl border-0">
           <CardContent className="p-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-slate-600">Filtrar:</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-slate-700">Filtrar:</span>
+                {activeFiltersCount > 0 && (
+                  <Badge className="bg-blue-100 text-blue-700 border-0 text-xs">
+                    {activeFiltersCount}
+                  </Badge>
+                )}
+              </div>
+              {hasActiveFilters && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={clearFilters} 
+                  className="text-slate-600 hover:text-slate-800 h-8"
+                >
+                  <X className="w-4 h-4 mr-1" /> Limpar
+                </Button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               
               {/* City filter */}
               <Popover open={cityOpen} onOpenChange={setCityOpen}>
@@ -408,10 +434,10 @@ export default function Jobs() {
 
               {/* Type filter */}
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="w-[140px] h-10 rounded-lg">
+                <SelectTrigger className="h-11 rounded-xl">
                   <div className="flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-slate-400" />
-                    <SelectValue placeholder="Tipo" />
+                    <SelectValue placeholder="Todos" />
                   </div>
                 </SelectTrigger>
                 <SelectContent>
@@ -430,68 +456,80 @@ export default function Jobs() {
                 </SelectContent>
               </Select>
 
-              {/* Function filter */}
-              <Popover open={funcOpen} onOpenChange={setFuncOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-[160px] h-10 rounded-lg justify-start">
-                    <Briefcase className="w-4 h-4 text-slate-400 mr-2" />
-                    <span className="truncate text-sm">
-                      {selectedFunction === 'all' ? 'Função' : selectedFunction}
-                    </span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[220px] p-0" align="start">
-                  <Command>
-                    <CommandInput 
-                      placeholder="Buscar função..." 
-                      value={funcSearch}
-                      onValueChange={setFuncSearch}
-                    />
-                    <CommandList className="max-h-[180px]">
-                      <CommandEmpty>Nenhuma função encontrada</CommandEmpty>
-                      <CommandGroup>
-                        <CommandItem
-                          value="all"
-                          onSelect={() => {
-                            setSelectedFunction('all');
-                            setFuncOpen(false);
-                            setFuncSearch('');
-                          }}
-                        >
-                          Todas funções
-                        </CommandItem>
-                        {JOB_FUNCTIONS.filter(f => 
-                          f.toLowerCase().includes(funcSearch.toLowerCase())
-                        ).map((func) => (
-                          <CommandItem
-                            key={func}
-                            value={func}
-                            onSelect={() => {
-                              setSelectedFunction(func);
-                              setFuncOpen(false);
-                              setFuncSearch('');
-                            }}
-                          >
-                            {func}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              {/* Category filter */}
+              <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                <SelectTrigger className="h-11 rounded-xl">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <ScrollArea className="h-[250px]">
+                    <SelectItem value="all">Todas categorias</SelectItem>
+                    {categories.map(cat => (
+                      <SelectItem key={cat.id} value={cat.category_name}>
+                        {cat.category_name}
+                      </SelectItem>
+                    ))}
+                  </ScrollArea>
+                </SelectContent>
+              </Select>
 
-              {hasActiveFilters && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={clearFilters} 
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                >
-                  <X className="w-4 h-4 mr-1" /> Limpar
-                </Button>
-              )}
+              {/* Function filter */}
+              <Select value={selectedFunction} onValueChange={setSelectedFunction}>
+                <SelectTrigger className="h-11 rounded-xl">
+                  <SelectValue placeholder="Função" />
+                </SelectTrigger>
+                <SelectContent>
+                  <div className="p-2 sticky top-0 bg-white border-b">
+                    <Input
+                      placeholder="Buscar função..."
+                      value={funcSearch}
+                      onChange={(e) => setFuncSearch(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
+                  <ScrollArea className="h-[200px]">
+                    <SelectItem value="all">Todas funções</SelectItem>
+                    {availableFunctions.filter(f => 
+                      f.toLowerCase().includes(funcSearch.toLowerCase())
+                    ).map((func) => (
+                      <SelectItem key={func} value={func}>{func}</SelectItem>
+                    ))}
+                  </ScrollArea>
+                </SelectContent>
+              </Select>
             </div>
+            
+            {/* Active Filters */}
+            {activeFiltersCount > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t">
+                {selectedCity !== 'all' && (
+                  <Badge variant="secondary" className="rounded-full">
+                    <MapPin className="w-3 h-3 mr-1" />
+                    {selectedCity}
+                    <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setSelectedCity('all')} />
+                  </Badge>
+                )}
+                {selectedType !== 'all' && (
+                  <Badge variant="secondary" className="rounded-full">
+                    <Briefcase className="w-3 h-3 mr-1" />
+                    {selectedType}
+                    <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setSelectedType('all')} />
+                  </Badge>
+                )}
+                {selectedCategory !== 'all' && (
+                  <Badge variant="secondary" className="rounded-full">
+                    {selectedCategory}
+                    <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setSelectedCategory('all')} />
+                  </Badge>
+                )}
+                {selectedFunction !== 'all' && (
+                  <Badge variant="secondary" className="rounded-full">
+                    {selectedFunction}
+                    <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setSelectedFunction('all')} />
+                  </Badge>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -578,12 +616,17 @@ export default function Jobs() {
 
         {filteredJobs.length === 0 && !isLoading && (
           <div className="text-center py-16">
-            <Briefcase className="w-20 h-20 text-slate-200 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-slate-600 mb-2">Nenhuma vaga encontrada</h3>
-            <p className="text-slate-500 mb-6">Tente ajustar os filtros ou termo de busca</p>
-            <Button onClick={clearFilters} variant="outline" className="rounded-lg">
-              Limpar filtros
-            </Button>
+            <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+              <Briefcase className="w-10 h-10 text-slate-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-slate-800 mb-2">Nenhuma vaga encontrada</h3>
+            <p className="text-slate-500 mb-4">Não encontramos vagas com os filtros selecionados</p>
+            {hasActiveFilters && (
+              <Button onClick={clearFilters} variant="outline" className="rounded-xl">
+                <X className="w-4 h-4 mr-2" />
+                Limpar filtros
+              </Button>
+            )}
           </div>
         )}
       </div>
