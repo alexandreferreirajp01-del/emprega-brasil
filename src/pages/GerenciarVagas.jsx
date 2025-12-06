@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Briefcase, MapPin, Trash2, Loader2, CheckCircle, Search, Building2, Crown } from "lucide-react";
+import { ArrowLeft, Briefcase, MapPin, Trash2, Loader2, CheckCircle, Search, Building2, Crown, Edit } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import EditJobModal from "@/components/admin/EditJobModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
@@ -15,6 +16,8 @@ export default function GerenciarVagas() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [search, setSearch] = useState('');
+  const [editingJob, setEditingJob] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const showToast = (message, type = 'success') => {
@@ -135,20 +138,43 @@ export default function GerenciarVagas() {
                         {job.city || 'Não informado'}
                       </p>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => deleteJobMutation.mutate(job.id)}
-                      className="rounded-lg text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          setEditingJob(job);
+                          setIsEditModalOpen(true);
+                        }}
+                        className="rounded-lg text-blue-600 hover:bg-blue-50"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => deleteJobMutation.mutate(job.id)}
+                        className="rounded-lg text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         </ScrollArea>
+
+        <EditJobModal
+          job={editingJob}
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingJob(null);
+          }}
+          onUpdateSuccess={() => showToast('Vaga atualizada com sucesso!')}
+        />
       </div>
     </div>
   );
