@@ -583,13 +583,13 @@ Retorne JSON com array "vagas".`,
                    }
 
                    showToast('Notificação enviada!');
-                 } catch (e) {
+                   } catch (e) {
                    console.error('Erro:', e);
-                 }
-               }
-               setShowNotificationSender(false);
-              }
-              onSkipNotification={() => setShowNotificationSender(false)}
+                   }
+                   }
+                   setShowNotificationSender(false);
+                   }}
+                   onSkipNotification={() => setShowNotificationSender(false)}
               jobTitle={lastCreatedJob.title}
               jobCompany="Diversas Empresas"
               jobCity={lastCreatedJob.city}
