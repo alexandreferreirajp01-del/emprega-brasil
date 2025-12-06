@@ -214,6 +214,7 @@ Responda APENAS com o JSON, sem explicações.`,
 
   const createJobMutation = useMutation({
     mutationFn: async () => {
+      console.log('Iniciando criação de vaga IA:', { title, company, city });
       // Gerar link de candidatura correto
       let finalApplicationLink = applicationLink;
       
@@ -259,7 +260,9 @@ Responda APENAS com o JSON, sem explicações.`,
         return { pending: true };
       }
       
-      return await base44.entities.Job.create(jobData);
+      const createdJob = await base44.entities.Job.create(jobData);
+      console.log('Vaga criada com sucesso:', createdJob);
+      return createdJob;
     },
     onSuccess: async (result) => {
       if (result?.pending) {
@@ -300,6 +303,10 @@ Responda APENAS com o JSON, sem explicações.`,
       setExtractedData(null);
       
       setTimeout(() => setShowSuccess(false), 3000);
+    },
+    onError: (error) => {
+      console.error('Erro ao criar vaga IA:', error);
+      alert('Erro ao publicar: ' + (error?.message || 'Erro desconhecido'));
     }
   });
 

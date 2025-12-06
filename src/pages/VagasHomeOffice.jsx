@@ -172,6 +172,7 @@ Retorne JSON com array "vagas".`,
 
   const publishAllMutation = useMutation({
     mutationFn: async () => {
+      console.log('Publicando vagas home office:', extractedJobs.length);
       // Criar descrição apenas com os nomes das vagas (sem links visíveis)
       let description = `🏠 ${extractedJobs.length} Vagas Home Office disponíveis!\n\n`;
       description += `Confira as oportunidades:\n\n`;
@@ -219,7 +220,9 @@ Retorne JSON com array "vagas".`,
         return { pending: true };
       }
       
-      return await base44.entities.Job.create(jobData);
+      const createdJob = await base44.entities.Job.create(jobData);
+      console.log('Vaga home office criada:', createdJob);
+      return createdJob;
     },
     onSuccess: async (result) => {
       if (result?.pending) {
@@ -248,6 +251,10 @@ Retorne JSON com array "vagas".`,
       if (textareaRef.current) textareaRef.current.value = '';
       setExtractedJobs([]);
       setTimeout(() => setShowSuccess(false), 3000);
+    },
+    onError: (error) => {
+      console.error('Erro ao publicar home office:', error);
+      alert('Erro ao publicar: ' + (error?.message || 'Erro desconhecido'));
     }
   });
 

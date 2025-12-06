@@ -249,8 +249,11 @@ export default function PostarVaga() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.title) return;
+    if (e && e.preventDefault) e.preventDefault();
+    if (!formData.title) {
+      showToast('Título é obrigatório', 'error');
+      return;
+    }
     
     setSubmitting(true);
 
@@ -337,7 +340,8 @@ export default function PostarVaga() {
         setShowNotificationSender(true);
       }
     } catch (err) {
-      showToast('Erro ao publicar', 'error');
+      console.error('Erro completo ao publicar:', err);
+      showToast(err?.message || 'Erro ao publicar vaga', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -671,7 +675,7 @@ export default function PostarVaga() {
                 });
                 showToast('Vaga agendada!');
               }}
-              onPublishNow={handleSubmit}
+              onPublishNow={() => handleSubmit(null)}
               showToast={showToast}
             />
             <Button 

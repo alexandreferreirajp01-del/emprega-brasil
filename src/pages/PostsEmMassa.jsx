@@ -252,6 +252,7 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
       return;
     }
 
+    console.log('Iniciando publicação em massa:', extractedJobs.length, 'vagas');
     setProcessing(true);
     let successCount = 0;
     let errorCount = 0;
@@ -337,8 +338,8 @@ IMPORTANTE: Se a imagem tiver múltiplas vagas, retorne TODAS separadamente. Ext
       }
 
     } catch (error) {
-      console.error('Erro ao publicar posts:', error);
-      alert('Erro ao publicar posts');
+      console.error('Erro completo ao publicar posts:', error);
+      alert('Erro ao publicar: ' + (error?.message || error?.toString() || 'Erro desconhecido'));
     } finally {
       setProcessing(false);
     }
