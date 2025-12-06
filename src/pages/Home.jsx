@@ -113,15 +113,15 @@ export default function Home() {
 
   const quickActions = [
     { label: 'Buscar Vagas', icon: Search, page: 'Jobs', color: 'bg-blue-600', desc: 'Encontre oportunidades' },
-    { label: 'Comunidade', icon: Users, page: 'Community', color: 'bg-purple-600', desc: 'Conecte-se' },
+    { label: 'Feed', icon: MessageCircle, page: 'Feed', color: 'bg-purple-600', desc: 'Conecte-se' },
     { label: 'Notícias', icon: Newspaper, page: 'News', color: 'bg-green-600', desc: 'Fique informado' },
-    { label: 'Grupos', icon: MessageCircle, page: 'Groups', color: 'bg-orange-600', desc: 'WhatsApp' },
+    { label: 'Grupos', icon: Users, page: 'Groups', color: 'bg-orange-600', desc: 'WhatsApp' },
   ];
 
   const tabs = [
     { id: 'jobs', label: 'Vagas', icon: Briefcase, count: jobs.length },
     { id: 'news', label: 'Notícias', icon: Newspaper, count: news.length },
-    { id: 'community', label: 'Comunidade', icon: MessageCircle, count: posts.length },
+    { id: 'feed', label: 'Feed', icon: MessageCircle, count: posts.length },
   ];
 
   return (
@@ -386,15 +386,15 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Community Tab */}
-                {activeTab === 'community' && (
+                {/* Feed Tab */}
+                {activeTab === 'feed' && (
                   <div className="divide-y">
                     {posts.slice(0, 8).map((post) => (
-                      <Link key={post.id} to={createPageUrl('Community')}>
+                      <Link key={post.id} to={createPageUrl('Feed')}>
                         <div className="p-4 hover:bg-purple-50 transition-colors cursor-pointer">
                           <div className="flex items-center gap-2 mb-2">
                             <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                              <Users className="w-3 h-3 text-purple-600" />
+                              <MessageCircle className="w-3 h-3 text-purple-600" />
                             </div>
                             <span className="text-xs text-slate-500">{post.author_name || 'Usuário'}</span>
                           </div>
@@ -422,7 +422,7 @@ export default function Home() {
               
               {/* View All Link */}
               <div className="p-3 border-t bg-slate-50">
-                <Link to={createPageUrl(activeTab === 'jobs' ? 'Jobs' : activeTab === 'news' ? 'News' : 'Community')}>
+                <Link to={createPageUrl(activeTab === 'jobs' ? 'Jobs' : activeTab === 'news' ? 'News' : 'Feed')}>
                   <Button variant="ghost" className="w-full text-[#0056ff] hover:bg-blue-50 rounded-xl">
                     Ver Todos <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>

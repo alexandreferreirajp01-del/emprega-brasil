@@ -35,6 +35,7 @@ import GerenciarNoticias from './pages/GerenciarNoticias';
 import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
 import ListaTransmissao from './pages/ListaTransmissao';
 import ResponderChat from './pages/ResponderChat';
+import PostsEmMassa from './pages/PostsEmMassa';
 import __Layout from './Layout.jsx';
 
 
@@ -76,6 +77,7 @@ export const PAGES = {
     "GerenciarSolicitacoes": GerenciarSolicitacoes,
     "ListaTransmissao": ListaTransmissao,
     "ResponderChat": ResponderChat,
+    "PostsEmMassa": PostsEmMassa,
 }
 
 export const pagesConfig = {

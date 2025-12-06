@@ -26,6 +26,7 @@ const menuItems = [
   { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores' },
   { id: 'dividerProducao', type: 'divider', label: 'Ferramentas de Produção' },
   { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego' },
+  { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA' },
   { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial' },
   { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'green', page: 'VagasHomeOffice', description: 'Publicar vagas remotas' },
   { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'amber', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos' },
