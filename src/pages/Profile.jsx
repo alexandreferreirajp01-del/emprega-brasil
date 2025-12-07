@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
-  Shield, Calendar, Loader2, CheckCircle, Clock, Edit, Save, X,
-  Lock, Briefcase, Settings
+  Shield, Calendar, Loader2, CheckCircle, Edit, Save, X,
+  Lock, Briefcase, Settings, MapPin
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -21,7 +21,12 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
-  const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
+  const [editForm, setEditForm] = useState({ 
+    full_name: '', 
+    phone: '', 
+    city: '', 
+    state: 'PB' 
+  });
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -35,7 +40,9 @@ export default function Profile() {
         setUser(currentUser);
         setEditForm({
           full_name: currentUser.full_name || '',
-          phone: currentUser.phone || ''
+          phone: currentUser.phone || '',
+          city: currentUser.city || '',
+          state: currentUser.state || 'PB'
         });
       } catch (e) {
         window.location.href = createPageUrl('Splash');
@@ -54,9 +61,9 @@ export default function Profile() {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       await base44.auth.updateMe({ profile_photo: file_url });
       setUser(prev => ({ ...prev, profile_photo: file_url }));
-      showToast('Foto atualizada com sucesso!');
+      showToast('✅ Foto atualizada com sucesso!');
     } catch (e) {
-      showToast('Erro ao atualizar foto', 'error');
+      showToast('❌ Erro ao atualizar foto', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -65,61 +72,49 @@ export default function Profile() {
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
+      // Validação
+      if (!editForm.full_name || editForm.full_name.trim().length < 3) {
+        showToast('Nome deve ter no mínimo 3 caracteres', 'error');
+        setIsSaving(false);
+        return;
+      }
+
+      // Atualizar no banco
       await base44.auth.updateMe({
         full_name: editForm.full_name,
-        phone: editForm.phone
+        phone: editForm.phone,
+        city: editForm.city,
+        state: editForm.state
       });
-      setUser(prev => ({ ...prev, full_name: editForm.full_name, phone: editForm.phone }));
+      
+      // Atualizar estado local
+      const updatedUser = await base44.auth.me();
+      setUser(updatedUser);
       setIsEditing(false);
-      showToast('Perfil atualizado com sucesso!');
-    } catch (e) {
-      showToast('Erro ao atualizar perfil', 'error');
+      
+      showToast('✅ Perfil atualizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      showToast('❌ Erro ao atualizar perfil. Tente novamente.', 'error');
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleCancelEdit = () => {
+    setEditForm({
+      full_name: user.full_name || '',
+      phone: user.phone || '',
+      city: user.city || '',
+      state: user.state || 'PB',
+    });
+    setIsEditing(false);
   };
 
   const handleLogout = () => {
     localStorage.clear();
     sessionStorage.clear();
     window.location.href = createPageUrl('Splash');
-  };
-
-  const handleSaveProfile = async () => {
-    setSaving(true);
-    try {
-      // Validação
-      if (!formData.full_name || formData.full_name.trim().length < 3) {
-        alert('Nome deve ter no mínimo 3 caracteres');
-        setSaving(false);
-        return;
-      }
-
-      // Atualizar no banco
-      await base44.auth.updateMe(formData);
-      
-      // Atualizar estado local
-      const updatedUser = await base44.auth.me();
-      setUser(updatedUser);
-      setEditMode(false);
-      
-      alert('✅ Perfil atualizado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao salvar:', error);
-      alert('❌ Erro ao atualizar perfil. Tente novamente.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setFormData({
-      full_name: user.full_name || '',
-      phone: user.phone || '',
-      city: user.city || '',
-      state: user.state || 'PB',
-    });
-    setEditMode(false);
   };
 
   if (isLoading) {
@@ -161,7 +156,7 @@ export default function Profile() {
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
-            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl ${toast.type === 'error' ? 'bg-red-500' : 'bg-[#0056ff]'} text-white`}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'} text-white`}
           >
             <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5" />
@@ -201,28 +196,97 @@ export default function Profile() {
               <div className="space-y-4 mb-6">
                 <div className="space-y-2">
                   <Label>Nome Completo</Label>
-                  <Input value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} placeholder="Seu nome" className="rounded-xl" />
+                  <Input 
+                    value={editForm.full_name} 
+                    onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} 
+                    placeholder="Seu nome completo" 
+                    className="rounded-xl h-11" 
+                  />
                 </div>
+                
+                <div className="space-y-2">
+                  <Label>E-mail</Label>
+                  <Input 
+                    value={user?.email} 
+                    disabled 
+                    className="rounded-xl h-11 bg-slate-50" 
+                  />
+                  <p className="text-xs text-slate-500">E-mail não pode ser alterado</p>
+                </div>
+
                 <div className="space-y-2">
                   <Label>Telefone</Label>
-                  <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} placeholder="(00) 00000-0000" className="rounded-xl" />
+                  <Input 
+                    value={editForm.phone} 
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} 
+                    placeholder="(83) 99999-9999" 
+                    className="rounded-xl h-11" 
+                  />
                 </div>
-                <div className="flex gap-3">
-                  <Button onClick={handleSaveProfile} disabled={isSaving} className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl flex-1">
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}Salvar
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2 space-y-2">
+                    <Label>Cidade</Label>
+                    <Input 
+                      value={editForm.city} 
+                      onChange={(e) => setEditForm({ ...editForm, city: e.target.value })} 
+                      placeholder="Sua cidade" 
+                      className="rounded-xl h-11" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Estado</Label>
+                    <Input 
+                      value={editForm.state} 
+                      onChange={(e) => setEditForm({ ...editForm, state: e.target.value.toUpperCase() })} 
+                      maxLength={2}
+                      placeholder="PB" 
+                      className="rounded-xl h-11" 
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleCancelEdit} 
+                    className="rounded-xl flex-1 h-11"
+                    disabled={isSaving}
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Cancelar
                   </Button>
-                  <Button variant="outline" onClick={() => setIsEditing(false)} className="rounded-xl"><X className="w-4 h-4 mr-2" />Cancelar</Button>
+                  <Button 
+                    onClick={handleSaveProfile} 
+                    disabled={isSaving} 
+                    className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl flex-1 h-11"
+                  >
+                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                    Salvar
+                  </Button>
                 </div>
               </div>
             ) : (
               <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                  <User className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-500">Nome Completo</p>
+                    <p className="font-medium text-slate-800 text-sm">{user?.full_name || 'Não informado'}</p>
+                  </div>
+                  <button 
+                    onClick={() => setIsEditing(true)} 
+                    className="p-2 hover:bg-slate-200 rounded-lg"
+                  >
+                    <Edit className="w-4 h-4 text-slate-400" />
+                  </button>
+                </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <Mail className="w-5 h-5 text-slate-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-slate-500">E-mail</p>
                     <p className="font-medium text-slate-800 text-sm truncate">{user?.email}</p>
                   </div>
-                  <button onClick={() => setIsEditing(true)} className="p-2 hover:bg-slate-200 rounded-lg"><Edit className="w-4 h-4 text-slate-400" /></button>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <Phone className="w-5 h-5 text-slate-400 flex-shrink-0" />
@@ -231,6 +295,15 @@ export default function Profile() {
                     <p className="font-medium text-slate-800 text-sm">{user?.phone || 'Não informado'}</p>
                   </div>
                 </div>
+                {(user?.city || user?.state) && (
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                    <MapPin className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-slate-500">Localização</p>
+                      <p className="font-medium text-slate-800 text-sm">{user?.city}, {user?.state}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <Calendar className="w-5 h-5 text-slate-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
@@ -242,8 +315,6 @@ export default function Profile() {
                 </div>
               </div>
             )}
-
-
 
             {(isDono || isAdmin || isRecruiter) && (
               <Link to={createPageUrl('Configuracoes')} className="block mb-4">
