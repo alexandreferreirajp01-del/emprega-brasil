@@ -109,7 +109,23 @@ export default function Permissoes() {
 
   const { data: users = [] } = useQuery({
     queryKey: ['users-permissions'],
-    queryFn: () => base44.entities.User.list('-created_date', 500),
+    queryFn: async () => {
+      const allUsers = await base44.entities.User.list('-created_date', 500);
+      // Adicionar o dono à lista se não estiver
+      const donoEmail = 'alexandreferreirajp01@gmail.com';
+      const hasDono = allUsers.some(u => u.email === donoEmail);
+      if (!hasDono) {
+        allUsers.unshift({
+          id: 'dono-special',
+          email: donoEmail,
+          full_name: 'Alexandre Ferreira (Dono)',
+          subscription_type: 'dono',
+          role: 'admin',
+          permissions: {}
+        });
+      }
+      return allUsers;
+    },
     staleTime: 60000,
   });
 
