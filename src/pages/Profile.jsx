@@ -93,15 +93,19 @@ export default function Profile() {
     );
   }
 
-  const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
+  const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || user?.subscription_type === 'dono';
+  const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
   const isRecruiter = user?.subscription_type === 'recruiter';
 
   const getSubscriptionBadge = () => {
+    if (isDono) {
+      return <Badge className="bg-gradient-to-r from-purple-600 to-purple-700 text-white border-0 px-4 py-1"><Crown className="w-4 h-4 mr-2" />Dono</Badge>;
+    }
     if (isAdmin) {
       return <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1"><Shield className="w-4 h-4 mr-2" />Administrador</Badge>;
     }
     if (isRecruiter) {
-      return <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1"><Briefcase className="w-4 h-4 mr-2" />Recrutador</Badge>;
+      return <Badge className="bg-blue-100 text-blue-700 border-0 px-4 py-1"><Briefcase className="w-4 h-4 mr-2" />Recrutador</Badge>;
     }
     if (user?.subscription_type === 'premium') {
       return <Badge className="bg-green-100 text-green-700 border-0 px-4 py-1"><Crown className="w-4 h-4 mr-2" />Membro Premium</Badge>;
@@ -204,16 +208,7 @@ export default function Profile() {
 
 
 
-            {(isRecruiter && !isAdmin) && (
-              <Link to={createPageUrl('RecruiterArea')} className="block mb-4">
-                <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-purple-300 bg-purple-50 hover:bg-purple-100">
-                  <Briefcase className="w-5 h-5 text-purple-600" />
-                  <span className="text-purple-700 font-medium text-sm">Área do Recrutador</span>
-                </Button>
-              </Link>
-            )}
-
-            {isAdmin && (
+            {(isDono || isAdmin || isRecruiter) && (
               <Link to={createPageUrl('Configuracoes')} className="block mb-4">
                 <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100">
                   <Settings className="w-5 h-5 text-slate-600" />
@@ -223,7 +218,7 @@ export default function Profile() {
             )}
 
             <div className="space-y-3">
-              {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.role !== 'admin' && (
+              {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.subscription_type !== 'dono' && user?.role !== 'admin' && (
                 <Link to={createPageUrl('Subscription')} className="block">
                   <Button className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
                     <Crown className="w-5 h-5 mr-2" />
