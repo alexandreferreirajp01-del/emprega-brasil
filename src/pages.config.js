@@ -50,6 +50,7 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import ChangePassword from './pages/ChangePassword';
+import ActivatePremiumManual from './pages/ActivatePremiumManual';
 import __Layout from './Layout.jsx';
 
 
@@ -106,6 +107,7 @@ export const PAGES = {
     "ForgotPassword": ForgotPassword,
     "ResetPassword": ResetPassword,
     "ChangePassword": ChangePassword,
+    "ActivatePremiumManual": ActivatePremiumManual,
 }
 
 export const pagesConfig = {

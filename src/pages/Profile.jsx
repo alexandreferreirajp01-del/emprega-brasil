@@ -16,8 +16,10 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import PasswordInput from "@/components/common/PasswordInput";
+import PremiumModal from "@/components/subscription/PremiumModal";
 
 export default function Profile() {
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
@@ -147,15 +149,26 @@ export default function Profile() {
   };
 
   const handleCancelEdit = () => {
-    setEditForm({
-      full_name: user.full_name || '',
-      phone: user.phone || '',
-      city: user.city || '',
-      state: user.state || 'PB',
-      password: ''
-    });
+    if (user) {
+      setEditForm({
+        full_name: user.full_name || '',
+        phone: user.phone || '',
+        city: user.city || '',
+        state: user.state || 'PB',
+        password: ''
+      });
+    }
     setIsEditing(false);
   };
+
+  // Verificar se houve mudanças no formulário (dirty check)
+  const hasChanges = user && (
+    editForm.full_name.trim() !== (user.full_name || '') ||
+    editForm.phone.trim() !== (user.phone || '') ||
+    editForm.city.trim() !== (user.city || '') ||
+    editForm.state.trim().toUpperCase() !== (user.state || 'PB').toUpperCase() ||
+    (editForm.password && editForm.password.trim().length > 0)
+  );
 
   const handleLogout = () => {
     localStorage.clear();
@@ -315,8 +328,8 @@ export default function Profile() {
                   </Button>
                   <Button 
                     onClick={handleSaveProfile} 
-                    disabled={updateProfileMutation.isPending} 
-                    className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl flex-1 h-11"
+                    disabled={updateProfileMutation.isPending || !hasChanges} 
+                    className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl flex-1 h-11 disabled:opacity-50"
                   >
                     {updateProfileMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                     Salvar
@@ -384,12 +397,13 @@ export default function Profile() {
 
             <div className="space-y-3">
               {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.subscription_type !== 'dono' && user?.role !== 'admin' && (
-                <Link to={createPageUrl('Subscription')} className="block">
-                  <Button className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
-                    <Crown className="w-5 h-5 mr-2" />
-                    {user?.subscription_type === 'basic' ? 'Upgrade para Premium' : 'Assinar Plano'}
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={() => setShowPremiumModal(true)}
+                  className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
+                >
+                  <Crown className="w-5 h-5 mr-2" />
+                  {user?.subscription_type === 'basic' ? 'Upgrade para Premium' : 'Assinar Plano'}
+                </Button>
               )}
               <Button variant="outline" className="w-full h-12 rounded-xl text-red-600 border-red-200 hover:bg-red-50" onClick={handleLogout}>
                 <LogOut className="w-5 h-5 mr-2" />Sair da Conta
@@ -398,6 +412,18 @@ export default function Profile() {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
-}
+      </div>
+
+      {/* Modal Premium */}
+      <PremiumModal
+      isOpen={showPremiumModal}
+      onClose={() => setShowPremiumModal(false)}
+      user={user}
+      onSuccess={() => {
+        refetch();
+        showToast('🎉 Bem-vindo ao Premium!');
+      }}
+      />
+      </div>
+      );
+      }
