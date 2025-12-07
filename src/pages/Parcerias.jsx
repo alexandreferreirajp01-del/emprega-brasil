@@ -69,8 +69,6 @@ export default function Parcerias() {
                   className={`border-2 rounded-xl p-4 md:p-6 flex items-center justify-between gap-4 transition-all hover:shadow-lg relative ${
                     plano.popular
                       ? 'border-[#0056ff] bg-blue-50 shadow-xl' 
-                      : plano.destaque 
-                      ? 'border-yellow-400 bg-yellow-50' 
                       : 'border-slate-200 bg-white'
                   }`}
                 >
@@ -83,13 +81,17 @@ export default function Parcerias() {
                   )}
                   <div className="flex-1">
                     <div className="text-lg md:text-2xl font-bold text-slate-800 mb-1">{plano.dias}</div>
-                    <div className={`text-2xl md:text-4xl font-bold ${plano.popular ? 'text-[#0056ff]' : 'text-yellow-600'}`}>
+                    <div className={`text-2xl md:text-4xl font-bold ${plano.popular ? 'text-[#0056ff]' : 'text-slate-800'}`}>
                       {plano.valor}
                     </div>
                   </div>
                   <Button
                     onClick={() => handleWhatsApp(plano)}
-                    className="bg-green-600 hover:bg-green-700 h-12 md:h-14 px-4 md:px-8 rounded-xl"
+                    className={`h-12 md:h-14 px-4 md:px-8 rounded-xl ${
+                      plano.popular 
+                        ? 'bg-[#0056ff] hover:bg-[#0044cc]' 
+                        : 'bg-green-600 hover:bg-green-700'
+                    }`}
                   >
                     <MessageSquare className="w-5 h-5 mr-2" />
                     <span className="hidden sm:inline">Contratar</span>

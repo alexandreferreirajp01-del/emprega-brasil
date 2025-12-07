@@ -15,31 +15,29 @@ export default function Subscription() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
-  const scrollToPayment = () => {
-    if (faqSectionRef.current) {
-      faqSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  const scrollToBottom = () => {
+    window.scrollTo({ 
+      top: document.documentElement.scrollHeight, 
+      behavior: 'smooth' 
+    });
   };
 
   const handleSubscribePremium = () => {
-    scrollToPayment();
+    scrollToBottom();
     setTimeout(() => {
       window.location.href = createPageUrl('Payment');
-    }, 800);
+    }, 600);
   };
 
   const handleSubscribeRecruiter = () => {
-    scrollToPayment();
+    scrollToBottom();
     setTimeout(() => {
       const message = encodeURIComponent('Olá! Gostaria de assinar o plano Recrutador por R$ 9,90/mês');
       window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
-    }, 800);
+    }, 600);
   };
 
   const handleChooseBasic = async () => {
-    scrollToPayment();
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
     localStorage.removeItem('vagas_abertas_visitor_mode');
     
     try {
