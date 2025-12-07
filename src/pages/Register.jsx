@@ -78,12 +78,14 @@ export default function Register() {
         password: formData.password
       });
 
-      if (!response.data.success) {
-        // Se for erro de e-mail duplicado, mostrar no campo certo
-        if (response.data.error.includes('já está cadastrado')) {
-          setErrors({ email: response.data.error });
-        } else {
-          setErrors({ general: response.data.error });
+      // Verificar se houve erro
+      if (response.data && !response.data.success) {
+        if (response.data.error) {
+          if (response.data.error.includes('já está cadastrado')) {
+            setErrors({ email: response.data.error });
+          } else {
+            setErrors({ general: response.data.error });
+          }
         }
         setLoading(false);
         return;
@@ -98,7 +100,16 @@ export default function Register() {
 
     } catch (error) {
       console.error('Erro ao criar conta:', error);
-      setErrors({ general: error.message || 'Erro ao criar conta. Tente novamente.' });
+      // Extrair mensagem de erro mais específica
+      const errorMessage = error.response?.data?.error || 
+                          error.message || 
+                          'Erro ao criar conta. Tente novamente.';
+      
+      if (errorMessage.includes('já está cadastrado')) {
+        setErrors({ email: errorMessage });
+      } else {
+        setErrors({ general: errorMessage });
+      }
     } finally {
       setLoading(false);
     }
