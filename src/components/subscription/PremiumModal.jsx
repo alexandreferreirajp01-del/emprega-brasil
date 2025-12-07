@@ -28,39 +28,37 @@ export default function PremiumModal({ isOpen, onClose, user, onSuccess }) {
     setError('');
 
     try {
-      // Para sandbox/teste: ativar premium diretamente
-      // Em produção, integrar com gateway de pagamento
-      
-      // Atualizar usuário para Premium
-      await base44.auth.updateMe({ 
-        subscription_type: 'premium',
-        premium_since: new Date().toISOString(),
-        premium_expires: null // vitalício
-      });
-
-      // Criar registro de pagamento
+      // Criar registro de pagamento com status PENDING
       await base44.entities.Payment.create({
         user_email: user.email,
         amount: 29.90,
-        status: 'approved',
+        status: 'pending',
         payment_method: paymentMethod,
-        notes: couponCode ? `Cupom: ${couponCode}` : 'Ativação Premium'
+        notes: couponCode ? `Cupom: ${couponCode} - Aguardando aprovação` : 'Aguardando aprovação do pagamento'
       });
 
-      // Aguardar processamento
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Preparar mensagem para WhatsApp
+      const metodoPagamento = paymentMethod === 'pix' ? 'PIX' : 'Cartão de Crédito';
+      const mensagem = `Olá! Gostaria de confirmar minha assinatura Premium do Vagas Abertas Paraíba.\n\n` +
+        `📧 Email: ${user.email}\n` +
+        `💰 Valor: R$ 29,90\n` +
+        `💳 Método: ${metodoPagamento}\n` +
+        `${couponCode ? `🎟️ Cupom: ${couponCode}\n` : ''}\n` +
+        `Aguardo instruções para finalizar o pagamento!`;
 
-      onSuccess?.();
+      const whatsappUrl = `https://wa.me/5583991971320?text=${encodeURIComponent(mensagem)}`;
+
+      // Redirecionar para WhatsApp
+      window.open(whatsappUrl, '_blank');
+
       onClose();
       
-      // Recarregar página para atualizar todas as permissões
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      // Mostrar mensagem de sucesso
+      alert('✅ Solicitação enviada! Você será redirecionado para o WhatsApp. Após a confirmação do pagamento, seu plano Premium será ativado.');
 
     } catch (err) {
-      console.error('Erro ao assinar:', err);
-      setError('Erro ao processar assinatura. Tente novamente.');
+      console.error('Erro ao processar solicitação:', err);
+      setError('Erro ao processar solicitação. Tente novamente.');
     } finally {
       setLoading(false);
     }
