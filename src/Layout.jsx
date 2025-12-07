@@ -13,6 +13,7 @@ import PermissionPrompt from "@/components/common/PermissionPrompt";
 import PushManager from "@/components/push/PushManager";
 import ServiceWorkerManager from "@/components/push/ServiceWorkerManager";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import ApplyBasicPermissions from "@/components/common/ApplyBasicPermissions";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -181,8 +182,10 @@ export default function Layout({ children, currentPageName }) {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col notranslate" translate="no" lang="pt-BR">
-      {/* Service Worker Manager - registra SW inline */}
-      <ServiceWorkerManager />
+        {/* Service Worker Manager - registra SW inline */}
+        <ServiceWorkerManager />
+        {/* Aplicar permissões básicas automaticamente */}
+        <ApplyBasicPermissions user={user} />
       {/* PWA/APK Meta Tags - Injeta no head */}
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />

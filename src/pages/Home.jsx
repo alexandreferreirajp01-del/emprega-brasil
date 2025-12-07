@@ -124,7 +124,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-slate-50">
       <VisitTracker pageName="Home" user={user} />
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden">
