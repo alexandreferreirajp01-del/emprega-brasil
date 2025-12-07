@@ -21,17 +21,19 @@ export default function Splash() {
     window.scrollTo(0, 0);
     
     const checkSession = async () => {
-      // Verificar se já tem sessão de usuário básico
-      const hasBasicAccess = localStorage.getItem('vagas_abertas_basic_access');
-      
-      if (!hasBasicAccess) {
-        // Primeira vez - criar acesso básico automaticamente
-        localStorage.setItem('vagas_abertas_basic_access', 'true');
-        localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (isAuth) {
+          // Se já está autenticado, vai pra Home
+          window.location.href = createPageUrl('Home');
+          return;
+        }
+      } catch (e) {
+        // Não autenticado, mostra tela de login
       }
       
-      // Ir direto para Home sem pedir login
-      window.location.href = createPageUrl('Home');
+      // Mostra a tela de login
+      setStatus('login');
     };
     
     checkSession();

@@ -484,8 +484,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Floating Buttons */}
       <FloatingButtons />
 
-      {/* Permission Prompt - aparece na primeira instalação */}
-      <PermissionPrompt />
+      {/* Permission Prompt - DESABILITADO */}
 
       {/* Push Manager - reforço para ativar push */}
       <PushManager />

@@ -43,13 +43,15 @@ export default function Home() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    
     const checkAuth = async () => {
-      const visitorMode = localStorage.getItem('vagas_abertas_visitor_mode');
-      if (visitorMode === 'true') {
-        setIsVisitor(true);
-        return;
-      }
       try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (!isAuth) {
+          setIsVisitor(true);
+          return;
+        }
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (e) {
@@ -179,8 +181,8 @@ export default function Home() {
               </div>
 
               {/* Quick Actions */}
-              <div className="max-w-6xl mx-auto px-3 sm:px-4 -mt-16 sm:-mt-8 mb-6 sm:mb-8 relative z-10">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+              <div className="max-w-6xl mx-auto px-3 sm:px-4 -mt-12 mb-6 sm:mb-8 relative z-10">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                   {quickActions.map((action, i) => (
                     <Link key={i} to={createPageUrl(action.page)}>
                       <Card className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl sm:rounded-2xl border-0 overflow-hidden h-full">
@@ -198,7 +200,7 @@ export default function Home() {
               </div>
 
       {/* Main Content Grid */}
-      <div className="max-w-6xl mx-auto px-3 sm:px-4">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
