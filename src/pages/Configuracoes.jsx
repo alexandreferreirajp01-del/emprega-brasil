@@ -18,7 +18,9 @@ const menuItems = [
   { id: 'mensagens', name: 'Mensagens', icon: MessageCircle, color: 'green', page: 'Mensagens', description: 'Conversas diretas entre usuários' },
   { id: 'curriculos', name: 'Ver Currículos', icon: FileText, color: 'blue', page: 'ProfessionalResume', description: 'Visualizar currículos de candidatos' },
   { id: 'responder-chat', name: 'Responder Chat', icon: MessageSquare, color: 'cyan', page: 'ResponderChat', description: 'Responder mensagens dos usuários' },
-  { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'indigo', page: 'Permissoes', description: 'Controlar acesso às funções do app' },
+  { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'indigo', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'] },
+  { id: 'dividerRecrutador', type: 'divider', label: 'Área do Recrutador', roles: ['recruiter', 'admin', 'dono'] },
+  { id: 'recruiter-area', name: 'Painel do Recrutador', icon: Briefcase, color: 'blue', page: 'RecruiterArea', description: 'Ferramentas exclusivas para recrutadores', roles: ['recruiter', 'admin', 'dono'] },
   { id: 'divider0', type: 'divider', label: 'Gerenciamento' },
   { id: 'transmissao', name: 'Lista de Transmissão', icon: MessageSquare, color: 'green', page: 'ListaTransmissao', description: 'Enviar mensagens em massa' },
   { id: 'vagas', name: 'Gerenciar Vagas', icon: Briefcase, color: 'blue', page: 'GerenciarVagas', description: 'Visualizar e excluir vagas' },
@@ -59,13 +61,16 @@ export default function Configuracoes() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAdmin = async () => {
+    const checkAuth = async () => {
       try {
         const currentUser = await base44.auth.me();
-        const isAdmin = currentUser.email === 'alexandreferreirajp01@gmail.com' || 
-                        currentUser.role === 'admin' || 
+        const isDono = currentUser.email === 'alexandreferreirajp01@gmail.com' || 
+                       currentUser.subscription_type === 'dono';
+        const isAdmin = currentUser.role === 'admin' || 
                         currentUser.subscription_type === 'admin';
-        if (!isAdmin) {
+        const isRecruiter = currentUser.subscription_type === 'recruiter';
+        
+        if (!isDono && !isAdmin && !isRecruiter) {
           window.location.href = createPageUrl('Home');
           return;
         }
@@ -76,7 +81,7 @@ export default function Configuracoes() {
         setLoading(false);
       }
     };
-    checkAdmin();
+    checkAuth();
   }, []);
 
   const handleItemClick = (item) => {
@@ -113,6 +118,22 @@ export default function Configuracoes() {
         <Card className="rounded-2xl overflow-hidden">
           <CardContent className="p-0">
             {menuItems.map((item, index) => {
+              // Verificar permissão de acesso
+              const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || 
+                             user?.subscription_type === 'dono';
+              const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
+              const isRecruiter = user?.subscription_type === 'recruiter';
+              
+              if (item.roles) {
+                const hasAccess = item.roles.some(role => {
+                  if (role === 'dono') return isDono;
+                  if (role === 'admin') return isAdmin;
+                  if (role === 'recruiter') return isRecruiter;
+                  return false;
+                });
+                if (!hasAccess) return null;
+              }
+              
               if (item.type === 'divider') {
                 return (
                   <div key={item.id} className="px-4 py-3 bg-slate-50 border-t border-b">
