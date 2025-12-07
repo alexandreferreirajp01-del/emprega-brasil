@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,11 +15,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import PasswordInput from "@/components/common/PasswordInput";
 
 export default function Profile() {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
   const [editForm, setEditForm] = useState({ 
@@ -28,98 +28,80 @@ export default function Profile() {
     state: 'PB',
     password: ''
   });
-  const [showPassword, setShowPassword] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
 
+  // Buscar dados do usuário com React Query (sincronização em tempo real)
+  const { data: user, isLoading, error, refetch } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      const userData = await base44.auth.me();
+      // Atualizar formulário de edição com os dados atuais
+      setEditForm({
+        full_name: userData.full_name || '',
+        phone: userData.phone || '',
+        city: userData.city || '',
+        state: userData.state || 'PB',
+        password: ''
+      });
+      return userData;
+    },
+    refetchInterval: 5000, // Atualizar a cada 5 segundos
+    staleTime: 0, // Sempre considerar dados como "velhos" para forçar revalidação
+    retry: 3
+  });
+
+  // Redirecionar se não autenticado
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-        setEditForm({
-          full_name: currentUser.full_name || '',
-          phone: currentUser.phone || '',
-          city: currentUser.city || '',
-          state: currentUser.state || 'PB',
-          password: ''
-        });
-      } catch (e) {
-        window.location.href = createPageUrl('Splash');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadUser();
-  }, []);
+    if (error) {
+      window.location.href = createPageUrl('Splash');
+    }
+  }, [error]);
+
+  // Mutation para atualizar foto de perfil
+  const updatePhotoMutation = useMutation({
+    mutationFn: async (file) => {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.auth.updateMe({ profile_photo: file_url });
+      return file_url;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      showToast('✅ Foto atualizada com sucesso!');
+    },
+    onError: () => {
+      showToast('❌ Erro ao atualizar foto', 'error');
+    }
+  });
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-    setIsSaving(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      await base44.auth.updateMe({ profile_photo: file_url });
-      setUser(prev => ({ ...prev, profile_photo: file_url }));
-      showToast('✅ Foto atualizada com sucesso!');
-    } catch (e) {
-      showToast('❌ Erro ao atualizar foto', 'error');
-    } finally {
-      setIsSaving(false);
+    if (file) {
+      updatePhotoMutation.mutate(file);
     }
   };
 
-  const handleSaveProfile = async () => {
-    setIsSaving(true);
-    
-    try {
-      // Validação
-      if (!editForm.full_name || editForm.full_name.trim().length < 3) {
-        showToast('Nome deve ter no mínimo 3 caracteres', 'error');
-        setIsSaving(false);
-        return;
-      }
-
-      // Preparar dados para atualização
-      const updateData = {
-        full_name: editForm.full_name.trim(),
-        phone: editForm.phone.trim() || '',
-        city: editForm.city.trim() || '',
-        state: editForm.state.trim().toUpperCase() || 'PB'
-      };
+  // Mutation para atualizar perfil
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data) => {
+      // Atualizar no banco de dados
+      await base44.auth.updateMe(data);
       
-      // Adicionar senha apenas se foi preenchida
-      if (editForm.password && editForm.password.trim()) {
-        if (editForm.password.length < 6) {
-          showToast('Senha deve ter no mínimo 6 caracteres', 'error');
-          setIsSaving(false);
-          return;
-        }
-        updateData.password = editForm.password;
-      }
+      // Aguardar processamento
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      console.log('Atualizando perfil com:', updateData);
+      // Buscar dados atualizados
+      return await base44.auth.me();
+    },
+    onSuccess: (freshUser) => {
+      // Invalidar e refazer query para forçar atualização
+      queryClient.setQueryData(['currentUser'], freshUser);
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       
-      // Atualizar no banco de dados usando a API do Base44
-      await base44.auth.updateMe(updateData);
-      
-      console.log('Perfil atualizado, buscando dados atualizados...');
-      
-      // Aguardar um pouco para garantir que o banco processou
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Buscar dados atualizados do servidor
-      const freshUser = await base44.auth.me();
-      
-      console.log('Dados atualizados recebidos:', freshUser);
-      
-      // Atualizar estado local com dados atualizados
-      setUser(freshUser);
-      
-      // Atualizar formulário com os novos dados
+      // Atualizar formulário
       setEditForm({
         full_name: freshUser.full_name || '',
         phone: freshUser.phone || '',
@@ -130,13 +112,38 @@ export default function Profile() {
       
       setIsEditing(false);
       showToast('✅ Perfil atualizado com sucesso!');
-      
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error('Erro ao salvar perfil:', error);
       showToast('❌ Erro ao atualizar perfil: ' + (error.message || 'Tente novamente'), 'error');
-    } finally {
-      setIsSaving(false);
     }
+  });
+
+  const handleSaveProfile = async () => {
+    // Validação
+    if (!editForm.full_name || editForm.full_name.trim().length < 3) {
+      showToast('Nome deve ter no mínimo 3 caracteres', 'error');
+      return;
+    }
+
+    // Preparar dados para atualização
+    const updateData = {
+      full_name: editForm.full_name.trim(),
+      phone: editForm.phone.trim() || '',
+      city: editForm.city.trim() || '',
+      state: editForm.state.trim().toUpperCase() || 'PB'
+    };
+    
+    // Adicionar senha apenas se foi preenchida
+    if (editForm.password && editForm.password.trim()) {
+      if (editForm.password.length < 6) {
+        showToast('Senha deve ter no mínimo 6 caracteres', 'error');
+        return;
+      }
+      updateData.password = editForm.password;
+    }
+    
+    updateProfileMutation.mutate(updateData);
   };
 
   const handleCancelEdit = () => {
@@ -224,7 +231,7 @@ export default function Profile() {
                 </Avatar>
                 <label className="absolute bottom-0 right-0 w-9 h-9 sm:w-10 sm:h-10 bg-[#0056ff] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#0044cc]">
                   <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={isSaving} />
+                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={updatePhotoMutation.isPending} />
                 </label>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">{user?.full_name || 'Usuário'}</h2>
@@ -287,22 +294,12 @@ export default function Profile() {
 
                 <div className="space-y-2">
                   <Label>Nova Senha (opcional)</Label>
-                  <div className="relative">
-                    <Input 
-                      type={showPassword ? "text" : "password"}
-                      value={editForm.password} 
-                      onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} 
-                      placeholder="Deixe em branco para não alterar" 
-                      className="rounded-xl h-11 pr-10" 
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
+                  <PasswordInput
+                    value={editForm.password} 
+                    onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} 
+                    placeholder="Deixe em branco para não alterar" 
+                    className="rounded-xl h-11" 
+                  />
                   <p className="text-xs text-slate-500">Mínimo 6 caracteres</p>
                 </div>
 
@@ -311,17 +308,17 @@ export default function Profile() {
                     variant="outline" 
                     onClick={handleCancelEdit} 
                     className="rounded-xl flex-1 h-11"
-                    disabled={isSaving}
+                    disabled={updateProfileMutation.isPending}
                   >
                     <X className="w-4 h-4 mr-2" />
                     Cancelar
                   </Button>
                   <Button 
                     onClick={handleSaveProfile} 
-                    disabled={isSaving} 
+                    disabled={updateProfileMutation.isPending} 
                     className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl flex-1 h-11"
                   >
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                    {updateProfileMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                     Salvar
                   </Button>
                 </div>
