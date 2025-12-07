@@ -5,13 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Search, Briefcase, MessageCircle, Newspaper, Crown, ArrowRight, 
   MapPin, Calendar, Users, Star, TrendingUp, Building2, Eye,
-  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart
+  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import TimeAgo from "@/components/common/TimeAgo";
 import VisitTracker from "@/components/common/VisitTracker";
+import PremiumModal from "@/components/subscription/PremiumModal";
 
 // Função de fetch com retry robusto
 async function fetchWithRetry(fetchFn, maxRetries = 5) {
@@ -39,6 +40,7 @@ export default function Home() {
   const [allViews, setAllViews] = useState([]);
   const [news, setNews] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -436,6 +438,25 @@ export default function Home() {
               </div>
             </Card>
 
+            {/* Banner Parcerias */}
+            <Card 
+              className="rounded-2xl border-0 shadow-lg bg-gradient-to-r from-[#0056ff] to-[#0044cc] cursor-pointer hover:shadow-xl transition-all"
+              onClick={() => window.location.href = createPageUrl('Parcerias')}
+            >
+              <CardContent className="p-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Handshake className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-base">Seja Parceiro</h3>
+                    <p className="text-white/80 text-xs">Empresas têm benefícios exclusivos</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-white" />
+              </CardContent>
+            </Card>
+
             {/* Premium CTA - apenas para visitantes e básicos */}
             {(isVisitor || !user || (user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.role !== 'admin')) && (
               <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#0056ff] to-[#003399] text-white overflow-hidden">
@@ -450,11 +471,12 @@ export default function Home() {
                     R$ 29,90
                     <span className="text-sm font-normal text-white/70 block">pagamento único</span>
                   </div>
-                  <Link to={createPageUrl('Subscription')}>
-                    <Button className="w-full bg-white text-[#0056ff] hover:bg-white/90 rounded-xl">
-                      Assinar Agora
-                    </Button>
-                  </Link>
+                  <Button 
+                    onClick={() => setShowPremiumModal(true)}
+                    className="w-full bg-white text-[#0056ff] hover:bg-white/90 rounded-xl"
+                  >
+                    Assinar Agora
+                  </Button>
                   <div className="flex items-center justify-center gap-2 mt-4 text-white/70 text-xs">
                     <Shield className="w-4 h-4" />
                     <span>Garantia de 7 dias</span>
@@ -484,6 +506,16 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Premium Modal */}
+      <PremiumModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        user={user}
+        onSuccess={() => {
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }
