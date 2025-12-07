@@ -157,25 +157,40 @@ export default function Jobs() {
     if (searchParam) setSearchTerm(searchParam);
   }, []);
 
-  // Buscar categorias profissionais
-  const { data: categories = [] } = useQuery({
+  // Buscar categorias profissionais com auto-refresh
+  const { data: categories = [], refetch: refetchCategories } = useQuery({
     queryKey: ['professional-categories'],
-    queryFn: () => base44.entities.ProfessionalCategory.list('category_order', 100),
+    queryFn: async () => {
+      const cats = await base44.entities.ProfessionalCategory.list('category_order', 100);
+      return cats.filter(c => c.is_active !== false);
+    },
+    staleTime: 5000, // 5 segundos
   });
+
+  // Auto-reload ao detectar mudanças no Gerenciador
+  useEffect(() => {
+    const handleFilterUpdate = () => {
+      refetchCategories();
+      setRefreshKey(k => k + 1);
+    };
+    
+    window.addEventListener('filters-updated', handleFilterUpdate);
+    return () => window.removeEventListener('filters-updated', handleFilterUpdate);
+  }, [refetchCategories]);
 
   // Extrair funções únicas baseadas na categoria selecionada
   const availableFunctions = React.useMemo(() => {
     if (selectedCategory === 'all') {
-      const functions = new Set();
-      jobs.forEach(job => {
-        if (job.job_function) functions.add(job.job_function);
+      const allFuncs = new Set();
+      categories.forEach(cat => {
+        (cat.job_titles || []).forEach(func => allFuncs.add(func));
       });
-      return Array.from(functions).sort();
+      return Array.from(allFuncs).sort();
     } else {
       const category = categories.find(cat => cat.category_name === selectedCategory);
-      return category?.job_titles || [];
+      return (category?.job_titles || []).sort();
     }
-  }, [selectedCategory, categories, jobs]);
+  }, [selectedCategory, categories]);
 
   useEffect(() => {
     window.scrollTo(0, 0);

@@ -237,11 +237,19 @@ export default function GerenciadorFiltros() {
         });
       }
 
-      queryClient.invalidateQueries({ queryKey: ['professional-categories'] });
+      // SINCRONIZAÇÃO GLOBAL - Força atualização em todos os módulos
+      await queryClient.invalidateQueries({ queryKey: ['professional-categories'] });
+      await queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      await queryClient.invalidateQueries({ queryKey: ['global-filters'] });
+      await queryClient.refetchQueries({ queryKey: ['professional-categories'] });
+      
       setPendingChanges(false);
-      showToast('Salvo com sucesso!');
+      showToast('Salvo! Filtros atualizados.');
       setPasswordDialog(false);
       setPassword('');
+      
+      // Broadcast para reload automático
+      window.dispatchEvent(new CustomEvent('filters-updated'));
     } catch (e) {
       showToast('Erro: ' + e.message, 'error');
     } finally {
