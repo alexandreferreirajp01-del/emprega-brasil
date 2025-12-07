@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Edit, Save, X,
-  Lock, Briefcase, Settings, MapPin
+  Lock, Briefcase, Settings, MapPin, Eye, EyeOff
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -28,6 +28,7 @@ export default function Profile() {
     state: 'PB',
     password: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -105,8 +106,19 @@ export default function Profile() {
       // Atualizar estado local
       const updatedUser = await base44.auth.me();
       setUser(updatedUser);
-      setIsEditing(false);
       
+      // Manter senha no formulário se foi preenchida
+      if (!editForm.password || !editForm.password.trim()) {
+        setEditForm({
+          full_name: updatedUser.full_name || '',
+          phone: updatedUser.phone || '',
+          city: updatedUser.city || '',
+          state: updatedUser.state || 'PB',
+          password: ''
+        });
+      }
+      
+      setIsEditing(false);
       showToast('✅ Perfil atualizado com sucesso!');
     } catch (error) {
       console.error('Erro ao salvar:', error);
@@ -264,13 +276,22 @@ export default function Profile() {
 
                 <div className="space-y-2">
                   <Label>Nova Senha (opcional)</Label>
-                  <Input 
-                    type="password"
-                    value={editForm.password} 
-                    onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} 
-                    placeholder="Deixe em branco para não alterar" 
-                    className="rounded-xl h-11" 
-                  />
+                  <div className="relative">
+                    <Input 
+                      type={showPassword ? "text" : "password"}
+                      value={editForm.password} 
+                      onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} 
+                      placeholder="Deixe em branco para não alterar" 
+                      className="rounded-xl h-11 pr-10" 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                   <p className="text-xs text-slate-500">Mínimo 6 caracteres</p>
                 </div>
 
