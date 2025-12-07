@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   ArrowLeft, Settings, Plus, Trash2, Edit, Loader2, CheckCircle, 
-  Save, Briefcase, MapPin, Tag, Clock, AlertTriangle
+  Save, Briefcase, MapPin, Tag, Clock, AlertTriangle, Database, RefreshCw
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,12 +17,6 @@ import { Link } from "react-router-dom";
 
 const ADMIN_PASSWORD = "Vagas2026#";
 
-const INITIAL_JOB_TYPES = ['CLT', 'PJ', 'Autônomo', 'Estágio', 'Jovem Aprendiz', 'Temporário', 'Freelancer', 'Trainee', 'Banco de Talentos'];
-const INITIAL_CITIES = ['João Pessoa', 'Campina Grande', 'Bayeux', 'Cabedelo', 'Santa Rita', 'Patos', 'Guarabira', 'Cajazeiras', 'Sousa', 'Pombal', 'Conde'];
-const INITIAL_WORK_MODELS = ['Presencial', 'Híbrido', 'Home Office', 'Remoto'];
-const INITIAL_SENIORITY = ['Estágio', 'Júnior', 'Pleno', 'Sênior', 'Especialista'];
-
-// Componente de Lista Memoizado
 const FilterList = React.memo(({ type, items, icon, onAdd, onEdit, onDelete }) => {
   const Icon = icon;
   return (
@@ -93,20 +88,21 @@ export default function GerenciadorFiltros() {
   const [password, setPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [pendingChanges, setPendingChanges] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   
   const [filters, setFilters] = useState({
     categories: [],
     jobFunctions: [],
-    jobTypes: INITIAL_JOB_TYPES,
-    cities: INITIAL_CITIES,
-    workModels: INITIAL_WORK_MODELS,
-    seniority: INITIAL_SENIORITY
+    jobTypes: [],
+    cities: [],
+    workModels: [],
+    seniority: []
   });
   const queryClient = useQueryClient();
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 4000);
   };
 
   useEffect(() => {
@@ -134,23 +130,41 @@ export default function GerenciadorFiltros() {
     checkAdmin();
   }, []);
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ['professional-categories'],
-    queryFn: () => base44.entities.ProfessionalCategory.list('category_order', 100),
+  // Carregar filtros do banco
+  const { data: filterData, refetch } = useQuery({
+    queryKey: ['filter-master'],
+    queryFn: async () => {
+      const filters = await base44.entities.FilterMaster.filter({ is_active: true }, 'order', 2000);
+      const grouped = {
+        categories: [],
+        jobFunctions: [],
+        jobTypes: [],
+        cities: [],
+        workModels: [],
+        seniority: []
+      };
+      
+      filters.forEach(f => {
+        const key = f.type === 'category' ? 'categories' :
+                    f.type === 'jobFunction' ? 'jobFunctions' :
+                    f.type === 'jobType' ? 'jobTypes' :
+                    f.type === 'city' ? 'cities' :
+                    f.type === 'workModel' ? 'workModels' : 'seniority';
+        if (!grouped[key].includes(f.value)) {
+          grouped[key].push(f.value);
+        }
+      });
+      
+      return grouped;
+    },
     enabled: !!user,
   });
 
   useEffect(() => {
-    if (categories.length > 0) {
-      const cats = categories.map(c => c.category_name).filter(Boolean).sort();
-      const funcs = [...new Set(categories.flatMap(c => c.job_titles || []))].filter(Boolean).sort();
-      setFilters(prev => ({ 
-        ...prev, 
-        categories: cats.length > 0 ? cats : prev.categories,
-        jobFunctions: funcs.length > 0 ? funcs : prev.jobFunctions
-      }));
+    if (filterData) {
+      setFilters(filterData);
     }
-  }, [categories]);
+  }, [filterData]);
 
   const handleAdd = (type) => {
     setEditingItem({ type, value: '', isNew: true });
@@ -167,7 +181,7 @@ export default function GerenciadorFiltros() {
     const newItems = currentItems.filter(item => item !== value);
     setFilters(prev => ({ ...prev, [type]: newItems }));
     setPendingChanges(true);
-    showToast('Item removido');
+    showToast('Item removido - clique em Salvar');
   };
 
   const handleSaveItem = () => {
@@ -195,11 +209,23 @@ export default function GerenciadorFiltros() {
     setPendingChanges(true);
     setEditDialog(false);
     setEditingItem(null);
-    showToast('Item atualizado');
+    showToast('Alteração local - clique em Salvar');
   };
 
   const handleSaveAll = () => {
     setPasswordDialog(true);
+  };
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      await refetch();
+      showToast('Filtros recarregados do banco');
+    } catch (e) {
+      showToast('Erro ao sincronizar', 'error');
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const handleConfirmSave = async () => {
@@ -211,45 +237,33 @@ export default function GerenciadorFiltros() {
 
     setSaving(true);
     try {
-      // Deletar todas as categorias antigas
-      for (const cat of categories) {
-        await base44.entities.ProfessionalCategory.delete(cat.id);
-      }
+      // Chamar função de commit em massa
+      const response = await base44.functions.invoke('filtersBulkCommit', {
+        filters,
+        password
+      });
 
-      // Criar novas categorias
-      if (filters.categories.length > 0) {
-        for (let i = 0; i < filters.categories.length; i++) {
-          await base44.entities.ProfessionalCategory.create({
-            category_name: filters.categories[i],
-            category_order: i + 1,
-            job_titles: filters.jobFunctions,
-            keywords: [filters.categories[i].toLowerCase()],
-            is_active: true
-          });
-        }
-      } else if (filters.jobFunctions.length > 0) {
-        await base44.entities.ProfessionalCategory.create({
-          category_name: 'Geral',
-          category_order: 1,
-          job_titles: filters.jobFunctions,
-          keywords: ['geral'],
-          is_active: true
-        });
+      if (response.data.success) {
+        // Invalidar todos os caches
+        await queryClient.invalidateQueries({ queryKey: ['filter-master'] });
+        await queryClient.invalidateQueries({ queryKey: ['professional-categories'] });
+        await queryClient.invalidateQueries({ queryKey: ['jobs'] });
+        
+        // Broadcast global
+        window.dispatchEvent(new CustomEvent('filters-updated', { 
+          detail: { timestamp: Date.now() } 
+        }));
+        
+        setPendingChanges(false);
+        setPasswordDialog(false);
+        setPassword('');
+        showToast(`✓ Salvo! ${response.data.created} filtros atualizados em ${response.data.duration}`);
+        
+        // Recarregar dados
+        await refetch();
+      } else {
+        throw new Error(response.data.error || 'Erro ao salvar');
       }
-
-      // SINCRONIZAÇÃO GLOBAL - Força atualização em todos os módulos
-      await queryClient.invalidateQueries({ queryKey: ['professional-categories'] });
-      await queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      await queryClient.invalidateQueries({ queryKey: ['global-filters'] });
-      await queryClient.refetchQueries({ queryKey: ['professional-categories'] });
-      
-      setPendingChanges(false);
-      showToast('Salvo! Filtros atualizados.');
-      setPasswordDialog(false);
-      setPassword('');
-      
-      // Broadcast para reload automático
-      window.dispatchEvent(new CustomEvent('filters-updated'));
     } catch (e) {
       showToast('Erro: ' + e.message, 'error');
     } finally {
@@ -280,18 +294,43 @@ export default function GerenciadorFiltros() {
 
       <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 pt-4 sm:pt-6 pb-6 sm:pb-8 px-3 sm:px-4">
         <div className="max-w-5xl mx-auto">
-          <Link to={createPageUrl('Configuracoes')}>
-            <Button variant="ghost" className="text-white hover:bg-white/20 mb-2 -ml-2 h-8 sm:h-10 text-sm">
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />Voltar
+          <div className="flex items-center justify-between mb-2">
+            <Link to={createPageUrl('Configuracoes')}>
+              <Button variant="ghost" className="text-white hover:bg-white/20 h-8 sm:h-10 text-sm">
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />Voltar
+              </Button>
+            </Link>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleSync}
+              disabled={syncing}
+              className="text-white hover:bg-white/20"
+            >
+              <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
             </Button>
-          </Link>
+          </div>
           <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
             <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
             Gerenciador de Filtros
           </h1>
-          <p className="text-white/70 text-xs sm:text-sm">Gerencie os filtros do app</p>
+          <p className="text-white/70 text-xs sm:text-sm flex items-center gap-2">
+            <Database className="w-3 h-3" />
+            Banco sincronizado em tempo real
+          </p>
         </div>
       </div>
+
+      {pendingChanges && (
+        <div className="max-w-5xl mx-auto px-3 sm:px-4 pt-4">
+          <Alert className="border-amber-500 bg-amber-50">
+            <AlertTriangle className="w-4 h-4 text-amber-600" />
+            <AlertDescription className="text-sm text-amber-800">
+              Você tem alterações não salvas. Clique em <strong>Salvar e Atualizar</strong> para persistir no banco.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
 
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -333,7 +372,7 @@ export default function GerenciadorFiltros() {
               className="w-full bg-indigo-600 hover:bg-indigo-700 rounded-xl h-11 sm:h-12 text-sm sm:text-base font-semibold"
             >
               <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Salvar Alterações
+              Salvar e Atualizar
             </Button>
           </div>
         </div>
@@ -370,10 +409,12 @@ export default function GerenciadorFiltros() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-500" />
-              Confirme com senha
+              Confirmação Obrigatória
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-600">Digite a senha de admin:</p>
+          <p className="text-sm text-slate-600">
+            Digite a senha de admin para confirmar as alterações no banco de dados:
+          </p>
           <Input
             type="password"
             placeholder="Senha..."
@@ -399,7 +440,14 @@ export default function GerenciadorFiltros() {
               disabled={saving || !password}
               className="bg-indigo-600 hover:bg-indigo-700"
             >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirmar'}
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Salvando...
+                </>
+              ) : (
+                'Confirmar e Salvar'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -157,19 +157,31 @@ export default function Jobs() {
     if (searchParam) setSearchTerm(searchParam);
   }, []);
 
-  // Buscar categorias profissionais com auto-refresh
+  // Buscar filtros do FilterMaster com sincronização automática
+  const { data: filterData } = useQuery({
+    queryKey: ['filter-master'],
+    queryFn: async () => {
+      const response = await base44.functions.invoke('filters');
+      return response.data.filters;
+    },
+    staleTime: 3000,
+    refetchOnWindowFocus: true,
+  });
+
+  // Buscar categorias profissionais
   const { data: categories = [], refetch: refetchCategories } = useQuery({
     queryKey: ['professional-categories'],
     queryFn: async () => {
       const cats = await base44.entities.ProfessionalCategory.list('category_order', 100);
       return cats.filter(c => c.is_active !== false);
     },
-    staleTime: 5000, // 5 segundos
+    staleTime: 3000,
   });
 
-  // Auto-reload ao detectar mudanças no Gerenciador
+  // Auto-reload ao detectar mudanças no Gerenciador (sincronização em tempo real)
   useEffect(() => {
-    const handleFilterUpdate = () => {
+    const handleFilterUpdate = (event) => {
+      console.log('🔄 Filtros atualizados detectado, recarregando...', event.detail);
       refetchCategories();
       setRefreshKey(k => k + 1);
     };
