@@ -25,7 +25,8 @@ export default function Profile() {
     full_name: '', 
     phone: '', 
     city: '', 
-    state: 'PB' 
+    state: 'PB',
+    password: ''
   });
 
   const showToast = (message, type = 'success') => {
@@ -42,7 +43,8 @@ export default function Profile() {
           full_name: currentUser.full_name || '',
           phone: currentUser.phone || '',
           city: currentUser.city || '',
-          state: currentUser.state || 'PB'
+          state: currentUser.state || 'PB',
+          password: ''
         });
       } catch (e) {
         window.location.href = createPageUrl('Splash');
@@ -79,13 +81,26 @@ export default function Profile() {
         return;
       }
 
-      // Atualizar no banco
-      await base44.auth.updateMe({
+      // Preparar dados para atualização
+      const updateData = {
         full_name: editForm.full_name,
         phone: editForm.phone,
         city: editForm.city,
         state: editForm.state
-      });
+      };
+      
+      // Adicionar senha apenas se foi preenchida
+      if (editForm.password && editForm.password.trim()) {
+        if (editForm.password.length < 6) {
+          showToast('Senha deve ter no mínimo 6 caracteres', 'error');
+          setIsSaving(false);
+          return;
+        }
+        updateData.password = editForm.password;
+      }
+      
+      // Atualizar no banco
+      await base44.auth.updateMe(updateData);
       
       // Atualizar estado local
       const updatedUser = await base44.auth.me();
@@ -107,6 +122,7 @@ export default function Profile() {
       phone: user.phone || '',
       city: user.city || '',
       state: user.state || 'PB',
+      password: ''
     });
     setIsEditing(false);
   };
@@ -246,6 +262,18 @@ export default function Profile() {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Nova Senha (opcional)</Label>
+                  <Input 
+                    type="password"
+                    value={editForm.password} 
+                    onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} 
+                    placeholder="Deixe em branco para não alterar" 
+                    className="rounded-xl h-11" 
+                  />
+                  <p className="text-xs text-slate-500">Mínimo 6 caracteres</p>
+                </div>
+
                 <div className="flex gap-3 pt-4">
                   <Button 
                     variant="outline" 
@@ -326,12 +354,6 @@ export default function Profile() {
             )}
 
             <div className="space-y-3">
-              <Link to={createPageUrl('ChangePassword')} className="block">
-                <Button variant="outline" className="w-full h-12 rounded-xl border-slate-300 hover:bg-slate-50">
-                  <Lock className="w-5 h-5 mr-2 text-slate-600" />
-                  <span className="text-slate-700">Alterar Senha</span>
-                </Button>
-              </Link>
               {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.subscription_type !== 'dono' && user?.role !== 'admin' && (
                 <Link to={createPageUrl('Subscription')} className="block">
                   <Button className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
