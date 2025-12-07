@@ -218,6 +218,12 @@ export default function Profile() {
             )}
 
             <div className="space-y-3">
+              <Link to={createPageUrl('ChangePassword')} className="block">
+                <Button variant="outline" className="w-full h-12 rounded-xl border-slate-300 hover:bg-slate-50">
+                  <Lock className="w-5 h-5 mr-2 text-slate-600" />
+                  <span className="text-slate-700">Alterar Senha</span>
+                </Button>
+              </Link>
               {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.subscription_type !== 'dono' && user?.role !== 'admin' && (
                 <Link to={createPageUrl('Subscription')} className="block">
                   <Button className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
