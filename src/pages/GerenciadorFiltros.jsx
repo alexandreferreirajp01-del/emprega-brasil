@@ -17,14 +17,10 @@ import { Link } from "react-router-dom";
 
 const ADMIN_PASSWORD = "Vagas2026#";
 
-const INITIAL_FILTERS = {
-  categories: [],
-  jobFunctions: [],
-  jobTypes: ['CLT', 'PJ', 'Autônomo', 'Estágio', 'Jovem Aprendiz', 'Temporário', 'Freelancer', 'Trainee'],
-  cities: ['João Pessoa', 'Campina Grande', 'Bayeux', 'Cabedelo', 'Santa Rita', 'Patos', 'Guarabira', 'Cajazeiras', 'Sousa', 'Pombal', 'Conde'],
-  workModels: ['Presencial', 'Híbrido', 'Home Office', 'Remoto'],
-  seniority: ['Estágio', 'Júnior', 'Pleno', 'Sênior', 'Especialista']
-};
+const INITIAL_JOB_TYPES = ['CLT', 'PJ', 'Autônomo', 'Estágio', 'Jovem Aprendiz', 'Temporário', 'Freelancer', 'Trainee', 'Banco de Talentos'];
+const INITIAL_CITIES = ['João Pessoa', 'Campina Grande', 'Bayeux', 'Cabedelo', 'Santa Rita', 'Patos', 'Guarabira', 'Cajazeiras', 'Sousa', 'Pombal', 'Conde'];
+const INITIAL_WORK_MODELS = ['Presencial', 'Híbrido', 'Home Office', 'Remoto'];
+const INITIAL_SENIORITY = ['Estágio', 'Júnior', 'Pleno', 'Sênior', 'Especialista'];
 
 export default function GerenciadorFiltros() {
   const [user, setUser] = useState(null);
@@ -38,7 +34,14 @@ export default function GerenciadorFiltros() {
   const [saving, setSaving] = useState(false);
   const [pendingChanges, setPendingChanges] = useState(false);
   
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const [filters, setFilters] = useState({
+    categories: [],
+    jobFunctions: [],
+    jobTypes: INITIAL_JOB_TYPES,
+    cities: INITIAL_CITIES,
+    workModels: INITIAL_WORK_MODELS,
+    seniority: INITIAL_SENIORITY
+  });
   const queryClient = useQueryClient();
 
   const showToast = (message, type = 'success') => {
@@ -75,12 +78,21 @@ export default function GerenciadorFiltros() {
   const { data: categories = [] } = useQuery({
     queryKey: ['professional-categories'],
     queryFn: () => base44.entities.ProfessionalCategory.list('category_order', 100),
-    onSuccess: (data) => {
-      const cats = data.map(c => c.category_name);
-      const funcs = [...new Set(data.flatMap(c => c.job_titles || []))];
-      setFilters(prev => ({ ...prev, categories: cats, jobFunctions: funcs }));
-    }
+    enabled: !!user,
   });
+
+  // Sincronizar dados ao carregar
+  useEffect(() => {
+    if (categories.length > 0) {
+      const cats = categories.map(c => c.category_name).filter(Boolean).sort();
+      const funcs = [...new Set(categories.flatMap(c => c.job_titles || []))].filter(Boolean).sort();
+      setFilters(prev => ({ 
+        ...prev, 
+        categories: cats.length > 0 ? cats : prev.categories,
+        jobFunctions: funcs.length > 0 ? funcs : prev.jobFunctions
+      }));
+    }
+  }, [categories]);
 
   const handleAdd = (type) => {
     setEditingItem({ type, value: '', isNew: true });
@@ -145,27 +157,44 @@ export default function GerenciadorFiltros() {
 
     setSaving(true);
     try {
-      // Atualizar categorias no banco
-      await Promise.all(categories.map(cat => 
-        base44.entities.ProfessionalCategory.delete(cat.id)
-      ));
+      // Deletar categorias antigas
+      if (categories.length > 0) {
+        await Promise.all(categories.map(cat => 
+          base44.entities.ProfessionalCategory.delete(cat.id)
+        ));
+      }
 
-      await Promise.all(filters.categories.map((cat, index) => 
-        base44.entities.ProfessionalCategory.create({
-          category_name: cat,
-          category_order: index + 1,
-          job_titles: filters.jobFunctions.filter(f => f.toLowerCase().includes(cat.toLowerCase().slice(0, 3))),
+      // Criar novas categorias com todas as funções
+      if (filters.categories.length > 0) {
+        await Promise.all(filters.categories.map((cat, index) => 
+          base44.entities.ProfessionalCategory.create({
+            category_name: cat,
+            category_order: index + 1,
+            job_titles: filters.jobFunctions,
+            keywords: [cat.toLowerCase()],
+            is_active: true
+          })
+        ));
+      }
+
+      // Se não houver categorias, criar uma categoria genérica
+      if (filters.categories.length === 0 && filters.jobFunctions.length > 0) {
+        await base44.entities.ProfessionalCategory.create({
+          category_name: 'Geral',
+          category_order: 1,
+          job_titles: filters.jobFunctions,
+          keywords: ['geral'],
           is_active: true
-        })
-      ));
+        });
+      }
 
       queryClient.invalidateQueries({ queryKey: ['professional-categories'] });
       setPendingChanges(false);
-      showToast('Filtros atualizados com sucesso!');
+      showToast('Filtros atualizados! Banco sincronizado.');
       setPasswordDialog(false);
       setPassword('');
     } catch (e) {
-      showToast('Erro ao salvar', 'error');
+      showToast('Erro ao salvar: ' + e.message, 'error');
     } finally {
       setSaving(false);
     }

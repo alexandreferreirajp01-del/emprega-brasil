@@ -216,28 +216,28 @@ export default function Permissoes() {
                       }`}
                       onClick={() => handleSelectUser(u)}
                     >
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10">
+                      <div className="flex items-start gap-3">
+                        <Avatar className="w-10 h-10 flex-shrink-0">
                           <AvatarImage src={u.profile_photo} />
                           <AvatarFallback className="bg-indigo-100 text-indigo-600 text-sm">
                             {u.full_name?.[0] || u.email?.[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm truncate text-slate-800">{u.full_name || 'Sem nome'}</p>
-                          <p className="text-xs text-slate-500 truncate">{u.email}</p>
+                          <p className="font-semibold text-sm text-slate-800 break-words">{u.full_name || 'Sem nome'}</p>
+                          <p className="text-xs text-slate-500 break-all">{u.email}</p>
+                          <Badge 
+                            variant="secondary" 
+                            className={`text-xs mt-1 ${
+                              u.subscription_type === 'admin' ? 'bg-purple-100 text-purple-700' :
+                              u.subscription_type === 'premium' ? 'bg-green-100 text-green-700' :
+                              u.subscription_type === 'recruiter' ? 'bg-blue-100 text-blue-700' :
+                              'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            {u.subscription_type || 'basic'}
+                          </Badge>
                         </div>
-                        <Badge 
-                          variant="secondary" 
-                          className={`text-xs ${
-                            u.subscription_type === 'admin' ? 'bg-purple-100 text-purple-700' :
-                            u.subscription_type === 'premium' ? 'bg-green-100 text-green-700' :
-                            u.subscription_type === 'recruiter' ? 'bg-blue-100 text-blue-700' :
-                            'bg-slate-100 text-slate-600'
-                          }`}
-                        >
-                          {u.subscription_type || 'basic'}
-                        </Badge>
                       </div>
                     </div>
                   ))}
