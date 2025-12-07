@@ -68,16 +68,8 @@ export default function Register() {
     setLoading(true);
 
     try {
-      // Verificar se o e-mail já existe
-      const existingUsers = await base44.entities.User.filter({ email: formData.email });
-      if (existingUsers.length > 0) {
-        setErrors({ email: 'Este e-mail já está cadastrado' });
-        setLoading(false);
-        return;
-      }
-
-      // Criar usuário no banco de dados
-      const newUser = await base44.entities.User.create({
+      // Criar usuário no banco de dados (o banco já valida e-mail duplicado)
+      const newUser = await base44.asServiceRole.entities.User.create({
         full_name: formData.full_name,
         email: formData.email,
         phone: formData.phone,
@@ -145,7 +137,12 @@ export default function Register() {
 
     } catch (error) {
       console.error('Erro ao criar conta:', error);
-      setErrors({ general: error.message || 'Erro ao criar conta. Tente novamente.' });
+      // Detectar e-mail duplicado
+      if (error.message && error.message.toLowerCase().includes('duplicate')) {
+        setErrors({ email: 'Este e-mail já está cadastrado' });
+      } else {
+        setErrors({ general: 'Erro ao criar conta. Tente novamente.' });
+      }
     } finally {
       setLoading(false);
     }
