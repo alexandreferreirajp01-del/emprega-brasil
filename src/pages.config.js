@@ -38,6 +38,7 @@ import ResponderChat from './pages/ResponderChat';
 import PostsEmMassa from './pages/PostsEmMassa';
 import BibliotecaProfissional from './pages/BibliotecaProfissional';
 import Permissoes from './pages/Permissoes';
+import GerenciadorFiltros from './pages/GerenciadorFiltros';
 import __Layout from './Layout.jsx';
 
 
@@ -82,6 +83,7 @@ export const PAGES = {
     "PostsEmMassa": PostsEmMassa,
     "BibliotecaProfissional": BibliotecaProfissional,
     "Permissoes": Permissoes,
+    "GerenciadorFiltros": GerenciadorFiltros,
 }
 
 export const pagesConfig = {

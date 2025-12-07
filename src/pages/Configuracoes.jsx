@@ -26,7 +26,7 @@ const menuItems = [
   { id: 'comunidade', name: 'Gerenciar Comunidade', icon: MessageSquare, color: 'purple', page: 'GerenciarComunidade', description: 'Posts, comentários e chat' },
   { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores' },
   { id: 'dividerProducao', type: 'divider', label: 'Ferramentas de Produção' },
-  { id: 'biblioteca-profissional', name: 'Base de Dados Profissionais', icon: BookOpen, color: 'indigo', page: 'BibliotecaProfissional', description: 'Gerenciar categorias e cargos profissionais' },
+  { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'indigo', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros' },
   { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego' },
   { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA' },
   { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial' },

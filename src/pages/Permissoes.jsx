@@ -19,26 +19,28 @@ import { Link } from "react-router-dom";
 const ADMIN_PASSWORD = "Vagas2026#";
 
 const APP_FUNCTIONS = [
-  { id: 'postar_vagas', label: 'Postar Vagas', category: 'Produção' },
-  { id: 'vagas_ia', label: 'Vagas por IA', category: 'Produção' },
-  { id: 'vagas_home_office', label: 'Vagas Home Office', category: 'Produção' },
-  { id: 'posts_massa', label: 'Posts em Massa', category: 'Produção' },
-  { id: 'gerenciar_vagas', label: 'Gerenciar Vagas', category: 'Gerenciamento' },
-  { id: 'biblioteca_profissional', label: 'Base de Dados Profissionais', category: 'Gerenciamento' },
-  { id: 'gerenciar_usuarios', label: 'Gerenciar Usuários', category: 'Gerenciamento' },
-  { id: 'gerenciar_comunidade', label: 'Gerenciar Comunidade', category: 'Gerenciamento' },
-  { id: 'solicitacoes', label: 'Solicitações', category: 'Gerenciamento' },
-  { id: 'lista_transmissao', label: 'Lista de Transmissão', category: 'Comunicação' },
-  { id: 'responder_chat', label: 'Responder Chat', category: 'Comunicação' },
-  { id: 'noticias', label: 'Gerenciar Notícias', category: 'Conteúdo' },
-  { id: 'biblioteca_admin', label: 'Biblioteca Admin', category: 'Conteúdo' },
-  { id: 'analytics', label: 'Analytics do App', category: 'Análise' },
-  { id: 'pagamentos', label: 'Pagamentos', category: 'Financeiro' },
-  { id: 'curriculos', label: 'Ver Currículos', category: 'Interações' },
-  { id: 'permissoes', label: 'Permissões', category: 'Configurações' },
+  { id: 'postar_vagas', label: 'Postar Vagas', category: 'Publicações' },
+  { id: 'vagas_ia', label: 'Vagas por IA', category: 'Publicações' },
+  { id: 'vagas_home_office', label: 'Vagas Home Office', category: 'Publicações' },
+  { id: 'posts_massa', label: 'Posts em Massa', category: 'Publicações' },
+  { id: 'agendamentos', label: 'Agendamentos', category: 'Publicações' },
+  { id: 'gerenciar_vagas', label: 'Gerenciar Vagas', category: 'Administração' },
+  { id: 'gerenciador_filtros', label: 'Gerenciador de Filtros', category: 'Administração' },
+  { id: 'gerenciar_usuarios', label: 'Usuários', category: 'Administração' },
+  { id: 'permissoes', label: 'Permissões', category: 'Administração' },
+  { id: 'gerenciar_comunidade', label: 'Gerenciar Comunidade', category: 'Sistema' },
+  { id: 'solicitacoes', label: 'Solicitações', category: 'Sistema' },
+  { id: 'lista_transmissao', label: 'Lista de Transmissão', category: 'Sistema' },
+  { id: 'responder_chat', label: 'Responder Chat', category: 'Sistema' },
+  { id: 'noticias', label: 'Notícias', category: 'Sistema' },
+  { id: 'biblioteca_admin', label: 'Biblioteca', category: 'Sistema' },
+  { id: 'analytics', label: 'Analytics', category: 'Sistema' },
+  { id: 'pagamentos', label: 'Pagamentos', category: 'Sistema' },
+  { id: 'curriculos', label: 'Ver Currículos', category: 'Sistema' },
+  { id: 'feed', label: 'Feed', category: 'Sistema' },
 ];
 
-const CATEGORIES = ['Produção', 'Gerenciamento', 'Comunicação', 'Conteúdo', 'Análise', 'Financeiro', 'Interações', 'Configurações'];
+const CATEGORIES = ['Publicações', 'Administração', 'Sistema'];
 
 export default function Permissoes() {
   const [user, setUser] = useState(null);
@@ -185,9 +187,9 @@ export default function Permissoes() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Lista de Usuários */}
-          <div>
+          <div className="lg:col-span-2">
             <Card className="rounded-xl">
               <CardHeader>
                 <CardTitle className="text-lg">Selecionar Usuário</CardTitle>
@@ -203,42 +205,50 @@ export default function Permissoes() {
                   />
                 </div>
                 <ScrollArea className="h-[500px]">
-                  <div className="space-y-2">
-                    {filteredUsers.map(u => (
-                      <Card
-                        key={u.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
-                          selectedUser?.id === u.id ? 'border-2 border-indigo-500 bg-indigo-50' : ''
-                        }`}
-                        onClick={() => handleSelectUser(u)}
-                      >
-                        <CardContent className="p-3">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="w-10 h-10">
-                              <AvatarImage src={u.profile_photo} />
-                              <AvatarFallback className="bg-indigo-100 text-indigo-600">
-                                {u.full_name?.[0] || u.email?.[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate">{u.full_name || 'Sem nome'}</p>
-                              <p className="text-xs text-slate-500 truncate">{u.email}</p>
-                            </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {u.subscription_type || 'basic'}
-                            </Badge>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                <div className="space-y-2">
+                  {filteredUsers.map(u => (
+                    <div
+                      key={u.id}
+                      className={`cursor-pointer transition-all rounded-xl p-3 border-2 ${
+                        selectedUser?.id === u.id 
+                          ? 'border-indigo-500 bg-indigo-50 shadow-md' 
+                          : 'border-transparent bg-white hover:border-indigo-200 hover:shadow-sm'
+                      }`}
+                      onClick={() => handleSelectUser(u)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={u.profile_photo} />
+                          <AvatarFallback className="bg-indigo-100 text-indigo-600 text-sm">
+                            {u.full_name?.[0] || u.email?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate text-slate-800">{u.full_name || 'Sem nome'}</p>
+                          <p className="text-xs text-slate-500 truncate">{u.email}</p>
+                        </div>
+                        <Badge 
+                          variant="secondary" 
+                          className={`text-xs ${
+                            u.subscription_type === 'admin' ? 'bg-purple-100 text-purple-700' :
+                            u.subscription_type === 'premium' ? 'bg-green-100 text-green-700' :
+                            u.subscription_type === 'recruiter' ? 'bg-blue-100 text-blue-700' :
+                            'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {u.subscription_type || 'basic'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
                 </ScrollArea>
               </CardContent>
             </Card>
           </div>
 
           {/* Painel de Permissões */}
-          <div>
+          <div className="lg:col-span-3">
             {selectedUser ? (
               <Card className="rounded-xl">
                 <CardHeader>
@@ -258,30 +268,33 @@ export default function Permissoes() {
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-[420px] pr-4">
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       {CATEGORIES.map(category => {
                         const funcs = groupedFunctions[category];
                         if (!funcs || funcs.length === 0) return null;
                         return (
                           <div key={category}>
-                            <h3 className="font-semibold text-sm text-slate-700 mb-2 flex items-center gap-2">
-                              <div className="w-1 h-4 bg-indigo-600 rounded"></div>
-                              {category}
-                            </h3>
-                            <div className="space-y-2 ml-3">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-1 h-5 bg-indigo-600 rounded"></div>
+                              <h3 className="font-bold text-sm text-slate-800">{category}</h3>
+                              <Badge variant="secondary" className="text-xs ml-auto">
+                                {funcs.filter(f => permissions[f.id]).length}/{funcs.length}
+                              </Badge>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {funcs.map(func => (
                                 <div
                                   key={func.id}
-                                  className="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+                                  className="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-indigo-200"
                                 >
-                                  <label htmlFor={func.id} className="flex-1 cursor-pointer text-sm">
+                                  <label htmlFor={func.id} className="flex-1 cursor-pointer text-sm font-medium">
                                     {func.label}
                                   </label>
                                   <Checkbox
                                     id={func.id}
                                     checked={permissions[func.id]}
                                     onCheckedChange={() => handleTogglePermission(func.id)}
-                                    className="data-[state=checked]:bg-indigo-600"
+                                    className="data-[state=checked]:bg-indigo-600 ml-2"
                                   />
                                 </div>
                               ))}
