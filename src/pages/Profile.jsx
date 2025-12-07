@@ -103,20 +103,19 @@ export default function Profile() {
       // Atualizar no banco
       await base44.auth.updateMe(updateData);
       
-      // Atualizar estado local
-      const updatedUser = await base44.auth.me();
-      setUser(updatedUser);
+      // Atualizar estado local imediatamente com os dados do formulário
+      setUser(prev => ({
+        ...prev,
+        full_name: editForm.full_name,
+        phone: editForm.phone,
+        city: editForm.city,
+        state: editForm.state
+      }));
       
-      // Manter senha no formulário se foi preenchida
-      if (!editForm.password || !editForm.password.trim()) {
-        setEditForm({
-          full_name: updatedUser.full_name || '',
-          phone: updatedUser.phone || '',
-          city: updatedUser.city || '',
-          state: updatedUser.state || 'PB',
-          password: ''
-        });
-      }
+      // Buscar dados atualizados do servidor (em background)
+      base44.auth.me().then(updatedUser => {
+        setUser(updatedUser);
+      }).catch(err => console.error('Erro ao recarregar usuário:', err));
       
       setIsEditing(false);
       showToast('✅ Perfil atualizado com sucesso!');
