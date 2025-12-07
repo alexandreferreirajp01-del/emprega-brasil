@@ -27,6 +27,8 @@ export default function Payment() {
   const PIX_VALUE = 'R$ 29,90';
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    
     const checkAuth = async () => {
       try {
         const currentUser = await base44.auth.me();
@@ -209,6 +211,7 @@ Obrigado!`);
                   }}
                   placeholder="Digite seu código (8 caracteres)"
                   maxLength={8}
+                  autoFocus={false}
                   className="rounded-xl font-mono text-lg tracking-wider uppercase"
                 />
                 <Button
