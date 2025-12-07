@@ -10,6 +10,7 @@ import {
   ArrowLeft, Settings, Plus, Trash2, Edit, Loader2, CheckCircle, 
   Save, Briefcase, MapPin, Tag, Clock, AlertTriangle, Database, RefreshCw
 } from "lucide-react";
+import PasswordInput from "@/components/common/PasswordInput";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
@@ -425,13 +426,10 @@ export default function GerenciadorFiltros() {
           <p className="text-sm text-slate-600">
             Digite a senha de admin para confirmar as alterações no banco de dados:
           </p>
-          <Input
-            type="password"
-            placeholder="Senha..."
+          <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleConfirmSave()}
-            className="h-11"
             autoFocus
           />
           <DialogFooter>

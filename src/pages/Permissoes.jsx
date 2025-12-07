@@ -76,6 +76,20 @@ export default function Permissoes() {
           return;
         }
         setUser(currentUser);
+        
+        // Carregar configurações de senha do localStorage
+        const savedSettings = localStorage.getItem('function_password_settings');
+        if (savedSettings) {
+          setPasswordSettings(JSON.parse(savedSettings));
+        } else {
+          // Inicializar com valores padrão
+          const initial = {};
+          appFunctions.forEach(fn => {
+            initial[fn.id] = fn.requiresPassword || false;
+          });
+          setPasswordSettings(initial);
+          localStorage.setItem('function_password_settings', JSON.stringify(initial));
+        }
       } catch {
         window.location.href = createPageUrl('Splash');
       } finally {

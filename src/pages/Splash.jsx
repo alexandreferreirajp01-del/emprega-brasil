@@ -4,7 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Mail, Lock, Briefcase, Eye, EyeOff } from "lucide-react";
+import { Loader2, Mail, Lock, Briefcase } from "lucide-react";
+import PasswordInput from "@/components/common/PasswordInput";
 
 const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 horas
 
@@ -12,7 +13,6 @@ export default function Splash() {
   const [status, setStatus] = useState('checking'); // 'checking', 'login'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -134,21 +134,13 @@ export default function Splash() {
               
               {/* Campo Senha */}
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Senha"
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 z-10" />
+                <PasswordInput
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-11 pr-11 h-12 rounded-xl border-slate-200 text-base"
+                  placeholder="Senha"
+                  className="pl-11 h-12 rounded-xl border-slate-200 text-base"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
               </div>
             </div>
 
