@@ -181,7 +181,7 @@ export default function Home() {
               </div>
 
               {/* Quick Actions */}
-              <div className="max-w-6xl mx-auto px-3 sm:px-4 -mt-12 mb-6 sm:mb-8 relative z-10">
+              <div className="max-w-6xl mx-auto px-3 sm:px-4 -mt-12 mb-8 relative z-10">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                   {quickActions.map((action, i) => (
                     <Link key={i} to={createPageUrl(action.page)}>
@@ -205,7 +205,7 @@ export default function Home() {
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Featured Jobs */}
-            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden">
+            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden" style={{ minHeight: '400px' }}>
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-3 sm:p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">

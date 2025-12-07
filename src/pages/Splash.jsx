@@ -29,7 +29,7 @@ export default function Splash() {
           return;
         }
       } catch (e) {
-        // Não autenticado, mostra tela de login
+        // Erro ao verificar auth
       }
       
       // Mostra a tela de login

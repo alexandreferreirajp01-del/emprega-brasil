@@ -87,12 +87,6 @@ export default function Layout({ children, currentPageName }) {
   
   useEffect(() => {
     const checkAuth = async () => {
-      const visitorMode = localStorage.getItem('vagas_abertas_visitor_mode');
-      if (visitorMode === 'true') {
-        setIsVisitor(true);
-        return;
-      }
-      
       try {
         const isAuthenticated = await base44.auth.isAuthenticated();
         if (!isAuthenticated) {

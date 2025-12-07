@@ -186,59 +186,7 @@ Obrigado!`);
       </div>
 
       <div className="max-w-2xl mx-auto px-4 -mt-6">
-        {/* Opção de código */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Card className="shadow-xl rounded-2xl mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Crown className="w-5 h-5 text-purple-600" />
-                Já possui um código Premium?
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-slate-600 mb-4">
-                Se você recebeu um código de ativação, digite abaixo para liberar seu acesso imediatamente.
-              </p>
-              <div className="flex gap-3">
-                <Input
-                  value={premiumCode}
-                  onChange={(e) => {
-                    setPremiumCode(e.target.value.toUpperCase());
-                    setCodeError('');
-                  }}
-                  placeholder="Digite seu código (8 caracteres)"
-                  maxLength={8}
-                  autoFocus={false}
-                  className="rounded-xl font-mono text-lg tracking-wider uppercase"
-                />
-                <Button
-                  onClick={handleValidateCode}
-                  disabled={validatingCode || premiumCode.length !== 8}
-                  className="bg-purple-600 hover:bg-purple-700 rounded-xl px-6"
-                >
-                  {validatingCode ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    'Ativar'
-                  )}
-                </Button>
-              </div>
-              {codeError && (
-                <p className="text-red-500 text-sm mt-2">{codeError}</p>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
 
-        {/* Divisor */}
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-slate-400 text-sm">ou pague via PIX</span>
-          <div className="flex-1 h-px bg-slate-200" />
-        </div>
 
         {/* Pagamento PIX */}
         <motion.div
