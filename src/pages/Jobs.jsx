@@ -609,7 +609,7 @@ export default function Jobs() {
                     <div className="flex items-start justify-between">
                       <Link to={createPageUrl('JobDetail') + `?id=${job.id}`} className="flex-1">
                         <JobCardContent job={job} viewCount={viewCount} />
-                      </Link>
+                      </div>
                       <div className="flex flex-col gap-1 ml-3">
                         {user && (
                           <Button
