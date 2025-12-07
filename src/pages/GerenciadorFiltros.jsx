@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -11,7 +10,7 @@ import {
   Save, Briefcase, MapPin, Tag, Clock, AlertTriangle
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 
@@ -21,6 +20,67 @@ const INITIAL_JOB_TYPES = ['CLT', 'PJ', 'Autônomo', 'Estágio', 'Jovem Aprendiz
 const INITIAL_CITIES = ['João Pessoa', 'Campina Grande', 'Bayeux', 'Cabedelo', 'Santa Rita', 'Patos', 'Guarabira', 'Cajazeiras', 'Sousa', 'Pombal', 'Conde'];
 const INITIAL_WORK_MODELS = ['Presencial', 'Híbrido', 'Home Office', 'Remoto'];
 const INITIAL_SENIORITY = ['Estágio', 'Júnior', 'Pleno', 'Sênior', 'Especialista'];
+
+// Componente de Lista Memoizado
+const FilterList = React.memo(({ type, items, icon, onAdd, onEdit, onDelete }) => {
+  const Icon = icon;
+  return (
+    <Card className="rounded-xl shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between pb-3 space-y-0">
+        <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+          {items.length} itens
+        </CardTitle>
+        <Button 
+          onClick={() => onAdd(type)} 
+          size="sm" 
+          className="bg-indigo-600 hover:bg-indigo-700 rounded-lg h-8 sm:h-9 text-xs sm:text-sm px-2 sm:px-3"
+        >
+          <Plus className="w-4 h-4 sm:mr-1" />
+          <span className="hidden sm:inline">Adicionar</span>
+        </Button>
+      </CardHeader>
+      <CardContent className="p-3 sm:p-6">
+        <ScrollArea className="h-[50vh] sm:h-[400px] pr-2 sm:pr-4">
+          <div className="space-y-2">
+            {items.map((item, index) => (
+              <div 
+                key={`${type}-${item}-${index}`}
+                className="flex items-center justify-between p-2.5 sm:p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors gap-2"
+              >
+                <span className="text-xs sm:text-sm font-medium text-slate-700 flex-1 break-words">{item}</span>
+                <div className="flex gap-1 shrink-0">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => onEdit(type, item)}
+                    className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-indigo-600 hover:bg-indigo-100"
+                  >
+                    <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => onDelete(type, item)}
+                    className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-red-600 hover:bg-red-100"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {items.length === 0 && (
+              <div className="text-center py-12 text-slate-400">
+                <Icon className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 opacity-50" />
+                <p className="text-xs sm:text-sm">Nenhum item</p>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      </CardContent>
+    </Card>
+  );
+});
 
 export default function GerenciadorFiltros() {
   const [user, setUser] = useState(null);
@@ -74,14 +134,12 @@ export default function GerenciadorFiltros() {
     checkAdmin();
   }, []);
 
-  // Carregar categorias existentes
   const { data: categories = [] } = useQuery({
     queryKey: ['professional-categories'],
     queryFn: () => base44.entities.ProfessionalCategory.list('category_order', 100),
     enabled: !!user,
   });
 
-  // Sincronizar dados ao carregar
   useEffect(() => {
     if (categories.length > 0) {
       const cats = categories.map(c => c.category_name).filter(Boolean).sort();
@@ -94,28 +152,25 @@ export default function GerenciadorFiltros() {
     }
   }, [categories]);
 
-  const handleAdd = useCallback((type) => {
+  const handleAdd = (type) => {
     setEditingItem({ type, value: '', isNew: true });
     setEditDialog(true);
-  }, []);
+  };
 
-  const handleEdit = useCallback((type, value) => {
+  const handleEdit = (type, value) => {
     setEditingItem({ type, value, isNew: false, original: value });
     setEditDialog(true);
-  }, []);
+  };
 
-  const handleDelete = useCallback((type, value) => {
-    if (confirm(`Excluir "${value}"?`)) {
-      setFilters(prev => ({
-        ...prev,
-        [type]: prev[type].filter(item => item !== value)
-      }));
-      setPendingChanges(true);
-      showToast('Item removido.');
-    }
-  }, []);
+  const handleDelete = (type, value) => {
+    const currentItems = filters[type];
+    const newItems = currentItems.filter(item => item !== value);
+    setFilters(prev => ({ ...prev, [type]: newItems }));
+    setPendingChanges(true);
+    showToast('Item removido');
+  };
 
-  const handleSaveItem = useCallback(() => {
+  const handleSaveItem = () => {
     if (!editingItem?.value?.trim()) {
       showToast('Campo vazio', 'error');
       return;
@@ -123,45 +178,42 @@ export default function GerenciadorFiltros() {
 
     const value = editingItem.value.trim();
     const type = editingItem.type;
+    const currentItems = [...filters[type]];
 
-    setFilters(prev => {
-      const updated = [...prev[type]];
-      if (editingItem.isNew) {
-        if (updated.includes(value)) {
-          showToast('Item já existe', 'error');
-          return prev;
-        }
-        updated.push(value);
-      } else {
-        const index = updated.indexOf(editingItem.original);
-        if (index !== -1) updated[index] = value;
+    if (editingItem.isNew) {
+      if (currentItems.includes(value)) {
+        showToast('Item já existe', 'error');
+        return;
       }
-      return { ...prev, [type]: updated.sort() };
-    });
+      currentItems.push(value);
+    } else {
+      const index = currentItems.indexOf(editingItem.original);
+      if (index !== -1) currentItems[index] = value;
+    }
     
+    setFilters(prev => ({ ...prev, [type]: currentItems.sort() }));
     setPendingChanges(true);
     setEditDialog(false);
     setEditingItem(null);
-    showToast('Item atualizado.');
-  }, [editingItem]);
+    showToast('Item atualizado');
+  };
 
   const handleSaveAll = () => {
     setPasswordDialog(true);
   };
 
-  const handleConfirmSave = useCallback(async () => {
+  const handleConfirmSave = async () => {
     if (password !== ADMIN_PASSWORD) {
-      showToast('Senha incorreta!', 'error');
+      showToast('Senha incorreta', 'error');
+      setPassword('');
       return;
     }
 
     setSaving(true);
     try {
-      // Deletar categorias antigas em batch
-      if (categories.length > 0) {
-        for (const cat of categories) {
-          await base44.entities.ProfessionalCategory.delete(cat.id);
-        }
+      // Deletar todas as categorias antigas
+      for (const cat of categories) {
+        await base44.entities.ProfessionalCategory.delete(cat.id);
       }
 
       // Criar novas categorias
@@ -185,9 +237,9 @@ export default function GerenciadorFiltros() {
         });
       }
 
-      await queryClient.invalidateQueries({ queryKey: ['professional-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['professional-categories'] });
       setPendingChanges(false);
-      showToast('Filtros salvos!');
+      showToast('Salvo com sucesso!');
       setPasswordDialog(false);
       setPassword('');
     } catch (e) {
@@ -195,67 +247,7 @@ export default function GerenciadorFiltros() {
     } finally {
       setSaving(false);
     }
-  }, [password, categories, filters, queryClient]);
-
-  const FilterList = useMemo(() => React.memo(({ type, items, icon, onAdd, onEdit, onDelete }) => {
-    const Icon = icon;
-    return (
-      <Card className="rounded-xl">
-        <CardHeader className="flex flex-row items-center justify-between pb-3 space-y-0">
-          <CardTitle className="text-sm sm:text-base flex items-center gap-2">
-            <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
-            {items.length} itens
-          </CardTitle>
-          <Button 
-            onClick={() => onAdd(type)} 
-            size="sm" 
-            className="bg-indigo-600 hover:bg-indigo-700 rounded-lg h-8 sm:h-9 text-xs sm:text-sm px-2 sm:px-3"
-          >
-            <Plus className="w-4 h-4 sm:mr-1" />
-            <span className="hidden sm:inline">Adicionar</span>
-          </Button>
-        </CardHeader>
-        <CardContent className="p-3 sm:p-6">
-          <ScrollArea className="h-[50vh] sm:h-[400px] pr-2 sm:pr-4">
-            <div className="space-y-2">
-              {items.map((item, index) => (
-                <div 
-                  key={`${type}-${item}-${index}`}
-                  className="flex items-center justify-between p-2.5 sm:p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors gap-2"
-                >
-                  <span className="text-xs sm:text-sm font-medium text-slate-700 flex-1 break-words">{item}</span>
-                  <div className="flex gap-1 shrink-0">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => onEdit(type, item)}
-                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-indigo-600 hover:bg-indigo-100"
-                    >
-                      <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => onDelete(type, item)}
-                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-red-600 hover:bg-red-100"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              {items.length === 0 && (
-                <div className="text-center py-12 text-slate-400">
-                  <Icon className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-xs sm:text-sm">Nenhum item cadastrado</p>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
-    );
-  }), []);
+  };
 
   if (loading) {
     return (
@@ -289,7 +281,7 @@ export default function GerenciadorFiltros() {
             <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
             Gerenciador de Filtros
           </h1>
-          <p className="text-white/70 text-xs sm:text-sm">Gerencie todas as opções de filtros do aplicativo</p>
+          <p className="text-white/70 text-xs sm:text-sm">Gerencie os filtros do app</p>
         </div>
       </div>
 
@@ -305,69 +297,26 @@ export default function GerenciadorFiltros() {
           </TabsList>
 
           <TabsContent value="categories">
-            <FilterList 
-              type="categories" 
-              items={filters.categories} 
-              icon={Briefcase}
-              onAdd={handleAdd}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <FilterList type="categories" items={filters.categories} icon={Briefcase} onAdd={handleAdd} onEdit={handleEdit} onDelete={handleDelete} />
           </TabsContent>
           <TabsContent value="jobFunctions">
-            <FilterList 
-              type="jobFunctions" 
-              items={filters.jobFunctions} 
-              icon={Tag}
-              onAdd={handleAdd}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <FilterList type="jobFunctions" items={filters.jobFunctions} icon={Tag} onAdd={handleAdd} onEdit={handleEdit} onDelete={handleDelete} />
           </TabsContent>
           <TabsContent value="jobTypes">
-            <FilterList 
-              type="jobTypes" 
-              items={filters.jobTypes} 
-              icon={Clock}
-              onAdd={handleAdd}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <FilterList type="jobTypes" items={filters.jobTypes} icon={Clock} onAdd={handleAdd} onEdit={handleEdit} onDelete={handleDelete} />
           </TabsContent>
           <TabsContent value="cities">
-            <FilterList 
-              type="cities" 
-              items={filters.cities} 
-              icon={MapPin}
-              onAdd={handleAdd}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <FilterList type="cities" items={filters.cities} icon={MapPin} onAdd={handleAdd} onEdit={handleEdit} onDelete={handleDelete} />
           </TabsContent>
           <TabsContent value="workModels">
-            <FilterList 
-              type="workModels" 
-              items={filters.workModels} 
-              icon={Briefcase}
-              onAdd={handleAdd}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <FilterList type="workModels" items={filters.workModels} icon={Briefcase} onAdd={handleAdd} onEdit={handleEdit} onDelete={handleDelete} />
           </TabsContent>
           <TabsContent value="seniority">
-            <FilterList 
-              type="seniority" 
-              items={filters.seniority} 
-              icon={Tag}
-              onAdd={handleAdd}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <FilterList type="seniority" items={filters.seniority} icon={Tag} onAdd={handleAdd} onEdit={handleEdit} onDelete={handleDelete} />
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* Save Button Fixed */}
       {pendingChanges && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-3 sm:p-4 z-40 pb-safe">
           <div className="max-w-5xl mx-auto">
@@ -376,29 +325,27 @@ export default function GerenciadorFiltros() {
               className="w-full bg-indigo-600 hover:bg-indigo-700 rounded-xl h-11 sm:h-12 text-sm sm:text-base font-semibold"
             >
               <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Salvar e Atualizar
+              Salvar Alterações
             </Button>
           </div>
         </div>
       )}
 
-      {/* Edit Dialog */}
       <Dialog open={editDialog} onOpenChange={setEditDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingItem?.isNew ? 'Adicionar Item' : 'Editar Item'}
+              {editingItem?.isNew ? 'Adicionar' : 'Editar'}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="Digite o valor..."
-              value={editingItem?.value || ''}
-              onChange={(e) => setEditingItem(prev => ({ ...prev, value: e.target.value }))}
-              onKeyDown={(e) => e.key === 'Enter' && handleSaveItem()}
-              className="h-11"
-            />
-          </div>
+          <Input
+            placeholder="Digite..."
+            value={editingItem?.value || ''}
+            onChange={(e) => setEditingItem(prev => ({ ...prev, value: e.target.value }))}
+            onKeyDown={(e) => e.key === 'Enter' && handleSaveItem()}
+            className="h-11"
+            autoFocus
+          />
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDialog(false)}>
               Cancelar
@@ -410,28 +357,24 @@ export default function GerenciadorFiltros() {
         </DialogContent>
       </Dialog>
 
-      {/* Password Dialog */}
       <Dialog open={passwordDialog} onOpenChange={setPasswordDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-500" />
-              Confirmação Obrigatória
+              Confirme com senha
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-slate-600">
-              Para salvar as alterações nos filtros, digite a senha de administrador:
-            </p>
-            <Input
-              type="password"
-              placeholder="Digite a senha..."
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleConfirmSave()}
-              className="h-11"
-            />
-          </div>
+          <p className="text-sm text-slate-600">Digite a senha de admin:</p>
+          <Input
+            type="password"
+            placeholder="Senha..."
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleConfirmSave()}
+            className="h-11"
+            autoFocus
+          />
           <DialogFooter>
             <Button
               variant="outline"
@@ -448,11 +391,7 @@ export default function GerenciadorFiltros() {
               disabled={saving || !password}
               className="bg-indigo-600 hover:bg-indigo-700"
             >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                'Confirmar'
-              )}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirmar'}
             </Button>
           </DialogFooter>
         </DialogContent>
