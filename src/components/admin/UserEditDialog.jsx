@@ -42,12 +42,37 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
   const handleConfirmSave = async () => {
     setSaving(true);
     try {
+      // Validação básica
+      if (!formData.full_name || formData.full_name.trim().length < 3) {
+        toast.error('Nome deve ter no mínimo 3 caracteres');
+        setSaving(false);
+        return;
+      }
+
+      if (formData.password && formData.password.length < 6) {
+        toast.error('Senha deve ter no mínimo 6 caracteres');
+        setSaving(false);
+        return;
+      }
+
+      // Atualizar no banco
       await base44.asServiceRole.entities.User.update(user.id, formData);
-      toast.success('Usuário atualizado com sucesso!');
+      
+      // Sucesso
+      toast.success('✅ Usuário atualizado com sucesso!', {
+        duration: 3000,
+      });
+      
       if (onSave) onSave();
-      onOpenChange(false);
+      
+      // Fechar após pequeno delay
+      setTimeout(() => {
+        onOpenChange(false);
+      }, 500);
+      
     } catch (error) {
-      toast.error('Erro ao atualizar usuário');
+      console.error('Erro ao atualizar:', error);
+      toast.error('❌ Erro ao atualizar usuário. Tente novamente.');
     } finally {
       setSaving(false);
     }

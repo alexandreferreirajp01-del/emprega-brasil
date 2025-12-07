@@ -85,6 +85,43 @@ export default function Profile() {
     window.location.href = createPageUrl('Splash');
   };
 
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    try {
+      // Validação
+      if (!formData.full_name || formData.full_name.trim().length < 3) {
+        alert('Nome deve ter no mínimo 3 caracteres');
+        setSaving(false);
+        return;
+      }
+
+      // Atualizar no banco
+      await base44.auth.updateMe(formData);
+      
+      // Atualizar estado local
+      const updatedUser = await base44.auth.me();
+      setUser(updatedUser);
+      setEditMode(false);
+      
+      alert('✅ Perfil atualizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      alert('❌ Erro ao atualizar perfil. Tente novamente.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setFormData({
+      full_name: user.full_name || '',
+      phone: user.phone || '',
+      city: user.city || '',
+      state: user.state || 'PB',
+    });
+    setEditMode(false);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
