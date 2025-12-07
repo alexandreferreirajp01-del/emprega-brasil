@@ -156,17 +156,17 @@ export default function Subscription() {
 
           {/* Premium Plan */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+           initial={{ opacity: 0, y: 30 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.2 }}
           >
-            <Card className="shadow-2xl rounded-3xl overflow-hidden border-0 ring-2 ring-[#0056ff] h-full relative">
-              <div className="absolute top-4 right-4">
-                <Badge className="bg-yellow-400 text-yellow-900 border-0">
-                  <Star className="w-3 h-3 mr-1" />
-                  Recomendado
-                </Badge>
-              </div>
+           <Card className="shadow-xl rounded-3xl overflow-hidden border-0 h-full relative">
+             <div className="absolute top-4 right-4">
+               <Badge className="bg-yellow-400 text-yellow-900 border-0">
+                 <Star className="w-3 h-3 mr-1" />
+                 Recomendado
+               </Badge>
+             </div>
               <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] p-6 text-center">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mb-4">
                   <Crown className="w-7 h-7 text-white" />
