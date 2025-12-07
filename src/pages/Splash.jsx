@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Mail, Lock, Briefcase } from "lucide-react";
+import { Link } from "react-router-dom";
 import PasswordInput from "@/components/common/PasswordInput";
 
 const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 horas
