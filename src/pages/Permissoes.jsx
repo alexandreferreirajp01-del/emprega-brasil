@@ -9,9 +9,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   ArrowLeft, Search, Loader2, CheckCircle, Shield, Lock, 
-  User, Mail, Eye, EyeOff, AlertTriangle
+  User, Mail, Eye, EyeOff, AlertTriangle, Unlock
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import PasswordInput from "@/components/common/PasswordInput";
+import PasswordDialog from "@/components/common/PasswordDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
@@ -53,6 +55,9 @@ export default function Permissoes() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [passwordSettings, setPasswordSettings] = useState({});
+  const [togglePasswordDialog, setTogglePasswordDialog] = useState(false);
+  const [targetFunction, setTargetFunction] = useState(null);
   const queryClient = useQueryClient();
 
   const showToast = (message, type = 'success') => {
@@ -84,8 +89,8 @@ export default function Permissoes() {
         } else {
           // Inicializar com valores padrão
           const initial = {};
-          appFunctions.forEach(fn => {
-            initial[fn.id] = fn.requiresPassword || false;
+          APP_FUNCTIONS.forEach(fn => {
+            initial[fn.id] = false;
           });
           setPasswordSettings(initial);
           localStorage.setItem('function_password_settings', JSON.stringify(initial));
@@ -140,6 +145,22 @@ export default function Permissoes() {
 
   const handleTogglePermission = (funcId) => {
     setPermissions(prev => ({ ...prev, [funcId]: !prev[funcId] }));
+  };
+
+  const handleTogglePasswordRequirement = (functionId) => {
+    setTargetFunction(functionId);
+    setTogglePasswordDialog(true);
+  };
+
+  const handleConfirmToggle = () => {
+    const newSettings = {
+      ...passwordSettings,
+      [targetFunction]: !passwordSettings[targetFunction]
+    };
+    setPasswordSettings(newSettings);
+    localStorage.setItem('function_password_settings', JSON.stringify(newSettings));
+    showToast(`Exigência de senha ${!passwordSettings[targetFunction] ? 'ativada' : 'desativada'}`);
+    setTargetFunction(null);
   };
 
   const handleSave = () => {
@@ -295,21 +316,40 @@ export default function Permissoes() {
                                 {funcs.filter(f => permissions[f.id]).length}/{funcs.length}
                               </Badge>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div className="space-y-2">
                               {funcs.map(func => (
-                                <div
-                                  key={func.id}
-                                  className="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-indigo-200"
-                                >
-                                  <label htmlFor={func.id} className="flex-1 cursor-pointer text-sm font-medium">
-                                    {func.label}
-                                  </label>
-                                  <Checkbox
-                                    id={func.id}
-                                    checked={permissions[func.id]}
-                                    onCheckedChange={() => handleTogglePermission(func.id)}
-                                    className="data-[state=checked]:bg-indigo-600 ml-2"
-                                  />
+                                <div key={func.id} className="bg-slate-50 p-3 rounded-lg">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <label htmlFor={func.id} className="flex-1 cursor-pointer text-sm font-medium">
+                                      {func.label}
+                                    </label>
+                                    <Checkbox
+                                      id={func.id}
+                                      checked={permissions[func.id]}
+                                      onCheckedChange={() => handleTogglePermission(func.id)}
+                                      className="data-[state=checked]:bg-indigo-600"
+                                    />
+                                  </div>
+                                  <button
+                                    onClick={() => handleTogglePasswordRequirement(func.id)}
+                                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                                      passwordSettings[func.id]
+                                        ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                        : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                                    }`}
+                                  >
+                                    {passwordSettings[func.id] ? (
+                                      <>
+                                        <Lock className="w-3 h-3" />
+                                        Senha obrigatória
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Unlock className="w-3 h-3" />
+                                        Sem senha
+                                      </>
+                                    )}
+                                  </button>
                                 </div>
                               ))}
                             </div>
@@ -354,23 +394,12 @@ export default function Permissoes() {
             <p className="text-sm text-slate-600">
               Para salvar as permissões, digite a senha de administrador:
             </p>
-            <div className="relative">
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Digite a senha..."
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pr-10"
-                onKeyDown={(e) => e.key === 'Enter' && handleConfirmSave()}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
+            <PasswordInput
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleConfirmSave()}
+              autoFocus
+            />
           </div>
           <DialogFooter>
             <Button
@@ -397,6 +426,14 @@ export default function Permissoes() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <PasswordDialog
+        open={togglePasswordDialog}
+        onOpenChange={setTogglePasswordDialog}
+        onSuccess={handleConfirmToggle}
+        title="Alterar Exigência de Senha"
+        description="Digite a senha de administrador para modificar esta configuração"
+      />
     </div>
   );
 }
