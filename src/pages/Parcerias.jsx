@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Handshake, ArrowLeft, MessageSquare, CheckCircle, Instagram, Send, CreditCard, Smartphone
+  Handshake, ArrowLeft, MessageSquare, CheckCircle, Instagram, Send, CreditCard, Smartphone,
+  Zap, TrendingUp, Award, Target, BarChart, Users
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -40,29 +41,35 @@ export default function Parcerias() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-12 px-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-6 pb-16 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-60 h-60 bg-white rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto relative">
           <Link to={createPageUrl('Home')}>
-            <Button variant="ghost" className="text-white hover:bg-white/20 mb-4 -ml-2">
+            <Button variant="ghost" className="text-white hover:bg-white/10 mb-6 -ml-2">
               <ArrowLeft className="w-5 h-5 mr-2" />Voltar
             </Button>
           </Link>
           
           <div className="text-center">
-            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Handshake className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
-              TABELA <span className="text-yellow-400">DE</span> VALORES
+            <Badge className="bg-white/20 text-white border-0 mb-4 px-4 py-1.5">
+              <Users className="w-4 h-4 mr-2" />
+              Parcerias Empresariais
+            </Badge>
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Divulgue Sua Vaga
             </h1>
             <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto">
-              Anuncie sua vaga e alcance milhares de candidatos na Paraíba
+              Alcance milhares de candidatos qualificados na Paraíba
             </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 -mt-6">
+      <div className="max-w-4xl mx-auto px-4 -mt-10">
         {/* Tabela de Preços */}
         <Card className="mb-6 shadow-xl border-0 rounded-2xl overflow-hidden bg-white">
           <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 md:p-6 border-b">
@@ -131,23 +138,48 @@ export default function Parcerias() {
         </Card>
 
         {/* Redes Sociais */}
-        <Card className="mb-6 shadow-lg border-0">
+        <Card className="mb-6 shadow-xl border-0 rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 border-b">
+            <h3 className="text-xl font-bold text-slate-800 text-center flex items-center justify-center gap-2">
+              <Users className="w-5 h-5 text-[#0056ff]" />
+              Nosso Alcance nas Redes
+            </h3>
+          </div>
           <CardContent className="p-6">
-            <h3 className="text-xl font-bold text-slate-800 mb-4 text-center">Tráfego nas redes:</h3>
-            <div className="flex justify-center gap-6 flex-wrap">
-              <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center">
-                <Instagram className="w-7 h-7 text-white" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl p-5 text-white text-center">
+                  <Instagram className="w-8 h-8 mx-auto mb-2" />
+                  <div className="text-2xl font-bold mb-1">8.2k</div>
+                  <p className="text-xs opacity-90">Instagram</p>
+                </div>
               </div>
-              <div className="w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center">
-                <MessageSquare className="w-7 h-7 text-white" />
+              <div className="relative group">
+                <div className="absolute inset-0 bg-green-600 rounded-2xl blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative bg-green-600 rounded-2xl p-5 text-white text-center">
+                  <MessageSquare className="w-8 h-8 mx-auto mb-2" />
+                  <div className="text-2xl font-bold mb-1">12k</div>
+                  <p className="text-xs opacity-90">WhatsApp</p>
+                </div>
               </div>
-              <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center">
-                <Send className="w-7 h-7 text-white" />
+              <div className="relative group">
+                <div className="absolute inset-0 bg-blue-500 rounded-2xl blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative bg-blue-500 rounded-2xl p-5 text-white text-center">
+                  <Send className="w-8 h-8 mx-auto mb-2" />
+                  <div className="text-2xl font-bold mb-1">5.3k</div>
+                  <p className="text-xs opacity-90">Telegram</p>
+                </div>
               </div>
-              <div className="w-14 h-14 bg-blue-700 rounded-2xl flex items-center justify-center">
-                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-blue-700 rounded-2xl blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative bg-blue-700 rounded-2xl p-5 text-white text-center">
+                  <svg className="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                  <div className="text-2xl font-bold mb-1">4.1k</div>
+                  <p className="text-xs opacity-90">Facebook</p>
+                </div>
               </div>
             </div>
           </CardContent>
