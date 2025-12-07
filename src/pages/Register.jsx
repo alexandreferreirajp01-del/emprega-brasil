@@ -76,6 +76,18 @@ export default function Register() {
         return;
       }
 
+      // Criar usuário no banco de dados
+      const newUser = await base44.entities.User.create({
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone,
+        city: formData.city,
+        state: formData.state,
+        password: formData.password,
+        subscription_type: 'basic',
+        access_status: 'approved'
+      });
+
       // Enviar e-mail de boas-vindas
       await base44.integrations.Core.SendEmail({
         to: formData.email,
@@ -132,7 +144,8 @@ export default function Register() {
       }, 3000);
 
     } catch (error) {
-      setErrors({ general: 'Erro ao criar conta. Tente novamente.' });
+      console.error('Erro ao criar conta:', error);
+      setErrors({ general: error.message || 'Erro ao criar conta. Tente novamente.' });
     } finally {
       setLoading(false);
     }
