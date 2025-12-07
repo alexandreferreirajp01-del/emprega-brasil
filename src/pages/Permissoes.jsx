@@ -40,9 +40,12 @@ const APP_FUNCTIONS = [
   { id: 'pagamentos', label: 'Pagamentos', category: 'Sistema' },
   { id: 'curriculos', label: 'Ver Currículos', category: 'Sistema' },
   { id: 'feed', label: 'Feed', category: 'Sistema' },
+  { id: 'favoritas', label: 'Favoritas', category: 'Interações' },
+  { id: 'historico', label: 'Histórico', category: 'Interações' },
+  { id: 'mensagens', label: 'Mensagens', category: 'Interações' },
 ];
 
-const CATEGORIES = ['Publicações', 'Administração', 'Sistema'];
+const CATEGORIES = ['Interações', 'Publicações', 'Administração', 'Sistema'];
 
 export default function Permissoes() {
   const [user, setUser] = useState(null);

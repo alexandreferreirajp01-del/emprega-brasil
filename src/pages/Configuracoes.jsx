@@ -13,31 +13,32 @@ import { Link } from "react-router-dom";
 
 const menuItems = [
   { id: 'dividerInteracoes', type: 'divider', label: 'Interações' },
-  { id: 'favoritas', name: 'Favoritas', icon: Heart, color: 'red', page: 'Favoritos', description: 'Vagas salvas como favoritas' },
-  { id: 'historico', name: 'Histórico', icon: History, color: 'purple', page: 'Historico', description: 'Vagas visualizadas recentemente' },
-  { id: 'mensagens', name: 'Mensagens', icon: MessageCircle, color: 'green', page: 'Mensagens', description: 'Conversas diretas entre usuários' },
-  { id: 'curriculos', name: 'Ver Currículos', icon: FileText, color: 'blue', page: 'ProfessionalResume', description: 'Visualizar currículos de candidatos' },
-  { id: 'responder-chat', name: 'Responder Chat', icon: MessageSquare, color: 'cyan', page: 'ResponderChat', description: 'Responder mensagens dos usuários' },
-  { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'indigo', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'] },
+  { id: 'favoritas', name: 'Favoritas', icon: Heart, color: 'red', page: 'Favoritos', description: 'Vagas salvas como favoritas', permissionId: 'favoritas' },
+  { id: 'historico', name: 'Histórico', icon: History, color: 'purple', page: 'Historico', description: 'Vagas visualizadas recentemente', permissionId: 'historico' },
+  { id: 'mensagens', name: 'Mensagens', icon: MessageCircle, color: 'green', page: 'Mensagens', description: 'Conversas diretas entre usuários', permissionId: 'mensagens' },
+  { id: 'curriculos', name: 'Ver Currículos', icon: FileText, color: 'blue', page: 'ProfessionalResume', description: 'Visualizar currículos de candidatos', permissionId: 'curriculos' },
+  { id: 'responder-chat', name: 'Responder Chat', icon: MessageSquare, color: 'cyan', page: 'ResponderChat', description: 'Responder mensagens dos usuários', permissionId: 'responder_chat' },
+  { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'indigo', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'], permissionId: 'permissoes' },
   { id: 'dividerRecrutador', type: 'divider', label: 'Área do Recrutador', roles: ['recruiter', 'admin', 'dono'] },
   { id: 'recruiter-area', name: 'Painel do Recrutador', icon: Briefcase, color: 'blue', page: 'RecruiterArea', description: 'Ferramentas exclusivas para recrutadores', roles: ['recruiter', 'admin', 'dono'] },
   { id: 'divider0', type: 'divider', label: 'Gerenciamento' },
-  { id: 'transmissao', name: 'Lista de Transmissão', icon: MessageSquare, color: 'green', page: 'ListaTransmissao', description: 'Enviar mensagens em massa' },
-  { id: 'vagas', name: 'Gerenciar Vagas', icon: Briefcase, color: 'blue', page: 'GerenciarVagas', description: 'Visualizar e excluir vagas' },
-  { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'indigo', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários' },
-  { id: 'comunidade', name: 'Gerenciar Comunidade', icon: MessageSquare, color: 'purple', page: 'GerenciarComunidade', description: 'Posts, comentários e chat' },
-  { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores' },
+  { id: 'transmissao', name: 'Lista de Transmissão', icon: MessageSquare, color: 'green', page: 'ListaTransmissao', description: 'Enviar mensagens em massa', permissionId: 'lista_transmissao' },
+  { id: 'vagas', name: 'Gerenciar Vagas', icon: Briefcase, color: 'blue', page: 'GerenciarVagas', description: 'Visualizar e excluir vagas', permissionId: 'gerenciar_vagas' },
+  { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'indigo', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários', permissionId: 'gerenciar_usuarios' },
+  { id: 'comunidade', name: 'Gerenciar Comunidade', icon: MessageSquare, color: 'purple', page: 'GerenciarComunidade', description: 'Posts, comentários e chat', permissionId: 'gerenciar_comunidade' },
+  { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores', permissionId: 'solicitacoes' },
   { id: 'dividerProducao', type: 'divider', label: 'Ferramentas de Produção' },
-  { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'indigo', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros' },
-  { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego' },
-  { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA' },
-  { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial' },
-  { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'green', page: 'VagasHomeOffice', description: 'Publicar vagas remotas' },
-  { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'amber', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos' },
-  { id: 'noticias', name: 'Gerenciar Notícias', icon: Newspaper, color: 'red', page: 'GerenciarNoticias', description: 'Publicar e gerenciar notícias' },
+  { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'indigo', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros', permissionId: 'gerenciador_filtros' },
+  { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego', permissionId: 'postar_vagas' },
+  { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA', permissionId: 'posts_massa' },
+  { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
+  { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'green', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
+  { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'amber', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos', permissionId: 'biblioteca_admin' },
+  { id: 'noticias', name: 'Gerenciar Notícias', icon: Newspaper, color: 'red', page: 'GerenciarNoticias', description: 'Publicar e gerenciar notícias', permissionId: 'noticias' },
   { id: 'divider1', type: 'divider', label: 'Ferramentas' },
-  { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real' },
-  { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos' },
+  { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
+  { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },
+  { id: 'feed', name: 'Feed', icon: MessageCircle, color: 'purple', page: 'Feed', description: 'Gerenciar posts do feed', permissionId: 'feed' },
   { id: 'divider2', type: 'divider', label: 'Painel Base44' },
   { id: 'base44', name: 'Abrir Painel Base44', icon: Settings, color: 'slate', external: true, description: 'Overview, Users, Data, Analytics, Domains, Integrations, Security, Code, Agents, Logs, API, Settings, Secrets' },
 ];
@@ -123,6 +124,18 @@ export default function Configuracoes() {
                              user?.subscription_type === 'dono';
               const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
               const isRecruiter = user?.subscription_type === 'recruiter';
+              
+              // Dono e Admin têm acesso total
+              if (!isDono && !isAdmin) {
+                // Verificar permissões do usuário
+                if (item.permissionId) {
+                  const userPermissions = user?.permissions || {};
+                  // Se a permissão não está definida ou é false, esconder
+                  if (userPermissions[item.permissionId] === false) {
+                    return null;
+                  }
+                }
+              }
               
               if (item.roles) {
                 const hasAccess = item.roles.some(role => {
