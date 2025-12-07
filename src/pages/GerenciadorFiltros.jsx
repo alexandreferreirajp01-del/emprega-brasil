@@ -372,19 +372,21 @@ export default function GerenciadorFiltros() {
         </Tabs>
       </div>
 
-      {pendingChanges && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-3 sm:p-4 z-40 pb-safe">
-          <div className="max-w-5xl mx-auto">
-            <Button 
-              onClick={handleSaveAll} 
-              className="w-full bg-indigo-600 hover:bg-indigo-700 rounded-xl h-11 sm:h-12 text-sm sm:text-base font-semibold"
-            >
-              <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Salvar e Atualizar
-            </Button>
-          </div>
+      <div className="fixed bottom-16 md:bottom-0 left-0 right-0 bg-white border-t shadow-lg p-3 sm:p-4 z-40 pb-safe">
+        <div className="max-w-5xl mx-auto">
+          <Button 
+            onClick={handleSaveAll} 
+            className={`w-full rounded-xl h-11 sm:h-12 text-sm sm:text-base font-semibold ${
+              pendingChanges 
+                ? 'bg-indigo-600 hover:bg-indigo-700 animate-pulse' 
+                : 'bg-green-600 hover:bg-green-700'
+            }`}
+          >
+            <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            {pendingChanges ? 'Salvar e Atualizar' : 'Tudo Salvo ✓'}
+          </Button>
         </div>
-      )}
+      </div>
 
       <Dialog open={editDialog} onOpenChange={setEditDialog}>
         <DialogContent className="sm:max-w-md">
