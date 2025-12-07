@@ -412,18 +412,17 @@ export default function Profile() {
           </CardContent>
         </Card>
       </div>
-      </div>
 
       {/* Modal Premium */}
       <PremiumModal
-      isOpen={showPremiumModal}
-      onClose={() => setShowPremiumModal(false)}
-      user={user}
-      onSuccess={() => {
-        refetch();
-        showToast('🎉 Bem-vindo ao Premium!');
-      }}
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        user={user}
+        onSuccess={() => {
+          refetch();
+          showToast('🎉 Bem-vindo ao Premium!');
+        }}
       />
-      </div>
-      );
-      }
+    </div>
+  );
+}
