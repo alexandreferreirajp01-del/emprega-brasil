@@ -35,9 +35,12 @@ export default function PermissionPrompt() {
     const lastPrompt = localStorage.getItem('vagas_push_last_prompt');
     const now = Date.now();
     
-    // Mostrar se nunca viu OU se passou mais de 7 dias
-    if (!hasSeenPrompt || (lastPrompt && now - parseInt(lastPrompt) > 7 * 24 * 60 * 60 * 1000)) {
-      const timer = setTimeout(() => setStep(1), 2500);
+    // Verificar se o navegador suporta notificações
+    const supportsNotifications = 'Notification' in window && 'serviceWorker' in navigator;
+    
+    // Mostrar se nunca viu OU se passou mais de 7 dias (e suporta notificações)
+    if (supportsNotifications && (!hasSeenPrompt || (lastPrompt && now - parseInt(lastPrompt) > 7 * 24 * 60 * 60 * 1000))) {
+      const timer = setTimeout(() => setStep(1), 3000);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -64,19 +67,24 @@ export default function PermissionPrompt() {
         return;
       }
 
-      // Solicitar permissão com retry
+      // Solicitar permissão do navegador
       let permission = Notification.permission;
       
       if (permission === 'default') {
-        permission = await Promise.race([
-          Notification.requestPermission(),
-          new Promise(resolve => setTimeout(() => resolve('timeout'), 4000))
-        ]);
+        try {
+          permission = await Notification.requestPermission();
+        } catch (err) {
+          console.log('Erro ao solicitar permissão:', err);
+          permission = 'denied';
+        }
       }
       
       if (permission !== 'granted') {
         console.log('Permissão não concedida:', permission);
         clearTimeout(timeoutId);
+        // Ainda assim marcar como concluído para não ficar perguntando
+        localStorage.setItem('vagas_abertas_permissions_v2', 'true');
+        localStorage.setItem('vagas_push_last_prompt', Date.now().toString());
         setLoading(false);
         setStep(2);
         return;
