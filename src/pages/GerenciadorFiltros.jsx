@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -94,28 +94,28 @@ export default function GerenciadorFiltros() {
     }
   }, [categories]);
 
-  const handleAdd = (type) => {
+  const handleAdd = useCallback((type) => {
     setEditingItem({ type, value: '', isNew: true });
     setEditDialog(true);
-  };
+  }, []);
 
-  const handleEdit = (type, value) => {
+  const handleEdit = useCallback((type, value) => {
     setEditingItem({ type, value, isNew: false, original: value });
     setEditDialog(true);
-  };
+  }, []);
 
-  const handleDelete = (type, value) => {
+  const handleDelete = useCallback((type, value) => {
     if (confirm(`Excluir "${value}"?`)) {
       setFilters(prev => ({
         ...prev,
         [type]: prev[type].filter(item => item !== value)
       }));
       setPendingChanges(true);
-      showToast('Item removido. Clique em Salvar para confirmar.');
+      showToast('Item removido.');
     }
-  };
+  }, []);
 
-  const handleSaveItem = () => {
+  const handleSaveItem = useCallback(() => {
     if (!editingItem?.value?.trim()) {
       showToast('Campo vazio', 'error');
       return;
@@ -124,59 +124,58 @@ export default function GerenciadorFiltros() {
     const value = editingItem.value.trim();
     const type = editingItem.type;
 
-    const updated = [...filters[type]];
-    if (editingItem.isNew) {
-      if (updated.includes(value)) {
-        showToast('Item já existe', 'error');
-        return;
+    setFilters(prev => {
+      const updated = [...prev[type]];
+      if (editingItem.isNew) {
+        if (updated.includes(value)) {
+          showToast('Item já existe', 'error');
+          return prev;
+        }
+        updated.push(value);
+      } else {
+        const index = updated.indexOf(editingItem.original);
+        if (index !== -1) updated[index] = value;
       }
-      updated.push(value);
-    } else {
-      const index = updated.indexOf(editingItem.original);
-      if (index !== -1) updated[index] = value;
-    }
+      return { ...prev, [type]: updated.sort() };
+    });
     
-    setFilters(prev => ({ ...prev, [type]: updated.sort() }));
     setPendingChanges(true);
     setEditDialog(false);
     setEditingItem(null);
-    showToast('Item atualizado. Clique em Salvar para confirmar.');
-  };
+    showToast('Item atualizado.');
+  }, [editingItem]);
 
   const handleSaveAll = () => {
     setPasswordDialog(true);
   };
 
-  const handleConfirmSave = async () => {
+  const handleConfirmSave = useCallback(async () => {
     if (password !== ADMIN_PASSWORD) {
-      showToast('Senha incorreta! Acesso negado.', 'error');
+      showToast('Senha incorreta!', 'error');
       return;
     }
 
     setSaving(true);
     try {
-      // Deletar categorias antigas
+      // Deletar categorias antigas em batch
       if (categories.length > 0) {
-        await Promise.all(categories.map(cat => 
-          base44.entities.ProfessionalCategory.delete(cat.id)
-        ));
+        for (const cat of categories) {
+          await base44.entities.ProfessionalCategory.delete(cat.id);
+        }
       }
 
-      // Criar novas categorias com todas as funções
+      // Criar novas categorias
       if (filters.categories.length > 0) {
-        await Promise.all(filters.categories.map((cat, index) => 
-          base44.entities.ProfessionalCategory.create({
-            category_name: cat,
-            category_order: index + 1,
+        for (let i = 0; i < filters.categories.length; i++) {
+          await base44.entities.ProfessionalCategory.create({
+            category_name: filters.categories[i],
+            category_order: i + 1,
             job_titles: filters.jobFunctions,
-            keywords: [cat.toLowerCase()],
+            keywords: [filters.categories[i].toLowerCase()],
             is_active: true
-          })
-        ));
-      }
-
-      // Se não houver categorias, criar uma categoria genérica
-      if (filters.categories.length === 0 && filters.jobFunctions.length > 0) {
+          });
+        }
+      } else if (filters.jobFunctions.length > 0) {
         await base44.entities.ProfessionalCategory.create({
           category_name: 'Geral',
           category_order: 1,
@@ -186,19 +185,19 @@ export default function GerenciadorFiltros() {
         });
       }
 
-      queryClient.invalidateQueries({ queryKey: ['professional-categories'] });
+      await queryClient.invalidateQueries({ queryKey: ['professional-categories'] });
       setPendingChanges(false);
-      showToast('Filtros atualizados! Banco sincronizado.');
+      showToast('Filtros salvos!');
       setPasswordDialog(false);
       setPassword('');
     } catch (e) {
-      showToast('Erro ao salvar: ' + e.message, 'error');
+      showToast('Erro: ' + e.message, 'error');
     } finally {
       setSaving(false);
     }
-  };
+  }, [password, categories, filters, queryClient]);
 
-  const renderList = (type, items, icon) => {
+  const FilterList = useMemo(() => React.memo(({ type, items, icon, onAdd, onEdit, onDelete }) => {
     const Icon = icon;
     return (
       <Card className="rounded-xl">
@@ -208,7 +207,7 @@ export default function GerenciadorFiltros() {
             {items.length} itens
           </CardTitle>
           <Button 
-            onClick={() => handleAdd(type)} 
+            onClick={() => onAdd(type)} 
             size="sm" 
             className="bg-indigo-600 hover:bg-indigo-700 rounded-lg h-8 sm:h-9 text-xs sm:text-sm px-2 sm:px-3"
           >
@@ -221,7 +220,7 @@ export default function GerenciadorFiltros() {
             <div className="space-y-2">
               {items.map((item, index) => (
                 <div 
-                  key={`${type}-${index}-${item}`}
+                  key={`${type}-${item}-${index}`}
                   className="flex items-center justify-between p-2.5 sm:p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors gap-2"
                 >
                   <span className="text-xs sm:text-sm font-medium text-slate-700 flex-1 break-words">{item}</span>
@@ -229,10 +228,7 @@ export default function GerenciadorFiltros() {
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(type, item);
-                      }}
+                      onClick={() => onEdit(type, item)}
                       className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-indigo-600 hover:bg-indigo-100"
                     >
                       <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -240,10 +236,7 @@ export default function GerenciadorFiltros() {
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(type, item);
-                      }}
+                      onClick={() => onDelete(type, item)}
                       className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-red-600 hover:bg-red-100"
                     >
                       <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -262,7 +255,7 @@ export default function GerenciadorFiltros() {
         </CardContent>
       </Card>
     );
-  };
+  }), []);
 
   if (loading) {
     return (
@@ -312,22 +305,64 @@ export default function GerenciadorFiltros() {
           </TabsList>
 
           <TabsContent value="categories">
-            {renderList('categories', filters.categories, Briefcase)}
+            <FilterList 
+              type="categories" 
+              items={filters.categories} 
+              icon={Briefcase}
+              onAdd={handleAdd}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </TabsContent>
           <TabsContent value="jobFunctions">
-            {renderList('jobFunctions', filters.jobFunctions, Tag)}
+            <FilterList 
+              type="jobFunctions" 
+              items={filters.jobFunctions} 
+              icon={Tag}
+              onAdd={handleAdd}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </TabsContent>
           <TabsContent value="jobTypes">
-            {renderList('jobTypes', filters.jobTypes, Clock)}
+            <FilterList 
+              type="jobTypes" 
+              items={filters.jobTypes} 
+              icon={Clock}
+              onAdd={handleAdd}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </TabsContent>
           <TabsContent value="cities">
-            {renderList('cities', filters.cities, MapPin)}
+            <FilterList 
+              type="cities" 
+              items={filters.cities} 
+              icon={MapPin}
+              onAdd={handleAdd}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </TabsContent>
           <TabsContent value="workModels">
-            {renderList('workModels', filters.workModels, Briefcase)}
+            <FilterList 
+              type="workModels" 
+              items={filters.workModels} 
+              icon={Briefcase}
+              onAdd={handleAdd}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </TabsContent>
           <TabsContent value="seniority">
-            {renderList('seniority', filters.seniority, Tag)}
+            <FilterList 
+              type="seniority" 
+              items={filters.seniority} 
+              icon={Tag}
+              onAdd={handleAdd}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </TabsContent>
         </Tabs>
       </div>
