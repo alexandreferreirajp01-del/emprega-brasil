@@ -31,6 +31,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import PremiumModal from "@/components/subscription/PremiumModal";
 
 const CIDADES_PB = [
   "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
@@ -147,6 +148,7 @@ export default function Jobs() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [shareJob, setShareJob] = useState(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   // URL params
   useEffect(() => {
@@ -260,6 +262,20 @@ export default function Jobs() {
   const canViewJob = (job) => {
     if (!job.is_premium) return true;
     return userIsPremium;
+  };
+
+  const handleJobClick = (job, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Se a vaga é premium e o usuário não tem acesso, abrir modal
+    if (job.is_premium && !userIsPremium) {
+      setShowPremiumModal(true);
+      return;
+    }
+    
+    // Caso contrário, navegar para detalhes
+    window.location.href = createPageUrl('JobDetail') + `?id=${job.id}`;
   };
 
   // Views count map
@@ -588,7 +604,11 @@ export default function Jobs() {
 
               if (!canView) {
                 return (
-                  <Card key={job.id} className="overflow-hidden relative">
+                  <Card 
+                    key={job.id} 
+                    className="overflow-hidden relative cursor-pointer hover:shadow-lg transition-all"
+                    onClick={(e) => handleJobClick(job, e)}
+                  >
                     <CardContent className="p-6">
                       <JobCardContent job={job} viewCount={viewCount} />
                     </CardContent>
@@ -598,7 +618,6 @@ export default function Jobs() {
                     <div className="absolute bottom-3 right-3 bg-purple-600 text-white px-2 py-1 rounded-md text-xs font-medium">
                       Vaga Premium
                     </div>
-                    <Link to={createPageUrl('Subscription')} className="absolute inset-0 z-10" />
                   </Card>
                 );
               }
@@ -660,6 +679,16 @@ export default function Jobs() {
 
       {/* Share Dialog */}
       <ShareDialog job={shareJob} open={!!shareJob} onClose={() => setShareJob(null)} />
+
+      {/* Premium Modal */}
+      <PremiumModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        user={user}
+        onSuccess={() => {
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }
