@@ -32,7 +32,7 @@ const APP_FUNCTIONS = [
   { id: 'gerenciar_usuarios', label: 'Usuários', category: 'Gerenciamento' },
   { id: 'gerenciar_comunidade', label: 'Gerenciar Comunidade', category: 'Gerenciamento' },
   { id: 'solicitacoes', label: 'Solicitações', category: 'Gerenciamento' },
-  { id: 'gerenciador_filtros', label: 'Gerenciador de Filtros', category: 'Produção' },
+  { id: 'gerenciador_filtros', label: 'Gerenciador de Filtros', category: 'Gerenciamento' },
   { id: 'postar_vagas', label: 'Postar Vagas', category: 'Produção' },
   { id: 'posts_massa', label: 'Posts em Massa', category: 'Produção' },
   { id: 'vagas_ia', label: 'Vagas por IA', category: 'Produção' },
