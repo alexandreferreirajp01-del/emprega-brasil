@@ -189,6 +189,13 @@ export default function Splash() {
             Entrar com Google
           </Button>
 
+          {/* Links de recuperação */}
+          <div className="flex justify-center gap-4 text-sm">
+            <Link to={createPageUrl('ForgotPassword')} className="text-[#0056ff] hover:underline">
+              Esqueci minha senha
+            </Link>
+          </div>
+
           {/* Botão Visitante */}
           <Button
             type="button"
@@ -199,6 +206,16 @@ export default function Splash() {
             <Briefcase className="w-5 h-5 mr-2 text-slate-400" />
             Entrar como Visitante
           </Button>
+
+          {/* Botão Criar Cadastro */}
+          <Link to={createPageUrl('Register')}>
+            <Button
+              type="button"
+              className="w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white text-base font-semibold"
+            >
+              Criar Cadastro
+            </Button>
+          </Link>
 
           {/* Texto informativo */}
           <p className="text-center text-xs text-slate-400 pt-2">

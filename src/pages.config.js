@@ -46,6 +46,10 @@ import FAQ from './pages/FAQ';
 import Advertise from './pages/Advertise';
 import Careers from './pages/Careers';
 import Contact from './pages/Contact';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import ChangePassword from './pages/ChangePassword';
 import __Layout from './Layout.jsx';
 
 
@@ -98,6 +102,10 @@ export const PAGES = {
     "Advertise": Advertise,
     "Careers": Careers,
     "Contact": Contact,
+    "Register": Register,
+    "ForgotPassword": ForgotPassword,
+    "ResetPassword": ResetPassword,
+    "ChangePassword": ChangePassword,
 }
 
 export const pagesConfig = {
