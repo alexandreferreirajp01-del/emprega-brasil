@@ -139,6 +139,7 @@ export default function Jobs() {
   const [funcSearch, setFuncSearch] = useState('');
   const [cityOpen, setCityOpen] = useState(false);
   const [funcOpen, setFuncOpen] = useState(false);
+  const [showPremiumOnly, setShowPremiumOnly] = useState(false);
   
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
@@ -301,8 +302,9 @@ export default function Jobs() {
     
     const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
+    const matchesPremium = !showPremiumOnly || job.is_premium;
     
-    return matchesSearch && matchesCity && matchesType && matchesCategory && matchesFunction;
+    return matchesSearch && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium;
   });
 
   const filteredCities = CIDADES_PB.filter(city =>
@@ -405,13 +407,32 @@ export default function Jobs() {
         <Card className="shadow-lg rounded-xl border-0">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <span className="text-sm font-semibold text-slate-700">Filtrar:</span>
                 {activeFiltersCount > 0 && (
                   <Badge className="bg-blue-100 text-blue-700 border-0 text-xs">
                     {activeFiltersCount}
                   </Badge>
                 )}
+                {/* Toggle Premium */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowPremiumOnly(!showPremiumOnly)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      showPremiumOnly ? 'bg-purple-600' : 'bg-slate-200'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        showPremiumOnly ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                  <span className="text-xs text-slate-600 flex items-center gap-1">
+                    <Lock className="w-3 h-3" />
+                    Premium
+                  </span>
+                </div>
               </div>
               {hasActiveFilters && (
                 <Button 
