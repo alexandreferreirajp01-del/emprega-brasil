@@ -59,66 +59,17 @@ export default function ChangePassword() {
     setError('');
 
     try {
-      // Verificar senha atual
-      const users = await base44.entities.User.filter({ 
-        email: user.email,
-        password: currentPassword 
+      // Chamar função backend
+      const response = await base44.functions.invoke('changePassword', {
+        currentPassword: currentPassword,
+        newPassword: newPassword
       });
 
-      if (users.length === 0) {
-        setError('Senha atual incorreta');
+      if (!response.data.success) {
+        setError(response.data.error);
         setSaving(false);
         return;
       }
-
-      // Atualizar senha
-      await base44.entities.User.update(user.id, {
-        password: newPassword,
-        password_updated_at: new Date().toISOString()
-      });
-
-      // Enviar e-mail de confirmação
-      await base44.integrations.Core.SendEmail({
-        to: user.email,
-        subject: 'Senha Alterada - Vagas Abertas Paraíba',
-        body: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-              <h1 style="color: white; margin: 0;">Vagas Abertas Paraíba</h1>
-            </div>
-            
-            <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
-              <h2 style="color: #333; margin-top: 0;">Senha Alterada!</h2>
-              
-              <p style="color: #555; line-height: 1.6;">
-                Olá, <strong>${user.full_name}</strong>!
-              </p>
-              
-              <p style="color: #555; line-height: 1.6;">
-                Sua senha foi alterada com sucesso em ${new Date().toLocaleString('pt-BR')}.
-              </p>
-              
-              <div style="background: #d1fae5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
-                <p style="margin: 0; color: #065f46;">
-                  ✓ Sua conta está segura
-                </p>
-              </div>
-              
-              <p style="color: #888; font-size: 14px; line-height: 1.6;">
-                Se você não fez esta alteração, entre em contato conosco imediatamente.
-              </p>
-              
-              <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-              
-              <p style="color: #888; font-size: 12px; text-align: center;">
-                Equipe Vagas Abertas PB<br>
-                CNPJ: 62.874.724/0001-11<br>
-                rhvagasabertasparaiba@gmail.com
-              </p>
-            </div>
-          </div>
-        `
-      });
 
       setSuccess(true);
 
@@ -128,7 +79,10 @@ export default function ChangePassword() {
       }, 2000);
 
     } catch (error) {
-      setError('Erro ao alterar senha. Tente novamente.');
+      const errorMessage = error.response?.data?.error || 
+                          error.message || 
+                          'Erro ao alterar senha. Tente novamente.';
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }

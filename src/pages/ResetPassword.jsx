@@ -53,83 +53,18 @@ export default function ResetPassword() {
     setError('');
 
     try {
-      // Buscar usuário
-      const users = await base44.entities.User.filter({ email: email });
-      
-      if (users.length === 0) {
-        setError('Usuário não encontrado');
-        setLoading(false);
-        return;
-      }
-
-      const user = users[0];
-
-      // Verificar código
-      if (user.reset_password_code !== code) {
-        setError('Código inválido');
-        setLoading(false);
-        return;
-      }
-
-      // Verificar expiração
-      const now = new Date();
-      const expires = new Date(user.reset_password_expires);
-      if (now > expires) {
-        setError('Código expirado. Solicite um novo');
-        setLoading(false);
-        return;
-      }
-
-      // Atualizar senha e limpar código
-      await base44.entities.User.update(user.id, {
-        password: newPassword,
-        reset_password_code: null,
-        reset_password_expires: null,
-        password_updated_at: new Date().toISOString()
+      // Chamar função backend
+      const response = await base44.functions.invoke('resetPassword', {
+        email: email.toLowerCase(),
+        code: code,
+        newPassword: newPassword
       });
 
-      // Enviar e-mail de confirmação
-      await base44.integrations.Core.SendEmail({
-        to: email,
-        subject: 'Senha Alterada - Vagas Abertas Paraíba',
-        body: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-              <h1 style="color: white; margin: 0;">Vagas Abertas Paraíba</h1>
-            </div>
-            
-            <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
-              <h2 style="color: #333; margin-top: 0;">Senha Alterada com Sucesso!</h2>
-              
-              <p style="color: #555; line-height: 1.6;">
-                Olá, <strong>${user.full_name || 'usuário'}</strong>!
-              </p>
-              
-              <p style="color: #555; line-height: 1.6;">
-                Sua senha foi alterada com sucesso em ${new Date().toLocaleString('pt-BR')}.
-              </p>
-              
-              <div style="background: #d1fae5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
-                <p style="margin: 0; color: #065f46;">
-                  ✓ Agora você pode fazer login com sua nova senha
-                </p>
-              </div>
-              
-              <p style="color: #888; font-size: 14px; line-height: 1.6;">
-                Se você não fez esta alteração, entre em contato conosco imediatamente.
-              </p>
-              
-              <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-              
-              <p style="color: #888; font-size: 12px; text-align: center;">
-                Equipe Vagas Abertas PB<br>
-                CNPJ: 62.874.724/0001-11<br>
-                rhvagasabertasparaiba@gmail.com
-              </p>
-            </div>
-          </div>
-        `
-      });
+      if (!response.data.success) {
+        setError(response.data.error);
+        setLoading(false);
+        return;
+      }
 
       setSuccess(true);
 
@@ -139,7 +74,10 @@ export default function ResetPassword() {
       }, 3000);
 
     } catch (error) {
-      setError('Erro ao redefinir senha. Tente novamente.');
+      const errorMessage = error.response?.data?.error || 
+                          error.message || 
+                          'Erro ao redefinir senha. Tente novamente.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
