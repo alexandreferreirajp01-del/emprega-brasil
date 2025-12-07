@@ -278,35 +278,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {/* Benefits Section */}
-            <Card className="rounded-2xl border-0 shadow-lg">
-              <CardContent className="p-6">
-                <h2 className="font-bold text-xl text-slate-800 mb-6">Por que usar o Vagas Abertas?</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <TrendingUp className="w-7 h-7 text-blue-600" />
-                    </div>
-                    <h3 className="font-semibold text-slate-800 mb-2">Vagas Atualizadas</h3>
-                    <p className="text-slate-500 text-sm">Novas oportunidades todos os dias</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Users className="w-7 h-7 text-purple-600" />
-                    </div>
-                    <h3 className="font-semibold text-slate-800 mb-2">Comunidade Ativa</h3>
-                    <p className="text-slate-500 text-sm">Troque experiências e networking</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Shield className="w-7 h-7 text-green-600" />
-                    </div>
-                    <h3 className="font-semibold text-slate-800 mb-2">100% Gratuito</h3>
-                    <p className="text-slate-500 text-sm">Acesso básico sem custos</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
           </div>
 
           {/* Right Column - Sidebar */}

@@ -34,7 +34,7 @@ export default function Parcerias() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-20">
+    <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-12 px-4">
         <div className="max-w-4xl mx-auto">
@@ -60,7 +60,7 @@ export default function Parcerias() {
 
       <div className="max-w-4xl mx-auto px-4 -mt-6">
         {/* Tabela de Preços */}
-        <Card className="mb-6 shadow-2xl bg-slate-950 border-slate-800">
+        <Card className="mb-6 shadow-lg border-0">
           <CardContent className="p-4 md:p-8">
             <div className="space-y-3">
               {planos.map((plano, i) => (
@@ -68,13 +68,13 @@ export default function Parcerias() {
                   key={i} 
                   className={`border-2 rounded-xl p-4 md:p-6 flex items-center justify-between gap-4 transition-all hover:shadow-lg ${
                     plano.destaque 
-                      ? 'border-yellow-400 bg-slate-900/50' 
-                      : 'border-slate-700 bg-slate-900/30'
+                      ? 'border-yellow-400 bg-yellow-50' 
+                      : 'border-slate-200 bg-white'
                   }`}
                 >
                   <div className="flex-1">
-                    <div className="text-lg md:text-2xl font-bold text-white mb-1">{plano.dias}</div>
-                    <div className="text-2xl md:text-4xl font-bold text-yellow-400">{plano.valor}</div>
+                    <div className="text-lg md:text-2xl font-bold text-slate-800 mb-1">{plano.dias}</div>
+                    <div className="text-2xl md:text-4xl font-bold text-yellow-600">{plano.valor}</div>
                   </div>
                   <Button
                     onClick={() => handleWhatsApp(plano)}
@@ -91,9 +91,9 @@ export default function Parcerias() {
         </Card>
 
         {/* Redes Sociais */}
-        <Card className="mb-6 shadow-lg bg-slate-950 border-slate-800">
+        <Card className="mb-6 shadow-lg border-0">
           <CardContent className="p-6">
-            <h3 className="text-xl font-bold text-white mb-4 text-center">Tráfego nas redes:</h3>
+            <h3 className="text-xl font-bold text-slate-800 mb-4 text-center">Tráfego nas redes:</h3>
             <div className="flex justify-center gap-6 flex-wrap">
               <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center">
                 <Instagram className="w-7 h-7 text-white" />
@@ -114,13 +114,13 @@ export default function Parcerias() {
         </Card>
 
         {/* Métricas */}
-        <Card className="mb-6 shadow-lg bg-slate-950 border-slate-800">
+        <Card className="mb-6 shadow-lg border-0">
           <CardContent className="p-6">
             <div className="space-y-4">
               {metricas.map((metrica, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
-                  <span className="text-white font-medium text-base md:text-lg">{metrica}</span>
+                  <span className="text-slate-800 font-medium text-base md:text-lg">{metrica}</span>
                 </div>
               ))}
             </div>
@@ -128,21 +128,21 @@ export default function Parcerias() {
         </Card>
 
         {/* Formas de Pagamento */}
-        <Card className="shadow-lg bg-slate-950 border-slate-800">
+        <Card className="shadow-lg border-0">
           <CardContent className="p-6">
-            <h3 className="text-xl font-bold text-white mb-4 text-center">Formas de pagamento:</h3>
+            <h3 className="text-xl font-bold text-slate-800 mb-4 text-center">Formas de pagamento:</h3>
             <div className="flex justify-center gap-6 flex-wrap">
               <div className="flex flex-col items-center gap-2">
                 <div className="w-14 h-14 bg-[#0056ff] rounded-2xl flex items-center justify-center">
                   <Smartphone className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-white text-sm font-medium">PIX</span>
+                <span className="text-slate-800 text-sm font-medium">PIX</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <div className="w-14 h-14 bg-[#0056ff] rounded-2xl flex items-center justify-center">
                   <CreditCard className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-white text-sm font-medium">Cartão</span>
+                <span className="text-slate-800 text-sm font-medium">Cartão</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <div className="w-14 h-14 bg-[#0056ff] rounded-2xl flex items-center justify-center">
@@ -151,7 +151,7 @@ export default function Parcerias() {
                     <path d="M3 11h18M7 15h4" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 </div>
-                <span className="text-white text-sm font-medium">Boleto</span>
+                <span className="text-slate-800 text-sm font-medium">Boleto</span>
               </div>
             </div>
           </CardContent>

@@ -21,35 +21,17 @@ export default function Splash() {
     window.scrollTo(0, 0);
     
     const checkSession = async () => {
-      const lastLogin = localStorage.getItem('vagas_abertas_last_login');
-      const visitorMode = localStorage.getItem('vagas_abertas_visitor_mode');
+      // Verificar se já tem sessão de usuário básico
+      const hasBasicAccess = localStorage.getItem('vagas_abertas_basic_access');
       
-      // Se é visitante, vai direto
-      if (visitorMode === 'true') {
-        window.location.href = createPageUrl('Home');
-        return;
+      if (!hasBasicAccess) {
+        // Primeira vez - criar acesso básico automaticamente
+        localStorage.setItem('vagas_abertas_basic_access', 'true');
+        localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
       }
       
-      // Se tem sessão válida (menos de 24h), vai direto para Home
-      if (lastLogin) {
-        const elapsed = Date.now() - parseInt(lastLogin);
-        if (elapsed < SESSION_DURATION) {
-          try {
-            const isAuth = await base44.auth.isAuthenticated();
-            if (isAuth) {
-              window.location.href = createPageUrl('Home');
-              return;
-            }
-          } catch (e) {
-            // Se erro, continua para login
-          }
-        } else {
-          localStorage.removeItem('vagas_abertas_last_login');
-        }
-      }
-      
-      // Mostrar tela de login
-      setStatus('login');
+      // Ir direto para Home sem pedir login
+      window.location.href = createPageUrl('Home');
     };
     
     checkSession();
