@@ -1,76 +1,42 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Handshake, Building2, Target, Users, TrendingUp, Award, 
-  CheckCircle, ArrowLeft, Send, Mail, Phone, MessageSquare
+  Handshake, ArrowLeft, MessageSquare, CheckCircle, Instagram, Send, CreditCard, Smartphone
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { toast } from "sonner";
 
 export default function Parcerias() {
-  const [formData, setFormData] = useState({
-    empresa: '',
-    responsavel: '',
-    email: '',
-    telefone: '',
-    mensagem: ''
-  });
-  const [sending, setSending] = useState(false);
-
-  const beneficios = [
-    { icon: Target, title: 'Visibilidade Máxima', desc: 'Suas vagas em destaque para milhares de candidatos' },
-    { icon: Users, title: 'Acesso Premium', desc: 'Ferramentas exclusivas para recrutamento' },
-    { icon: TrendingUp, title: 'Prioridade', desc: 'Suas vagas aparecem primeiro nas buscas' },
-    { icon: Award, title: 'Selo Verificado', desc: 'Badge de empresa parceira oficial' },
+  const planos = [
+    { dias: '01 dia', valor: 'R$50,00', destaque: false },
+    { dias: '03 dias', valor: 'R$60,00', destaque: false },
+    { dias: '07 dias', valor: 'R$80,00', destaque: false },
+    { dias: '15 dias', valor: 'R$140,00', destaque: true },
+    { dias: '30 dias', valor: 'R$180,00', destaque: true },
   ];
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const metricas = [
+    '+ de 5 milhões de visualizações mensais',
+    '+ de 400 clientes satisfeitos',
+    'Público 100% Paraibano'
+  ];
+
+  const handleWhatsApp = (plano) => {
+    const mensagem = `🎯 *Interesse em Anúncio*\n\n` +
+      `📅 *Plano:* ${plano.dias}\n` +
+      `💰 *Valor:* ${plano.valor}\n\n` +
+      `Gostaria de mais informações sobre este pacote de anúncios.`;
     
-    if (!formData.empresa || !formData.email || !formData.telefone) {
-      toast.error('Preencha os campos obrigatórios');
-      return;
-    }
-
-    setSending(true);
-
-    try {
-      const mensagemWhatsApp = `🤝 *NOVA SOLICITAÇÃO DE PARCERIA*\n\n` +
-        `🏢 *Empresa:* ${formData.empresa}\n` +
-        `👤 *Responsável:* ${formData.responsavel || 'Não informado'}\n` +
-        `📧 *Email:* ${formData.email}\n` +
-        `📱 *Telefone:* ${formData.telefone}\n` +
-        `💬 *Mensagem:* ${formData.mensagem || 'Não informada'}\n\n` +
-        `✅ Aguardando contato`;
-
-      const whatsappURL = `https://wa.me/5583991971320?text=${encodeURIComponent(mensagemWhatsApp)}`;
-      window.open(whatsappURL, '_blank');
-
-      toast.success('Solicitação enviada! Entraremos em contato em breve.');
-      
-      setFormData({
-        empresa: '',
-        responsavel: '',
-        email: '',
-        telefone: '',
-        mensagem: ''
-      });
-    } catch (error) {
-      toast.error('Erro ao enviar. Tente novamente.');
-    } finally {
-      setSending(false);
-    }
+    const whatsappURL = `https://wa.me/5583991971320?text=${encodeURIComponent(mensagem)}`;
+    window.open(whatsappURL, '_blank');
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-slate-900 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 pt-6 pb-12 px-4">
+      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-12 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to={createPageUrl('Home')}>
             <Button variant="ghost" className="text-white hover:bg-white/20 mb-4 -ml-2">
@@ -82,145 +48,110 @@ export default function Parcerias() {
             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Handshake className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-3">Seja Nosso Parceiro</h1>
-            <p className="text-white/90 text-lg max-w-2xl mx-auto">
-              Conecte sua empresa aos melhores talentos da Paraíba e tenha benefícios exclusivos
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+              TABELA <span className="text-yellow-400">DE</span> VALORES
+            </h1>
+            <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto">
+              Anuncie sua vaga e alcance milhares de candidatos na Paraíba
             </p>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 -mt-6">
-        {/* Benefícios */}
-        <Card className="mb-6 shadow-lg">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-bold text-slate-800 mb-6 text-center">
-              Por que ser Parceiro?
-            </h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              {beneficios.map((item, i) => (
-                <div key={i} className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <item.icon className="w-6 h-6 text-blue-600" />
+        {/* Tabela de Preços */}
+        <Card className="mb-6 shadow-2xl bg-slate-950 border-slate-800">
+          <CardContent className="p-4 md:p-8">
+            <div className="space-y-3">
+              {planos.map((plano, i) => (
+                <div 
+                  key={i} 
+                  className={`border-2 rounded-xl p-4 md:p-6 flex items-center justify-between gap-4 transition-all hover:shadow-lg ${
+                    plano.destaque 
+                      ? 'border-yellow-400 bg-slate-900/50' 
+                      : 'border-slate-700 bg-slate-900/30'
+                  }`}
+                >
+                  <div className="flex-1">
+                    <div className="text-lg md:text-2xl font-bold text-white mb-1">{plano.dias}</div>
+                    <div className="text-2xl md:text-4xl font-bold text-yellow-400">{plano.valor}</div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-800 mb-1">{item.title}</h3>
-                    <p className="text-sm text-slate-600">{item.desc}</p>
-                  </div>
+                  <Button
+                    onClick={() => handleWhatsApp(plano)}
+                    className="bg-green-600 hover:bg-green-700 h-12 md:h-14 px-4 md:px-8 rounded-xl"
+                  >
+                    <MessageSquare className="w-5 h-5 mr-2" />
+                    <span className="hidden sm:inline">Contratar</span>
+                    <span className="sm:hidden">Pedir</span>
+                  </Button>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Formulário */}
-        <Card className="shadow-lg">
+        {/* Redes Sociais */}
+        <Card className="mb-6 shadow-lg bg-slate-950 border-slate-800">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-800">Solicitar Parceria</h2>
-              <Badge className="bg-green-100 text-green-700 border-0">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                Gratuito
-              </Badge>
+            <h3 className="text-xl font-bold text-white mb-4 text-center">Tráfego nas redes:</h3>
+            <div className="flex justify-center gap-6 flex-wrap">
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center">
+                <Instagram className="w-7 h-7 text-white" />
+              </div>
+              <div className="w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center">
+                <MessageSquare className="w-7 h-7 text-white" />
+              </div>
+              <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center">
+                <Send className="w-7 h-7 text-white" />
+              </div>
+              <div className="w-14 h-14 bg-blue-700 rounded-2xl flex items-center justify-center">
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </div>
             </div>
+          </CardContent>
+        </Card>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Nome da Empresa *
-                </label>
-                <Input
-                  value={formData.empresa}
-                  onChange={(e) => setFormData({...formData, empresa: e.target.value})}
-                  placeholder="Ex: Empresa LTDA"
-                  className="h-12"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Responsável
-                </label>
-                <Input
-                  value={formData.responsavel}
-                  onChange={(e) => setFormData({...formData, responsavel: e.target.value})}
-                  placeholder="Seu nome"
-                  className="h-12"
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    E-mail *
-                  </label>
-                  <Input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    placeholder="contato@empresa.com"
-                    className="h-12"
-                    required
-                  />
+        {/* Métricas */}
+        <Card className="mb-6 shadow-lg bg-slate-950 border-slate-800">
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {metricas.map((metrica, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                  <span className="text-white font-medium text-base md:text-lg">{metrica}</span>
                 </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Telefone *
-                  </label>
-                  <Input
-                    type="tel"
-                    value={formData.telefone}
-                    onChange={(e) => setFormData({...formData, telefone: e.target.value})}
-                    placeholder="(83) 99999-9999"
-                    className="h-12"
-                    required
-                  />
+        {/* Formas de Pagamento */}
+        <Card className="shadow-lg bg-slate-950 border-slate-800">
+          <CardContent className="p-6">
+            <h3 className="text-xl font-bold text-white mb-4 text-center">Formas de pagamento:</h3>
+            <div className="flex justify-center gap-6 flex-wrap">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-14 h-14 bg-[#0056ff] rounded-2xl flex items-center justify-center">
+                  <Smartphone className="w-7 h-7 text-white" />
                 </div>
+                <span className="text-white text-sm font-medium">PIX</span>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Mensagem
-                </label>
-                <Textarea
-                  value={formData.mensagem}
-                  onChange={(e) => setFormData({...formData, mensagem: e.target.value})}
-                  placeholder="Conte-nos sobre sua empresa e interesse na parceria..."
-                  className="h-32"
-                />
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-14 h-14 bg-[#0056ff] rounded-2xl flex items-center justify-center">
+                  <CreditCard className="w-7 h-7 text-white" />
+                </div>
+                <span className="text-white text-sm font-medium">Cartão</span>
               </div>
-
-              <Button
-                type="submit"
-                disabled={sending}
-                className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-lg font-semibold"
-              >
-                {sending ? (
-                  'Enviando...'
-                ) : (
-                  <>
-                    <Send className="w-5 h-5 mr-2" />
-                    Enviar Solicitação
-                  </>
-                )}
-              </Button>
-            </form>
-
-            <div className="mt-6 pt-6 border-t">
-              <p className="text-sm text-slate-600 text-center mb-4">
-                Ou entre em contato diretamente:
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="mailto:rhvagasabertasparaiba@gmail.com" className="flex items-center justify-center gap-2 text-sm text-blue-600 hover:text-blue-700">
-                  <Mail className="w-4 h-4" />
-                  rhvagasabertasparaiba@gmail.com
-                </a>
-                <a href="https://wa.me/5583991971320" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-sm text-green-600 hover:text-green-700">
-                  <MessageSquare className="w-4 h-4" />
-                  (83) 99197-1320
-                </a>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-14 h-14 bg-[#0056ff] rounded-2xl flex items-center justify-center">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="3" y="7" width="18" height="10" rx="2" strokeWidth="2"/>
+                    <path d="M3 11h18M7 15h4" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </div>
+                <span className="text-white text-sm font-medium">Boleto</span>
               </div>
             </div>
           </CardContent>
