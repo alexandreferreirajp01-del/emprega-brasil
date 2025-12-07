@@ -103,6 +103,7 @@ export default function GerenciarUsuarios() {
 
   const getTypeBadgeClass = (type) => {
     switch (type) {
+      case 'dono': return 'bg-amber-100 text-amber-700';
       case 'admin': return 'bg-purple-100 text-purple-700';
       case 'premium': return 'bg-green-100 text-green-700';
       case 'recruiter': return 'bg-blue-100 text-blue-700';
@@ -317,6 +318,7 @@ export default function GerenciarUsuarios() {
                       <SelectItem value="premium">Premium</SelectItem>
                       <SelectItem value="recruiter">Recrutador</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="dono">Dono</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -361,6 +363,7 @@ export default function GerenciarUsuarios() {
                   <SelectItem value="premium">Premium</SelectItem>
                   <SelectItem value="recruiter">Recrutador</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="dono">Dono</SelectItem>
                 </SelectContent>
               </Select>
               {(search || statusFilter !== 'all' || typeFilter !== 'all') && (
@@ -445,6 +448,7 @@ export default function GerenciarUsuarios() {
                             <SelectItem value="premium">Premium</SelectItem>
                             <SelectItem value="recruiter">Recrutador</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="dono">Dono</SelectItem>
                           </SelectContent>
                         </Select>
                         
