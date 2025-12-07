@@ -21,31 +21,31 @@ import { Link } from "react-router-dom";
 const ADMIN_PASSWORD = "Vagas2026#";
 
 const APP_FUNCTIONS = [
-  { id: 'postar_vagas', label: 'Postar Vagas', category: 'Publicações' },
-  { id: 'vagas_ia', label: 'Vagas por IA', category: 'Publicações' },
-  { id: 'vagas_home_office', label: 'Vagas Home Office', category: 'Publicações' },
-  { id: 'posts_massa', label: 'Posts em Massa', category: 'Publicações' },
-  { id: 'agendamentos', label: 'Agendamentos', category: 'Publicações' },
-  { id: 'gerenciar_vagas', label: 'Gerenciar Vagas', category: 'Administração' },
-  { id: 'gerenciador_filtros', label: 'Gerenciador de Filtros', category: 'Administração' },
-  { id: 'gerenciar_usuarios', label: 'Usuários', category: 'Administração' },
-  { id: 'permissoes', label: 'Permissões', category: 'Administração' },
-  { id: 'gerenciar_comunidade', label: 'Gerenciar Comunidade', category: 'Sistema' },
-  { id: 'solicitacoes', label: 'Solicitações', category: 'Sistema' },
-  { id: 'lista_transmissao', label: 'Lista de Transmissão', category: 'Sistema' },
-  { id: 'responder_chat', label: 'Responder Chat', category: 'Sistema' },
-  { id: 'noticias', label: 'Notícias', category: 'Sistema' },
-  { id: 'biblioteca_admin', label: 'Biblioteca', category: 'Sistema' },
-  { id: 'analytics', label: 'Analytics', category: 'Sistema' },
-  { id: 'pagamentos', label: 'Pagamentos', category: 'Sistema' },
-  { id: 'curriculos', label: 'Ver Currículos', category: 'Sistema' },
-  { id: 'feed', label: 'Feed', category: 'Sistema' },
   { id: 'favoritas', label: 'Favoritas', category: 'Interações' },
   { id: 'historico', label: 'Histórico', category: 'Interações' },
   { id: 'mensagens', label: 'Mensagens', category: 'Interações' },
+  { id: 'curriculos', label: 'Ver Currículos', category: 'Interações' },
+  { id: 'responder_chat', label: 'Responder Chat', category: 'Interações' },
+  { id: 'recruiter_area', label: 'Painel do Recrutador', category: 'Recrutador' },
+  { id: 'lista_transmissao', label: 'Lista de Transmissão', category: 'Gerenciamento' },
+  { id: 'gerenciar_vagas', label: 'Gerenciar Vagas', category: 'Gerenciamento' },
+  { id: 'gerenciar_usuarios', label: 'Usuários', category: 'Gerenciamento' },
+  { id: 'gerenciar_comunidade', label: 'Gerenciar Comunidade', category: 'Gerenciamento' },
+  { id: 'solicitacoes', label: 'Solicitações', category: 'Gerenciamento' },
+  { id: 'gerenciador_filtros', label: 'Gerenciador de Filtros', category: 'Produção' },
+  { id: 'postar_vagas', label: 'Postar Vagas', category: 'Produção' },
+  { id: 'posts_massa', label: 'Posts em Massa', category: 'Produção' },
+  { id: 'vagas_ia', label: 'Vagas por IA', category: 'Produção' },
+  { id: 'vagas_home_office', label: 'Vagas Home Office', category: 'Produção' },
+  { id: 'biblioteca_admin', label: 'Biblioteca', category: 'Produção' },
+  { id: 'noticias', label: 'Gerenciar Notícias', category: 'Produção' },
+  { id: 'analytics', label: 'Analytics do App', category: 'Ferramentas' },
+  { id: 'pagamentos', label: 'Pagamentos', category: 'Ferramentas' },
+  { id: 'feed', label: 'Feed', category: 'Ferramentas' },
+  { id: 'permissoes', label: 'Permissões', category: 'Administração' },
 ];
 
-const CATEGORIES = ['Interações', 'Publicações', 'Administração', 'Sistema'];
+const CATEGORIES = ['Interações', 'Recrutador', 'Gerenciamento', 'Produção', 'Ferramentas', 'Administração'];
 
 export default function Permissoes() {
   const [user, setUser] = useState(null);
