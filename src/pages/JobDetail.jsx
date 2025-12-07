@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import PremiumModal from "@/components/subscription/PremiumModal";
 
 // Função de fetch robusta
 async function safeFetch(fetchFn, fallback = null) {
@@ -73,6 +74,7 @@ export default function JobDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   
   const urlParams = new URLSearchParams(window.location.search);
@@ -277,11 +279,13 @@ export default function JobDetail() {
               <p className="text-slate-600 text-center mb-6 max-w-md">
                 Esta vaga é exclusiva para assinantes Premium.
               </p>
-              <Link to={createPageUrl('Subscription')}>
-                <Button size="lg" className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl px-8">
-                  Adquira o Plano
-                </Button>
-              </Link>
+              <Button 
+                size="lg" 
+                onClick={() => setShowPremiumModal(true)}
+                className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl px-8"
+              >
+                Adquira o Plano
+              </Button>
             </div>
             <CardContent className="p-8 filter blur-md">
               <h1 className="text-2xl font-bold text-slate-800 mb-4">{job.title}</h1>
@@ -471,6 +475,16 @@ export default function JobDetail() {
         contacts={contacts}
         open={showContactDialog} 
         onClose={() => setShowContactDialog(false)} 
+      />
+
+      {/* Premium Modal */}
+      <PremiumModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        user={user}
+        onSuccess={() => {
+          window.location.reload();
+        }}
       />
     </div>
   );

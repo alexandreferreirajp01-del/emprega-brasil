@@ -8,11 +8,13 @@ import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import BibliotecaSection from "@/components/utilidades/BibliotecaSection";
 import FerramentasSection from "@/components/utilidades/FerramentasSection";
+import PremiumModal from "@/components/subscription/PremiumModal";
 
 export default function Utilidades() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('biblioteca');
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -54,11 +56,7 @@ export default function Utilidades() {
           Faça upgrade e tenha acesso a materiais profissionais para impulsionar sua carreira!
         </p>
         <Button 
-          onClick={() => {
-            // Abrir modal de assinatura (será implementado)
-            // Por enquanto, redirecionar para página de subscription
-            window.location.href = createPageUrl('Subscription');
-          }}
+          onClick={() => setShowPremiumModal(true)}
           className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl px-8 py-3"
         >
           <Crown className="w-5 h-5 mr-2" />
@@ -103,6 +101,16 @@ export default function Utilidades() {
           <LockedContent />
         )}
       </div>
+
+      {/* Modal Premium */}
+      <PremiumModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        user={user}
+        onSuccess={() => {
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }
