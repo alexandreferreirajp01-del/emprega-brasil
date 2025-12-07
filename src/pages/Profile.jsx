@@ -74,6 +74,7 @@ export default function Profile() {
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
+    
     try {
       // Validação
       if (!editForm.full_name || editForm.full_name.trim().length < 3) {
@@ -85,9 +86,9 @@ export default function Profile() {
       // Preparar dados para atualização
       const updateData = {
         full_name: editForm.full_name.trim(),
-        phone: editForm.phone.trim(),
-        city: editForm.city.trim(),
-        state: editForm.state.trim().toUpperCase()
+        phone: editForm.phone.trim() || '',
+        city: editForm.city.trim() || '',
+        state: editForm.state.trim().toUpperCase() || 'PB'
       };
       
       // Adicionar senha apenas se foi preenchida
@@ -100,16 +101,25 @@ export default function Profile() {
         updateData.password = editForm.password;
       }
       
-      // Atualizar no banco de dados
+      console.log('Atualizando perfil com:', updateData);
+      
+      // Atualizar no banco de dados usando a API do Base44
       await base44.auth.updateMe(updateData);
       
-      // Buscar dados atualizados e forçar atualização do estado
+      console.log('Perfil atualizado, buscando dados atualizados...');
+      
+      // Aguardar um pouco para garantir que o banco processou
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Buscar dados atualizados do servidor
       const freshUser = await base44.auth.me();
       
-      // Atualizar todo o estado do usuário
+      console.log('Dados atualizados recebidos:', freshUser);
+      
+      // Atualizar estado local com dados atualizados
       setUser(freshUser);
       
-      // Atualizar formulário de edição com os dados salvos
+      // Atualizar formulário com os novos dados
       setEditForm({
         full_name: freshUser.full_name || '',
         phone: freshUser.phone || '',
@@ -121,14 +131,9 @@ export default function Profile() {
       setIsEditing(false);
       showToast('✅ Perfil atualizado com sucesso!');
       
-      // Forçar recarregamento da página após 1 segundo para garantir sincronização
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-      
     } catch (error) {
-      console.error('Erro ao salvar:', error);
-      showToast('❌ Erro ao atualizar perfil. Tente novamente.', 'error');
+      console.error('Erro ao salvar perfil:', error);
+      showToast('❌ Erro ao atualizar perfil: ' + (error.message || 'Tente novamente'), 'error');
     } finally {
       setIsSaving(false);
     }
