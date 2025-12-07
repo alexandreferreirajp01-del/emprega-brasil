@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   ArrowLeft, Users, Loader2, CheckCircle, Search, Clock, UserX, 
-  ChevronLeft, ChevronRight, Eye, Mail, Phone, FileDown, RefreshCw, Filter
+  ChevronLeft, ChevronRight, Eye, Mail, Phone, FileDown, RefreshCw, Filter, Edit
 } from "lucide-react";
+import UserEditDialog from "@/components/admin/UserEditDialog";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
@@ -27,6 +28,8 @@ export default function GerenciarUsuarios() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -208,6 +211,15 @@ export default function GerenciarUsuarios() {
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     showToast('Lista atualizada!');
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+    setShowEditDialog(true);
+  };
+
+  const handleSaveUser = () => {
+    queryClient.invalidateQueries({ queryKey: ['admin-users'] });
   };
 
   if (loading) {
@@ -455,6 +467,15 @@ export default function GerenciarUsuarios() {
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() => handleEditUser(u)}
+                          className="h-8 w-8 p-0 rounded-lg"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </Button>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => setSelectedUser(selectedUser?.id === u.id ? null : u)}
                           className="h-8 w-8 p-0 rounded-lg"
                         >
@@ -570,6 +591,14 @@ export default function GerenciarUsuarios() {
           Mostrando {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredUsers.length)} de {filteredUsers.length} usuários
         </div>
       </div>
+
+      {/* Dialog de Edição */}
+      <UserEditDialog
+        user={editingUser}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        onSave={handleSaveUser}
+      />
     </div>
   );
 }
