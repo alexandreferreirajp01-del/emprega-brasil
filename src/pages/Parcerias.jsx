@@ -10,11 +10,11 @@ import { createPageUrl } from "@/utils";
 
 export default function Parcerias() {
   const planos = [
-    { dias: '01 dia', valor: 'R$50,00', destaque: false },
-    { dias: '03 dias', valor: 'R$60,00', destaque: false },
-    { dias: '07 dias', valor: 'R$80,00', destaque: false },
-    { dias: '15 dias', valor: 'R$140,00', destaque: true },
-    { dias: '30 dias', valor: 'R$180,00', destaque: true },
+    { dias: '01 dia', valor: 'R$50,00', destaque: false, popular: false },
+    { dias: '03 dias', valor: 'R$60,00', destaque: false, popular: false },
+    { dias: '07 dias', valor: 'R$80,00', destaque: true, popular: true },
+    { dias: '15 dias', valor: 'R$140,00', destaque: true, popular: false },
+    { dias: '30 dias', valor: 'R$180,00', destaque: true, popular: false },
   ];
 
   const metricas = [
@@ -66,15 +66,26 @@ export default function Parcerias() {
               {planos.map((plano, i) => (
                 <div 
                   key={i} 
-                  className={`border-2 rounded-xl p-4 md:p-6 flex items-center justify-between gap-4 transition-all hover:shadow-lg ${
-                    plano.destaque 
+                  className={`border-2 rounded-xl p-4 md:p-6 flex items-center justify-between gap-4 transition-all hover:shadow-lg relative ${
+                    plano.popular
+                      ? 'border-[#0056ff] bg-blue-50 shadow-xl' 
+                      : plano.destaque 
                       ? 'border-yellow-400 bg-yellow-50' 
                       : 'border-slate-200 bg-white'
                   }`}
                 >
+                  {plano.popular && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <Badge className="bg-[#0056ff] text-white border-0 px-4 py-1 text-xs font-bold shadow-lg">
+                        🔥 MAIS POPULAR
+                      </Badge>
+                    </div>
+                  )}
                   <div className="flex-1">
                     <div className="text-lg md:text-2xl font-bold text-slate-800 mb-1">{plano.dias}</div>
-                    <div className="text-2xl md:text-4xl font-bold text-yellow-600">{plano.valor}</div>
+                    <div className={`text-2xl md:text-4xl font-bold ${plano.popular ? 'text-[#0056ff]' : 'text-yellow-600'}`}>
+                      {plano.valor}
+                    </div>
                   </div>
                   <Button
                     onClick={() => handleWhatsApp(plano)}
