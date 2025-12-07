@@ -376,39 +376,86 @@ export default function Layout({ children, currentPageName }) {
         </ErrorBoundary>
       </main>
 
-      {/* Footer - Desktop Only */}
-      <footer className="hidden md:block bg-slate-800 text-white py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Briefcase className="w-6 h-6 text-[#0056ff]" />
-                <span className="font-bold">Vagas Abertas Paraíba</span>
-              </div>
-              <p className="text-slate-400 text-sm">
-                Conectando talentos e oportunidades no estado da Paraíba.
-              </p>
+      {/* Footer - Completo e AdSense Ready */}
+      <footer className="bg-slate-800 text-white py-12 hidden md:block" translate="no">
+        <div className="max-w-7xl mx-auto px-4">
+          {/* Criador e Foto */}
+          <div className="text-center mb-10">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/60fbd7fb5_Screenshot_20251104-2348032.png"
+              alt="Alexandre Ferreira"
+              className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-white/10 shadow-xl"
+            />
+            <h3 className="text-xl font-bold text-white mb-2">Alexandre Ferreira</h3>
+            <p className="text-slate-300 text-sm mb-1">Criador & Desenvolvedor</p>
+            <p className="text-slate-400 text-sm">CNPJ: 62.874.724/0001-11</p>
+            <div className="flex items-center justify-center gap-4 mt-3">
+              <a href="mailto:rhvagasabertasparaiba@gmail.com" className="text-slate-300 hover:text-white transition-colors text-sm">
+                rhvagasabertasparaiba@gmail.com
+              </a>
+              <span className="text-slate-600">•</span>
+              <a 
+                href="https://wa.me/5583991971320" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-green-400 hover:text-green-300 transition-colors text-sm font-medium flex items-center gap-1"
+              >
+                <MessageCircle className="w-4 h-4" />
+                (83) 99197-1320
+              </a>
             </div>
+          </div>
+
+          {/* Links Organizados */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10 max-w-5xl mx-auto">
             <div>
-                                  <h4 className="font-semibold mb-4">Links Úteis</h4>
-                                  <div className="space-y-2 text-sm">
-                                    <Link to={createPageUrl('Groups')} className="block text-slate-400 hover:text-white">Grupos</Link>
-                                    <Link to={createPageUrl('Parcerias')} className="block text-slate-400 hover:text-white">Parcerias</Link>
-                                    <Link to={createPageUrl('About')} className="block text-slate-400 hover:text-white">Sobre Nós</Link>
-                                    <Link to={createPageUrl('Terms')} className="block text-slate-400 hover:text-white">Termos de Uso</Link>
-                                    <Link to={createPageUrl('Privacy')} className="block text-slate-400 hover:text-white">Política de Privacidade</Link>
-                                  </div>
-                                </div>
+              <h4 className="font-semibold mb-3 text-white">Legal</h4>
+              <div className="space-y-2 text-sm">
+                <Link to={createPageUrl('Privacy')} className="block text-slate-400 hover:text-white transition-colors">Política de Privacidade</Link>
+                <Link to={createPageUrl('Terms')} className="block text-slate-400 hover:text-white transition-colors">Termos de Uso</Link>
+                <Link to={createPageUrl('Cookies')} className="block text-slate-400 hover:text-white transition-colors">Política de Cookies</Link>
+                <Link to={createPageUrl('Security')} className="block text-slate-400 hover:text-white transition-colors">Política de Segurança</Link>
+              </div>
+            </div>
+
             <div>
-              <h4 className="font-semibold mb-4">Contato</h4>
-              <div className="space-y-2 text-sm text-slate-400">
-                <p>WhatsApp: (83) 99197-1320</p>
-                <p>E-mail: alexandreferreirajp01@gmail.com</p>
+              <h4 className="font-semibold mb-3 text-white">Empresa</h4>
+              <div className="space-y-2 text-sm">
+                <Link to={createPageUrl('About')} className="block text-slate-400 hover:text-white transition-colors">Sobre Nós</Link>
+                <Link to={createPageUrl('Contact')} className="block text-slate-400 hover:text-white transition-colors">Contato</Link>
+                <Link to={createPageUrl('Careers')} className="block text-slate-400 hover:text-white transition-colors">Trabalhe Conosco</Link>
+                <Link to={createPageUrl('Parcerias')} className="block text-slate-400 hover:text-white transition-colors">Parcerias</Link>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3 text-white">Recursos</h4>
+              <div className="space-y-2 text-sm">
+                <Link to={createPageUrl('FAQ')} className="block text-slate-400 hover:text-white transition-colors">FAQ</Link>
+                <Link to={createPageUrl('LGPD')} className="block text-slate-400 hover:text-white transition-colors">LGPD – Seus Direitos</Link>
+                <Link to={createPageUrl('Groups')} className="block text-slate-400 hover:text-white transition-colors">Grupos WhatsApp</Link>
+                <Link to={createPageUrl('News')} className="block text-slate-400 hover:text-white transition-colors">Notícias</Link>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3 text-white">Anuncie</h4>
+              <div className="space-y-2 text-sm">
+                <Link to={createPageUrl('Advertise')} className="block text-slate-400 hover:text-white transition-colors">Anunciar Conosco</Link>
+                <Link to={createPageUrl('Subscription')} className="block text-slate-400 hover:text-white transition-colors">Planos</Link>
+                <a href="mailto:rhvagasabertasparaiba@gmail.com" className="block text-slate-400 hover:text-white transition-colors">Suporte</a>
               </div>
             </div>
           </div>
-          <div className="border-t border-slate-700 mt-8 pt-6 text-center text-sm text-slate-400">
-            © {new Date().getFullYear()} Vagas Abertas Paraíba. Todos os direitos reservados.
+
+          {/* Bottom Bar */}
+          <div className="border-t border-slate-700 pt-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
+              <p>© {new Date().getFullYear()} Vagas Abertas Paraíba. Todos os direitos reservados.</p>
+              <div className="flex items-center gap-4">
+                <span>Made with ❤️ in Paraíba</span>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

@@ -39,6 +39,13 @@ import PostsEmMassa from './pages/PostsEmMassa';
 import BibliotecaProfissional from './pages/BibliotecaProfissional';
 import Permissoes from './pages/Permissoes';
 import GerenciadorFiltros from './pages/GerenciadorFiltros';
+import Cookies from './pages/Cookies';
+import Security from './pages/Security';
+import LGPD from './pages/LGPD';
+import FAQ from './pages/FAQ';
+import Advertise from './pages/Advertise';
+import Careers from './pages/Careers';
+import Contact from './pages/Contact';
 import __Layout from './Layout.jsx';
 
 
@@ -84,6 +91,13 @@ export const PAGES = {
     "BibliotecaProfissional": BibliotecaProfissional,
     "Permissoes": Permissoes,
     "GerenciadorFiltros": GerenciadorFiltros,
+    "Cookies": Cookies,
+    "Security": Security,
+    "LGPD": LGPD,
+    "FAQ": FAQ,
+    "Advertise": Advertise,
+    "Careers": Careers,
+    "Contact": Contact,
 }
 
 export const pagesConfig = {
