@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,16 +8,38 @@ import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 
 export default function Subscription() {
+  const faqSectionRef = useRef(null);
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, []);
+
+  const scrollToPayment = () => {
+    if (faqSectionRef.current) {
+      faqSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const handleSubscribePremium = () => {
-    window.location.href = createPageUrl('Payment');
+    scrollToPayment();
+    setTimeout(() => {
+      window.location.href = createPageUrl('Payment');
+    }, 800);
   };
 
   const handleSubscribeRecruiter = () => {
-    const message = encodeURIComponent('Olá! Gostaria de assinar o plano Recrutador por R$ 9,90/mês');
-    window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
+    scrollToPayment();
+    setTimeout(() => {
+      const message = encodeURIComponent('Olá! Gostaria de assinar o plano Recrutador por R$ 9,90/mês');
+      window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
+    }, 800);
   };
 
   const handleChooseBasic = async () => {
+    scrollToPayment();
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     localStorage.removeItem('vagas_abertas_visitor_mode');
     
     try {
@@ -262,7 +284,7 @@ export default function Subscription() {
       </div>
 
       {/* FAQ Section */}
-      <div className="max-w-2xl mx-auto px-4 py-12">
+      <div ref={faqSectionRef} className="max-w-2xl mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold text-slate-800 text-center mb-8">Dúvidas Frequentes</h2>
         
         <div className="space-y-4">
