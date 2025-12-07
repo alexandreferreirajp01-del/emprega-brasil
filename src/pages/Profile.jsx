@@ -84,10 +84,10 @@ export default function Profile() {
 
       // Preparar dados para atualização
       const updateData = {
-        full_name: editForm.full_name,
-        phone: editForm.phone,
-        city: editForm.city,
-        state: editForm.state
+        full_name: editForm.full_name.trim(),
+        phone: editForm.phone.trim(),
+        city: editForm.city.trim(),
+        state: editForm.state.trim().toUpperCase()
       };
       
       // Adicionar senha apenas se foi preenchida
@@ -100,25 +100,32 @@ export default function Profile() {
         updateData.password = editForm.password;
       }
       
-      // Atualizar no banco
+      // Atualizar no banco de dados
       await base44.auth.updateMe(updateData);
       
-      // Atualizar estado local imediatamente com os dados do formulário
-      setUser(prev => ({
-        ...prev,
-        full_name: editForm.full_name,
-        phone: editForm.phone,
-        city: editForm.city,
-        state: editForm.state
-      }));
+      // Buscar dados atualizados e forçar atualização do estado
+      const freshUser = await base44.auth.me();
       
-      // Buscar dados atualizados do servidor (em background)
-      base44.auth.me().then(updatedUser => {
-        setUser(updatedUser);
-      }).catch(err => console.error('Erro ao recarregar usuário:', err));
+      // Atualizar todo o estado do usuário
+      setUser(freshUser);
+      
+      // Atualizar formulário de edição com os dados salvos
+      setEditForm({
+        full_name: freshUser.full_name || '',
+        phone: freshUser.phone || '',
+        city: freshUser.city || '',
+        state: freshUser.state || 'PB',
+        password: ''
+      });
       
       setIsEditing(false);
       showToast('✅ Perfil atualizado com sucesso!');
+      
+      // Forçar recarregamento da página após 1 segundo para garantir sincronização
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
     } catch (error) {
       console.error('Erro ao salvar:', error);
       showToast('❌ Erro ao atualizar perfil. Tente novamente.', 'error');
