@@ -53,12 +53,17 @@ export default function Utilidades() {
           A Biblioteca e Ferramentas são recursos exclusivos para membros Premium. 
           Faça upgrade e tenha acesso a materiais profissionais para impulsionar sua carreira!
         </p>
-        <Link to={createPageUrl('Subscription')}>
-          <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl px-8 py-3">
-            <Crown className="w-5 h-5 mr-2" />
-            Seja Premium Agora
-          </Button>
-        </Link>
+        <Button 
+          onClick={() => {
+            // Abrir modal de assinatura (será implementado)
+            // Por enquanto, redirecionar para página de subscription
+            window.location.href = createPageUrl('Subscription');
+          }}
+          className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl px-8 py-3"
+        >
+          <Crown className="w-5 h-5 mr-2" />
+          Seja Premium Agora
+        </Button>
       </CardContent>
     </Card>
   );
