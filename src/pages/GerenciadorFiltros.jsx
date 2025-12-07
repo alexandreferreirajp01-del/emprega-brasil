@@ -131,10 +131,18 @@ export default function GerenciadorFiltros() {
   }, []);
 
   // Carregar filtros do banco
-  const { data: filterData, refetch } = useQuery({
+  const { data: filterData, refetch, isLoading: loadingFilters } = useQuery({
     queryKey: ['filter-master'],
     queryFn: async () => {
       const filters = await base44.entities.FilterMaster.filter({ is_active: true }, 'order', 2000);
+      
+      // Se vazio, inicializar
+      if (filters.length === 0) {
+        await base44.functions.invoke('initializeFilters');
+        const newFilters = await base44.entities.FilterMaster.filter({ is_active: true }, 'order', 2000);
+        filters.push(...newFilters);
+      }
+      
       const grouped = {
         categories: [],
         jobFunctions: [],

@@ -62,9 +62,9 @@ export default function Home() {
     let isMounted = true;
 
     const loadData = async () => {
-      // Carregar jobs
+      // Carregar TODAS as jobs (sem limite)
       const jobsResult = await fetchWithRetry(() => 
-        base44.entities.Job.list('-created_date', 200)
+        base44.entities.Job.list('-created_date', 10000)
       );
       if (isMounted) setJobs(jobsResult);
 
@@ -137,7 +137,7 @@ export default function Home() {
           <div className="text-center mb-6 sm:mb-8 px-2">
                   <Badge className="bg-white/20 text-white border-0 mb-3 sm:mb-4 px-3 sm:px-4 py-1 text-xs sm:text-sm">
                     <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    +{jobs.length} {jobs.length === 1 ? 'vaga disponível' : 'vagas disponíveis'}
+                    {jobs.length > 0 ? `+${jobs.length}` : '200+'} {jobs.length === 1 ? 'vaga disponível' : 'vagas disponíveis'}
                   </Badge>
                   <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-3 sm:mb-4 leading-tight">
                     Encontre Sua Próxima<br />Oportunidade
