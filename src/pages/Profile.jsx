@@ -36,29 +36,25 @@ export default function Profile() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // Buscar dados do usuário com React Query
+  // Buscar dados do usuário com React Query (sincronização em tempo real)
   const { data: user, isLoading, error, refetch } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
       const userData = await base44.auth.me();
-      return userData;
-    },
-    staleTime: 30000,
-    retry: 3
-  });
-
-  // Preencher formulário apenas ao abrir modo de edição
-  useEffect(() => {
-    if (isEditing && user) {
+      // Atualizar formulário de edição com os dados atuais
       setEditForm({
-        full_name: user.full_name || '',
-        phone: user.phone || '',
-        city: user.city || '',
-        state: user.state || 'PB',
+        full_name: userData.full_name || '',
+        phone: userData.phone || '',
+        city: userData.city || '',
+        state: userData.state || 'PB',
         password: ''
       });
-    }
-  }, [isEditing, user]);
+      return userData;
+    },
+    refetchInterval: 5000, // Atualizar a cada 5 segundos
+    staleTime: 0, // Sempre considerar dados como "velhos" para forçar revalidação
+    retry: 3
+  });
 
   // Redirecionar se não autenticado
   useEffect(() => {
@@ -70,62 +66,58 @@ export default function Profile() {
   // Mutation para atualizar foto de perfil
   const updatePhotoMutation = useMutation({
     mutationFn: async (file) => {
-      try {
-        const result = await base44.integrations.Core.UploadFile({ file });
-        if (!result || !result.file_url) {
-          throw new Error('Erro ao fazer upload');
-        }
-        await base44.auth.updateMe({ profile_photo: result.file_url });
-        return result.file_url;
-      } catch (error) {
-        console.error('Erro no upload de foto:', error);
-        throw error;
-      }
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.auth.updateMe({ profile_photo: file_url });
+      return file_url;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       showToast('✅ Foto atualizada com sucesso!');
     },
-    onError: (error) => {
-      showToast('❌ Erro ao atualizar foto: ' + (error.message || 'Tente novamente'), 'error');
+    onError: () => {
+      showToast('❌ Erro ao atualizar foto', 'error');
     }
   });
 
   const handlePhotoChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('❌ Arquivo muito grande. Máximo 5MB.', 'error');
-      e.target.value = '';
-      return;
+    const file = e.target.files[0];
+    if (file) {
+      updatePhotoMutation.mutate(file);
     }
-    if (!file.type.startsWith('image/')) {
-      showToast('❌ Apenas imagens são permitidas.', 'error');
-      e.target.value = '';
-      return;
-    }
-    
-    updatePhotoMutation.mutate(file);
-    e.target.value = '';
   };
 
   // Mutation para atualizar perfil
   const updateProfileMutation = useMutation({
     mutationFn: async (data) => {
+      // Atualizar no banco de dados
       await base44.auth.updateMe(data);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Aguardar processamento
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Buscar dados atualizados
       return await base44.auth.me();
     },
     onSuccess: (freshUser) => {
+      // Invalidar e refazer query para forçar atualização
       queryClient.setQueryData(['currentUser'], freshUser);
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      
+      // Atualizar formulário
+      setEditForm({
+        full_name: freshUser.full_name || '',
+        phone: freshUser.phone || '',
+        city: freshUser.city || '',
+        state: freshUser.state || 'PB',
+        password: ''
+      });
+      
       setIsEditing(false);
       showToast('✅ Perfil atualizado com sucesso!');
     },
     onError: (error) => {
-      console.error('Erro ao salvar:', error);
-      showToast('❌ Erro ao atualizar: ' + (error.message || 'Tente novamente'), 'error');
+      console.error('Erro ao salvar perfil:', error);
+      showToast('❌ Erro ao atualizar perfil: ' + (error.message || 'Tente novamente'), 'error');
     }
   });
 
@@ -157,6 +149,15 @@ export default function Profile() {
   };
 
   const handleCancelEdit = () => {
+    if (user) {
+      setEditForm({
+        full_name: user.full_name || '',
+        phone: user.phone || '',
+        city: user.city || '',
+        state: user.state || 'PB',
+        password: ''
+      });
+    }
     setIsEditing(false);
   };
 
