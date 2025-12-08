@@ -84,15 +84,23 @@ export default function PostarVaga() {
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Arquivo muito grande. Máximo 10MB.');
+      e.target.value = '';
+      return;
+    }
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setFormData(prev => ({ ...prev, image_url: file_url }));
+      const result = await base44.integrations.Core.UploadFile({ file });
+      if (!result || !result.file_url) {
+        throw new Error('Upload falhou');
+      }
+      setFormData(prev => ({ ...prev, image_url: result.file_url }));
       
       // Extrair dados com IA
-      const result = await base44.integrations.Core.InvokeLLM({
+      const extractResult = await base44.integrations.Core.InvokeLLM({
         prompt: `Analise esta imagem de vaga e extraia: título, empresa, função, cidade (Paraíba), descrição, salário, telefone, email, site.`,
-        file_urls: [file_url],
+        file_urls: [result.file_url],
         response_json_schema: {
           type: "object",
           properties: {
@@ -109,13 +117,13 @@ export default function PostarVaga() {
         }
       });
       
-      if (result) {
+      if (extractResult) {
         // Classificar categoria automaticamente
         let categoryData = null;
         try {
           categoryData = await base44.functions.invoke('classifyJobCategory', {
-            title: result.title || '',
-            description: result.description || ''
+            title: extractResult.title || '',
+            description: extractResult.description || ''
           });
         } catch (e) {
           console.error('Erro ao classificar categoria:', e);
@@ -123,22 +131,24 @@ export default function PostarVaga() {
 
         setFormData(prev => ({
           ...prev,
-          title: result.title || prev.title,
-          company: result.company || prev.company,
-          job_function: result.job_function || prev.job_function,
-          city: result.city || prev.city,
-          description: result.description || prev.description,
-          salary_range: result.salary_range || prev.salary_range,
-          contact_phone: result.contact_phone || prev.contact_phone,
-          contact_email: result.contact_email || prev.contact_email,
-          website: result.website || prev.website,
+          title: extractResult.title || prev.title,
+          company: extractResult.company || prev.company,
+          job_function: extractResult.job_function || prev.job_function,
+          city: extractResult.city || prev.city,
+          description: extractResult.description || prev.description,
+          salary_range: extractResult.salary_range || prev.salary_range,
+          contact_phone: extractResult.contact_phone || prev.contact_phone,
+          contact_email: extractResult.contact_email || prev.contact_email,
+          website: extractResult.website || prev.website,
           category: categoryData?.data?.category || prev.category,
         }));
       }
     } catch (err) {
-      alert('Erro no upload');
+      console.error('Erro detalhado:', err);
+      alert('Erro no upload: ' + (err.message || 'Tente novamente'));
     } finally {
       setUploading(false);
+      e.target.value = '';
     }
   };
 
