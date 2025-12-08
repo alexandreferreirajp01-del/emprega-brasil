@@ -37,20 +37,35 @@ export default function PostsEmMassa() {
   }, []);
 
   const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files).slice(0, 10);
+    const files = Array.from(e.target.files || []).slice(0, 10);
     if (files.length === 0) return;
     setUploading(true);
-    const uploaded = [];
     try {
+      const uploaded = [];
       for (const file of files) {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file });
-        uploaded.push({ id: Date.now() + Math.random(), url: file_url, status: 'pending' });
+        try {
+          const result = await base44.integrations.Core.UploadFile({ file });
+          if (result && result.file_url) {
+            uploaded.push({ 
+              id: Date.now() + Math.random(), 
+              url: result.file_url, 
+              status: 'pending' 
+            });
+          }
+        } catch (fileErr) {
+          console.error('Erro ao fazer upload do arquivo:', fileErr);
+        }
       }
       setImages(prev => [...prev, ...uploaded]);
+      if (uploaded.length === 0) {
+        alert('Erro ao fazer upload das imagens. Tente novamente.');
+      }
     } catch (err) {
-      alert('Erro no upload');
+      console.error('Erro no upload:', err);
+      alert('Erro no upload: ' + (err.message || 'Tente novamente'));
     } finally {
       setUploading(false);
+      e.target.value = '';
     }
   };
 
