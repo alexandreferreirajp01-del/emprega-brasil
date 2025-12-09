@@ -24,12 +24,14 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
   const [editForm, setEditForm] = useState({ 
-    full_name: '', 
+    full_name: '',
+    username: '',
     phone: '', 
     city: '', 
     state: 'PB',
     password: ''
   });
+  const [usernameError, setUsernameError] = useState('');
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -44,6 +46,7 @@ export default function Profile() {
       // Atualizar formulário de edição com os dados atuais
       setEditForm({
         full_name: userData.full_name || '',
+        username: userData.username || '',
         phone: userData.phone || '',
         city: userData.city || '',
         state: userData.state || 'PB',
@@ -106,6 +109,7 @@ export default function Profile() {
       // Atualizar formulário
       setEditForm({
         full_name: freshUser.full_name || '',
+        username: freshUser.username || '',
         phone: freshUser.phone || '',
         city: freshUser.city || '',
         state: freshUser.state || 'PB',
@@ -128,9 +132,33 @@ export default function Profile() {
       return;
     }
 
+    // Validar username se preenchido e alterado
+    if (editForm.username && editForm.username !== user?.username) {
+      if (editForm.username.length !== 8) {
+        setUsernameError('Username deve ter exatamente 8 caracteres');
+        return;
+      }
+      
+      // Verificar se username já existe
+      try {
+        const users = await base44.entities.User.list();
+        const existingUser = users.find(u => u.username === editForm.username && u.email !== user.email);
+        if (existingUser) {
+          setUsernameError('Username já está em uso');
+          return;
+        }
+      } catch (e) {
+        showToast('Erro ao verificar username', 'error');
+        return;
+      }
+    }
+    
+    setUsernameError('');
+
     // Preparar dados para atualização
     const updateData = {
       full_name: editForm.full_name.trim(),
+      username: editForm.username.trim() || '',
       phone: editForm.phone.trim() || '',
       city: editForm.city.trim() || '',
       state: editForm.state.trim().toUpperCase() || 'PB'
@@ -152,18 +180,21 @@ export default function Profile() {
     if (user) {
       setEditForm({
         full_name: user.full_name || '',
+        username: user.username || '',
         phone: user.phone || '',
         city: user.city || '',
         state: user.state || 'PB',
         password: ''
       });
     }
+    setUsernameError('');
     setIsEditing(false);
   };
 
   // Verificar se houve mudanças no formulário (dirty check)
   const hasChanges = user && (
     editForm.full_name.trim() !== (user.full_name || '') ||
+    editForm.username.trim() !== (user.username || '') ||
     editForm.phone.trim() !== (user.phone || '') ||
     editForm.city.trim() !== (user.city || '') ||
     editForm.state.trim().toUpperCase() !== (user.state || 'PB').toUpperCase() ||
@@ -254,13 +285,37 @@ export default function Profile() {
             {isEditing ? (
               <div className="space-y-4 mb-6">
                 <div className="space-y-2">
-                  <Label>Nome Completo</Label>
+                  <Label>Nome Completo *</Label>
                   <Input 
                     value={editForm.full_name} 
                     onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} 
                     placeholder="Seu nome completo" 
                     className="rounded-xl h-11" 
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Username (Login único - 8 caracteres)</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium">@</span>
+                    <Input 
+                      value={editForm.username} 
+                      onChange={(e) => {
+                        const value = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8);
+                        setEditForm({ ...editForm, username: value });
+                        setUsernameError('');
+                      }}
+                      placeholder="exemplo8" 
+                      maxLength={8}
+                      className="rounded-xl h-11 pl-8" 
+                    />
+                  </div>
+                  {usernameError && (
+                    <p className="text-red-500 text-xs">{usernameError}</p>
+                  )}
+                  {editForm.username && editForm.username.length !== 8 && (
+                    <p className="text-amber-600 text-xs">{editForm.username.length}/8 caracteres</p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
@@ -358,6 +413,15 @@ export default function Profile() {
                     <p className="font-medium text-slate-800 text-sm truncate">{user?.email}</p>
                   </div>
                 </div>
+                {user?.username && (
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                    <User className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-slate-500">Username</p>
+                      <p className="font-medium text-slate-800 text-sm">@{user.username}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <Phone className="w-5 h-5 text-slate-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
