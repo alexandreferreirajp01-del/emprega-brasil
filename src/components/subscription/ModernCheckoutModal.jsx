@@ -22,6 +22,19 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
   const [error, setError] = useState('');
 
   const plans = {
+    basic: {
+      name: 'Básico',
+      price: 'GRÁTIS',
+      period: 'Acesso gratuito',
+      subtitle: 'Comunidade',
+      icon: Users,
+      color: 'green',
+      benefits: [
+        { icon: Check, text: 'Acesso às vagas gratuitas' },
+        { icon: MessageSquare, text: 'Participar da comunidade' },
+        { icon: Users, text: 'Acesso aos grupos' },
+      ]
+    },
     premium: {
       name: 'Premium',
       price: 'R$ 29,90',
@@ -64,34 +77,47 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
   ];
 
   const handleSubscribe = async () => {
-    if (!user && !localStorage.getItem('vagas_abertas_visitor_mode')) {
-      window.location.href = createPageUrl('Splash');
-      return;
-    }
-
     setLoading(true);
     setError('');
 
     try {
+      // Plano básico gratuito
+      if (selectedPlan === 'basic') {
+        if (!user) {
+          localStorage.setItem('pending_subscription', 'basic');
+          base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
+          return;
+        }
+        await base44.auth.updateMe({ subscription_type: 'basic' });
+        onClose();
+        if (onSuccess) onSuccess();
+        window.location.reload();
+        return;
+      }
+
+      if (!user) {
+        window.location.href = createPageUrl('Splash');
+        return;
+      }
+
       const subscriptionType = selectedPlan === 'premium' ? 'premium' : 'recruiter';
       const price = selectedPlan === 'premium' ? 29.90 : 9.90;
 
       // Criar registro de pagamento pendente
       await base44.entities.Payment.create({
-        user_email: user?.email || 'visitor@temp.com',
+        user_email: user.email,
         amount: price,
         status: 'pending',
         payment_method: paymentMethod,
-        notes: `Assinatura ${currentPlan.name} - ${paymentMethod} ${couponCode ? `- Cupom: ${couponCode}` : ''}`
+        notes: `Assinatura ${currentPlan.name} - ${paymentMethod}`
       });
 
       // Mensagem WhatsApp
       const whatsappMessage = `🌟 *Nova Assinatura - ${currentPlan.name}*\n\n` +
-        `👤 *Cliente:* ${user?.full_name || 'Visitante'}\n` +
-        `📧 *Email:* ${user?.email || 'N/A'}\n` +
+        `👤 *Cliente:* ${user.full_name || 'Não informado'}\n` +
+        `📧 *Email:* ${user.email}\n` +
         `💳 *Plano:* ${currentPlan.name} - ${currentPlan.price}\n` +
         `💰 *Método:* ${paymentMethods.find(m => m.id === paymentMethod)?.name}\n` +
-        `${couponCode ? `🎟️ *Cupom:* ${couponCode}\n` : ''}` +
         `\n✅ *Aguardando confirmação de pagamento*`;
 
       const whatsappURL = `https://wa.me/5583991971320?text=${encodeURIComponent(whatsappMessage)}`;
@@ -109,7 +135,7 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-full sm:max-w-4xl max-h-[90vh] overflow-y-auto p-0">
         <div className="sticky top-0 bg-white z-10 border-b p-6">
           <DialogHeader>
             <DialogTitle className="text-2xl">Escolha seu Plano</DialogTitle>
@@ -137,7 +163,7 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
           </Card>
 
           {/* Seleção de Planos */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
             {Object.entries(plans).map(([key, plan]) => {
               const Icon = plan.icon;
               const isSelected = selectedPlan === key;
@@ -188,7 +214,8 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
             })}
           </div>
 
-          {/* Métodos de Pagamento */}
+          {/* Métodos de Pagamento - apenas para premium/recruiter */}
+          {selectedPlan !== 'basic' && (
           <Card>
             <CardContent className="p-6">
               <h3 className="font-bold text-lg mb-4">Método de Pagamento</h3>
@@ -208,20 +235,9 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
               </RadioGroup>
             </CardContent>
           </Card>
+          )}
 
-          {/* Cupom */}
-          <Card>
-            <CardContent className="p-6">
-              <Label htmlFor="coupon" className="font-medium mb-2 block">Cupom de Desconto</Label>
-              <Input
-                id="coupon"
-                placeholder="Digite seu cupom"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                className="h-12"
-              />
-            </CardContent>
-          </Card>
+
 
           {/* Erro */}
           {error && (
