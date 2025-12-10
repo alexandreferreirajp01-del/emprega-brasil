@@ -96,8 +96,23 @@ export default function PostsEmMassa() {
         try {
           setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'processing' } : i));
           
+          console.log('[PostsEmMassa] Processando imagem:', img.url);
+          
           const result = await base44.integrations.Core.InvokeLLM({
-            prompt: `Extraia TODAS as vagas desta imagem: título, empresa, cidade, salário, telefone, link.`,
+            prompt: `Você é um extrator de dados de vagas de emprego em imagens.
+
+Analise a imagem fornecida e identifique TODAS as vagas de emprego visíveis.
+
+Para cada vaga, extraia:
+- Título/cargo da vaga
+- Nome da empresa
+- Cidade
+- Faixa salarial (se visível)
+- Telefone de contato
+- Link ou forma de candidatura
+- Descrição resumida
+
+Retorne uma lista JSON com todas as vagas encontradas.`,
             file_urls: [img.url],
             response_json_schema: {
               type: "object",
@@ -120,6 +135,8 @@ export default function PostsEmMassa() {
               }
             }
           });
+          
+          console.log('[PostsEmMassa] Resultado para imagem:', result);
 
           const jobsFound = result?.jobs || [];
           jobsFound.forEach(job => {
@@ -133,7 +150,10 @@ export default function PostsEmMassa() {
 
           setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'completed', count: jobsFound.length } : i));
         } catch (imgError) {
-          console.error('Erro ao processar imagem:', img.url, imgError);
+          console.error('[PostsEmMassa] Erro completo na imagem:', img.url);
+          console.error('[PostsEmMassa] Error:', imgError);
+          console.error('[PostsEmMassa] Stack:', imgError.stack);
+          console.error('[PostsEmMassa] Message:', imgError.message);
           setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'error' } : i));
           errorCount++;
         }
@@ -151,8 +171,23 @@ export default function PostsEmMassa() {
       setExtractedJobs(allJobs);
       setStep(2);
     } catch (err) {
-      console.error('Erro no processamento:', err);
-      alert('Erro ao processar imagens. Tente novamente.');
+      console.error('[PostsEmMassa] Erro geral:', err);
+      console.error('[PostsEmMassa] Stack:', err.stack);
+      console.error('[PostsEmMassa] Message:', err.message);
+      
+      let errorMsg = '❌ Erro ao processar imagens.\n\n';
+      
+      if (err.message?.includes('network') || err.message?.includes('fetch')) {
+        errorMsg += 'Problema de conexão com o servidor.';
+      } else if (err.message?.includes('timeout')) {
+        errorMsg += 'Tempo esgotado. Tente processar menos imagens por vez.';
+      } else if (err.message?.includes('401') || err.message?.includes('403')) {
+        errorMsg += 'Sessão expirada. Faça login novamente.';
+      } else {
+        errorMsg += 'Erro inesperado.\n\nTente:\n1. Recarregar página\n2. Fazer logout/login\n3. Usar menos imagens\n4. Verificar console (F12)';
+      }
+      
+      alert(errorMsg);
     } finally {
       setProcessing(false);
     }

@@ -45,8 +45,26 @@ export default function VagasPorIA() {
     
     setExtracting(true);
     try {
+      console.log('[VagasPorIA] Texto recebido:', rawText.substring(0, 200));
+      console.log('[VagasPorIA] Iniciando chamada IA...');
+      
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extraia dados desta vaga: título, empresa, função, cidade, descrição, salário, telefone, link.\n\n${rawText}`,
+        prompt: `Você é um extrator de dados de vagas de emprego.
+
+Analise o texto abaixo e extraia as seguintes informações:
+- Título da vaga
+- Nome da empresa
+- Função/cargo
+- Cidade
+- Descrição completa
+- Faixa salarial (se mencionada)
+- Telefone de contato
+- Link de candidatura
+
+Texto da vaga:
+${rawText}
+
+Retorne os dados no formato JSON solicitado. Se algum campo não estiver presente, deixe vazio.`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -62,6 +80,8 @@ export default function VagasPorIA() {
         }
       });
       
+      console.log('[VagasPorIA] Resultado IA:', result);
+      
       if (!result || !result.title) {
         alert('Não foi possível extrair dados. Verifique o texto e tente novamente.');
         return;
@@ -70,8 +90,24 @@ export default function VagasPorIA() {
       setExtractedData(result);
       setStep(2);
     } catch (err) {
-      console.error('Erro na extração:', err);
-      alert('Erro ao processar com IA. Tente novamente ou verifique sua conexão.');
+      console.error('[VagasPorIA] Erro completo:', err);
+      console.error('[VagasPorIA] Stack:', err.stack);
+      console.error('[VagasPorIA] Message:', err.message);
+      console.error('[VagasPorIA] Response:', err.response);
+      
+      let errorMsg = '❌ Erro ao processar com IA.\n\n';
+      
+      if (err.message?.includes('network') || err.message?.includes('fetch')) {
+        errorMsg += 'Problema de conexão. Verifique sua internet e tente novamente.';
+      } else if (err.message?.includes('timeout')) {
+        errorMsg += 'Tempo esgotado. O texto pode estar muito longo. Tente um texto menor.';
+      } else if (err.message?.includes('401') || err.message?.includes('403')) {
+        errorMsg += 'Erro de autenticação. Faça login novamente.';
+      } else {
+        errorMsg += 'Erro desconhecido. Detalhes no console do navegador.\n\nTente:\n1. Recarregar a página\n2. Fazer logout e login\n3. Usar um texto mais curto';
+      }
+      
+      alert(errorMsg);
     } finally {
       setExtracting(false);
     }

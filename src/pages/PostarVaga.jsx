@@ -98,8 +98,20 @@ export default function PostarVaga() {
       
       // Extrair dados com IA
       try {
+        console.log('[PostarVaga] Iniciando extração IA...');
         const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `Analise esta imagem de vaga e extraia: título, empresa, função, cidade (Paraíba), descrição, salário, telefone, email, site.`,
+          prompt: `Analise esta imagem de vaga e extraia os seguintes dados:
+- Título da vaga
+- Nome da empresa
+- Função/cargo
+- Cidade (em Paraíba)
+- Descrição da vaga
+- Faixa salarial
+- Telefone de contato
+- Email de contato
+- Site da empresa
+
+Retorne no formato JSON solicitado.`,
           file_urls: [uploadResult.file_url],
           response_json_schema: {
             type: "object",
@@ -116,6 +128,7 @@ export default function PostarVaga() {
             }
           }
         });
+        console.log('[PostarVaga] Resultado IA:', result);
         
         if (result) {
           // Classificar categoria automaticamente
@@ -144,8 +157,10 @@ export default function PostarVaga() {
           }));
         }
       } catch (aiError) {
-        console.error('Erro na extração IA:', aiError);
-        alert('Imagem carregada, mas não foi possível extrair dados automaticamente. Preencha manualmente.');
+        console.error('[PostarVaga] Erro completo na IA:', aiError);
+        console.error('[PostarVaga] Stack:', aiError.stack);
+        console.error('[PostarVaga] Message:', aiError.message);
+        alert('⚠️ Imagem carregada com sucesso!\n\nPorém não foi possível extrair dados automaticamente.\nPreencha os campos manualmente.');
       }
     } catch (err) {
       console.error('Erro no upload:', err);
