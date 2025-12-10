@@ -46,23 +46,8 @@ export default function VagasHomeOffice() {
     
     setExtracting(true);
     try {
-      console.log('[VagasHomeOffice] Texto recebido:', rawText.substring(0, 200));
-      console.log('[VagasHomeOffice] Iniciando extração IA...');
-      
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Você é um extrator especializado em vagas home office.
-
-Analise o texto abaixo e identifique TODAS as vagas de trabalho remoto/home office mencionadas.
-
-Para cada vaga encontrada, extraia:
-- Título da vaga
-- Link de candidatura (URL completo)
-- Descrição resumida da vaga
-
-Texto:
-${rawText}
-
-Retorne uma lista com todas as vagas no formato JSON especificado.`,
+        prompt: `Extraia TODAS as vagas home office deste texto. Para cada uma: titulo, link, descricao.\n\n${rawText}`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -81,8 +66,6 @@ Retorne uma lista com todas as vagas no formato JSON especificado.`,
         }
       });
       
-      console.log('[VagasHomeOffice] Resultado IA:', result);
-      
       if (!result || !result.vagas || result.vagas.length === 0) {
         alert('Nenhuma vaga encontrada. Verifique o texto e tente novamente.');
         return;
@@ -99,24 +82,8 @@ Retorne uma lista com todas as vagas no formato JSON especificado.`,
       setExtractedJobs(jobs);
       setStep(2);
     } catch (err) {
-      console.error('[VagasHomeOffice] Erro completo:', err);
-      console.error('[VagasHomeOffice] Stack:', err.stack);
-      console.error('[VagasHomeOffice] Message:', err.message);
-      console.error('[VagasHomeOffice] Response:', err.response);
-      
-      let errorMsg = '❌ Erro ao processar com IA.\n\n';
-      
-      if (err.message?.includes('network') || err.message?.includes('fetch')) {
-        errorMsg += 'Problema de conexão. Verifique sua internet.';
-      } else if (err.message?.includes('timeout')) {
-        errorMsg += 'Tempo esgotado. Texto muito longo. Tente dividir.';
-      } else if (err.message?.includes('401') || err.message?.includes('403')) {
-        errorMsg += 'Sessão expirada. Faça login novamente.';
-      } else {
-        errorMsg += 'Erro inesperado.\n\nSoluções:\n1. Recarregue a página (F5)\n2. Faça logout e login novamente\n3. Tente um texto menor\n4. Verifique o console (F12)';
-      }
-      
-      alert(errorMsg);
+      console.error('Erro na extração:', err);
+      alert('Erro ao processar com IA. Tente novamente ou verifique sua conexão.');
     } finally {
       setExtracting(false);
     }
