@@ -39,11 +39,7 @@ export default function VagasHomeOffice() {
   }, []);
 
   const extractJobs = async () => {
-    if (!rawText.trim()) {
-      alert('Digite o texto com as vagas primeiro');
-      return;
-    }
-    
+    if (!rawText.trim()) return;
     setExtracting(true);
     try {
       const result = await base44.integrations.Core.InvokeLLM({
@@ -66,12 +62,7 @@ export default function VagasHomeOffice() {
         }
       });
       
-      if (!result || !result.vagas || result.vagas.length === 0) {
-        alert('Nenhuma vaga encontrada. Verifique o texto e tente novamente.');
-        return;
-      }
-      
-      const jobs = result.vagas.map(v => ({
+      const jobs = (result.vagas || []).map(v => ({
         title: v.titulo,
         description: v.descricao || `Vaga Home Office - ${v.titulo}`,
         application_link: v.link,
@@ -82,8 +73,7 @@ export default function VagasHomeOffice() {
       setExtractedJobs(jobs);
       setStep(2);
     } catch (err) {
-      console.error('Erro na extração:', err);
-      alert('Erro ao processar com IA. Tente novamente ou verifique sua conexão.');
+      alert('Erro ao extrair');
     } finally {
       setExtracting(false);
     }

@@ -39,120 +39,66 @@ export default function PostsEmMassa() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files).slice(0, 10);
     if (files.length === 0) return;
-    
     setUploading(true);
     const uploaded = [];
-    let errorCount = 0;
-    
     try {
       for (const file of files) {
-        try {
-          // Validar tamanho (max 10MB)
-          if (file.size > 10 * 1024 * 1024) {
-            console.warn('Arquivo muito grande:', file.name);
-            errorCount++;
-            continue;
-          }
-          
-          const uploadResult = await base44.integrations.Core.UploadFile({ file });
-          if (uploadResult && uploadResult.file_url) {
-            uploaded.push({ id: Date.now() + Math.random(), url: uploadResult.file_url, status: 'pending' });
-          } else {
-            errorCount++;
-          }
-        } catch (fileError) {
-          console.error('Erro no arquivo:', file.name, fileError);
-          errorCount++;
-        }
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        uploaded.push({ id: Date.now() + Math.random(), url: file_url, status: 'pending' });
       }
-      
-      if (uploaded.length > 0) {
-        setImages(prev => [...prev, ...uploaded]);
-      }
-      
-      if (errorCount > 0) {
-        alert(`${errorCount} arquivo(s) falharam no upload. ${uploaded.length} enviado(s) com sucesso.`);
-      }
+      setImages(prev => [...prev, ...uploaded]);
     } catch (err) {
-      console.error('Erro geral no upload:', err);
-      alert('Erro no upload das imagens. Tente novamente.');
+      alert('Erro no upload');
     } finally {
       setUploading(false);
     }
   };
 
   const processImages = async () => {
-    if (images.length === 0) {
-      alert('Adicione imagens primeiro');
-      return;
-    }
-    
     setProcessing(true);
     const allJobs = [];
-    let errorCount = 0;
-    
     try {
       for (const img of images) {
-        try {
-          setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'processing' } : i));
-          
-          const result = await base44.integrations.Core.InvokeLLM({
-            prompt: `Extraia TODAS as vagas desta imagem: título, empresa, cidade, salário, telefone, link.`,
-            file_urls: [img.url],
-            response_json_schema: {
-              type: "object",
-              properties: {
-                jobs: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      title: { type: "string" },
-                      company: { type: "string" },
-                      city: { type: "string" },
-                      salary_range: { type: "string" },
-                      contact_phone: { type: "string" },
-                      application_link: { type: "string" },
-                      description: { type: "string" }
-                    }
+        setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'processing' } : i));
+        
+        const result = await base44.integrations.Core.InvokeLLM({
+          prompt: `Extraia TODAS as vagas desta imagem: título, empresa, cidade, salário, telefone, link.`,
+          file_urls: [img.url],
+          response_json_schema: {
+            type: "object",
+            properties: {
+              jobs: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    company: { type: "string" },
+                    city: { type: "string" },
+                    salary_range: { type: "string" },
+                    contact_phone: { type: "string" },
+                    application_link: { type: "string" },
+                    description: { type: "string" }
                   }
                 }
               }
             }
-          });
+          }
+        });
 
-          const jobsFound = result?.jobs || [];
-          jobsFound.forEach(job => {
-            if (job.title) {
-              allJobs.push({
-                ...job,
-                image_url: img.url
-              });
-            }
+        (result.jobs || []).forEach(job => {
+          allJobs.push({
+            ...job,
+            image_url: img.url
           });
+        });
 
-          setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'completed', count: jobsFound.length } : i));
-        } catch (imgError) {
-          console.error('Erro ao processar imagem:', img.url, imgError);
-          setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'error' } : i));
-          errorCount++;
-        }
+        setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'completed', count: result.jobs?.length || 0 } : i));
       }
-      
-      if (allJobs.length === 0) {
-        alert('Nenhuma vaga encontrada nas imagens. Tente com imagens mais claras.');
-        return;
-      }
-      
-      if (errorCount > 0) {
-        alert(`${errorCount} imagem(ns) com erro. ${allJobs.length} vaga(s) extraída(s).`);
-      }
-      
       setExtractedJobs(allJobs);
       setStep(2);
     } catch (err) {
-      console.error('Erro no processamento:', err);
-      alert('Erro ao processar imagens. Tente novamente.');
+      alert('Erro ao processar');
     } finally {
       setProcessing(false);
     }

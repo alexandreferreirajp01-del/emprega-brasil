@@ -38,11 +38,7 @@ export default function VagasPorIA() {
   }, []);
 
   const extractWithAI = async () => {
-    if (!rawText.trim()) {
-      alert('Digite o texto da vaga primeiro');
-      return;
-    }
-    
+    if (!rawText.trim()) return;
     setExtracting(true);
     try {
       const result = await base44.integrations.Core.InvokeLLM({
@@ -61,17 +57,10 @@ export default function VagasPorIA() {
           }
         }
       });
-      
-      if (!result || !result.title) {
-        alert('Não foi possível extrair dados. Verifique o texto e tente novamente.');
-        return;
-      }
-      
       setExtractedData(result);
       setStep(2);
     } catch (err) {
-      console.error('Erro na extração:', err);
-      alert('Erro ao processar com IA. Tente novamente ou verifique sua conexão.');
+      alert('Erro ao extrair dados');
     } finally {
       setExtracting(false);
     }
