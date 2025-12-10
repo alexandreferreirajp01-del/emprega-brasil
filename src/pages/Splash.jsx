@@ -105,12 +105,12 @@ export default function Splash() {
           {/* Formulário de Email/Senha */}
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div className="space-y-3">
-              {/* Campo Email ou Username */}
+              {/* Campo Email */}
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
-                  type="text"
-                  placeholder="E-mail ou @username"
+                  type="email"
+                  placeholder="E-mail"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-11 h-12 rounded-xl border-slate-200 text-base"

@@ -59,6 +59,11 @@ export default function PostarVaga() {
   useEffect(() => {
     const init = async () => {
       try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (!isAuth) {
+          window.location.href = createPageUrl('Splash');
+          return;
+        }
         const user = await base44.auth.me();
         const isAdmin = user.role === 'admin' || user.subscription_type === 'admin';
         const isRecruiter = user.subscription_type === 'recruiter';
@@ -70,7 +75,7 @@ export default function PostarVaga() {
         setIsAuthorized(true);
         setCurrentUser(user);
       } catch (e) {
-        window.location.href = createPageUrl('Splash');
+        window.location.href = createPageUrl('Home');
       }
     };
     init();
