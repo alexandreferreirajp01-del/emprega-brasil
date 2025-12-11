@@ -26,7 +26,6 @@ const menuItems = [
   { id: 'transmissao', name: 'Lista de Transmissão', icon: MessageSquare, color: 'green', page: 'ListaTransmissao', description: 'Enviar mensagens em massa', permissionId: 'lista_transmissao' },
   { id: 'vagas', name: 'Gerenciar Vagas', icon: Briefcase, color: 'blue', page: 'GerenciarVagas', description: 'Visualizar e excluir vagas', permissionId: 'gerenciar_vagas' },
   { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'indigo', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários', permissionId: 'gerenciar_usuarios' },
-  { id: 'activate-premium', name: 'Ativar Premium Manual', icon: Crown, color: 'amber', page: 'ActivatePremiumManual', description: 'Ativar plano Premium para usuários', roles: ['admin', 'dono'], permissionId: 'activate_premium' },
   { id: 'comunidade', name: 'Gerenciar Comunidade', icon: MessageSquare, color: 'purple', page: 'GerenciarComunidade', description: 'Posts, comentários e chat', permissionId: 'gerenciar_comunidade' },
   { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores', permissionId: 'solicitacoes' },
   { id: 'dividerProducao', type: 'divider', label: 'Ferramentas de Produção' },
