@@ -53,6 +53,8 @@ import ChangePassword from './pages/ChangePassword';
 import ActivatePremiumManual from './pages/ActivatePremiumManual';
 import MapaVagas from './pages/MapaVagas';
 import Estatisticas from './pages/Estatisticas';
+import PostarNoticias from './pages/PostarNoticias';
+import GerenciarNoticiasLista from './pages/GerenciarNoticiasLista';
 import __Layout from './Layout.jsx';
 
 
@@ -112,6 +114,8 @@ export const PAGES = {
     "ActivatePremiumManual": ActivatePremiumManual,
     "MapaVagas": MapaVagas,
     "Estatisticas": Estatisticas,
+    "PostarNoticias": PostarNoticias,
+    "GerenciarNoticiasLista": GerenciarNoticiasLista,
 }
 
 export const pagesConfig = {

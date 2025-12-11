@@ -141,9 +141,9 @@ export default function Profile() {
       return;
     }
 
-    // Preparar dados para atualização
+    // Preparar dados para atualização (forçar full_name sempre)
     const updateData = {
-      full_name: editForm.full_name.trim(),
+      full_name: editForm.full_name.trim() || user.full_name || '',
       username: editForm.username.trim().toLowerCase(),
       phone: editForm.phone.trim() || '',
       city: editForm.city.trim() || '',
