@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { 
   ChevronRight, ChevronLeft, Crown, Star, Users, Bell, Send, 
   Calendar, Check, Loader2, Eye, Globe, Clock, Zap, Edit, Mail,
-  Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code
+  Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Lock
 } from "lucide-react";
 import {
   Select,
@@ -36,15 +36,21 @@ const CONTRACT_TYPES = [
   { id: 'Freelancer', label: 'Freelancer', icon: Code },
   { id: 'Trainee', label: 'Trainee', icon: GraduationCap },
   { id: 'Banco de Talentos', label: 'Banco de Talentos', icon: Users },
+  { id: 'Home Office', label: 'Home Office', icon: Globe },
+  { id: 'PCD', label: 'PCD', icon: UserCheck },
 ];
 
 const NOTIFICATION_TEMPLATES = [
-  { id: 'urgente', emoji: '🚨', title: 'URGENTE: Nova vaga!', msg: 'Vaga urgente! Processo seletivo relâmpago!' },
-  { id: 'oportunidade', emoji: '⭐', title: 'OPORTUNIDADE DE OURO!', msg: 'Nova vaga incrível acabou de ser publicada!' },
-  { id: 'chance', emoji: '✨', title: 'NOVA CHANCE!', msg: 'Sua próxima oportunidade está aqui!' },
-  { id: 'perfeita', emoji: '🎯', title: 'VAGA PERFEITA!', msg: 'Essa vaga combina com você!' },
-  { id: 'salario', emoji: '💰', title: 'SALÁRIO ATRATIVO!', msg: 'Vaga com ótima remuneração!' },
-  { id: 'empresa', emoji: '🏢', title: 'EMPRESA TOP!', msg: 'Grande empresa está contratando!' },
+  { id: 'urgente', emoji: '🚨', title: 'URGENTE: Nova vaga!', msg: 'Vaga urgente! Processo seletivo relâmpago!', icon: '🚨' },
+  { id: 'oportunidade', emoji: '⭐', title: 'OPORTUNIDADE DE OURO!', msg: 'Nova vaga incrível acabou de ser publicada!', icon: '⭐' },
+  { id: 'chance', emoji: '✨', title: 'NOVA CHANCE!', msg: 'Sua próxima oportunidade está aqui!', icon: '✨' },
+  { id: 'perfeita', emoji: '🎯', title: 'VAGA PERFEITA!', msg: 'Essa vaga combina com você!', icon: '🎯' },
+  { id: 'salario', emoji: '💰', title: 'SALÁRIO ATRATIVO!', msg: 'Vaga com ótima remuneração!', icon: '💰' },
+  { id: 'empresa', emoji: '🏢', title: 'EMPRESA TOP!', msg: 'Grande empresa está contratando!', icon: '🏢' },
+  { id: 'homeoffice', emoji: '🏠', title: 'HOME OFFICE DISPONÍVEL!', msg: 'Trabalhe de casa com flexibilidade!', icon: '🏠' },
+  { id: 'premium', emoji: '👑', title: 'VAGA PREMIUM EXCLUSIVA!', msg: 'Oportunidade exclusiva para assinantes Premium!', icon: '👑' },
+  { id: 'inicio', emoji: '🎓', title: 'OPORTUNIDADE PARA INICIANTES!', msg: 'Vaga perfeita para começar sua carreira!', icon: '🎓' },
+  { id: 'senior', emoji: '💼', title: 'VAGA PARA EXPERIENTES!', msg: 'Oportunidade para profissionais seniores!', icon: '💼' },
 ];
 
 function getBrasiliaTime() {
@@ -565,10 +571,10 @@ export default function UnifiedPostWizard({
                   </Select>
                 </div>
 
-                {selectedTemplate === 'custom' && (
+                {selectedTemplate === 'custom' ? (
                   <div className="space-y-2">
                     <div>
-                      <Label className="text-xs text-slate-600 mb-1 block">Título</Label>
+                      <Label className="text-xs text-slate-600 mb-1 block">Título *</Label>
                       <Input
                         value={customTitle}
                         onChange={(e) => setCustomTitle(e.target.value)}
@@ -577,7 +583,7 @@ export default function UnifiedPostWizard({
                       />
                     </div>
                     <div>
-                      <Label className="text-xs text-slate-600 mb-1 block">Mensagem</Label>
+                      <Label className="text-xs text-slate-600 mb-1 block">Mensagem *</Label>
                       <Textarea
                         value={customMessage}
                         onChange={(e) => setCustomMessage(e.target.value)}
@@ -586,12 +592,26 @@ export default function UnifiedPostWizard({
                       />
                     </div>
                   </div>
+                ) : (
+                  <div className="p-3 bg-slate-50 rounded-lg border">
+                    <p className="text-xs text-slate-600 mb-1">Preview do Template:</p>
+                    <p className="font-semibold text-sm">{template?.emoji} {template?.title}</p>
+                    <p className="text-xs text-slate-600 mt-1">{template?.msg}</p>
+                  </div>
                 )}
 
                 <div>
-                  <Label className="text-xs font-semibold text-slate-700 mb-2 block">Ícone</Label>
+                  <Label className="text-xs font-semibold text-slate-700 mb-2 block">Ícone (Opcional)</Label>
                   <div className="flex gap-2 flex-wrap">
-                    {['💼', '🚨', '⭐', '✨', '🎯', '💰', '🏢', '🚀'].map(emoji => (
+                    <button
+                      onClick={() => setNotificationIcon('')}
+                      className={`w-11 h-11 rounded-lg border-2 transition-all flex items-center justify-center ${
+                        !notificationIcon ? 'border-blue-600 bg-blue-50' : 'border-slate-200'
+                      }`}
+                    >
+                      <span className="text-xs text-slate-400">Sem</span>
+                    </button>
+                    {['💼', '🚨', '⭐', '✨', '🎯', '💰', '🏢', '🚀', '🏠', '👑', '🎓'].map(emoji => (
                       <button
                         key={emoji}
                         onClick={() => setNotificationIcon(emoji)}

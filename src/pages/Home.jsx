@@ -205,10 +205,10 @@ export default function Home() {
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Featured Jobs */}
-            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden" style={{ minHeight: '400px' }}>
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-3 sm:p-4 flex items-center justify-between">
+            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0">
                     <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" />
                   </div>
                   <div>
@@ -216,31 +216,31 @@ export default function Home() {
                     <p className="text-white/70 text-xs sm:text-sm">{featuredJobs.length} vagas selecionadas</p>
                   </div>
                 </div>
-                <Link to={createPageUrl('Jobs')}>
-                  <Button variant="ghost" className="text-white hover:bg-white/10 rounded-lg sm:rounded-xl text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4">
+                <Link to={createPageUrl('Jobs')} className="w-full sm:w-auto">
+                  <Button variant="ghost" className="text-white hover:bg-white/10 rounded-lg sm:rounded-xl text-xs sm:text-sm h-9 sm:h-10 w-full sm:w-auto px-3 sm:px-4">
                     Ver Todas <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                   </Button>
                 </Link>
               </div>
-              <CardContent className="p-4 space-y-3">
+              <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
                 {featuredJobs.slice(0, 5).map((job) => (
                   <Link key={job.id} to={createPageUrl('JobDetail') + `?id=${job.id}`}>
-                    <div className="p-4 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-blue-100">
-                      <div className="flex items-start justify-between gap-4">
+                    <div className="p-3 sm:p-4 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-blue-100">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-slate-800 group-hover:text-blue-600 transition-colors truncate">
+                          <div className="flex items-start gap-2 mb-2 flex-wrap">
+                            <h3 className="font-semibold text-slate-800 group-hover:text-blue-600 transition-colors text-sm sm:text-base flex-1">
                               {job.title}
                             </h3>
                             <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs shrink-0">
                               <Star className="w-3 h-3 mr-1" /> Destaque
                             </Badge>
                           </div>
-                          <p className="text-slate-500 text-sm flex items-center gap-1 mb-2">
+                          <p className="text-slate-500 text-xs sm:text-sm flex items-center gap-1 mb-2">
                             <Building2 className="w-3 h-3" />
                             {job.company || 'Empresa'}
                           </p>
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
                             {job.city && (
                               <Badge variant="secondary" className="rounded-full text-xs">
                                 <MapPin className="w-3 h-3 mr-1" />
@@ -252,20 +252,22 @@ export default function Home() {
                                 {job.job_type}
                               </Badge>
                             )}
+                            {job.salary_range && (
+                              <Badge className="bg-green-100 text-green-700 border-0 text-xs">
+                                {job.salary_range}
+                              </Badge>
+                            )}
                           </div>
                         </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-xs text-slate-400 flex items-center gap-1">
+                        <div className="flex sm:flex-col gap-3 sm:gap-1 text-xs text-slate-400 sm:text-right">
+                          <p className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             <TimeAgo date={job.created_date} />
                           </p>
-                          <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
+                          <p className="flex items-center gap-1">
                             <Eye className="w-3 h-3" />
-                            {viewsCountMap[job.id] || 0} views
+                            {viewsCountMap[job.id] || 0}
                           </p>
-                          {job.salary_range && (
-                            <p className="text-green-600 font-medium text-sm mt-1">{job.salary_range}</p>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -274,7 +276,7 @@ export default function Home() {
                 {featuredJobs.length === 0 && (
                   <div className="text-center py-8 text-slate-400">
                     <Star className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>Nenhuma vaga em destaque</p>
+                    <p className="text-sm">Nenhuma vaga em destaque</p>
                   </div>
                 )}
               </CardContent>

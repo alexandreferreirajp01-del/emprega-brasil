@@ -30,6 +30,7 @@ export default function Profile() {
     city: '', 
     state: 'PB',
     bio: '',
+    theme: 'light',
     password: ''
   });
 
@@ -38,27 +39,32 @@ export default function Profile() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // Buscar dados do usuário com React Query (sincronização em tempo real)
+  // Buscar dados do usuário com React Query
   const { data: user, isLoading, error, refetch } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
       const userData = await base44.auth.me();
-      // Atualizar formulário de edição com os dados atuais
-      setEditForm({
-        full_name: userData.full_name || '',
-        username: userData.username || '',
-        phone: userData.phone || '',
-        city: userData.city || '',
-        state: userData.state || 'PB',
-        bio: userData.bio || '',
-        password: ''
-      });
       return userData;
     },
-    refetchInterval: 5000, // Atualizar a cada 5 segundos
-    staleTime: 0, // Sempre considerar dados como "velhos" para forçar revalidação
+    staleTime: 300000, // 5 minutos
     retry: 3
   });
+
+  // Sincronizar formulário APENAS quando user carregar pela primeira vez
+  useEffect(() => {
+    if (user && !isEditing) {
+      setEditForm({
+        full_name: user.full_name || '',
+        username: user.username || '',
+        phone: user.phone || '',
+        city: user.city || '',
+        state: user.state || 'PB',
+        bio: user.bio || '',
+        theme: user.theme || 'light',
+        password: ''
+      });
+    }
+  }, [user?.id]);
 
   // Redirecionar se não autenticado
   useEffect(() => {
@@ -115,6 +121,7 @@ export default function Profile() {
         city: freshUser.city || '',
         state: freshUser.state || 'PB',
         bio: freshUser.bio || '',
+        theme: freshUser.theme || 'light',
         password: ''
       });
       
@@ -141,7 +148,8 @@ export default function Profile() {
       phone: editForm.phone.trim() || '',
       city: editForm.city.trim() || '',
       state: editForm.state.trim().toUpperCase() || 'PB',
-      bio: editForm.bio.trim() || ''
+      bio: editForm.bio.trim() || '',
+      theme: editForm.theme
     };
     
     // Adicionar senha apenas se foi preenchida
@@ -165,6 +173,7 @@ export default function Profile() {
         city: user.city || '',
         state: user.state || 'PB',
         bio: user.bio || '',
+        theme: user.theme || 'light',
         password: ''
       });
     }
@@ -179,6 +188,7 @@ export default function Profile() {
     editForm.city.trim() !== (user.city || '') ||
     editForm.state.trim().toUpperCase() !== (user.state || 'PB').toUpperCase() ||
     editForm.bio.trim() !== (user.bio || '') ||
+    editForm.theme !== (user.theme || 'light') ||
     (editForm.password && editForm.password.trim().length > 0)
   );
 
@@ -336,6 +346,30 @@ export default function Profile() {
                     placeholder="Conte um pouco sobre você" 
                     className="rounded-xl h-11" 
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Tema</Label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setEditForm({ ...editForm, theme: 'light' })}
+                      className={`flex-1 p-3 rounded-xl border-2 transition-all ${
+                        editForm.theme === 'light' ? 'border-blue-600 bg-blue-50' : 'border-slate-200'
+                      }`}
+                    >
+                      <p className="text-sm font-medium">☀️ Claro</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditForm({ ...editForm, theme: 'dark' })}
+                      className={`flex-1 p-3 rounded-xl border-2 transition-all ${
+                        editForm.theme === 'dark' ? 'border-blue-600 bg-blue-50' : 'border-slate-200'
+                      }`}
+                    >
+                      <p className="text-sm font-medium">🌙 Escuro</p>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
