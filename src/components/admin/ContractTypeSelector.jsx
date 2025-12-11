@@ -1,10 +1,10 @@
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
-import { Check, Briefcase, UserCheck, GraduationCap, Clock3, Code, Users, Globe, File } from "lucide-react";
+import { Check, Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Users, Globe } from "lucide-react";
 
 const CONTRACT_TYPES = [
   { id: 'CLT', label: 'CLT', icon: Briefcase },
-  { id: 'PJ', label: 'PJ', icon: File },
+  { id: 'PJ', label: 'PJ', icon: FileText },
   { id: 'Autônomo', label: 'Autônomo', icon: UserCheck },
   { id: 'Estágio', label: 'Estágio', icon: GraduationCap },
   { id: 'Jovem Aprendiz', label: 'Jovem Aprendiz', icon: GraduationCap },
