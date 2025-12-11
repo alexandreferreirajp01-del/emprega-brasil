@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart
+  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, AlertCircle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -31,6 +31,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import PremiumModal from "@/components/subscription/PremiumModal";
 
 const CIDADES_PB = [
@@ -150,6 +151,9 @@ export default function Jobs() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [shareJob, setShareJob] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [reportJob, setReportJob] = useState(null);
+  const [reportData, setReportData] = useState({ subject: '', message: '' });
+  const [sendingReport, setSendingReport] = useState(false);
 
   // URL params
   useEffect(() => {
@@ -254,6 +258,42 @@ export default function Jobs() {
   }, [user, refreshKey]);
 
   const handleRefresh = () => setRefreshKey(k => k + 1);
+
+  const handleSendReport = async () => {
+    if (!reportData.subject || !reportData.message) {
+      alert('Preencha todos os campos');
+      return;
+    }
+
+    setSendingReport(true);
+    try {
+      await base44.entities.Occurrence.create({
+        user_email: user?.email || 'visitante@email.com',
+        user_name: user?.full_name || 'Visitante',
+        job_id: reportJob.id,
+        job_title: reportJob.title || '',
+        subject: reportData.subject,
+        message: reportData.message,
+        status: 'pending'
+      });
+
+      await base44.entities.Notification.create({
+        user_email: 'alexandreferreirajp01@gmail.com',
+        title: 'Nova Ocorrência Reportada',
+        message: `${user?.full_name || 'Visitante'} reportou a vaga "${reportJob.title}": ${reportData.subject}`,
+        type: 'system',
+        is_read: false
+      });
+
+      alert('Ocorrência enviada com sucesso!');
+      setReportJob(null);
+      setReportData({ subject: '', message: '' });
+    } catch (error) {
+      alert('Erro ao enviar ocorrência');
+    } finally {
+      setSendingReport(false);
+    }
+  };
 
   // Premium check
   const userIsPremium = user?.subscription_type === 'premium' || 
@@ -672,6 +712,19 @@ export default function Jobs() {
                         >
                           <Share2 className="w-4 h-4" />
                         </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setReportJob(job);
+                            setReportData({ subject: '', message: '' });
+                          }}
+                          className="h-8 w-8 rounded-full text-slate-400 hover:text-orange-600"
+                          title="Reportar Vaga"
+                        >
+                          <AlertCircle className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -710,6 +763,44 @@ export default function Jobs() {
           window.location.reload();
         }}
       />
+
+      {/* Report Dialog */}
+      <Dialog open={!!reportJob} onOpenChange={() => setReportJob(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reportar Vaga</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-slate-700 mb-2 block">Assunto *</label>
+              <Input
+                value={reportData.subject}
+                onChange={(e) => setReportData({ ...reportData, subject: e.target.value })}
+                placeholder="Ex: Vaga falsa, informações incorretas..."
+                className="rounded-xl"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700 mb-2 block">Mensagem * (máx. 1000 caracteres)</label>
+              <Textarea
+                value={reportData.message}
+                onChange={(e) => setReportData({ ...reportData, message: e.target.value.slice(0, 1000) })}
+                placeholder="Descreva o problema..."
+                className="min-h-[150px] rounded-xl"
+                maxLength={1000}
+              />
+              <p className="text-xs text-slate-500 mt-1">{reportData.message.length}/1000</p>
+            </div>
+            <Button
+              onClick={handleSendReport}
+              disabled={!reportData.subject || !reportData.message || sendingReport}
+              className="w-full rounded-xl bg-orange-600 hover:bg-orange-700"
+            >
+              {sendingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Enviar Reporte'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
