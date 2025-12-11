@@ -320,39 +320,7 @@ export function PushActivationModal({ onClose }) {
   );
 }
 
-// Componente que força ativação
+// Componente que força ativação (DESABILITADO - causava problemas)
 export default function PushManager({ forceShow = false }) {
-  const [showModal, setShowModal] = useState(false);
-  const { isSupported, isSubscribed, permission } = usePushNotifications();
-
-  useEffect(() => {
-    // Mostrar modal se não inscrito e nunca recusou permanentemente
-    const hasDeclined = localStorage.getItem('vagas_push_declined');
-    const lastPrompt = localStorage.getItem('vagas_push_last_prompt');
-    const now = Date.now();
-    
-    // Mostrar novamente após 24h se não inscrito
-    const shouldShow = isSupported && 
-                       !isSubscribed && 
-                       permission !== 'denied' &&
-                       (!lastPrompt || now - parseInt(lastPrompt) > 24 * 60 * 60 * 1000);
-
-    if (forceShow || shouldShow) {
-      const timer = setTimeout(() => {
-        setShowModal(true);
-        localStorage.setItem('vagas_push_last_prompt', now.toString());
-      }, forceShow ? 100 : 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isSupported, isSubscribed, permission, forceShow]);
-
-  const handleClose = () => {
-    setShowModal(false);
-    localStorage.setItem('vagas_push_declined', 'true');
-  };
-
-  if (!showModal) return null;
-
-  return <PushActivationModal onClose={handleClose} />;
+  return null;
 }
