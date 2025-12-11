@@ -1,14 +1,6 @@
 import React from 'react';
+import UniversalChat from '@/components/chat/UniversalChat';
 
 export default function FloatingButtons() {
-  try {
-    const UniversalChat = React.lazy(() => import('@/components/chat/UniversalChat'));
-    return (
-      <React.Suspense fallback={null}>
-        <UniversalChat />
-      </React.Suspense>
-    );
-  } catch {
-    return null;
-  }
+  return <UniversalChat />;
 }

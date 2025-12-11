@@ -23,18 +23,19 @@ export default function NotificationBell({ user }) {
     queryFn: async () => {
       if (!user?.email) return [];
       try {
+        // Buscar notificações pessoais
         const personal = await base44.entities.Notification.filter(
           { user_email: user.email },
           '-created_date',
           100
-        );
-        return personal || [];
-      } catch {
+        ) || [];
+        return personal;
+      } catch (e) {
         return [];
       }
     },
     enabled: !!user?.email,
-    retry: false,
+    refetchInterval: 30000,
   });
 
   // Remover duplicatas baseado em título + mensagem + data (arredondada ao minuto)
@@ -68,14 +69,13 @@ export default function NotificationBell({ user }) {
     }
   });
 
+  // Marcar todas como lidas
   const markAllAsRead = async () => {
-    try {
-      const unread = uniqueNotifications.filter(n => !n.is_read);
-      await Promise.all(unread.map(n => 
-        base44.entities.Notification.update(n.id, { is_read: true }).catch(() => {})
-      ));
-      queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
-    } catch {}
+    const unread = uniqueNotifications.filter(n => !n.is_read);
+    await Promise.all(unread.map(n => 
+      base44.entities.Notification.update(n.id, { is_read: true }).catch(() => {})
+    ));
+    queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
   };
 
   // Deletar notificação

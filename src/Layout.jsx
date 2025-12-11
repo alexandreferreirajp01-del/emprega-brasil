@@ -20,6 +20,7 @@ export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState('light');
 
   // Scroll para o topo ao mudar de página
   useEffect(() => {
@@ -96,6 +97,7 @@ export default function Layout({ children, currentPageName }) {
         }
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        setTheme(currentUser.theme || 'light');
       } catch (e) {
         setIsVisitor(true);
       }
@@ -176,7 +178,11 @@ export default function Layout({ children, currentPageName }) {
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col notranslate bg-slate-50" translate="no" lang="pt-BR">
+        <div className={`min-h-screen flex flex-col notranslate ${theme === 'dark' ? 'dark bg-slate-900 text-white' : 'bg-slate-50'}`} translate="no" lang="pt-BR">
+        {/* Service Worker Manager - registra SW inline */}
+        <ServiceWorkerManager />
+        {/* Aplicar permissões básicas automaticamente */}
+        <ApplyBasicPermissions user={user} />
       {/* PWA/APK Meta Tags - Injeta no head */}
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -472,7 +478,15 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </nav>
 
+      {/* Floating Buttons */}
       <FloatingButtons />
+
+      {/* Permission Prompt - DESABILITADO */}
+
+      {/* Push Manager - reforço para ativar push */}
+      <PushManager />
+
+      {/* Cookie Consent Banner */}
       <CookieConsent />
       </div>
       );

@@ -10,19 +10,23 @@ const DEFAULT_BASIC_PERMISSIONS = {
 
 export default function ApplyBasicPermissions({ user }) {
   useEffect(() => {
-    if (!user || localStorage.getItem('vagas_abertas_visitor_mode') === 'true') return;
-    
     const applyPermissions = async () => {
-      try {
-        if (!user.permissions || Object.keys(user.permissions).length === 0) {
+      if (!user) return;
+      
+      // Não aplicar para visitantes
+      if (localStorage.getItem('vagas_abertas_visitor_mode') === 'true') return;
+      
+      // Se o usuário não tem permissões definidas, aplicar padrões básicos
+      if (!user.permissions || Object.keys(user.permissions).length === 0) {
+        try {
           await base44.auth.updateMe({ permissions: DEFAULT_BASIC_PERMISSIONS });
+        } catch (error) {
+          console.error('Erro ao aplicar permissões básicas:', error);
         }
-      } catch (error) {
-        console.warn('Permissions error:', error);
       }
     };
     
-    applyPermissions().catch(() => {});
+    applyPermissions();
   }, [user]);
 
   return null;
