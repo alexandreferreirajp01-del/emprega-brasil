@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   ChevronRight, ChevronLeft, Crown, Star, Users, Bell, Send, 
-  Calendar, Check, Loader2, Eye, Globe, Clock, Zap, Edit, Mail,
-  Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Lock
+  Calendar, Check, Loader2, Eye, Globe, Clock, Zap, Mail,
+  Briefcase, UserCheck, GraduationCap, Clock3, Code
 } from "lucide-react";
 import {
   Select,
@@ -28,7 +28,7 @@ import {
 
 const CONTRACT_TYPES = [
   { id: 'CLT', label: 'CLT', icon: Briefcase },
-  { id: 'PJ', label: 'PJ', icon: FileText },
+  { id: 'PJ', label: 'PJ', icon: Briefcase },
   { id: 'Autônomo', label: 'Autônomo', icon: UserCheck },
   { id: 'Estágio', label: 'Estágio', icon: GraduationCap },
   { id: 'Jovem Aprendiz', label: 'Jovem Aprendiz', icon: GraduationCap },
