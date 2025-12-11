@@ -664,7 +664,7 @@ export default function UnifiedPostWizard({
               </Button>
               <Button
                 onClick={handleSaveNotificationConfig}
-                disabled={sendNotification === null || (sendNotification === true && selectedTemplate === 'custom' && (!customTitle.trim() || !customMessage.trim()))}
+                disabled={sendNotification === null}
                 className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 rounded-xl"
               >
                 <Check className="w-4 h-4 mr-2" />

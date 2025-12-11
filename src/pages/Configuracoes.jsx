@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
-  ArrowLeft, Loader2, Users, BarChart3, 
-  Settings, ChevronRight, 
-  ExternalLink, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
+  ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
+  Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
+  ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
   PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
@@ -35,7 +35,7 @@ const menuItems = [
   { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
   { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'green', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
   { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'amber', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos', permissionId: 'biblioteca_admin' },
-  { id: 'postar-noticias', name: 'Postar Notícias', icon: PlusCircle, color: 'red', page: 'PostarNoticias', description: 'Criar e publicar notícias', permissionId: 'postar_noticias' },
+  { id: 'postar-noticias', name: 'Postar Notícias', icon: Newspaper, color: 'red', page: 'PostarNoticias', description: 'Criar e publicar notícias', permissionId: 'postar_noticias' },
   { id: 'gerenciar-noticias', name: 'Gerenciar Notícias', icon: Newspaper, color: 'rose', page: 'GerenciarNoticiasLista', description: 'Visualizar e excluir notícias', permissionId: 'gerenciar_noticias' },
   { id: 'divider1', type: 'divider', label: 'Ferramentas' },
   { id: 'ocorrencias', name: 'Ocorrências', icon: Shield, color: 'orange', page: 'Ocorrencias', description: 'Reportes de vagas e mensagens dos usuários', permissionId: 'ocorrencias' },

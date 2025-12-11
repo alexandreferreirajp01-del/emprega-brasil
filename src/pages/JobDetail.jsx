@@ -78,8 +78,6 @@ export default function JobDetail() {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [showReportDialog, setShowReportDialog] = useState(false);
-  const [reportMessage, setReportMessage] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
   
   const urlParams = new URLSearchParams(window.location.search);
@@ -232,44 +230,6 @@ export default function JobDetail() {
   };
 
   const handleRetry = () => setRefreshKey(k => k + 1);
-
-  const handleReport = async () => {
-    if (!reportMessage.trim()) {
-      alert('Digite o motivo do reporte');
-      return;
-    }
-
-    try {
-      await base44.entities.Occurrence.create({
-        type: 'job_report',
-        user_email: user?.email || 'visitante',
-        user_name: user?.full_name || 'Visitante',
-        related_id: jobId,
-        title: `Vaga reportada: ${job?.title}`,
-        message: reportMessage,
-        status: 'pending'
-      });
-
-      // Notificar admins
-      const admins = await base44.entities.User.list();
-      const adminEmails = admins.filter(u => u.role === 'admin' || u.subscription_type === 'admin').map(u => u.email);
-
-      for (const adminEmail of adminEmails) {
-        await base44.entities.Notification.create({
-          title: '🚨 Nova Ocorrência',
-          message: `Vaga reportada: ${job?.title}`,
-          type: 'system',
-          user_email: adminEmail
-        });
-      }
-
-      alert('Reporte enviado! Em breve retornaremos.');
-      setShowReportDialog(false);
-      setReportMessage('');
-    } catch (err) {
-      alert('Erro ao enviar: ' + err.message);
-    }
-  };
 
   // Loading state
   if (isLoading) {
@@ -488,28 +448,19 @@ export default function JobDetail() {
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="pt-6 border-t space-y-3">
-              {hasContact && (
+            {/* Apply Button */}
+            {hasContact && (
+              <div className="pt-6 border-t">
                 <Button 
                   size="lg" 
                   onClick={() => setShowContactDialog(true)}
-                  className="w-full bg-[#25D366] hover:bg-[#20bd5a] rounded-xl h-14 text-lg"
+                  className="w-full md:w-auto bg-[#25D366] hover:bg-[#20bd5a] rounded-xl h-14 px-8 text-lg"
                 >
                   <MessageCircle className="w-5 h-5 mr-2" />
                   Candidatar-se
                 </Button>
-              )}
-              
-              <Button
-                variant="outline"
-                onClick={() => setShowReportDialog(true)}
-                className="w-full rounded-xl h-11 text-orange-600 border-orange-300 hover:bg-orange-50"
-              >
-                <Flag className="w-4 h-4 mr-2" />
-                Reportar Vaga
-              </Button>
-            </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -528,40 +479,6 @@ export default function JobDetail() {
         open={showContactDialog} 
         onClose={() => setShowContactDialog(false)} 
       />
-
-      {/* Report Dialog */}
-      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Flag className="w-5 h-5 text-orange-600" />
-              Reportar Vaga
-            </DialogTitle>
-            <DialogDescription>
-              Relate problemas como vaga falsa, informações incorretas ou conteúdo inadequado.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label>Motivo do Reporte *</Label>
-              <Textarea
-                value={reportMessage}
-                onChange={(e) => setReportMessage(e.target.value)}
-                placeholder="Descreva o problema encontrado nesta vaga..."
-                className="min-h-[120px] mt-2"
-              />
-            </div>
-            <Button
-              onClick={handleReport}
-              disabled={!reportMessage.trim()}
-              className="w-full bg-orange-600 hover:bg-orange-700 h-11"
-            >
-              <Flag className="w-4 h-4 mr-2" />
-              Enviar Reporte
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Premium Modal */}
       <PremiumModal
