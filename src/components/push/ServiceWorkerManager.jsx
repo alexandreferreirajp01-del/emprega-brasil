@@ -91,71 +91,21 @@ console.log('[SW] Service Worker pronto');
 export default function ServiceWorkerManager() {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) {
-      console.log('Service Worker não suportado');
       return;
     }
 
     const registerSW = async () => {
       try {
-        // Desregistrar todos os service workers antigos
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        for (const registration of registrations) {
-          await registration.unregister();
-          console.log('SW antigo desregistrado');
-        }
-
-        // Aguardar um pouco
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Criar blob com o código do SW
         const blob = new Blob([SW_CODE], { type: 'application/javascript' });
         const swUrl = URL.createObjectURL(blob);
-
-        // Registrar novo SW
-        const registration = await navigator.serviceWorker.register(swUrl, { 
-          scope: '/',
-          updateViaCache: 'none'
-        });
-
-        console.log('Service Worker registrado com sucesso:', registration);
-
-        // Forçar ativação imediata
-        if (registration.waiting) {
-          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
-
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          console.log('Nova versão do SW encontrada');
-          
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('SW atualizado');
-              newWorker.postMessage({ type: 'SKIP_WAITING' });
-            }
-          });
-        });
-
-        // Limpar URL do blob após registro
+        await navigator.serviceWorker.register(swUrl, { scope: '/' });
         URL.revokeObjectURL(swUrl);
-
       } catch (error) {
-        console.error('Erro ao registrar SW:', error);
+        console.warn('SW error:', error);
       }
     };
 
-    registerSW();
-
-    // Recarregar quando houver nova versão
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        refreshing = true;
-        console.log('SW atualizado, recarregando...');
-        window.location.reload();
-      }
-    });
-
+    registerSW().catch(() => {});
   }, []);
 
   return null;
