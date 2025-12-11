@@ -134,7 +134,7 @@ export default function UnifiedPostWizard({
       jobs: jobsData.map(j => ({
         ...j,
         contract_types: selectedContractTypes,
-        is_premium: j.is_premium_toggle !== undefined ? j.is_premium_toggle : isPremium,
+        is_premium: isPremium,
         is_featured: isFeatured,
         published_at: brasiliaTime
       })),
@@ -238,21 +238,7 @@ export default function UnifiedPostWizard({
                           {job.city && <Badge variant="outline" className="text-xs">📍 {job.city}</Badge>}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 bg-purple-50 px-2 py-1 rounded-lg">
-                          <Crown className="w-3 h-3 text-purple-600" />
-                          <Switch
-                            checked={job.is_premium_toggle || false}
-                            onCheckedChange={(checked) => {
-                              const updated = [...jobsData];
-                              updated[i] = { ...updated[i], is_premium_toggle: checked };
-                              jobsData.splice(0, jobsData.length, ...updated);
-                            }}
-                            className="scale-75"
-                          />
-                        </div>
-                        <Badge variant="outline" className="text-xs">#{i + 1}</Badge>
-                      </div>
+                      <Badge variant="outline" className="text-xs">#{i + 1}</Badge>
                     </div>
                   </div>
                 ))}
