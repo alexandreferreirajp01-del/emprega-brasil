@@ -26,32 +26,6 @@ html, body, #root, [translate="no"], .notranslate, [data-translate="no"] {
   --sal: env(safe-area-inset-left);
 }
 
-/* Dark Theme */
-.dark {
-  background-color: #0f172a;
-  color: #f1f5f9;
-}
-
-.dark .bg-white {
-  background-color: #1e293b !important;
-}
-
-.dark .bg-slate-50 {
-  background-color: #0f172a !important;
-}
-
-.dark .text-slate-800 {
-  color: #f1f5f9 !important;
-}
-
-.dark .text-slate-600 {
-  color: #cbd5e1 !important;
-}
-
-.dark .border-slate-200 {
-  border-color: #334155 !important;
-}
-
 /* Base styles - Cross-browser compatibility */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;

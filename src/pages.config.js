@@ -52,7 +52,6 @@ import ResetPassword from './pages/ResetPassword';
 import ChangePassword from './pages/ChangePassword';
 import ActivatePremiumManual from './pages/ActivatePremiumManual';
 import MapaVagas from './pages/MapaVagas';
-import Estatisticas from './pages/Estatisticas';
 import __Layout from './Layout.jsx';
 
 
@@ -111,7 +110,6 @@ export const PAGES = {
     "ChangePassword": ChangePassword,
     "ActivatePremiumManual": ActivatePremiumManual,
     "MapaVagas": MapaVagas,
-    "Estatisticas": Estatisticas,
 }
 
 export const pagesConfig = {

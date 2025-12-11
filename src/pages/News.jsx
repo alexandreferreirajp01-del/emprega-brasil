@@ -21,13 +21,8 @@ export default function News() {
   const { data: news = [], isLoading } = useQuery({
     queryKey: ['news'],
     queryFn: async () => {
-      try {
-        const result = await base44.entities.News.list('-created_date', 100);
-        return (result || []).filter(n => n.status === 'published' || !n.status);
-      } catch (error) {
-        console.error('Erro ao carregar notícias:', error);
-        return [];
-      }
+      const result = await base44.entities.News.filter({ status: 'published' }, '-created_date', 100);
+      return result || [];
     },
     staleTime: 60000,
     gcTime: 300000,

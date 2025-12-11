@@ -37,23 +37,18 @@ export default function PostsEmMassa() {
   }, []);
 
   const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files).slice(0, 50); // Aumentado para 50
+    const files = Array.from(e.target.files).slice(0, 10);
     if (files.length === 0) return;
     setUploading(true);
     const uploaded = [];
     try {
       for (const file of files) {
         const { file_url } = await base44.integrations.Core.UploadFile({ file });
-        uploaded.push({ 
-          id: Date.now() + Math.random(), 
-          url: file_url, 
-          status: 'pending',
-          is_premium: false // Cada imagem tem flag premium individual
-        });
+        uploaded.push({ id: Date.now() + Math.random(), url: file_url, status: 'pending' });
       }
       setImages(prev => [...prev, ...uploaded]);
     } catch (err) {
-      alert('Erro no upload: ' + err.message);
+      alert('Erro no upload');
     } finally {
       setUploading(false);
     }
@@ -94,8 +89,7 @@ export default function PostsEmMassa() {
         (result.jobs || []).forEach(job => {
           allJobs.push({
             ...job,
-            image_url: img.url,
-            is_premium: img.is_premium // Herdar flag premium da imagem
+            image_url: img.url
           });
         });
 
@@ -112,12 +106,6 @@ export default function PostsEmMassa() {
 
   const removeImage = (id) => {
     setImages(prev => prev.filter(i => i.id !== id));
-  };
-
-  const toggleImagePremium = (id) => {
-    setImages(prev => prev.map(i => 
-      i.id === id ? { ...i, is_premium: !i.is_premium } : i
-    ));
   };
 
   const handlePublish = async (wizardData) => {
@@ -200,7 +188,7 @@ export default function PostsEmMassa() {
                     <Upload className="w-5 h-5" />
                     Upload
                   </span>
-                  <Badge variant="outline">{images.length}/50</Badge>
+                  <Badge variant="outline">{images.length}/10</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -212,7 +200,7 @@ export default function PostsEmMassa() {
                     className="hidden"
                     id="mass-upload"
                     onChange={handleImageUpload}
-                    disabled={uploading || images.length >= 50}
+                    disabled={uploading || images.length >= 10}
                   />
                   <label htmlFor="mass-upload" className="cursor-pointer">
                     {uploading ? (
@@ -223,52 +211,27 @@ export default function PostsEmMassa() {
                     <p className="text-slate-600 font-medium mb-1">
                       {uploading ? 'Carregando...' : 'Clique para selecionar'}
                     </p>
-                    <p className="text-slate-400 text-sm">Até 50 imagens</p>
+                    <p className="text-slate-400 text-sm">Até 10 imagens</p>
                   </label>
                 </div>
 
                 {images.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     {images.map((img) => (
                       <div key={img.id} className="relative group">
                         <img src={img.url} alt="" className="w-full h-24 object-cover rounded-lg" />
-                        
-                        {/* Botões de ação */}
-                        <div className="absolute inset-0 bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className={`text-white h-7 text-xs ${img.is_premium ? 'bg-purple-600' : 'bg-slate-600'}`}
-                            onClick={() => toggleImagePremium(img.id)}
-                          >
-                            <Crown className="w-3 h-3 mr-1" />
-                            {img.is_premium ? 'Premium' : 'Público'}
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-white h-7 bg-red-600" 
-                            onClick={() => removeImage(img.id)}
-                          >
-                            <Trash2 className="w-3 h-3" />
+                        <div className="absolute inset-0 bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Button size="sm" variant="ghost" className="text-white" onClick={() => removeImage(img.id)}>
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
-                        
-                        {/* Badge Premium */}
-                        {img.is_premium && (
-                          <div className="absolute top-1 left-1 bg-purple-600 text-white px-2 py-0.5 rounded text-xs flex items-center gap-1">
-                            <Crown className="w-3 h-3" />
-                          </div>
-                        )}
-                        
-                        {/* Status */}
                         {img.status === 'processing' && (
                           <div className="absolute inset-0 bg-purple-600/90 rounded-lg flex items-center justify-center">
                             <Loader2 className="w-5 h-5 text-white animate-spin" />
                           </div>
                         )}
                         {img.status === 'completed' && img.count > 0 && (
-                          <div className="absolute top-1 right-1 bg-green-600 text-white px-2 py-0.5 rounded text-xs font-bold">
+                          <div className="absolute top-1 right-1 bg-green-600 text-white px-2 py-0.5 rounded text-xs">
                             {img.count}
                           </div>
                         )}
