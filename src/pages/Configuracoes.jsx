@@ -79,10 +79,10 @@ export default function Configuracoes() {
           return;
         }
         setUser(currentUser);
-      } catch {
-        window.location.href = createPageUrl('Splash');
-      } finally {
         setLoading(false);
+      } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+        window.location.href = createPageUrl('Splash');
       }
     };
     checkAuth();
