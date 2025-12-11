@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Loader2, Sparkles, Image as ImageIcon, X, Zap, Trash2, CheckCircle } from "lucide-react";
+import { Upload, Loader2, Sparkles, Image as ImageIcon, X, Zap, Trash2, CheckCircle, Crown } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
