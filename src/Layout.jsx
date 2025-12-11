@@ -481,11 +481,6 @@ export default function Layout({ children, currentPageName }) {
       {/* Floating Buttons */}
       <FloatingButtons />
 
-      {/* Permission Prompt - DESABILITADO */}
-
-      {/* Push Manager - reforço para ativar push */}
-      <PushManager />
-
       {/* Cookie Consent Banner */}
       <CookieConsent />
       </div>
