@@ -20,7 +20,6 @@ export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [theme, setTheme] = useState('light');
 
   // Scroll para o topo ao mudar de página
   useEffect(() => {
@@ -97,7 +96,6 @@ export default function Layout({ children, currentPageName }) {
         }
         const currentUser = await base44.auth.me();
         setUser(currentUser);
-        setTheme(currentUser.theme || 'light');
       } catch (e) {
         setIsVisitor(true);
       }
@@ -178,9 +176,7 @@ export default function Layout({ children, currentPageName }) {
     }, []);
 
     return (
-        <div className={`min-h-screen flex flex-col notranslate ${theme === 'dark' ? 'dark bg-slate-900 text-white' : 'bg-slate-50'}`} translate="no" lang="pt-BR">
-        <ServiceWorkerManager />
-        <ApplyBasicPermissions user={user} />
+        <div className="min-h-screen flex flex-col notranslate bg-slate-50" translate="no" lang="pt-BR">
       {/* PWA/APK Meta Tags - Injeta no head */}
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -476,10 +472,7 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </nav>
 
-      {/* Floating Buttons */}
       <FloatingButtons />
-
-      {/* Cookie Consent Banner */}
       <CookieConsent />
       </div>
       );
