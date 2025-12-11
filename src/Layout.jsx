@@ -14,7 +14,6 @@ import PushManager from "@/components/push/PushManager";
 import ServiceWorkerManager from "@/components/push/ServiceWorkerManager";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import ApplyBasicPermissions from "@/components/common/ApplyBasicPermissions";
-import CookieConsent from "@/components/common/CookieConsent";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -485,9 +484,6 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Push Manager - reforço para ativar push */}
       <PushManager />
-
-      {/* Cookie Consent Banner */}
-      <CookieConsent />
       </div>
       );
       }

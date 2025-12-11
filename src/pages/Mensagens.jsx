@@ -121,45 +121,16 @@ export default function Mensagens() {
     }
   });
 
-  const handleEnviar = async () => {
+  const handleEnviar = () => {
     if (!novaMensagem.trim() || !conversaAtiva) return;
-    
-    try {
-      await enviarMutation.mutateAsync({
-        conversa_id: getConversaId(user.email, conversaAtiva.email),
-        remetente_email: user.email,
-        remetente_nome: user.full_name || 'Usuário',
-        destinatario_email: conversaAtiva.email,
-        destinatario_nome: conversaAtiva.nome,
-        conteudo: novaMensagem
-      });
-
-      // Criar ocorrência para admin
-      await base44.entities.Occurrence.create({
-        type: 'chat_message',
-        user_email: user.email,
-        user_name: user.full_name || 'Usuário',
-        related_id: conversaAtiva.email,
-        title: `Nova mensagem de ${user.full_name}`,
-        message: novaMensagem.substring(0, 200),
-        status: 'pending'
-      });
-
-      // Notificar admins
-      const admins = await base44.entities.User.list();
-      const adminEmails = admins.filter(u => u.role === 'admin' || u.subscription_type === 'admin').map(u => u.email);
-
-      for (const adminEmail of adminEmails) {
-        await base44.entities.Notification.create({
-          title: '💬 Nova Mensagem no Chat',
-          message: `${user.full_name} enviou uma mensagem`,
-          type: 'system',
-          user_email: adminEmail
-        });
-      }
-    } catch (err) {
-      console.error('Erro ao enviar:', err);
-    }
+    enviarMutation.mutate({
+      conversa_id: getConversaId(user.email, conversaAtiva.email),
+      remetente_email: user.email,
+      remetente_nome: user.full_name || 'Usuário',
+      destinatario_email: conversaAtiva.email,
+      destinatario_nome: conversaAtiva.nome,
+      conteudo: novaMensagem
+    });
   };
 
   const iniciarConversa = (usuario) => {
