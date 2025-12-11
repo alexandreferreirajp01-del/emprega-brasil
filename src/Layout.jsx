@@ -177,7 +177,7 @@ export default function Layout({ children, currentPageName }) {
     }, []);
 
     return (
-        <div className={`min-h-screen flex flex-col notranslate ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`} translate="no" lang="pt-BR">
+        <div className={`min-h-screen flex flex-col notranslate ${theme === 'dark' ? 'dark bg-slate-900 text-white' : 'bg-slate-50'}`} translate="no" lang="pt-BR">
         {/* Service Worker Manager - registra SW inline */}
         <ServiceWorkerManager />
         {/* Aplicar permissões básicas automaticamente */}
