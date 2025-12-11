@@ -179,9 +179,7 @@ export default function Layout({ children, currentPageName }) {
 
     return (
         <div className={`min-h-screen flex flex-col notranslate ${theme === 'dark' ? 'dark bg-slate-900 text-white' : 'bg-slate-50'}`} translate="no" lang="pt-BR">
-        {/* Service Worker Manager - registra SW inline */}
         <ServiceWorkerManager />
-        {/* Aplicar permissões básicas automaticamente */}
         <ApplyBasicPermissions user={user} />
       {/* PWA/APK Meta Tags - Injeta no head */}
       <meta name="mobile-web-app-capable" content="yes" />
