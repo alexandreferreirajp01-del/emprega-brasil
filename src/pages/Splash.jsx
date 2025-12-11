@@ -96,8 +96,8 @@ export default function Splash() {
         </div>
         <h1 className="text-3xl font-bold text-white mb-1">Vagas Abertas</h1>
         <p className="text-white/80 text-lg">Paraíba</p>
-        <p className="text-white/60 text-sm mt-2">Encontre sua próxima oportunidade</p>
-      </div>
+        <p className="text-white/60 text-sm mt-2">Entre com login ou e-mail</p>
+        </div>
 
       {/* Card de Login */}
       <Card className="w-full max-w-md rounded-2xl shadow-2xl border-0">
@@ -105,12 +105,12 @@ export default function Splash() {
           {/* Formulário de Email/Senha */}
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div className="space-y-3">
-              {/* Campo Email */}
+              {/* Campo Login/Email */}
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
-                  type="email"
-                  placeholder="E-mail"
+                  type="text"
+                  placeholder="Login ou E-mail"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-11 h-12 rounded-xl border-slate-200 text-base"

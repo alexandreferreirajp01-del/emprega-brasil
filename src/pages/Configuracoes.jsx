@@ -5,7 +5,7 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -35,7 +35,9 @@ const menuItems = [
   { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
   { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'green', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
   { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'amber', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos', permissionId: 'biblioteca_admin' },
-  { id: 'noticias', name: 'Gerenciar Notícias', icon: Newspaper, color: 'red', page: 'GerenciarNoticias', description: 'Publicar e gerenciar notícias', permissionId: 'noticias' },
+  { id: 'postar-noticia', name: 'Postar Notícia', icon: Newspaper, color: 'blue', page: 'PostarNoticia', description: 'Criar nova notícia', permissionId: 'postar_noticia' },
+  { id: 'noticias', name: 'Gerenciar Notícias', icon: Newspaper, color: 'red', page: 'GerenciarNoticias', description: 'Editar e excluir notícias', permissionId: 'noticias' },
+  { id: 'ocorrencias', name: 'Ocorrências', icon: AlertCircle, color: 'orange', page: 'Ocorrencias', description: 'Reportes de vagas dos usuários', permissionId: 'ocorrencias' },
   { id: 'divider1', type: 'divider', label: 'Ferramentas' },
   { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
   { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },

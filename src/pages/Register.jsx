@@ -11,6 +11,7 @@ import PasswordInput from "@/components/common/PasswordInput";
 export default function Register() {
   const [formData, setFormData] = useState({
     full_name: '',
+    username: '',
     email: '',
     phone: '',
     city: '',
@@ -27,6 +28,14 @@ export default function Register() {
 
     if (!formData.full_name.trim()) {
       newErrors.full_name = 'Nome completo é obrigatório';
+    }
+
+    if (!formData.username.trim()) {
+      newErrors.username = 'Nome de usuário é obrigatório';
+    } else if (formData.username.length < 3) {
+      newErrors.username = 'Mínimo 3 caracteres';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      newErrors.username = 'Use apenas letras, números e _';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,6 +80,7 @@ export default function Register() {
       // Chamar função backend para criar usuário
       const response = await base44.functions.invoke('registerUser', {
         full_name: formData.full_name,
+        username: formData.username.toLowerCase(),
         email: formData.email.toLowerCase(),
         phone: formData.phone,
         city: formData.city,
@@ -184,6 +194,24 @@ export default function Register() {
                 {errors.full_name && (
                   <p className="text-red-500 text-xs mt-1 ml-1">{errors.full_name}</p>
                 )}
+              </div>
+
+              {/* Nome de Usuário (Login) */}
+              <div>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Input
+                    type="text"
+                    placeholder="Nome de usuário (login) *"
+                    value={formData.username}
+                    onChange={(e) => handleChange('username', e.target.value.toLowerCase())}
+                    className={`pl-11 h-12 rounded-xl text-base ${errors.username ? 'border-red-500' : ''}`}
+                  />
+                </div>
+                {errors.username && (
+                  <p className="text-red-500 text-xs mt-1 ml-1">{errors.username}</p>
+                )}
+                <p className="text-xs text-slate-500 mt-1 ml-1">Você poderá entrar com este nome de usuário</p>
               </div>
 
               {/* E-mail */}

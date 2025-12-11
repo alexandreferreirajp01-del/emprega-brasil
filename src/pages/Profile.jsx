@@ -9,8 +9,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Edit, Save, X,
-  Lock, Briefcase, Settings, MapPin, Eye, EyeOff
+  Lock, Briefcase, Settings, MapPin, Eye, EyeOff, FileText
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -24,10 +25,12 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
   const [editForm, setEditForm] = useState({ 
-    full_name: '', 
+    full_name: '',
+    username: '',
     phone: '', 
     city: '', 
     state: 'PB',
+    bio: '',
     password: ''
   });
 
@@ -44,9 +47,11 @@ export default function Profile() {
       // Atualizar formulário de edição com os dados atuais
       setEditForm({
         full_name: userData.full_name || '',
+        username: userData.username || '',
         phone: userData.phone || '',
         city: userData.city || '',
         state: userData.state || 'PB',
+        bio: userData.bio || '',
         password: ''
       });
       return userData;
@@ -106,9 +111,11 @@ export default function Profile() {
       // Atualizar formulário
       setEditForm({
         full_name: freshUser.full_name || '',
+        username: freshUser.username || '',
         phone: freshUser.phone || '',
         city: freshUser.city || '',
         state: freshUser.state || 'PB',
+        bio: freshUser.bio || '',
         password: ''
       });
       
@@ -131,9 +138,11 @@ export default function Profile() {
     // Preparar dados para atualização
     const updateData = {
       full_name: editForm.full_name.trim(),
+      username: editForm.username.trim() || '',
       phone: editForm.phone.trim() || '',
       city: editForm.city.trim() || '',
-      state: editForm.state.trim().toUpperCase() || 'PB'
+      state: editForm.state.trim().toUpperCase() || 'PB',
+      bio: editForm.bio.trim() || ''
     };
     
     // Adicionar senha apenas se foi preenchida
@@ -152,9 +161,11 @@ export default function Profile() {
     if (user) {
       setEditForm({
         full_name: user.full_name || '',
+        username: user.username || '',
         phone: user.phone || '',
         city: user.city || '',
         state: user.state || 'PB',
+        bio: user.bio || '',
         password: ''
       });
     }
@@ -164,9 +175,11 @@ export default function Profile() {
   // Verificar se houve mudanças no formulário (dirty check)
   const hasChanges = user && (
     editForm.full_name.trim() !== (user.full_name || '') ||
+    editForm.username.trim() !== (user.username || '') ||
     editForm.phone.trim() !== (user.phone || '') ||
     editForm.city.trim() !== (user.city || '') ||
     editForm.state.trim().toUpperCase() !== (user.state || 'PB').toUpperCase() ||
+    editForm.bio.trim() !== (user.bio || '') ||
     (editForm.password && editForm.password.trim().length > 0)
   );
 
@@ -262,6 +275,17 @@ export default function Profile() {
                     className="rounded-xl h-11" 
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label>Nome de Usuário (Login)</Label>
+                  <Input 
+                    value={editForm.username} 
+                    onChange={(e) => setEditForm({ ...editForm, username: e.target.value.toLowerCase() })} 
+                    placeholder="seu_usuario" 
+                    className="rounded-xl h-11" 
+                  />
+                  <p className="text-xs text-slate-500">Você pode usar para fazer login</p>
+                </div>
                 
                 <div className="space-y-2">
                   <Label>E-mail</Label>
@@ -303,6 +327,16 @@ export default function Profile() {
                       className="rounded-xl h-11" 
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Bio / Sobre Você</Label>
+                  <Textarea
+                    value={editForm.bio} 
+                    onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })} 
+                    placeholder="Conte um pouco sobre você..." 
+                    className="rounded-xl min-h-[80px]" 
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -351,6 +385,15 @@ export default function Profile() {
                     <Edit className="w-4 h-4 text-slate-400" />
                   </button>
                 </div>
+                {user?.username && (
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                    <User className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-slate-500">Nome de Usuário</p>
+                      <p className="font-medium text-slate-800 text-sm">@{user.username}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <Mail className="w-5 h-5 text-slate-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
@@ -371,6 +414,15 @@ export default function Profile() {
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-slate-500">Localização</p>
                       <p className="font-medium text-slate-800 text-sm">{user?.city}, {user?.state}</p>
+                    </div>
+                  </div>
+                )}
+                {user?.bio && (
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                    <FileText className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-slate-500">Bio</p>
+                      <p className="font-medium text-slate-800 text-sm">{user.bio}</p>
                     </div>
                   </div>
                 )}
