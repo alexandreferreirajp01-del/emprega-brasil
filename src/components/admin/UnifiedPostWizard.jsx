@@ -67,6 +67,7 @@ export default function UnifiedPostWizard({
   // Etapa 3 - Visibilidade
   const [isPremium, setIsPremium] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
+  const [individualPremiumFlags, setIndividualPremiumFlags] = useState({});
   
   // Etapa 4 - Notificações (Dialog)
   const [showNotifDialog, setShowNotifDialog] = useState(false);
@@ -131,10 +132,10 @@ export default function UnifiedPostWizard({
     } : null;
 
     const finalData = {
-      jobs: jobsData.map(j => ({
+      jobs: jobsData.map((j, idx) => ({
         ...j,
         contract_types: selectedContractTypes,
-        is_premium: isPremium,
+        is_premium: individualPremiumFlags[idx] !== undefined ? individualPremiumFlags[idx] : isPremium,
         is_featured: isFeatured,
         published_at: brasiliaTime
       })),
@@ -230,15 +231,27 @@ export default function UnifiedPostWizard({
               <div className="space-y-2 max-h-[300px] overflow-y-auto">
                 {jobsData.map((job, i) => (
                   <div key={i} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-slate-800">{job.title || 'Sem título'}</h4>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-sm text-slate-800 truncate">{job.title || 'Sem título'}</h4>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {job.company && <Badge variant="outline" className="text-xs">🏢 {job.company}</Badge>}
                           {job.city && <Badge variant="outline" className="text-xs">📍 {job.city}</Badge>}
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-xs">#{i + 1}</Badge>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-1.5 bg-purple-50 px-2 py-1.5 rounded-lg border border-purple-200">
+                          <Crown className="w-3.5 h-3.5 text-purple-600" />
+                          <Switch
+                            checked={individualPremiumFlags[i] !== undefined ? individualPremiumFlags[i] : isPremium}
+                            onCheckedChange={(checked) => {
+                              setIndividualPremiumFlags(prev => ({ ...prev, [i]: checked }));
+                            }}
+                            className="scale-75"
+                          />
+                        </div>
+                        <Badge variant="outline" className="text-xs shrink-0">#{i + 1}</Badge>
+                      </div>
                     </div>
                   </div>
                 ))}
