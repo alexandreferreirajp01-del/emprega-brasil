@@ -57,13 +57,14 @@ function RecenterMap({ center }) {
 
 export default function MapaVagas() {
   const [jobs, setJobs] = useState([]);
-  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [citiesWithJobs, setCitiesWithJobs] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [userLocation, setUserLocation] = useState(null);
-  const [mapCenter, setMapCenter] = useState([-7.1195, -34.8450]); // João Pessoa padrão
+  const [mapCenter, setMapCenter] = useState([-7.1195, -34.8450]);
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -93,15 +94,28 @@ export default function MapaVagas() {
         base44.entities.ProfessionalCategory.list('category_order', 100)
       ]);
 
-      // Adicionar coordenadas às vagas
-      const jobsWithCoords = jobsData.map(job => {
-        const coords = COORDINATES[job.city] || [-7.1195, -34.8450];
-        return { ...job, latitude: coords[0], longitude: coords[1] };
+      setJobs(jobsData);
+      setCategories(catsData.filter(c => c.is_active !== false));
+
+      // Agrupar vagas por cidade
+      const citiesMap = new Map();
+      jobsData.forEach(job => {
+        const cityName = job.city;
+        if (cityName && COORDINATES[cityName]) {
+          if (!citiesMap.has(cityName)) {
+            citiesMap.set(cityName, {
+              city: cityName,
+              coords: COORDINATES[cityName],
+              jobs: []
+            });
+          }
+          citiesMap.get(cityName).jobs.push(job);
+        }
       });
 
-      setJobs(jobsWithCoords);
-      setFilteredJobs(jobsWithCoords);
-      setCategories(catsData.filter(c => c.is_active !== false));
+      const citiesArray = Array.from(citiesMap.values());
+      setCitiesWithJobs(citiesArray);
+      setFilteredCities(citiesArray);
     } catch (error) {
       console.error('Erro ao carregar vagas:', error);
     } finally {
@@ -131,7 +145,23 @@ export default function MapaVagas() {
       );
     }
 
-    setFilteredJobs(filtered);
+    // Reagrupar cidades com vagas filtradas
+    const citiesMap = new Map();
+    filtered.forEach(job => {
+      const cityName = job.city;
+      if (cityName && COORDINATES[cityName]) {
+        if (!citiesMap.has(cityName)) {
+          citiesMap.set(cityName, {
+            city: cityName,
+            coords: COORDINATES[cityName],
+            jobs: []
+          });
+        }
+        citiesMap.get(cityName).jobs.push(job);
+      }
+    });
+
+    setFilteredCities(Array.from(citiesMap.values()));
   }, [searchTerm, selectedCategory, selectedType, jobs]);
 
   const clearFilters = () => {
@@ -206,7 +236,7 @@ export default function MapaVagas() {
 
               <div className="flex items-center justify-between">
                 <p className="text-sm text-slate-600">
-                  {filteredJobs.length} vaga{filteredJobs.length !== 1 ? 's' : ''} no mapa
+                  {filteredCities.length} cidade{filteredCities.length !== 1 ? 's' : ''} com vagas
                 </p>
                 {(searchTerm || selectedCategory !== 'all' || selectedType !== 'all') && (
                   <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -236,42 +266,48 @@ export default function MapaVagas() {
               />
               <RecenterMap center={mapCenter} />
               
-              <MarkerClusterGroup chunkedLoading>
-                {filteredJobs.map((job) => (
-                  <Marker
-                    key={job.id}
-                    position={[job.latitude, job.longitude]}
-                  >
-                    <Popup>
-                      <div className="p-2 min-w-[200px]">
-                        <h3 className="font-bold text-sm mb-1">{job.title}</h3>
-                        <p className="text-xs text-slate-600 mb-2 flex items-center gap-1">
-                          <Building2 className="w-3 h-3" />
-                          {job.company || 'Empresa'}
-                        </p>
-                        <div className="flex flex-wrap gap-1 mb-2">
-                          {job.city && (
-                            <Badge variant="secondary" className="text-xs">
-                              <MapPin className="w-2 h-2 mr-1" />
-                              {job.city}
-                            </Badge>
-                          )}
-                          {job.job_type && (
-                            <Badge variant="outline" className="text-xs">
-                              {job.job_type}
-                            </Badge>
-                          )}
-                        </div>
-                        <Link to={createPageUrl('JobDetail') + `?id=${job.id}`}>
-                          <Button size="sm" className="w-full h-8 text-xs bg-[#0056ff] hover:bg-[#0044cc]">
-                            Ver Detalhes
-                          </Button>
-                        </Link>
+              {filteredCities.map((cityData) => (
+                <Marker
+                  key={cityData.city}
+                  position={cityData.coords}
+                >
+                  <Popup maxWidth={300}>
+                    <div className="p-3">
+                      <h3 className="font-bold text-base mb-2 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-blue-600" />
+                        {cityData.city}
+                      </h3>
+                      <Badge className="bg-blue-600 text-white mb-3">
+                        {cityData.jobs.length} vaga{cityData.jobs.length !== 1 ? 's' : ''}
+                      </Badge>
+                      
+                      <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                        {cityData.jobs.slice(0, 5).map((job) => (
+                          <div key={job.id} className="p-2 bg-slate-50 rounded-lg">
+                            <p className="font-medium text-xs line-clamp-1">{job.title}</p>
+                            <p className="text-xs text-slate-500 line-clamp-1">
+                              <Building2 className="w-2 h-2 inline mr-1" />
+                              {job.company}
+                            </p>
+                          </div>
+                        ))}
                       </div>
-                    </Popup>
-                  </Marker>
-                ))}
-              </MarkerClusterGroup>
+                      
+                      {cityData.jobs.length > 5 && (
+                        <p className="text-xs text-slate-400 mt-2">
+                          + {cityData.jobs.length - 5} vagas
+                        </p>
+                      )}
+                      
+                      <Link to={createPageUrl('Jobs') + `?city=${cityData.city}`}>
+                        <Button size="sm" className="w-full mt-3 h-8 bg-[#0056ff] hover:bg-[#0044cc]">
+                          Ver Todas em {cityData.city}
+                        </Button>
+                      </Link>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
 
               {/* User location marker */}
               {userLocation && (

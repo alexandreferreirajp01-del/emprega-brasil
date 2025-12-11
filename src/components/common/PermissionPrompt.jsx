@@ -48,14 +48,14 @@ export default function PermissionPrompt() {
   const subscribePush = async () => {
     setLoading(true);
     
-    // Timeout de segurança (5 segundos)
+    // Timeout de segurança (2 segundos)
     const timeoutId = setTimeout(() => {
-      if (loading) {
-        console.log('Timeout atingido, pulando para próximo passo');
-        setLoading(false);
-        setStep(2);
-      }
-    }, 5000);
+      console.log('Timeout atingido, finalizando setup');
+      localStorage.setItem('vagas_abertas_permissions_v2', 'true');
+      localStorage.setItem('vagas_push_last_prompt', Date.now().toString());
+      setLoading(false);
+      setStep(0);
+    }, 2000);
     
     try {
       // Verificar suporte
@@ -82,11 +82,10 @@ export default function PermissionPrompt() {
       if (permission !== 'granted') {
         console.log('Permissão não concedida:', permission);
         clearTimeout(timeoutId);
-        // Ainda assim marcar como concluído para não ficar perguntando
         localStorage.setItem('vagas_abertas_permissions_v2', 'true');
         localStorage.setItem('vagas_push_last_prompt', Date.now().toString());
         setLoading(false);
-        setStep(2);
+        setStep(0); // Fechar direto
         return;
       }
 
@@ -100,11 +99,12 @@ export default function PermissionPrompt() {
         console.log('SW não disponível, mas permissão concedida');
         clearTimeout(timeoutId);
         localStorage.setItem('vagas_push_subscribed', 'true');
+        localStorage.setItem('vagas_abertas_permissions_v2', 'true');
         setSuccess(true);
         setTimeout(() => {
           setLoading(false);
-          setStep(2);
-        }, 1000);
+          setStep(0);
+        }, 800);
         return;
       }
       
@@ -121,11 +121,12 @@ export default function PermissionPrompt() {
           console.log('Erro ao inscrever, mas permissão ok:', subError);
           clearTimeout(timeoutId);
           localStorage.setItem('vagas_push_subscribed', 'true');
+          localStorage.setItem('vagas_abertas_permissions_v2', 'true');
           setSuccess(true);
           setTimeout(() => {
             setLoading(false);
-            setStep(2);
-          }, 1000);
+            setStep(0);
+          }, 800);
           return;
         }
       }
@@ -145,18 +146,20 @@ export default function PermissionPrompt() {
       
       clearTimeout(timeoutId);
       localStorage.setItem('vagas_push_subscribed', 'true');
+      localStorage.setItem('vagas_abertas_permissions_v2', 'true');
       setSuccess(true);
       
       setTimeout(() => {
         setLoading(false);
-        setStep(2);
-      }, 1000);
+        setStep(0);
+      }, 800);
       
     } catch (error) {
       console.error('Erro geral:', error);
       clearTimeout(timeoutId);
+      localStorage.setItem('vagas_abertas_permissions_v2', 'true');
       setLoading(false);
-      setStep(2);
+      setStep(0);
     }
   };
 

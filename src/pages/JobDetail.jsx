@@ -14,7 +14,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import PremiumModal from "@/components/subscription/PremiumModal";
 
 // Função de fetch robusta

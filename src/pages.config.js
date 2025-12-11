@@ -55,6 +55,7 @@ import MapaVagas from './pages/MapaVagas';
 import Estatisticas from './pages/Estatisticas';
 import PostarNoticias from './pages/PostarNoticias';
 import GerenciarNoticiasLista from './pages/GerenciarNoticiasLista';
+import Ocorrencias from './pages/Ocorrencias';
 import __Layout from './Layout.jsx';
 
 
@@ -116,6 +117,7 @@ export const PAGES = {
     "Estatisticas": Estatisticas,
     "PostarNoticias": PostarNoticias,
     "GerenciarNoticiasLista": GerenciarNoticiasLista,
+    "Ocorrencias": Ocorrencias,
 }
 
 export const pagesConfig = {

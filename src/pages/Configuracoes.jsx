@@ -5,7 +5,7 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -38,6 +38,7 @@ const menuItems = [
   { id: 'postar-noticias', name: 'Postar Notícias', icon: Newspaper, color: 'red', page: 'PostarNoticias', description: 'Criar e publicar notícias', permissionId: 'postar_noticias' },
   { id: 'gerenciar-noticias', name: 'Gerenciar Notícias', icon: Newspaper, color: 'rose', page: 'GerenciarNoticiasLista', description: 'Visualizar e excluir notícias', permissionId: 'gerenciar_noticias' },
   { id: 'divider1', type: 'divider', label: 'Ferramentas' },
+  { id: 'ocorrencias', name: 'Ocorrências', icon: Shield, color: 'orange', page: 'Ocorrencias', description: 'Reportes de vagas e mensagens dos usuários', permissionId: 'ocorrencias' },
   { id: 'estatisticas', name: 'Estatísticas', icon: BarChart3, color: 'purple', page: 'Estatisticas', description: 'Estatísticas e análises de desempenho', permissionId: 'estatisticas' },
   { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
   { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },
