@@ -37,7 +37,7 @@ export default function PostsEmMassa() {
   }, []);
 
   const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files).slice(0, 10);
+    const files = Array.from(e.target.files).slice(0, 25);
     if (files.length === 0) return;
     setUploading(true);
     const uploaded = [];
@@ -188,7 +188,7 @@ export default function PostsEmMassa() {
                     <Upload className="w-5 h-5" />
                     Upload
                   </span>
-                  <Badge variant="outline">{images.length}/10</Badge>
+                  <Badge variant="outline">{images.length}/25</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -200,7 +200,7 @@ export default function PostsEmMassa() {
                     className="hidden"
                     id="mass-upload"
                     onChange={handleImageUpload}
-                    disabled={uploading || images.length >= 10}
+                    disabled={uploading || images.length >= 25}
                   />
                   <label htmlFor="mass-upload" className="cursor-pointer">
                     {uploading ? (
@@ -211,7 +211,7 @@ export default function PostsEmMassa() {
                     <p className="text-slate-600 font-medium mb-1">
                       {uploading ? 'Carregando...' : 'Clique para selecionar'}
                     </p>
-                    <p className="text-slate-400 text-sm">Até 10 imagens</p>
+                    <p className="text-slate-400 text-sm">Até 25 imagens</p>
                   </label>
                 </div>
 
