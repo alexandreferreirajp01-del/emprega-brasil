@@ -24,12 +24,10 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
   const [editForm, setEditForm] = useState({ 
-    full_name: '',
-    username: '',
+    full_name: '', 
     phone: '', 
     city: '', 
     state: 'PB',
-    bio: '',
     password: ''
   });
 
@@ -46,11 +44,9 @@ export default function Profile() {
       // Atualizar formulário de edição com os dados atuais
       setEditForm({
         full_name: userData.full_name || '',
-        username: userData.username || '',
         phone: userData.phone || '',
         city: userData.city || '',
         state: userData.state || 'PB',
-        bio: userData.bio || '',
         password: ''
       });
       return userData;
@@ -110,11 +106,9 @@ export default function Profile() {
       // Atualizar formulário
       setEditForm({
         full_name: freshUser.full_name || '',
-        username: freshUser.username || '',
         phone: freshUser.phone || '',
         city: freshUser.city || '',
         state: freshUser.state || 'PB',
-        bio: freshUser.bio || '',
         password: ''
       });
       
@@ -137,11 +131,9 @@ export default function Profile() {
     // Preparar dados para atualização
     const updateData = {
       full_name: editForm.full_name.trim(),
-      username: editForm.username.trim().toLowerCase(),
       phone: editForm.phone.trim() || '',
       city: editForm.city.trim() || '',
-      state: editForm.state.trim().toUpperCase() || 'PB',
-      bio: editForm.bio.trim() || ''
+      state: editForm.state.trim().toUpperCase() || 'PB'
     };
     
     // Adicionar senha apenas se foi preenchida
@@ -160,11 +152,9 @@ export default function Profile() {
     if (user) {
       setEditForm({
         full_name: user.full_name || '',
-        username: user.username || '',
         phone: user.phone || '',
         city: user.city || '',
         state: user.state || 'PB',
-        bio: user.bio || '',
         password: ''
       });
     }
@@ -174,11 +164,9 @@ export default function Profile() {
   // Verificar se houve mudanças no formulário (dirty check)
   const hasChanges = user && (
     editForm.full_name.trim() !== (user.full_name || '') ||
-    editForm.username.trim() !== (user.username || '') ||
     editForm.phone.trim() !== (user.phone || '') ||
     editForm.city.trim() !== (user.city || '') ||
     editForm.state.trim().toUpperCase() !== (user.state || 'PB').toUpperCase() ||
-    editForm.bio.trim() !== (user.bio || '') ||
     (editForm.password && editForm.password.trim().length > 0)
   );
 
@@ -276,17 +264,6 @@ export default function Profile() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Nome de Usuário (Login)</Label>
-                  <Input 
-                    value={editForm.username} 
-                    onChange={(e) => setEditForm({ ...editForm, username: e.target.value.toLowerCase() })} 
-                    placeholder="seu_usuario" 
-                    className="rounded-xl h-11" 
-                  />
-                  <p className="text-xs text-slate-500">Usado para fazer login</p>
-                </div>
-
-                <div className="space-y-2">
                   <Label>E-mail</Label>
                   <Input 
                     value={user?.email} 
@@ -326,16 +303,6 @@ export default function Profile() {
                       className="rounded-xl h-11" 
                     />
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Biografia</Label>
-                  <Input 
-                    value={editForm.bio} 
-                    onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })} 
-                    placeholder="Conte um pouco sobre você" 
-                    className="rounded-xl h-11" 
-                  />
                 </div>
 
                 <div className="space-y-2">
