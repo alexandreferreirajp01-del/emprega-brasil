@@ -38,21 +38,25 @@ export default function Subscription() {
   };
 
   const handleChooseBasic = async () => {
-    localStorage.removeItem('vagas_abertas_visitor_mode');
-    
-    try {
-      const isAuthenticated = await base44.auth.isAuthenticated();
-      if (isAuthenticated) {
-        await base44.auth.updateMe({ subscription_type: 'basic' });
-        window.location.href = createPageUrl('Home');
-      } else {
+    scrollToBottom();
+    setTimeout(async () => {
+      try {
+        const isAuthenticated = await base44.auth.isAuthenticated();
+        if (isAuthenticated) {
+          await base44.auth.updateMe({ 
+            subscription_type: 'basic',
+            basic_activated_at: new Date().toISOString()
+          });
+          window.location.href = createPageUrl('Home');
+        } else {
+          localStorage.setItem('pending_subscription', 'basic');
+          base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
+        }
+      } catch (e) {
         localStorage.setItem('pending_subscription', 'basic');
         base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
       }
-    } catch (e) {
-      localStorage.setItem('pending_subscription', 'basic');
-      base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
-    }
+    }, 600);
   };
 
   const basicFeatures = [

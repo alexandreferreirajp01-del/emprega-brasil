@@ -37,6 +37,7 @@ const menuItems = [
   { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'amber', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos', permissionId: 'biblioteca_admin' },
   { id: 'noticias', name: 'Gerenciar Notícias', icon: Newspaper, color: 'red', page: 'GerenciarNoticias', description: 'Publicar e gerenciar notícias', permissionId: 'noticias' },
   { id: 'divider1', type: 'divider', label: 'Ferramentas' },
+  { id: 'estatisticas', name: 'Estatísticas', icon: BarChart3, color: 'purple', page: 'Estatisticas', description: 'Estatísticas e análises de desempenho', permissionId: 'estatisticas' },
   { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
   { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },
   { id: 'feed', name: 'Feed', icon: MessageCircle, color: 'purple', page: 'Feed', description: 'Gerenciar posts do feed', permissionId: 'feed' },
