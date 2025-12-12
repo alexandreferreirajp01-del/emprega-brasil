@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, MapPin, Calendar, Building2, Briefcase, 
-  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, AlertCircle
+  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, AlertTriangle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -264,7 +264,7 @@ export default function JobDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
       </div>
     );
   }
@@ -283,7 +283,7 @@ export default function JobDetail() {
               Tentar novamente
             </Button>
             <Link to={createPageUrl('Jobs')}>
-              <Button className="bg-[#0056ff]">Voltar para vagas</Button>
+              <Button className="bg-[#0A66C2] hover:bg-[#004182]">Voltar para vagas</Button>
             </Link>
           </div>
         </div>
@@ -295,7 +295,7 @@ export default function JobDetail() {
   if (!canViewJob()) {
     return (
       <div className="min-h-screen bg-slate-50 pb-20">
-        <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-12 px-4">
+        <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-12 px-4">
           <div className="max-w-4xl mx-auto">
             <Link to={createPageUrl('Jobs')} className="inline-flex items-center text-white/80 hover:text-white mb-6">
               <ArrowLeft className="w-5 h-5 mr-2" />
@@ -306,7 +306,7 @@ export default function JobDetail() {
         <div className="max-w-4xl mx-auto px-4 -mt-6">
           <Card className="shadow-xl rounded-2xl overflow-hidden relative">
             <div className="absolute inset-0 backdrop-blur-md bg-white/70 z-10 flex flex-col items-center justify-center p-8">
-              <Lock className="w-16 h-16 text-[#0056ff] mb-4" />
+              <Lock className="w-16 h-16 text-[#0A66C2] mb-4" />
               <h2 className="text-2xl font-bold text-slate-800 mb-2 text-center">Conteúdo Exclusivo</h2>
               <p className="text-slate-600 text-center mb-6 max-w-md">
                 Esta vaga é exclusiva para assinantes Premium.
@@ -314,7 +314,7 @@ export default function JobDetail() {
               <Button 
                 size="lg" 
                 onClick={() => setShowPremiumModal(true)}
-                className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl px-8"
+                className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl px-8"
               >
                 Adquira o Plano
               </Button>
@@ -336,7 +336,7 @@ export default function JobDetail() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-12 px-4">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-12 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to={createPageUrl('Jobs')} className="inline-flex items-center text-white/80 hover:text-white mb-6">
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -384,10 +384,10 @@ export default function JobDetail() {
                     variant="outline"
                     size="icon"
                     onClick={() => setShowReportDialog(true)}
-                    className="rounded-full text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                    className="rounded-full text-orange-600 hover:text-orange-700 hover:bg-orange-50 border-orange-200"
                     title="Reportar Vaga"
                   >
-                    <AlertCircle className="w-5 h-5" />
+                    <AlertTriangle className="w-5 h-5" />
                   </Button>
                 </div>
               </div>
@@ -404,7 +404,7 @@ export default function JobDetail() {
             {/* Badges */}
             <div className="flex flex-wrap gap-3 mb-8">
               {job.city && (
-                <Badge className="bg-[#0056ff]/10 text-[#0056ff] border-0 px-4 py-2 text-sm rounded-full">
+                <Badge className="bg-[#0A66C2]/10 text-[#0A66C2] border-0 px-4 py-2 text-sm rounded-full">
                   <MapPin className="w-4 h-4 mr-2" />
                   {job.city}
                 </Badge>
@@ -533,7 +533,7 @@ export default function JobDetail() {
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-orange-500" />
+              <AlertTriangle className="w-5 h-5 text-orange-500" />
               Reportar Problema
             </DialogTitle>
           </DialogHeader>

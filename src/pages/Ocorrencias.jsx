@@ -151,16 +151,28 @@ export default function Ocorrencias() {
           <CardContent className="p-3 md:p-4">
             <Tabs value={filter} onValueChange={setFilter}>
               <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-2 rounded-xl h-auto bg-transparent p-0">
-                <TabsTrigger value="pending" className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-yellow-100 data-[state=active]:text-yellow-700">
+                <TabsTrigger 
+                  value="pending" 
+                  className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-yellow-100 data-[state=active]:text-yellow-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm"
+                >
                   Pendentes ({occurrences.filter(o => o.status === 'pending').length})
                 </TabsTrigger>
-                <TabsTrigger value="answered" className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-green-100 data-[state=active]:text-green-700">
+                <TabsTrigger 
+                  value="answered" 
+                  className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-green-100 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm"
+                >
                   Respondidas ({occurrences.filter(o => o.status === 'answered').length})
                 </TabsTrigger>
-                <TabsTrigger value="resolved" className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">
+                <TabsTrigger 
+                  value="resolved" 
+                  className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm"
+                >
                   Resolvidas ({occurrences.filter(o => o.status === 'resolved').length})
                 </TabsTrigger>
-                <TabsTrigger value="all" className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-700">
+                <TabsTrigger 
+                  value="all" 
+                  className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-slate-200 data-[state=active]:text-slate-800 data-[state=active]:font-semibold data-[state=active]:shadow-sm"
+                >
                   Todas ({occurrences.length})
                 </TabsTrigger>
               </TabsList>
