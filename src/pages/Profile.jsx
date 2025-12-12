@@ -72,8 +72,8 @@ export default function Profile() {
   const updatePhotoMutation = useMutation({
     mutationFn: async (file) => {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      await base44.auth.updateMe({ profile_photo: file_url });
-      return file_url;
+      const response = await base44.functions.invoke('updateProfile', { photo_url: file_url });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
@@ -94,11 +94,11 @@ export default function Profile() {
   // Mutation para atualizar perfil
   const updateProfileMutation = useMutation({
     mutationFn: async (data) => {
-      // Atualizar no banco de dados
-      await base44.auth.updateMe(data);
+      // Usar função backend personalizada que preserva dados do usuário
+      const response = await base44.functions.invoke('updateProfile', data);
       
       // Aguardar processamento
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       // Buscar dados atualizados do servidor
       const freshUser = await base44.auth.me();
