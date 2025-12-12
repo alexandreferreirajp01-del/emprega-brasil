@@ -355,7 +355,7 @@ export default function Jobs() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-[#F3F2EF] pb-20">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-8 px-4">
         <div className="max-w-6xl mx-auto">
@@ -410,7 +410,7 @@ export default function Jobs() {
               <div className="flex items-center gap-3">
                 <span className="text-sm font-semibold text-slate-700">Filtrar:</span>
                 {activeFiltersCount > 0 && (
-                  <Badge className="bg-blue-100 text-blue-700 border-0 text-xs">
+                  <Badge className="bg-[#0A66C2]/10 text-[#0A66C2] border-0 text-xs">
                     {activeFiltersCount}
                   </Badge>
                 )}

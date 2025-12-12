@@ -32,8 +32,8 @@ export default function Utilidades() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
       </div>
     );
   }
@@ -67,8 +67,8 @@ export default function Utilidades() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 pt-6 pb-4 px-4">
+    <div className="min-h-screen bg-[#F3F2EF] pb-20">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-4 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold text-white">Utilidades</h1>
           <p className="text-white/70 text-sm">Recursos profissionais para sua carreira</p>
@@ -79,11 +79,11 @@ export default function Utilidades() {
         {hasPremiumAccess ? (
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="w-full bg-white shadow rounded-xl p-1 grid grid-cols-2">
-              <TabsTrigger value="biblioteca" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              <TabsTrigger value="biblioteca" className="rounded-lg data-[state=active]:bg-[#0A66C2] data-[state=active]:text-white">
                 <BookOpen className="w-4 h-4 mr-2" />
                 Biblioteca
               </TabsTrigger>
-              <TabsTrigger value="ferramentas" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              <TabsTrigger value="ferramentas" className="rounded-lg data-[state=active]:bg-[#0A66C2] data-[state=active]:text-white">
                 <Wrench className="w-4 h-4 mr-2" />
                 Ferramentas
               </TabsTrigger>

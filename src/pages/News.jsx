@@ -48,7 +48,7 @@ export default function News() {
 
 
   return (
-    <div className="min-h-screen bg-white pb-20">
+    <div className="min-h-screen bg-[#F3F2EF] pb-20">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] py-3 px-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -63,7 +63,7 @@ export default function News() {
       </div>
       
       {/* Search Bar */}
-      <div className="bg-slate-100 py-4 px-4 border-b">
+      <div className="bg-white py-4 px-4 border-b">
         <div className="max-w-6xl mx-auto">
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />

@@ -178,8 +178,8 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
+      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
       </div>
     );
   }
@@ -208,14 +208,14 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-[#F3F2EF] pb-20">
       <AnimatePresence>
         {toast && (
           <motion.div
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
-            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'} text-white`}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl ${toast.type === 'error' ? 'bg-[#C30000]' : 'bg-[#057642]'} text-white`}
           >
             <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5" />
@@ -225,7 +225,7 @@ export default function Profile() {
         )}
       </AnimatePresence>
 
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-8 pb-20 px-4">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-8 pb-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
         </div>
@@ -238,11 +238,11 @@ export default function Profile() {
               <div className="relative mb-4">
                 <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-white shadow-lg">
                   <AvatarImage src={user?.profile_photo} />
-                  <AvatarFallback className="bg-[#0056ff] text-white text-2xl sm:text-3xl">
+                  <AvatarFallback className="bg-[#0A66C2] text-white text-2xl sm:text-3xl">
                     {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <label className="absolute bottom-0 right-0 w-9 h-9 sm:w-10 sm:h-10 bg-[#0056ff] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#0044cc]">
+                <label className="absolute bottom-0 right-0 w-9 h-9 sm:w-10 sm:h-10 bg-[#0A66C2] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#004182]">
                   <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={updatePhotoMutation.isPending} />
                 </label>
@@ -329,7 +329,7 @@ export default function Profile() {
                   <Button 
                     onClick={handleSaveProfile} 
                     disabled={updateProfileMutation.isPending || !hasChanges} 
-                    className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl flex-1 h-11 disabled:opacity-50"
+                    className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl flex-1 h-11 disabled:opacity-50"
                   >
                     {updateProfileMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                     Salvar
@@ -399,13 +399,13 @@ export default function Profile() {
               {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.subscription_type !== 'dono' && user?.role !== 'admin' && (
                 <Button 
                   onClick={() => setShowPremiumModal(true)}
-                  className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl"
+                  className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
                 >
                   <Crown className="w-5 h-5 mr-2" />
                   {user?.subscription_type === 'basic' ? 'Upgrade para Premium' : 'Assinar Plano'}
                 </Button>
               )}
-              <Button variant="outline" className="w-full h-12 rounded-xl text-red-600 border-red-200 hover:bg-red-50" onClick={handleLogout}>
+              <Button variant="outline" className="w-full h-12 rounded-xl text-[#C30000] border-red-200 hover:bg-red-50" onClick={handleLogout}>
                 <LogOut className="w-5 h-5 mr-2" />Sair da Conta
               </Button>
             </div>

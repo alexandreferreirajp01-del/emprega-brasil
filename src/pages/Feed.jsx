@@ -101,15 +101,15 @@ export default function Feed() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-purple-600 to-purple-700 pt-6 pb-4 px-4">
+    <div className="min-h-screen bg-[#F3F2EF] pb-20">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-4 px-4">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold text-white">Feed</h1>
           <p className="text-white/70 text-sm">Compartilhe e conecte-se</p>
@@ -123,7 +123,7 @@ export default function Feed() {
             <div className="flex gap-3">
               <Avatar className="w-10 h-10">
                 <AvatarImage src={user?.profile_photo} />
-                <AvatarFallback className="bg-purple-100 text-purple-700">
+                <AvatarFallback className="bg-[#0A66C2]/10 text-[#0A66C2]">
                   {user?.full_name?.[0] || 'U'}
                 </AvatarFallback>
               </Avatar>
@@ -170,7 +170,7 @@ export default function Feed() {
                   <Button
                     onClick={handlePublicar}
                     disabled={criarPostMutation.isPending || (!novoPost.trim() && !imagens.length)}
-                    className="bg-purple-600 hover:bg-purple-700 rounded-lg"
+                    className="bg-[#0A66C2] hover:bg-[#004182] rounded-lg"
                   >
                     {criarPostMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
                     Publicar
@@ -184,7 +184,7 @@ export default function Feed() {
         {/* Lista de Posts */}
         {loadingPosts ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#0A66C2]" />
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-12 text-slate-500">
