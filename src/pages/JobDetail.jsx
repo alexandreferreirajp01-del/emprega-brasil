@@ -9,8 +9,16 @@ import {
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import PremiumModal from "@/components/subscription/PremiumModal";
-import ReportJobModal from "@/components/jobs/ReportJobModal";
 
 // Função de fetch robusta
 async function safeFetch(fetchFn, fallback = null) {
@@ -70,7 +78,10 @@ export default function JobDetail() {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [showReportModal, setShowReportModal] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [reportSubject, setReportSubject] = useState('');
+  const [reportMessage, setReportMessage] = useState('');
+  const [sendingReport, setSendingReport] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   
   const urlParams = new URLSearchParams(window.location.search);
@@ -224,6 +235,31 @@ export default function JobDetail() {
 
   const handleRetry = () => setRefreshKey(k => k + 1);
 
+  const handleSendReport = async () => {
+    if (!reportSubject.trim() || !reportMessage.trim()) return;
+    
+    setSendingReport(true);
+    try {
+      await base44.entities.Occurrence.create({
+        user_email: user?.email || 'visitante@email.com',
+        user_name: user?.full_name || 'Visitante',
+        job_id: jobId,
+        job_title: job?.title || '',
+        subject: reportSubject.trim(),
+        message: reportMessage.trim(),
+        status: 'pending'
+      });
+
+      setShowReportDialog(false);
+      setReportSubject('');
+      setReportMessage('');
+    } catch (error) {
+      console.error('Erro ao reportar:', error);
+    } finally {
+      setSendingReport(false);
+    }
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -347,7 +383,7 @@ export default function JobDetail() {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => setShowReportModal(true)}
+                    onClick={() => setShowReportDialog(true)}
                     className="rounded-full text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                     title="Reportar Vaga"
                   >
@@ -492,13 +528,63 @@ export default function JobDetail() {
         }}
       />
 
-      {/* Report Modal */}
-      <ReportJobModal
-        isOpen={showReportModal}
-        onClose={() => setShowReportModal(false)}
-        job={job}
-        user={user || { email: 'visitante@email.com', full_name: 'Visitante' }}
-      />
+      {/* Report Dialog */}
+      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-orange-500" />
+              Reportar Problema
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <Label htmlFor="report-subject">Assunto *</Label>
+              <Input
+                id="report-subject"
+                value={reportSubject}
+                onChange={(e) => setReportSubject(e.target.value)}
+                placeholder="Ex: Vaga falsa, dados incorretos..."
+                className="mt-1 rounded-xl"
+                maxLength={100}
+              />
+            </div>
+            <div>
+              <Label htmlFor="report-message">Mensagem * (máx. 1000 caracteres)</Label>
+              <Textarea
+                id="report-message"
+                value={reportMessage}
+                onChange={(e) => setReportMessage(e.target.value.slice(0, 1000))}
+                placeholder="Descreva o problema..."
+                className="mt-1 min-h-[120px] rounded-xl"
+                maxLength={1000}
+              />
+              <p className="text-xs text-slate-500 mt-1">{reportMessage.length}/1000</p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowReportDialog(false);
+                  setReportSubject('');
+                  setReportMessage('');
+                }}
+                disabled={sendingReport}
+                className="flex-1 rounded-xl"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleSendReport}
+                disabled={!reportSubject.trim() || !reportMessage.trim() || sendingReport}
+                className="flex-1 rounded-xl bg-orange-600 hover:bg-orange-700"
+              >
+                {sendingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Enviar'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

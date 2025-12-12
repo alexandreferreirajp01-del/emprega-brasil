@@ -168,6 +168,42 @@ export default function Ocorrencias() {
           </CardContent>
         </Card>
 
+        {/* Estatísticas rápidas */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+          <Card className="rounded-xl">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-yellow-600">
+                {occurrences.filter(o => o.status === 'pending').length}
+              </div>
+              <p className="text-xs text-slate-600 mt-1">Pendentes</p>
+            </CardContent>
+          </Card>
+          <Card className="rounded-xl">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {occurrences.filter(o => o.status === 'answered').length}
+              </div>
+              <p className="text-xs text-slate-600 mt-1">Respondidas</p>
+            </CardContent>
+          </Card>
+          <Card className="rounded-xl">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {occurrences.filter(o => o.status === 'resolved').length}
+              </div>
+              <p className="text-xs text-slate-600 mt-1">Resolvidas</p>
+            </CardContent>
+          </Card>
+          <Card className="rounded-xl">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-slate-600">
+                {occurrences.length}
+              </div>
+              <p className="text-xs text-slate-600 mt-1">Total</p>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Lista de Ocorrências */}
         {selectedOccurrence ? (
           <Card className="rounded-2xl shadow-lg">
