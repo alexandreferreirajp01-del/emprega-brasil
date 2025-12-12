@@ -24,8 +24,11 @@ html, body, #root, [translate="no"], .notranslate, [data-translate="no"] {
   --sar: env(safe-area-inset-right);
   --sab: env(safe-area-inset-bottom);
   --sal: env(safe-area-inset-left);
-  
-  /* LinkedIn Brand Colors */
+
+  /* LinkedIn Brand Colors - Unified */
+  --primary: #0A66C2;
+  --primary-dark: #004182;
+  --primary-light: #378FE9;
   --linkedin-blue: #0A66C2;
   --linkedin-blue-dark: #004182;
   --linkedin-black: #1D2226;
@@ -35,6 +38,11 @@ html, body, #root, [translate="no"], .notranslate, [data-translate="no"] {
   --linkedin-success: #057642;
   --linkedin-warning: #F9C846;
   --linkedin-error: #C30000;
+
+  /* Force color consistency across browsers */
+  color-scheme: light;
+  forced-color-adjust: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Base styles - Cross-browser compatibility */
@@ -44,7 +52,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #F3F2EF;
   overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch; /* Safari smooth scroll */
+  -webkit-overflow-scrolling: touch;
+  forced-color-adjust: none;
+  color-scheme: light;
+}
+
+/* Force consistent colors in all browsers */
+* {
+  forced-color-adjust: none !important;
+}
+
+/* Prevent Safari from auto-adjusting colors */
+@supports (-webkit-appearance: none) {
+  body {
+    -webkit-appearance: none;
+  }
 }
 
 /* Flexbox Safari fix */

@@ -186,6 +186,10 @@ export default function Layout({ children, currentPageName }) {
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       <meta name="theme-color" content="#0A66C2" />
+      <meta name="theme-color" media="(prefers-color-scheme: light)" content="#0A66C2" />
+      <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A66C2" />
+      <meta name="msapplication-navbutton-color" content="#0A66C2" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="#0A66C2" />
       <meta name="application-name" content="Vagas Abertas PB" />
       <meta name="apple-mobile-web-app-title" content="Vagas Abertas PB" />
       {/* Bloqueio total de tradução - todos os navegadores */}
@@ -199,6 +203,17 @@ export default function Layout({ children, currentPageName }) {
           --sar: env(safe-area-inset-right, 0px);
           --sab: env(safe-area-inset-bottom, 0px);
           --sal: env(safe-area-inset-left, 0px);
+          --primary-color: #0A66C2;
+        }
+
+        /* Force primary color consistency */
+        .bg-primary,
+        [class*="bg-blue"],
+        [class*="bg-indigo"],
+        [style*="background: blue"],
+        [style*="background: rgb(0, 86, 255)"] {
+          background-color: #0A66C2 !important;
+          background-image: none !important;
         }
         
         .safe-area-top { padding-top: var(--sat); }

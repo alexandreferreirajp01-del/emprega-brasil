@@ -75,7 +75,7 @@ export default function Splash() {
   // Tela de carregamento
   if (status === 'checking') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-[#0A66C2] flex flex-col items-center justify-center">
         <Loader2 className="w-12 h-12 text-white animate-spin mb-4" />
         <p className="text-white/80 text-sm font-medium">Carregando...</p>
       </div>
@@ -84,7 +84,7 @@ export default function Splash() {
 
   // Tela de login
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] flex flex-col items-center justify-start pt-12 px-4 pb-8">
+    <div className="min-h-screen bg-[#0A66C2] flex flex-col items-center justify-start pt-12 px-4 pb-8">
       {/* Logo e Nome */}
       <div className="text-center mb-8">
         <div className="w-20 h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-4">
@@ -138,7 +138,7 @@ export default function Splash() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl text-base font-semibold"
+              className="w-full h-12 bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl text-base font-semibold"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -163,7 +163,7 @@ export default function Splash() {
             type="button"
             variant="outline"
             onClick={handleGoogleLogin}
-            className="w-full h-12 rounded-xl border-slate-300 hover:bg-slate-50 text-base font-medium"
+            className="w-full h-12 rounded-xl border-white/30 bg-white/10 hover:bg-white/20 text-white text-base font-medium"
           >
             <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -176,7 +176,7 @@ export default function Splash() {
 
           {/* Links de recuperação */}
           <div className="flex justify-center gap-4 text-sm">
-            <Link to={createPageUrl('ForgotPassword')} className="text-[#0056ff] hover:underline">
+            <Link to={createPageUrl('ForgotPassword')} className="text-white/80 hover:text-white hover:underline">
               Esqueci minha senha
             </Link>
           </div>
@@ -186,7 +186,7 @@ export default function Splash() {
             type="button"
             variant="ghost"
             onClick={handleVisitorLogin}
-            className="w-full h-12 rounded-xl text-slate-600 hover:bg-slate-100 text-base font-medium"
+            className="w-full h-12 rounded-xl text-white/80 hover:text-white hover:bg-white/10 text-base font-medium"
           >
             <Briefcase className="w-5 h-5 mr-2 text-slate-400" />
             Entrar como Visitante
@@ -196,20 +196,20 @@ export default function Splash() {
           <Link to={createPageUrl('Register')}>
             <Button
               type="button"
-              className="w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white text-base font-semibold"
+              className="w-full h-12 rounded-xl bg-white text-[#0A66C2] hover:bg-white/90 text-base font-semibold"
             >
               Criar Cadastro
             </Button>
           </Link>
 
           {/* Texto informativo */}
-          <p className="text-center text-xs text-slate-400 pt-2">
+          <p className="text-center text-xs text-white/60 pt-2">
             Ao entrar, você concorda com nossos{' '}
-            <a href={createPageUrl('Terms')} className="text-[#0056ff] hover:underline">
+            <a href={createPageUrl('Terms')} className="text-white/80 hover:text-white hover:underline">
               Termos de Uso
             </a>{' '}
             e{' '}
-            <a href={createPageUrl('Privacy')} className="text-[#0056ff] hover:underline">
+            <a href={createPageUrl('Privacy')} className="text-white/80 hover:text-white hover:underline">
               Política de Privacidade
             </a>
           </p>
