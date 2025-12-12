@@ -194,21 +194,51 @@ export default function Profile() {
 
   const getSubscriptionBadge = () => {
     if (isDono) {
-      return <Badge className="bg-gradient-to-r from-purple-600 to-purple-700 text-white border-0 px-4 py-1"><Crown className="w-4 h-4 mr-2" />Dono</Badge>;
+      return (
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200">
+          <Crown className="w-4 h-4 text-purple-600" />
+          <span className="text-sm font-medium text-purple-700">Dono</span>
+        </div>
+      );
     }
     if (isAdmin) {
-      return <Badge className="bg-purple-100 text-purple-700 border-0 px-4 py-1"><Shield className="w-4 h-4 mr-2" />Administrador</Badge>;
+      return (
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-50 border border-purple-200">
+          <Shield className="w-4 h-4 text-purple-600" />
+          <span className="text-sm font-medium text-purple-700">Administrador</span>
+        </div>
+      );
     }
     if (isRecruiter) {
-      return <Badge className="bg-blue-100 text-blue-700 border-0 px-4 py-1"><Briefcase className="w-4 h-4 mr-2" />Recrutador</Badge>;
+      return (
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200">
+          <Briefcase className="w-4 h-4 text-blue-600" />
+          <span className="text-sm font-medium text-blue-700">Recrutador</span>
+        </div>
+      );
     }
     if (user?.subscription_type === 'premium') {
-      return <Badge className="bg-green-100 text-green-700 border-0 px-4 py-1"><Crown className="w-4 h-4 mr-2" />Membro Premium</Badge>;
+      return (
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200">
+          <Crown className="w-4 h-4 text-amber-600" />
+          <span className="text-sm font-medium text-amber-700">Premium</span>
+        </div>
+      );
     }
     if (user?.subscription_type === 'basic') {
-      return <Badge className="bg-blue-100 text-blue-700 border-0 px-4 py-1"><User className="w-4 h-4 mr-2" />Membro Básico</Badge>;
+      return (
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200">
+          <User className="w-4 h-4 text-slate-600" />
+          <span className="text-sm font-medium text-slate-700">Básico</span>
+        </div>
+      );
     }
-    return <Badge className="bg-slate-100 text-slate-600 border-0 px-4 py-1"><User className="w-4 h-4 mr-2" />Visitante</Badge>;
+    return (
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200">
+        <User className="w-4 h-4 text-slate-500" />
+        <span className="text-sm font-medium text-slate-600">Visitante</span>
+      </div>
+    );
   };
 
   return (
