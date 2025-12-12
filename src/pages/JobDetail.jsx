@@ -9,15 +9,8 @@ import {
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import PremiumModal from "@/components/subscription/PremiumModal";
+import ReportJobModal from "@/components/jobs/ReportJobModal";
 
 // Função de fetch robusta
 async function safeFetch(fetchFn, fallback = null) {
@@ -77,6 +70,7 @@ export default function JobDetail() {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   
   const urlParams = new URLSearchParams(window.location.search);
@@ -230,43 +224,6 @@ export default function JobDetail() {
 
   const handleRetry = () => setRefreshKey(k => k + 1);
 
-  const handleSendReport = async () => {
-    if (!reportData.subject || !reportData.message) {
-      alert('Preencha todos os campos');
-      return;
-    }
-
-    setSendingReport(true);
-    try {
-      await base44.entities.Occurrence.create({
-        user_email: user?.email || 'visitante@email.com',
-        user_name: user?.full_name || 'Visitante',
-        job_id: jobId,
-        job_title: job?.title || '',
-        subject: reportData.subject,
-        message: reportData.message,
-        status: 'pending'
-      });
-
-      // Notificar admin
-      await base44.entities.Notification.create({
-        user_email: 'alexandreferreirajp01@gmail.com',
-        title: 'Nova Ocorrência Reportada',
-        message: `${user?.full_name || 'Visitante'} reportou a vaga "${job?.title}": ${reportData.subject}`,
-        type: 'system',
-        is_read: false
-      });
-
-      alert('Ocorrência enviada com sucesso!');
-      setShowReportDialog(false);
-      setReportData({ subject: '', message: '' });
-    } catch (error) {
-      alert('Erro ao enviar ocorrência');
-    } finally {
-      setSendingReport(false);
-    }
-  };
-
   // Loading state
   if (isLoading) {
     return (
@@ -390,7 +347,7 @@ export default function JobDetail() {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => setShowReportDialog(true)}
+                    onClick={() => setShowReportModal(true)}
                     className="rounded-full text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                     title="Reportar Vaga"
                   >
@@ -535,43 +492,13 @@ export default function JobDetail() {
         }}
       />
 
-      {/* Report Dialog */}
-      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Reportar Vaga</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Assunto *</Label>
-              <Input
-                value={reportData.subject}
-                onChange={(e) => setReportData({ ...reportData, subject: e.target.value })}
-                placeholder="Ex: Vaga falsa, informações incorretas..."
-                className="mt-1 rounded-xl"
-              />
-            </div>
-            <div>
-              <Label>Mensagem * (máx. 1000 caracteres)</Label>
-              <Textarea
-                value={reportData.message}
-                onChange={(e) => setReportData({ ...reportData, message: e.target.value.slice(0, 1000) })}
-                placeholder="Descreva o problema..."
-                className="mt-1 min-h-[150px] rounded-xl"
-                maxLength={1000}
-              />
-              <p className="text-xs text-slate-500 mt-1">{reportData.message.length}/1000</p>
-            </div>
-            <Button
-              onClick={handleSendReport}
-              disabled={!reportData.subject || !reportData.message || sendingReport}
-              className="w-full rounded-xl bg-orange-600 hover:bg-orange-700"
-            >
-              {sendingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Enviar Reporte'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Report Modal */}
+      <ReportJobModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        job={job}
+        user={user || { email: 'visitante@email.com', full_name: 'Visitante' }}
+      />
     </div>
   );
 }
