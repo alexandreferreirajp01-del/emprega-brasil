@@ -128,10 +128,10 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#F3F2EF]">
       <VisitTracker pageName="Home" user={user} />
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-60 h-60 bg-white rounded-full blur-3xl"></div>
@@ -152,11 +152,11 @@ export default function Home() {
 
                   <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
                     <Link to={createPageUrl('Jobs')}>
-                      <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-white text-[#0056ff] hover:bg-white/90 rounded-xl shadow-lg w-full sm:w-auto">
-                        <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                        Buscar Vagas
-                      </Button>
-                    </Link>
+                        <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl shadow-lg w-full sm:w-auto">
+                          <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                          Buscar Vagas
+                        </Button>
+                      </Link>
                     {isVisitor && (
                       <Link to={createPageUrl('Splash')}>
                         <Button variant="outline" className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg border-white text-white hover:bg-white/10 rounded-xl w-full sm:w-auto">
@@ -405,7 +405,7 @@ export default function Home() {
               {/* View All Link */}
               <div className="p-3 border-t bg-slate-50">
                 <Link to={createPageUrl(activeTab === 'jobs' ? 'Jobs' : activeTab === 'news' ? 'News' : 'Feed')}>
-                  <Button variant="ghost" className="w-full text-[#0056ff] hover:bg-blue-50 rounded-xl">
+                  <Button variant="ghost" className="w-full text-[#0A66C2] hover:bg-blue-50 rounded-xl">
                     Ver Todos <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
@@ -414,7 +414,7 @@ export default function Home() {
 
             {/* Banner Parcerias */}
             <Card 
-              className="rounded-2xl border-0 shadow-lg bg-gradient-to-r from-[#0056ff] to-[#0044cc] cursor-pointer hover:shadow-xl transition-all"
+              className="rounded-2xl border-0 shadow-lg bg-gradient-to-r from-[#0A66C2] to-[#004182] cursor-pointer hover:shadow-xl transition-all"
               onClick={() => window.location.href = createPageUrl('Parcerias')}
             >
               <CardContent className="p-6 flex items-center justify-between">
@@ -433,7 +433,7 @@ export default function Home() {
 
             {/* Premium CTA - apenas para visitantes e básicos */}
             {(isVisitor || !user || (user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.role !== 'admin')) && (
-              <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#0056ff] to-[#003399] text-white overflow-hidden">
+              <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#0A66C2] to-[#004182] text-white overflow-hidden">
                 <CardContent className="p-6 text-center relative">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
                   <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
@@ -447,7 +447,7 @@ export default function Home() {
                   </div>
                   <Button 
                     onClick={() => setShowPremiumModal(true)}
-                    className="w-full bg-white text-[#0056ff] hover:bg-white/90 rounded-xl"
+                    className="w-full bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl"
                   >
                     Assinar Agora
                   </Button>
@@ -462,8 +462,8 @@ export default function Home() {
             {/* Join Community */}
             <Card className="rounded-2xl border-0 shadow-lg">
               <CardContent className="p-6 text-center">
-                <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <MessageCircle className="w-7 h-7 text-green-600" />
+                <div className="w-14 h-14 bg-[#057642]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <MessageCircle className="w-7 h-7 text-[#057642]" />
                 </div>
                 <h3 className="font-bold text-lg text-slate-800 mb-2">Grupos do WhatsApp</h3>
                 <p className="text-slate-500 text-sm mb-4">

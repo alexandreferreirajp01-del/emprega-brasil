@@ -154,8 +154,8 @@ export default function GerenciarNoticias() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-red-600 to-red-700 pt-4 sm:pt-6 pb-6 sm:pb-8 px-3 sm:px-4">
+    <div className="min-h-screen bg-[#F3F2EF] pb-20">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-4 sm:pt-6 pb-6 sm:pb-8 px-3 sm:px-4">
         <div className="max-w-6xl mx-auto">
           <Link to={createPageUrl('Configuracoes')}>
             <Button variant="ghost" className="text-white hover:bg-white/20 mb-3 sm:mb-4 -ml-2 h-8 sm:h-10 text-sm">
@@ -169,7 +169,7 @@ export default function GerenciarNoticias() {
             </div>
             <Button 
               onClick={() => setActiveTab(activeTab === 'create' ? 'list' : 'create')}
-              className="bg-white text-red-600 hover:bg-white/90 rounded-xl h-9 sm:h-10 px-3 sm:px-4 text-sm"
+              className="bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl h-9 sm:h-10 px-3 sm:px-4 text-sm"
             >
               {activeTab === 'create' ? (
                 <>Ver Lista</>
@@ -200,7 +200,7 @@ export default function GerenciarNoticias() {
 
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-red-600" />
+                <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-[#0A66C2]" />
               </div>
             ) : (
               <div className="space-y-3 sm:space-y-4">
@@ -244,7 +244,7 @@ export default function GerenciarNoticias() {
                                 deleteMutation.mutate(news.id);
                               }
                             }}
-                            className="rounded-lg text-red-600 hover:text-red-700 h-8 w-8 sm:h-9 sm:w-9 p-0"
+                            className="rounded-lg text-[#C30000] hover:text-[#C30000]/80 h-8 w-8 sm:h-9 sm:w-9 p-0"
                           >
                             <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                           </Button>
@@ -380,7 +380,7 @@ export default function GerenciarNoticias() {
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="w-full h-11 sm:h-12 bg-red-600 hover:bg-red-700 rounded-xl text-sm sm:text-base"
+                    className="w-full h-11 sm:h-12 bg-[#0A66C2] hover:bg-[#004182] rounded-xl text-sm sm:text-base"
                   >
                     {saving ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : 'Publicar Notícia'}
                   </Button>
@@ -482,7 +482,7 @@ export default function GerenciarNoticias() {
               <Button
                 onClick={() => updateMutation.mutate({ id: editingNews.id, data: editingNews })}
                 disabled={updateMutation.isPending}
-                className="w-full rounded-xl bg-red-600 hover:bg-red-700 h-10 sm:h-11 text-sm sm:text-base"
+                className="w-full rounded-xl bg-[#0A66C2] hover:bg-[#004182] h-10 sm:h-11 text-sm sm:text-base"
               >
                 {updateMutation.isPending ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : 'Salvar Alterações'}
               </Button>

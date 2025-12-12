@@ -259,7 +259,7 @@ export default function Layout({ children, currentPageName }) {
               </div>
               <div className="flex flex-col">
                 <span className="text-xl md:text-2xl font-bold text-slate-800 leading-tight">Vagas Abertas</span>
-                <span className="text-sm text-[#0056ff] font-medium">Paraíba</span>
+                <span className="text-sm text-[#0A66C2] font-medium">Paraíba</span>
               </div>
             </Link>
 
@@ -269,7 +269,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link key={item.page} to={createPageUrl(item.page)}>
                   <Button 
                     variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : ''}`}
                   >
                     <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
                     <span>{item.name}</span>
@@ -285,7 +285,7 @@ export default function Layout({ children, currentPageName }) {
               )}
               {isVisitor ? (
                 <Link to={createPageUrl('Splash')}>
-                  <Button className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl text-sm px-4">
+                  <Button className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl text-sm px-4">
                     Entrar
                   </Button>
                 </Link>
@@ -327,7 +327,7 @@ export default function Layout({ children, currentPageName }) {
                 >
                   <Button 
                     variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`w-full justify-start rounded-xl ${currentPageName === item.page ? 'bg-[#0056ff]/10 text-[#0056ff]' : ''}`}
+                    className={`w-full justify-start rounded-xl ${currentPageName === item.page ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : ''}`}
                   >
                     <item.icon className="w-5 h-5 mr-3" />
                     {item.name}
@@ -338,7 +338,7 @@ export default function Layout({ children, currentPageName }) {
               <div className="pt-2 border-t">
                 {isVisitor ? (
                   <Link to={createPageUrl('Splash')} onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
+                    <Button className="w-full bg-[#0A66C2] hover:bg-[#004182] rounded-xl">
                       Entrar
                     </Button>
                   </Link>
@@ -465,7 +465,7 @@ export default function Layout({ children, currentPageName }) {
               key={item.page} 
               to={createPageUrl(item.page)}
               className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 ${
-                currentPageName === item.page ? 'text-[#0056ff]' : 'text-slate-500'
+                currentPageName === item.page ? 'text-[#0A66C2]' : 'text-slate-500'
               }`}
             >
               <item.icon className="w-5 h-5 mb-0.5 flex-shrink-0" />

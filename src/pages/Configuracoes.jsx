@@ -102,8 +102,8 @@ export default function Configuracoes() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-slate-700 to-slate-800 pt-6 pb-8 px-4">
+    <div className="min-h-screen bg-[#F3F2EF] pb-20">
+      <div className="bg-gradient-to-r from-[#1D2226] to-[#383E45] pt-6 pb-8 px-4">
         <div className="max-w-2xl mx-auto">
           <Link to={createPageUrl('Profile')}>
             <Button variant="ghost" className="text-white hover:bg-white/20 mb-2 -ml-2">
