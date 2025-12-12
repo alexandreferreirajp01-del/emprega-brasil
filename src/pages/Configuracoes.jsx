@@ -34,7 +34,7 @@ const menuItems = [
   { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
   { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'green', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
   { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'amber', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos', permissionId: 'biblioteca_admin' },
-  { id: 'noticias', name: 'Gerenciar Notícias', icon: Newspaper, color: 'red', page: 'GerenciarNoticias', description: 'Publicar e gerenciar notícias', permissionId: 'noticias' },
+  { id: 'noticias', name: 'Notícias', icon: Newspaper, color: 'red', page: 'GerenciarNoticias', description: 'Criar, editar e gerenciar notícias', permissionId: 'noticias' },
   { id: 'divider1', type: 'divider', label: 'Ferramentas' },
   { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
   { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },
