@@ -179,13 +179,16 @@ export default function UniversalChat() {
       {/* Chat Button - Fixed Position */}
       <button
         onClick={() => setChatOpen(!chatOpen)}
-        className="fixed bottom-20 md:bottom-6 right-4 z-50 w-14 h-14 bg-[#0056ff] hover:bg-[#0044cc] rounded-full shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+        className="fixed bottom-20 md:bottom-6 right-4 z-50 w-12 h-12 bg-[#0A66C2] hover:bg-[#004182] rounded-2xl shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 relative"
         aria-label="Abrir chat de suporte"
+        style={{ 
+          borderRadius: '20px 20px 20px 4px',
+        }}
       >
         {chatOpen ? (
-          <X className="w-6 h-6 text-white" />
+          <X className="w-5 h-5 text-white" />
         ) : (
-          <HelpCircle className="w-6 h-6 text-white" />
+          <MessageCircle className="w-5 h-5 text-white" />
         )}
       </button>
 
@@ -193,7 +196,7 @@ export default function UniversalChat() {
       {chatOpen && (
         <div className="fixed bottom-36 md:bottom-24 right-4 z-50 w-[calc(100%-2rem)] md:w-[380px] max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200" style={{ animation: 'slideUp 0.3s ease-out' }}>
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] p-4 text-white">
+          <div className="bg-[#0A66C2] p-4 text-white">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                 <MessageCircle className="w-5 h-5" />
@@ -209,25 +212,25 @@ export default function UniversalChat() {
           <div className="h-72 overflow-y-auto p-4 space-y-3 bg-slate-50">
             {isLoading && chatMessages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <Loader2 className="w-6 h-6 animate-spin text-[#0056ff]" />
+                <Loader2 className="w-6 h-6 animate-spin text-[#0A66C2]" />
               </div>
             ) : chatMessages.length === 0 ? (
               <div className="text-center py-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MessageCircle className="w-8 h-8 text-[#0056ff]" />
+                <div className="w-16 h-16 bg-[#0A66C2]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MessageCircle className="w-8 h-8 text-[#0A66C2]" />
                 </div>
                 <p className="text-slate-600 font-medium">Olá{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}!</p>
                 <p className="text-slate-500 text-sm mt-1">Como podemos ajudar você hoje?</p>
                 <div className="mt-4 space-y-2">
                   <button 
                     onClick={() => setInputMessage('Como me candidatar a uma vaga?')}
-                    className="block w-full text-left px-3 py-2 bg-white rounded-lg text-sm text-slate-600 hover:bg-blue-50 transition-colors border"
+                    className="block w-full text-left px-3 py-2 bg-white rounded-lg text-sm text-slate-600 hover:bg-[#0A66C2]/5 transition-colors border"
                   >
                     💼 Como me candidatar a uma vaga?
                   </button>
                   <button 
                     onClick={() => setInputMessage('Quais são os planos disponíveis?')}
-                    className="block w-full text-left px-3 py-2 bg-white rounded-lg text-sm text-slate-600 hover:bg-blue-50 transition-colors border"
+                    className="block w-full text-left px-3 py-2 bg-white rounded-lg text-sm text-slate-600 hover:bg-[#0A66C2]/5 transition-colors border"
                   >
                     ⭐ Quais são os planos disponíveis?
                   </button>
@@ -241,10 +244,10 @@ export default function UniversalChat() {
                     <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
                       isAdmin 
                         ? 'bg-white text-slate-800 shadow-sm rounded-bl-md border' 
-                        : 'bg-[#0056ff] text-white rounded-br-md'
+                        : 'bg-[#0A66C2] text-white rounded-br-md'
                     }`}>
                       {isAdmin && (
-                        <p className="text-xs text-[#0056ff] font-medium mb-1">Suporte</p>
+                        <p className="text-xs text-[#0A66C2] font-medium mb-1">Suporte</p>
                       )}
                       <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
                       <p className={`text-[10px] mt-1 text-right ${isAdmin ? 'text-slate-400' : 'text-white/70'}`}>
@@ -267,13 +270,13 @@ export default function UniversalChat() {
                 onKeyDown={handleKeyDown}
                 placeholder="Digite sua mensagem..."
                 rows={1}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-slate-100 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#0056ff] max-h-24 overflow-y-auto"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-slate-100 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#0A66C2] max-h-24 overflow-y-auto"
                 style={{ minHeight: '42px' }}
               />
               <Button
                 onClick={handleSend}
                 disabled={isSending || !inputMessage.trim()}
-                className="rounded-xl bg-[#0056ff] hover:bg-[#0044cc] h-[42px] w-[42px] p-0 flex-shrink-0"
+                className="rounded-xl bg-[#0A66C2] hover:bg-[#004182] h-[42px] w-[42px] p-0 flex-shrink-0"
               >
                 {isSending ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
