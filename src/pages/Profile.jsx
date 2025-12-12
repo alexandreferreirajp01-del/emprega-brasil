@@ -36,27 +36,29 @@ export default function Profile() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // Buscar dados do usuário com React Query (sincronização em tempo real)
+  // Buscar dados do usuário com React Query
   const { data: user, isLoading, error, refetch } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
       const userData = await base44.auth.me();
-      // Atualizar formulário de edição APENAS se não estiver editando
-      if (!isEditing) {
-        setEditForm({
-          full_name: userData.full_name || '',
-          phone: userData.phone || '',
-          city: userData.city || '',
-          state: userData.state || 'PB',
-          password: ''
-        });
-      }
       return userData;
     },
-    refetchInterval: 5000, // Atualizar a cada 5 segundos
-    staleTime: 0, // Sempre considerar dados como "velhos" para forçar revalidação
+    staleTime: Infinity, // Não refazer query automaticamente
     retry: 3
   });
+
+  // Sincronizar form com dados do usuário apenas no carregamento inicial
+  useEffect(() => {
+    if (user && !isEditing) {
+      setEditForm({
+        full_name: user.full_name || '',
+        phone: user.phone || '',
+        city: user.city || '',
+        state: user.state || 'PB',
+        password: ''
+      });
+    }
+  }, [user?.id]); // Apenas quando o ID do usuário mudar
 
   // Redirecionar se não autenticado
   useEffect(() => {
@@ -95,17 +97,17 @@ export default function Profile() {
       await base44.auth.updateMe(data);
       
       // Aguardar processamento
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Buscar dados atualizados
-      return await base44.auth.me();
+      // Buscar dados atualizados do servidor
+      const freshUser = await base44.auth.me();
+      return freshUser;
     },
     onSuccess: (freshUser) => {
-      // Invalidar e refazer query para forçar atualização
+      // Atualizar cache com dados frescos do servidor
       queryClient.setQueryData(['currentUser'], freshUser);
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       
-      // Atualizar formulário
+      // Atualizar formulário com dados salvos
       setEditForm({
         full_name: freshUser.full_name || '',
         phone: freshUser.phone || '',
