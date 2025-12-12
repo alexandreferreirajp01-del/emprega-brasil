@@ -222,49 +222,56 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
-              <CardContent className="p-4 space-y-3">
+              <CardContent className="p-3 sm:p-4 space-y-3">
                 {featuredJobs.slice(0, 5).map((job) => (
                   <Link key={job.id} to={createPageUrl('JobDetail') + `?id=${job.id}`}>
-                    <div className="p-4 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-[#0A66C2]/20">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-slate-800 group-hover:text-[#0A66C2] transition-colors truncate">
-                              {job.title}
-                            </h3>
-                            <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs shrink-0">
-                              <Star className="w-3 h-3 mr-1" /> Destaque
-                            </Badge>
-                          </div>
-                          <p className="text-slate-500 text-sm flex items-center gap-1 mb-2">
-                            <Building2 className="w-3 h-3" />
-                            {job.company || 'Empresa'}
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {job.city && (
-                              <Badge variant="secondary" className="rounded-full text-xs">
-                                <MapPin className="w-3 h-3 mr-1" />
-                                {job.city}
-                              </Badge>
-                            )}
-                            {job.job_type && (
-                              <Badge variant="outline" className="rounded-full text-xs">
-                                {job.job_type}
-                              </Badge>
-                            )}
-                          </div>
+                    <div className="p-3 sm:p-4 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-[#0A66C2]/20">
+                      <div className="flex flex-col gap-3">
+                        {/* Título e Badge */}
+                        <div className="flex items-start gap-2">
+                          <h3 className="font-semibold text-slate-800 group-hover:text-[#0A66C2] transition-colors flex-1 text-sm sm:text-base line-clamp-2">
+                            {job.title}
+                          </h3>
+                          <Badge className="bg-yellow-100 text-yellow-700 border-0 text-[10px] sm:text-xs shrink-0 whitespace-nowrap">
+                            <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Destaque
+                          </Badge>
                         </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-xs text-slate-400 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            <TimeAgo date={job.created_date} />
-                          </p>
-                          <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
-                            <Eye className="w-3 h-3" />
-                            {viewsCountMap[job.id] || 0} views
-                          </p>
+
+                        {/* Empresa */}
+                        <p className="text-slate-500 text-xs sm:text-sm flex items-center gap-1">
+                          <Building2 className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{job.company || 'Empresa'}</span>
+                        </p>
+
+                        {/* Badges e Informações */}
+                        <div className="flex flex-wrap items-center gap-2">
+                          {job.city && (
+                            <Badge variant="secondary" className="rounded-full text-[10px] sm:text-xs">
+                              <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
+                              {job.city}
+                            </Badge>
+                          )}
+                          {job.job_type && (
+                            <Badge variant="outline" className="rounded-full text-[10px] sm:text-xs">
+                              {job.job_type}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Rodapé com Stats */}
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                          <div className="flex items-center gap-3 text-[10px] sm:text-xs text-slate-400">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              <TimeAgo date={job.created_date} />
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Eye className="w-3 h-3" />
+                              {viewsCountMap[job.id] || 0}
+                            </span>
+                          </div>
                           {job.salary_range && (
-                            <p className="text-green-600 font-medium text-sm mt-1">{job.salary_range}</p>
+                            <p className="text-green-600 font-semibold text-xs sm:text-sm truncate max-w-[120px]">{job.salary_range}</p>
                           )}
                         </div>
                       </div>

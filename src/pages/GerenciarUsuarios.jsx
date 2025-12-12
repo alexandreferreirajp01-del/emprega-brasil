@@ -311,7 +311,7 @@ export default function GerenciarUsuarios() {
                       {u.profile_photo ? (
                         <AvatarImage src={u.profile_photo} alt={u.full_name || 'Usuário'} />
                       ) : (
-                        <AvatarFallback className="bg-amber-200 text-amber-700 text-sm">
+                        <AvatarFallback className="bg-slate-200 text-slate-600 text-sm">
                           {u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?'}
                         </AvatarFallback>
                       )}
@@ -426,7 +426,7 @@ export default function GerenciarUsuarios() {
                           {u.profile_photo ? (
                             <AvatarImage src={u.profile_photo} alt={u.full_name || 'Usuário'} />
                           ) : (
-                            <AvatarFallback className="bg-indigo-100 text-indigo-600 text-sm">
+                            <AvatarFallback className="bg-slate-200 text-slate-600 text-sm">
                               {u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?'}
                             </AvatarFallback>
                           )}
