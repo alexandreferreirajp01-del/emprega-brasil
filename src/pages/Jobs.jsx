@@ -357,7 +357,7 @@ export default function Jobs() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-8 px-4">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-8 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold text-white">Vagas de Emprego</h1>
@@ -644,7 +644,7 @@ export default function Jobs() {
               }
 
               return (
-                <Card key={job.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-[#0056ff]">
+                <Card key={job.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-[#0A66C2]">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <Link to={createPageUrl('JobDetail') + `?id=${job.id}`} className="flex-1">
@@ -668,7 +668,7 @@ export default function Jobs() {
                             e.preventDefault();
                             setShareJob(job);
                           }}
-                          className="h-8 w-8 rounded-full text-slate-400 hover:text-[#0056ff]"
+                          className="h-8 w-8 rounded-full text-slate-400 hover:text-[#0A66C2]"
                         >
                           <Share2 className="w-4 h-4" />
                         </Button>
@@ -719,7 +719,7 @@ function JobCardContent({ job, viewCount }) {
     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <h3 className="font-semibold text-lg text-slate-800 group-hover:text-[#0056ff] transition-colors">
+          <h3 className="font-semibold text-lg text-slate-800 group-hover:text-[#0A66C2] transition-colors">
             {job.title || 'Vaga não informada'}
           </h3>
           {job.is_featured && (

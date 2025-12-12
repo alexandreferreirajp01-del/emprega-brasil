@@ -50,7 +50,7 @@ export default function News() {
   return (
     <div className="min-h-screen bg-white pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] py-3 px-4">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] py-3 px-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Newspaper className="w-6 h-6 text-white" />
@@ -85,7 +85,7 @@ export default function News() {
               variant={selectedCategory === 'all' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setSelectedCategory('all')}
-              className={`rounded-none border-b-2 ${selectedCategory === 'all' ? 'border-[#0056ff] text-[#0056ff] bg-transparent hover:bg-transparent' : 'border-transparent'}`}
+              className={`rounded-none border-b-2 ${selectedCategory === 'all' ? 'border-[#0A66C2] text-[#0A66C2] bg-transparent hover:bg-transparent' : 'border-transparent'}`}
             >
               Todas
             </Button>
@@ -95,7 +95,7 @@ export default function News() {
                 variant={selectedCategory === cat ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setSelectedCategory(cat)}
-                className={`rounded-none border-b-2 whitespace-nowrap ${selectedCategory === cat ? 'border-[#0056ff] text-[#0056ff] bg-transparent hover:bg-transparent' : 'border-transparent'}`}
+                className={`rounded-none border-b-2 whitespace-nowrap ${selectedCategory === cat ? 'border-[#0A66C2] text-[#0A66C2] bg-transparent hover:bg-transparent' : 'border-transparent'}`}
               >
                 {cat}
               </Button>
@@ -122,7 +122,7 @@ export default function News() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                         <div className="absolute top-4 left-4">
-                          <Badge className="bg-[#0056ff] text-white border-0 rounded-sm px-3 py-1 text-xs uppercase font-bold">
+                          <Badge className="bg-[#0A66C2] text-white border-0 rounded-sm px-3 py-1 text-xs uppercase font-bold">
                             Destaque
                           </Badge>
                         </div>
@@ -147,7 +147,7 @@ export default function News() {
                       </div>
                     )}
                     {!featuredNews.image_url && (
-                      <div className="p-6 bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white rounded-lg">
+                      <div className="p-6 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white rounded-lg">
                         <Badge className="bg-white/20 text-white border-0 rounded-sm mb-3">
                           Destaque
                         </Badge>
@@ -211,14 +211,14 @@ export default function News() {
                                   Destaque
                                 </Badge>
                               )}
-                              <Badge className="bg-[#0056ff]/10 text-[#0056ff] border-0 text-xs rounded-sm px-2 py-0.5">
+                              <Badge className="bg-[#0A66C2]/10 text-[#0A66C2] border-0 text-xs rounded-sm px-2 py-0.5">
                                 {item.category || 'Geral'}
                               </Badge>
                               <span className="text-xs text-slate-400">
                                 <TimeAgo date={item.created_date} />
                               </span>
                             </div>
-                            <h3 className="font-bold text-slate-900 group-hover:text-[#0056ff] transition-colors line-clamp-2 text-base sm:text-lg leading-snug mb-1">
+                            <h3 className="font-bold text-slate-900 group-hover:text-[#0A66C2] transition-colors line-clamp-2 text-base sm:text-lg leading-snug mb-1">
                               {item.title}
                             </h3>
                             {item.subtitle && (
@@ -258,7 +258,7 @@ export default function News() {
           <div className="lg:col-span-4 space-y-6">
             {/* Recent News */}
             <Card className="rounded-lg border-0 shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] px-4 py-3">
+              <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] px-4 py-3">
                 <h3 className="font-bold text-white text-sm uppercase tracking-wide flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   Mais Lidas
@@ -271,9 +271,9 @@ export default function News() {
                     to={createPageUrl('NewsDetail') + `?id=${item.id}`}
                     className="flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors group"
                   >
-                    <span className="text-3xl font-bold text-[#0056ff] leading-none">{index + 1}</span>
+                    <span className="text-3xl font-bold text-[#0A66C2] leading-none">{index + 1}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-800 group-hover:text-[#0056ff] transition-colors line-clamp-3">
+                      <p className="text-sm font-medium text-slate-800 group-hover:text-[#0A66C2] transition-colors line-clamp-3">
                         {item.title}
                       </p>
                       <p className="text-xs text-slate-400 mt-1"><TimeAgo date={item.created_date} /></p>
@@ -296,11 +296,11 @@ export default function News() {
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
                       className={`w-full flex items-center justify-between p-3 hover:bg-slate-50 transition-colors ${
-                        selectedCategory === cat ? 'bg-[#0056ff]/10 text-[#0056ff]' : 'text-slate-700'
+                        selectedCategory === cat ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : 'text-slate-700'
                       }`}
                     >
                       <span className="text-sm font-medium">{cat}</span>
-                      <Badge className={`text-xs ${selectedCategory === cat ? 'bg-[#0056ff] text-white' : 'bg-slate-100 text-slate-600'}`}>
+                      <Badge className={`text-xs ${selectedCategory === cat ? 'bg-[#0A66C2] text-white' : 'bg-slate-100 text-slate-600'}`}>
                         {count}
                       </Badge>
                     </button>
@@ -310,14 +310,14 @@ export default function News() {
             </Card>
 
             {/* CTA */}
-            <Card className="rounded-lg bg-gradient-to-br from-[#0056ff] to-[#0044cc] text-white border-0">
+            <Card className="rounded-lg bg-gradient-to-br from-[#0A66C2] to-[#004182] text-white border-0">
               <CardContent className="p-6 text-center">
                 <h3 className="font-bold text-lg mb-2">Quer mais oportunidades?</h3>
                 <p className="text-white/80 text-sm mb-4">
                   Acesse todas as vagas exclusivas
                 </p>
                 <Link to={createPageUrl('Jobs')}>
-                  <Button className="bg-white text-[#0056ff] hover:bg-white/90 rounded-lg w-full">
+                  <Button className="bg-white text-[#0A66C2] hover:bg-white/90 rounded-lg w-full">
                     Ver Vagas
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
