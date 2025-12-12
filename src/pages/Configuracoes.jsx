@@ -40,7 +40,6 @@ const menuItems = [
   { id: 'divider1', type: 'divider', label: 'Ferramentas' },
   { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
   { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },
-  { id: 'feed', name: 'Feed', icon: MessageCircle, color: 'purple', page: 'Feed', description: 'Gerenciar posts do feed', permissionId: 'feed' },
   { id: 'divider2', type: 'divider', label: 'Painel Base44' },
   { id: 'base44', name: 'Abrir Painel Base44', icon: Settings, color: 'slate', external: true, description: 'Overview, Users, Data, Analytics, Domains, Integrations, Security, Code, Agents, Logs, API, Settings, Secrets' },
 ];
