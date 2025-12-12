@@ -53,6 +53,7 @@ import ChangePassword from './pages/ChangePassword';
 import ActivatePremiumManual from './pages/ActivatePremiumManual';
 import PostarNoticia from './pages/PostarNoticia';
 import Ocorrencias from './pages/Ocorrencias';
+import FluxoUsuarios from './pages/FluxoUsuarios';
 import __Layout from './Layout.jsx';
 
 
@@ -112,6 +113,7 @@ export const PAGES = {
     "ActivatePremiumManual": ActivatePremiumManual,
     "PostarNoticia": PostarNoticia,
     "Ocorrencias": Ocorrencias,
+    "FluxoUsuarios": FluxoUsuarios,
 }
 
 export const pagesConfig = {

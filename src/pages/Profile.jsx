@@ -17,6 +17,7 @@ import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import PasswordInput from "@/components/common/PasswordInput";
 import PremiumModal from "@/components/subscription/PremiumModal";
+import OnlineUsersCounter from "@/components/admin/OnlineUsersCounter";
 
 export default function Profile() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
@@ -418,6 +419,10 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
+            )}
+
+            {(isDono || isAdmin) && (
+              <OnlineUsersCounter />
             )}
 
             {(isDono || isAdmin || isRecruiter) && (

@@ -63,7 +63,7 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
       price: 'R$ 9,90',
       period: 'Por mês',
       subtitle: 'Para empresas',
-      icon: Briefcase,
+      icon: Users,
       color: 'blue',
       benefits: [
         { icon: Target, text: 'Postar vagas ilimitadas' },
