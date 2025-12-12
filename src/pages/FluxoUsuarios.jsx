@@ -4,19 +4,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  ArrowLeft, Activity, Users, TrendingUp, Clock, LogIn, LogOut, 
-  Calendar, Filter, Loader2, RefreshCw
+  ArrowLeft, Activity, Users, Eye, Calendar, Loader2, 
+  RefreshCw, ChevronRight, Clock, MapPin, Briefcase, Newspaper,
+  MessageCircle, Search, Filter as FilterIcon, Star, X
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export default function FluxoUsuarios() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [periodFilter, setPeriodFilter] = useState('today');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -41,27 +44,21 @@ export default function FluxoUsuarios() {
     checkAuth();
   }, []);
 
-  // Buscar todas as sessões
-  const { data: allSessions = [], isLoading: loadingSessions, refetch } = useQuery({
-    queryKey: ['user-sessions', periodFilter],
+  // Buscar atividades do dia selecionado
+  const { data: activities = [], isLoading: loadingActivities, refetch } = useQuery({
+    queryKey: ['user-activities', selectedDate],
     queryFn: async () => {
-      let filter = {};
-      const now = new Date();
+      const startDate = new Date(selectedDate + 'T00:00:00');
+      const endDate = new Date(selectedDate + 'T23:59:59');
       
-      if (periodFilter === 'today') {
-        const todayStart = new Date(now.setHours(0, 0, 0, 0)).toISOString();
-        filter.session_start = { $gte: todayStart };
-      } else if (periodFilter === 'week') {
-        const weekStart = new Date(now.setDate(now.getDate() - 7)).toISOString();
-        filter.session_start = { $gte: weekStart };
-      } else if (periodFilter === 'month') {
-        const monthStart = new Date(now.setMonth(now.getMonth() - 1)).toISOString();
-        filter.session_start = { $gte: monthStart };
-      }
-      
-      return await base44.entities.UserSession.filter(filter, '-session_start', 500);
+      return await base44.entities.UserActivity.filter({
+        created_date: {
+          $gte: startDate.toISOString(),
+          $lte: endDate.toISOString()
+        }
+      }, '-created_date', 1000);
     },
-    refetchInterval: 15000, // Atualiza a cada 15 segundos
+    refetchInterval: 30000,
     enabled: !loading,
   });
 
@@ -73,7 +70,7 @@ export default function FluxoUsuarios() {
   });
 
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['user-sessions'] });
+    queryClient.invalidateQueries({ queryKey: ['user-activities'] });
   };
 
   if (loading) {
@@ -84,25 +81,145 @@ export default function FluxoUsuarios() {
     );
   }
 
-  // Estatísticas
-  const activeSessions = allSessions.filter(s => s.is_active);
-  const uniqueUsersToday = new Set(allSessions.filter(s => {
-    const sessionDate = new Date(s.session_start);
-    const today = new Date();
-    return sessionDate.toDateString() === today.toDateString();
-  }).map(s => s.user_email)).size;
-
-  const totalEntries = allSessions.length;
-  const totalExits = allSessions.filter(s => s.session_end).length;
-
-  // Agrupar sessões por usuário
-  const userSessionsMap = {};
-  allSessions.forEach(session => {
-    if (!userSessionsMap[session.user_email]) {
-      userSessionsMap[session.user_email] = [];
+  // Agrupar atividades por usuário
+  const userActivityMap = {};
+  activities.forEach(activity => {
+    if (!userActivityMap[activity.user_email]) {
+      userActivityMap[activity.user_email] = [];
     }
-    userSessionsMap[session.user_email].push(session);
+    userActivityMap[activity.user_email].push(activity);
   });
+
+  // Lista de usuários que tiveram atividade no dia
+  const activeUsers = Object.keys(userActivityMap).map(email => {
+    const userData = users.find(u => u.email === email);
+    const userActivities = userActivityMap[email];
+    const firstActivity = userActivities[0];
+    
+    return {
+      email,
+      name: userData?.custom_full_name || userData?.username || email,
+      photo: userData?.profile_photo,
+      activitiesCount: userActivities.length,
+      firstActivity: firstActivity.created_date,
+      lastActivity: userActivities[userActivities.length - 1].created_date
+    };
+  }).sort((a, b) => new Date(b.firstActivity) - new Date(a.firstActivity));
+
+  // Filtrar usuários pela busca
+  const filteredUsers = activeUsers.filter(u => 
+    u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Estatísticas do dia
+  const totalUsers = activeUsers.length;
+  const totalActivities = activities.length;
+
+  // Ícones por tipo de atividade
+  const getActivityIcon = (type) => {
+    const icons = {
+      page_view: <Eye className="w-4 h-4" />,
+      job_view: <Briefcase className="w-4 h-4" />,
+      job_apply: <Briefcase className="w-4 h-4" />,
+      job_favorite: <Star className="w-4 h-4" />,
+      news_view: <Newspaper className="w-4 h-4" />,
+      feed_post: <MessageCircle className="w-4 h-4" />,
+      feed_comment: <MessageCircle className="w-4 h-4" />,
+      profile_edit: <Users className="w-4 h-4" />,
+      search: <Search className="w-4 h-4" />,
+      filter: <FilterIcon className="w-4 h-4" />
+    };
+    return icons[type] || <Activity className="w-4 h-4" />;
+  };
+
+  const getActivityLabel = (activity) => {
+    const labels = {
+      page_view: `Visitou: ${activity.page_name || activity.activity_details?.page_name || 'Página'}`,
+      job_view: `Visualizou vaga: ${activity.reference_title || 'Vaga'}`,
+      job_apply: `Candidatou-se: ${activity.reference_title || 'Vaga'}`,
+      job_favorite: `Favoritou: ${activity.reference_title || 'Vaga'}`,
+      news_view: `Leu notícia: ${activity.reference_title || 'Notícia'}`,
+      feed_post: 'Criou post no feed',
+      feed_comment: 'Comentou no feed',
+      profile_edit: 'Editou perfil',
+      search: `Pesquisou: ${activity.activity_details?.query || ''}`,
+      filter: 'Aplicou filtros'
+    };
+    return labels[activity.activity_type] || 'Atividade';
+  };
+
+  // Se um usuário foi selecionado, mostrar detalhes
+  if (selectedUser) {
+    const userActivities = userActivityMap[selectedUser.email] || [];
+    
+    return (
+      <div className="min-h-screen bg-[#F3F2EF] pb-20">
+        <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-8 px-4">
+          <div className="max-w-4xl mx-auto">
+            <Button 
+              variant="ghost" 
+              className="text-white hover:bg-white/20 mb-2 -ml-2"
+              onClick={() => setSelectedUser(null)}
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />Voltar
+            </Button>
+            <div className="flex items-center gap-3">
+              <Avatar className="w-12 h-12 border-2 border-white/30">
+                {selectedUser.photo ? (
+                  <AvatarImage src={selectedUser.photo} alt={selectedUser.name} />
+                ) : (
+                  <AvatarFallback className="bg-white/20 text-white">
+                    {selectedUser.name[0].toUpperCase()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div>
+                <h1 className="text-xl font-bold text-white">{selectedUser.name}</h1>
+                <p className="text-white/70 text-sm">{userActivities.length} atividades em {new Date(selectedDate).toLocaleDateString('pt-BR')}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <Card className="rounded-2xl">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Timeline de Atividades
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="divide-y max-h-[600px] overflow-y-auto">
+                {userActivities.map((activity, index) => (
+                  <div key={activity.id || index} className="p-4 hover:bg-slate-50 transition-colors">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        {getActivityIcon(activity.activity_type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-800">
+                          {getActivityLabel(activity)}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          {new Date(activity.created_date).toLocaleTimeString('pt-BR', { 
+                            hour: '2-digit', 
+                            minute: '2-digit',
+                            second: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F3F2EF] pb-20">
@@ -119,15 +236,15 @@ export default function FluxoUsuarios() {
                 <Activity className="w-6 h-6" />
                 Fluxo de Usuários
               </h1>
-              <p className="text-white/70 text-sm">Monitoramento em tempo real</p>
+              <p className="text-white/70 text-sm">Rastreamento de atividades</p>
             </div>
             <Button
               onClick={handleRefresh}
               variant="ghost"
               className="text-white hover:bg-white/20"
-              disabled={loadingSessions}
+              disabled={loadingActivities}
             >
-              <RefreshCw className={`w-5 h-5 ${loadingSessions ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-5 h-5 ${loadingActivities ? 'animate-spin' : ''}`} />
             </Button>
           </div>
         </div>
@@ -135,21 +252,7 @@ export default function FluxoUsuarios() {
 
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="rounded-2xl">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-800">{activeSessions.length}</p>
-                  <p className="text-xs text-slate-500">Online Agora</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid grid-cols-2 gap-4">
           <Card className="rounded-2xl">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -157,8 +260,8 @@ export default function FluxoUsuarios() {
                   <Users className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-800">{uniqueUsersToday}</p>
-                  <p className="text-xs text-slate-500">Usuários Hoje</p>
+                  <p className="text-2xl font-bold text-slate-800">{totalUsers}</p>
+                  <p className="text-xs text-slate-500">Usuários Ativos</p>
                 </div>
               </div>
             </CardContent>
@@ -168,135 +271,109 @@ export default function FluxoUsuarios() {
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                  <LogIn className="w-5 h-5 text-purple-600" />
+                  <Activity className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-800">{totalEntries}</p>
-                  <p className="text-xs text-slate-500">Entradas</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-2xl">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                  <LogOut className="w-5 h-5 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-800">{totalExits}</p>
-                  <p className="text-xs text-slate-500">Saídas</p>
+                  <p className="text-2xl font-bold text-slate-800">{totalActivities}</p>
+                  <p className="text-xs text-slate-500">Total de Atividades</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filtro de Período */}
+        {/* Filtros */}
         <Card className="rounded-2xl">
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-3">
             <div className="flex items-center gap-3">
-              <Filter className="w-5 h-5 text-slate-400" />
-              <Select value={periodFilter} onValueChange={setPeriodFilter}>
-                <SelectTrigger className="w-48 rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="today">Hoje</SelectItem>
-                  <SelectItem value="week">Última Semana</SelectItem>
-                  <SelectItem value="month">Último Mês</SelectItem>
-                  <SelectItem value="all">Todos</SelectItem>
-                </SelectContent>
-              </Select>
+              <Calendar className="w-5 h-5 text-slate-400" />
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <Search className="w-5 h-5 text-slate-400" />
+              <Input
+                placeholder="Buscar usuário..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="rounded-xl"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSearchQuery('')}
+                  className="flex-shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Lista de Sessões */}
+        {/* Lista de Usuários */}
         <Card className="rounded-2xl">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Clock className="w-5 h-5" />
-              Sessões Recentes
+              <Users className="w-5 h-5" />
+              Usuários do Dia
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            {loadingSessions ? (
+            {loadingActivities ? (
               <div className="p-8 text-center">
                 <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#0A66C2]" />
               </div>
-            ) : allSessions.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
               <div className="p-8 text-center text-slate-400">
                 <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Nenhuma sessão encontrada</p>
+                <p>{searchQuery ? 'Nenhum usuário encontrado' : 'Nenhuma atividade registrada neste dia'}</p>
               </div>
             ) : (
               <div className="divide-y max-h-[500px] overflow-y-auto">
-                {allSessions.slice(0, 50).map((session) => {
-                  const userData = users.find(u => u.email === session.user_email);
-                  const isActive = session.is_active;
-                  const duration = session.session_end 
-                    ? Math.round((new Date(session.session_end) - new Date(session.session_start)) / 1000 / 60)
-                    : null;
-
-                  return (
-                    <div key={session.id} className="p-4 hover:bg-slate-50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10 flex-shrink-0">
-                          {userData?.profile_photo ? (
-                            <AvatarImage src={userData.profile_photo} alt={userData.full_name} />
-                          ) : (
-                            <AvatarFallback className="bg-[#0A66C2]/10 text-[#0A66C2]">
-                              {userData?.full_name?.[0]?.toUpperCase() || session.user_email?.[0]?.toUpperCase() || '?'}
-                            </AvatarFallback>
-                          )}
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-medium text-sm truncate">
-                              {userData?.full_name || session.user_email}
-                            </p>
-                            {isActive && (
-                              <Badge className="bg-green-100 text-green-700 text-xs">
-                                <Activity className="w-3 h-3 mr-1" />
-                                Online
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
-                            <span className="flex items-center gap-1">
-                              <LogIn className="w-3 h-3" />
-                              {new Date(session.session_start).toLocaleString('pt-BR', { 
-                                day: '2-digit', 
-                                month: '2-digit', 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
-                              })}
-                            </span>
-                            {session.session_end && (
-                              <>
-                                <span className="flex items-center gap-1">
-                                  <LogOut className="w-3 h-3" />
-                                  {new Date(session.session_end).toLocaleString('pt-BR', { 
-                                    hour: '2-digit', 
-                                    minute: '2-digit' 
-                                  })}
-                                </span>
-                                {duration !== null && (
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {duration}min
-                                  </span>
-                                )}
-                              </>
-                            )}
-                          </div>
+                {filteredUsers.map((userInfo) => (
+                  <div 
+                    key={userInfo.email} 
+                    className="p-4 hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => setSelectedUser(userInfo)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar className="w-12 h-12 flex-shrink-0">
+                        {userInfo.photo ? (
+                          <AvatarImage src={userInfo.photo} alt={userInfo.name} />
+                        ) : (
+                          <AvatarFallback className="bg-[#0A66C2]/10 text-[#0A66C2]">
+                            {userInfo.name[0].toUpperCase()}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium text-sm truncate">
+                            {userInfo.name}
+                          </p>
+                          <Badge className="bg-blue-100 text-blue-700 text-xs">
+                            {userInfo.activitiesCount} atividades
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                          <span>
+                            Primeiro acesso: {new Date(userInfo.firstActivity).toLocaleTimeString('pt-BR', { 
+                              hour: '2-digit', 
+                              minute: '2-digit'
+                            })}
+                          </span>
                         </div>
                       </div>
+                      <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
