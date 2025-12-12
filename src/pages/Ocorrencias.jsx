@@ -1,226 +1,322 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
+import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, AlertCircle, CheckCircle, MessageSquare, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  AlertCircle, Send, Loader2, ChevronLeft, Mail, 
+  User, Calendar, Briefcase, CheckCircle, Clock, MessageSquare
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { base44 } from "@/api/base44Client";
 
 export default function Ocorrencias() {
+  const [user, setUser] = useState(null);
   const [selectedOccurrence, setSelectedOccurrence] = useState(null);
   const [response, setResponse] = useState('');
+  const [filter, setFilter] = useState('pending');
   const queryClient = useQueryClient();
 
+  // Verificar autenticação
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        const isAdmin = currentUser?.role === 'admin' || 
+                       currentUser?.subscription_type === 'admin' ||
+                       currentUser?.email === 'alexandreferreirajp01@gmail.com';
+        
+        if (!isAdmin) {
+          window.location.href = createPageUrl('Home');
+          return;
+        }
+        setUser(currentUser);
+      } catch {
+        window.location.href = createPageUrl('Splash');
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // Buscar ocorrências
   const { data: occurrences = [], isLoading } = useQuery({
-    queryKey: ['occurrences'],
-    queryFn: () => base44.entities.Occurrence.list('-created_date', 500)
+    queryKey: ['occurrences', filter],
+    queryFn: async () => {
+      const allOccurrences = await base44.entities.Occurrence.list('-created_date');
+      if (filter === 'all') return allOccurrences;
+      return allOccurrences.filter(occ => occ.status === filter);
+    },
+    enabled: !!user
   });
 
+  // Mutation para responder
   const respondMutation = useMutation({
-    mutationFn: async ({ id, response }) => {
-      await base44.entities.Occurrence.update(id, {
-        admin_response: response,
+    mutationFn: async ({ occurrenceId, responseText }) => {
+      const occurrence = occurrences.find(o => o.id === occurrenceId);
+      
+      // Atualizar ocorrência
+      await base44.entities.Occurrence.update(occurrenceId, {
+        admin_response: responseText,
         status: 'answered',
         responded_at: new Date().toISOString(),
-        responded_by: (await base44.auth.me()).email
+        responded_by: user.email
       });
 
-      // Enviar notificação para o usuário
-      const occurrence = occurrences.find(o => o.id === id);
-      if (occurrence) {
-        await base44.entities.Notification.create({
-          user_email: occurrence.user_email,
-          title: 'Resposta da sua Ocorrência',
-          message: `O administrador respondeu sua ocorrência sobre "${occurrence.job_title}": ${response}`,
-          type: 'system',
-          is_read: false
-        });
+      // Notificar usuário
+      await base44.entities.Notification.create({
+        user_email: occurrence.user_email,
+        title: '✅ Resposta da sua Ocorrência',
+        message: `Sua ocorrência sobre "${occurrence.job_title}" foi respondida.`,
+        type: 'system',
+        job_id: occurrence.job_id
+      });
 
-        // Enviar email
-        await base44.integrations.Core.SendEmail({
-          to: occurrence.user_email,
-          subject: 'Resposta da sua Ocorrência - Vagas Abertas PB',
-          body: `Olá ${occurrence.user_name},\n\nO administrador respondeu sua ocorrência sobre a vaga "${occurrence.job_title}":\n\n"${response}"\n\nAtenciosamente,\nEquipe Vagas Abertas Paraíba`
-        });
-      }
+      // Enviar e-mail para usuário
+      await base44.integrations.Core.SendEmail({
+        to: occurrence.user_email,
+        subject: '✅ Resposta da Ocorrência - Vagas Abertas PB',
+        body: `
+          <h2>Resposta da sua Ocorrência</h2>
+          <p><strong>Vaga:</strong> ${occurrence.job_title}</p>
+          <p><strong>Seu assunto:</strong> ${occurrence.subject}</p>
+          <p><strong>Sua mensagem:</strong></p>
+          <p>${occurrence.message}</p>
+          <br>
+          <h3>Resposta da Equipe:</h3>
+          <p>${responseText}</p>
+          <br>
+          <p>Obrigado por usar o Vagas Abertas PB!</p>
+        `
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['occurrences'] });
-      setSelectedOccurrence(null);
       setResponse('');
+      setSelectedOccurrence(null);
     }
   });
 
-  const resolveMutation = useMutation({
-    mutationFn: (id) => base44.entities.Occurrence.update(id, { status: 'resolved' }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['occurrences'] });
-    }
-  });
+  const handleRespond = () => {
+    if (!response.trim() || !selectedOccurrence) return;
+    
+    respondMutation.mutate({
+      occurrenceId: selectedOccurrence.id,
+      responseText: response.trim()
+    });
+  };
 
-  const pendingCount = occurrences.filter(o => o.status === 'pending').length;
+  const getStatusBadge = (status) => {
+    switch(status) {
+      case 'pending':
+        return <Badge className="bg-yellow-100 text-yellow-700 border-0"><Clock className="w-3 h-3 mr-1" />Pendente</Badge>;
+      case 'answered':
+        return <Badge className="bg-green-100 text-green-700 border-0"><CheckCircle className="w-3 h-3 mr-1" />Respondida</Badge>;
+      case 'resolved':
+        return <Badge className="bg-blue-100 text-blue-700 border-0"><CheckCircle className="w-3 h-3 mr-1" />Resolvida</Badge>;
+      default:
+        return <Badge className="bg-slate-100 text-slate-700 border-0">-</Badge>;
+    }
+  };
+
+  if (!user || isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-orange-600 to-orange-700 pt-6 pb-8 px-4">
+      {/* Header */}
+      <div className="bg-[#0A66C2] pt-6 pb-12 px-4">
         <div className="max-w-6xl mx-auto">
           <Link to={createPageUrl('Configuracoes')}>
-            <Button variant="ghost" className="text-white hover:bg-white/20 mb-4">
-              <ArrowLeft className="w-5 h-5 mr-2" />Voltar
+            <Button variant="ghost" className="text-white hover:bg-white/10 mb-4 rounded-xl">
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Voltar
             </Button>
           </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Ocorrências</h1>
-              <p className="text-white/80">Gerencie reportes de vagas</p>
-            </div>
-            {pendingCount > 0 && (
-              <Badge className="bg-white text-orange-600 text-lg px-4 py-2">
-                {pendingCount} Pendentes
-              </Badge>
-            )}
-          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">Ocorrências</h1>
+          <p className="text-white/80">Gerencie reports e problemas reportados pelos usuários</p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 -mt-4">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
-          </div>
-        ) : occurrences.length === 0 ? (
-          <Card className="shadow-lg">
-            <CardContent className="p-12 text-center">
-              <AlertCircle className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-slate-600 mb-2">Nenhuma ocorrência</h3>
-              <p className="text-slate-500">Não há reportes de vagas no momento</p>
+      <div className="max-w-6xl mx-auto px-4 -mt-6">
+        {/* Filtros */}
+        <Card className="mb-6 rounded-2xl shadow-lg">
+          <CardContent className="p-4">
+            <Tabs value={filter} onValueChange={setFilter}>
+              <TabsList className="grid w-full grid-cols-4 rounded-xl">
+                <TabsTrigger value="pending" className="rounded-lg">
+                  Pendentes ({occurrences.filter(o => o.status === 'pending').length})
+                </TabsTrigger>
+                <TabsTrigger value="answered" className="rounded-lg">
+                  Respondidas ({occurrences.filter(o => o.status === 'answered').length})
+                </TabsTrigger>
+                <TabsTrigger value="resolved" className="rounded-lg">
+                  Resolvidas ({occurrences.filter(o => o.status === 'resolved').length})
+                </TabsTrigger>
+                <TabsTrigger value="all" className="rounded-lg">
+                  Todas ({occurrences.length})
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Lista de Ocorrências */}
+        {selectedOccurrence ? (
+          <Card className="rounded-2xl shadow-lg">
+            <CardHeader className="border-b">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="flex items-center gap-2 mb-2">
+                    <AlertCircle className="w-5 h-5 text-orange-500" />
+                    {selectedOccurrence.subject}
+                  </CardTitle>
+                  {getStatusBadge(selectedOccurrence.status)}
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedOccurrence(null)} className="rounded-lg">
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Voltar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {/* Info do Usuário */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
+                  <User className="w-5 h-5 text-slate-400" />
+                  <div>
+                    <p className="text-xs text-slate-500">Usuário</p>
+                    <p className="font-medium text-sm">{selectedOccurrence.user_name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
+                  <Mail className="w-5 h-5 text-slate-400" />
+                  <div>
+                    <p className="text-xs text-slate-500">Email</p>
+                    <p className="font-medium text-sm truncate">{selectedOccurrence.user_email}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
+                  <Calendar className="w-5 h-5 text-slate-400" />
+                  <div>
+                    <p className="text-xs text-slate-500">Data</p>
+                    <p className="font-medium text-sm">{new Date(selectedOccurrence.created_date).toLocaleDateString('pt-BR')}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vaga */}
+              <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Briefcase className="w-4 h-4 text-blue-600" />
+                  <p className="text-sm font-medium text-blue-900">Vaga Reportada</p>
+                </div>
+                <p className="text-blue-800">{selectedOccurrence.job_title}</p>
+              </div>
+
+              {/* Mensagem do Usuário */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <MessageSquare className="w-4 h-4 text-slate-600" />
+                  <h3 className="font-semibold text-slate-800">Mensagem do Usuário</h3>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-xl">
+                  <p className="text-slate-700 whitespace-pre-wrap">{selectedOccurrence.message}</p>
+                </div>
+              </div>
+
+              {/* Resposta Anterior (se houver) */}
+              {selectedOccurrence.admin_response && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <h3 className="font-semibold text-slate-800">Resposta Enviada</h3>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-xl border border-green-200">
+                    <p className="text-green-800 whitespace-pre-wrap">{selectedOccurrence.admin_response}</p>
+                    <p className="text-xs text-green-600 mt-2">
+                      Respondido por {selectedOccurrence.responded_by} em {new Date(selectedOccurrence.responded_at).toLocaleString('pt-BR')}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Formulário de Resposta */}
+              {selectedOccurrence.status === 'pending' && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Send className="w-4 h-4 text-[#0A66C2]" />
+                    <h3 className="font-semibold text-slate-800">Responder Ocorrência</h3>
+                  </div>
+                  <Textarea
+                    value={response}
+                    onChange={(e) => setResponse(e.target.value)}
+                    placeholder="Digite sua resposta para o usuário..."
+                    className="rounded-xl min-h-[150px] mb-4"
+                    maxLength={2000}
+                  />
+                  <p className="text-xs text-slate-500 mb-4">{response.length}/2000 caracteres</p>
+                  <Button
+                    onClick={handleRespond}
+                    disabled={!response.trim() || respondMutation.isPending}
+                    className="w-full bg-[#0A66C2] hover:bg-[#004182] rounded-xl h-12"
+                  >
+                    {respondMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Enviar Resposta
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {occurrences.map((occurrence) => (
-              <Card key={occurrence.id} className="shadow hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-lg font-semibold text-slate-800">{occurrence.subject}</h3>
-                        <Badge
-                          className={
-                            occurrence.status === 'pending'
-                              ? 'bg-orange-100 text-orange-700'
-                              : occurrence.status === 'answered'
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-green-100 text-green-700'
-                          }
-                        >
-                          {occurrence.status === 'pending'
-                            ? 'Pendente'
-                            : occurrence.status === 'answered'
-                            ? 'Respondida'
-                            : 'Concluída'}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-slate-600 mb-3">{occurrence.message}</p>
-                      <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-                        <span>Vaga: {occurrence.job_title}</span>
-                        <span>Usuário: {occurrence.user_name}</span>
-                        <span>Email: {occurrence.user_email}</span>
-                        <span>
-                          {new Date(occurrence.created_date).toLocaleDateString('pt-BR', {
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
-                      </div>
-                      {occurrence.admin_response && (
-                        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                          <p className="text-sm font-medium text-blue-900 mb-1">Resposta:</p>
-                          <p className="text-sm text-blue-800">{occurrence.admin_response}</p>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      {occurrence.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setSelectedOccurrence(occurrence);
-                            setResponse('');
-                          }}
-                          className="rounded-lg bg-blue-600 hover:bg-blue-700"
-                        >
-                          <MessageSquare className="w-4 h-4 mr-2" />
-                          Responder
-                        </Button>
-                      )}
-                      {occurrence.status === 'answered' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            if (confirm('Marcar como concluída?')) {
-                              resolveMutation.mutate(occurrence.id);
-                            }
-                          }}
-                          className="rounded-lg"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Concluir
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+          <div className="grid gap-4">
+            {occurrences.length === 0 ? (
+              <Card className="rounded-2xl shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-500">Nenhuma ocorrência encontrada</p>
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              occurrences.map((occurrence) => (
+                <Card 
+                  key={occurrence.id} 
+                  className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => setSelectedOccurrence(occurrence)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-slate-800 mb-1">{occurrence.subject}</h3>
+                        <p className="text-sm text-slate-600">{occurrence.job_title}</p>
+                      </div>
+                      {getStatusBadge(occurrence.status)}
+                    </div>
+                    <p className="text-sm text-slate-600 mb-4 line-clamp-2">{occurrence.message}</p>
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span>{occurrence.user_name}</span>
+                      <span>{new Date(occurrence.created_date).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         )}
       </div>
-
-      {/* Response Dialog */}
-      <Dialog open={!!selectedOccurrence} onOpenChange={() => setSelectedOccurrence(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Responder Ocorrência</DialogTitle>
-          </DialogHeader>
-          {selectedOccurrence && (
-            <div className="space-y-4">
-              <div className="bg-slate-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-slate-700 mb-2">Assunto:</p>
-                <p className="text-sm text-slate-600">{selectedOccurrence.subject}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">Sua Resposta:</label>
-                <Textarea
-                  value={response}
-                  onChange={(e) => setResponse(e.target.value)}
-                  placeholder="Digite sua resposta..."
-                  className="min-h-[150px] rounded-xl"
-                />
-              </div>
-              <Button
-                onClick={() => respondMutation.mutate({ id: selectedOccurrence.id, response })}
-                disabled={!response.trim() || respondMutation.isPending}
-                className="w-full rounded-xl bg-blue-600 hover:bg-blue-700"
-              >
-                {respondMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  'Enviar Resposta'
-                )}
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
