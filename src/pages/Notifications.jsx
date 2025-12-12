@@ -132,6 +132,7 @@ export default function Notifications() {
   };
 
   const getRedirectUrl = (notification) => {
+    // 1. Prioridade: redirect_page com parâmetros
     if (notification.redirect_page) {
       const params = notification.redirect_params || {};
       const queryString = Object.keys(params).length > 0 
@@ -140,6 +141,7 @@ export default function Notifications() {
       return createPageUrl(notification.redirect_page) + queryString;
     }
 
+    // 2. reference_type + reference_id
     if (notification.reference_type && notification.reference_id) {
       switch (notification.reference_type) {
         case 'job':
@@ -160,15 +162,29 @@ export default function Notifications() {
         case 'payment':
           return createPageUrl('PaymentsPage');
         default:
-          return createPageUrl('Home');
+          return null;
       }
     }
 
+    // 3. Fallback: job_id (compatibilidade)
     if (notification.job_id) {
       return createPageUrl('JobDetail') + '?id=' + notification.job_id;
     }
 
-    return createPageUrl('Home');
+    // 4. Tipo de notificação (fallback genérico)
+    switch (notification.type) {
+      case 'job':
+        return createPageUrl('Jobs');
+      case 'news':
+        return createPageUrl('News');
+      case 'feed':
+        return createPageUrl('Feed');
+      case 'user':
+      case 'admin':
+        return createPageUrl('GerenciarUsuarios');
+      default:
+        return null;
+    }
   };
 
   const handleNotificationClick = (notification, e) => {
@@ -177,14 +193,20 @@ export default function Notifications() {
       e.stopPropagation();
     }
     
+    const url = getRedirectUrl(notification);
+    
+    // Só redireciona se houver URL válida
+    if (!url) return;
+    
+    // Marcar como lida
     if (!notification.is_read) {
       markAsReadMutation.mutate(notification.id);
     }
     
-    const url = getRedirectUrl(notification);
+    // Redirecionar
     setTimeout(() => {
       window.location.href = url;
-    }, 100);
+    }, 50);
   };
 
   if (loading) {

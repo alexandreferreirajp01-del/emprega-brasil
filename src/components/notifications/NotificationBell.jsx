@@ -123,6 +123,7 @@ export default function NotificationBell({ user }) {
   };
 
   const getRedirectUrl = (notification) => {
+    // 1. redirect_page com parâmetros
     if (notification.redirect_page) {
       const params = notification.redirect_params || {};
       const queryString = Object.keys(params).length > 0 
@@ -131,15 +132,17 @@ export default function NotificationBell({ user }) {
       return createPageUrl(notification.redirect_page) + queryString;
     }
 
+    // 2. reference_type + reference_id
     if (notification.reference_type && notification.reference_id) {
       switch (notification.reference_type) {
         case 'job':
-          return `${createPageUrl('JobDetail')}?id=${notification.reference_id}`;
+          return createPageUrl('JobDetail') + '?id=' + notification.reference_id;
         case 'news':
-          return `${createPageUrl('NewsDetail')}?id=${notification.reference_id}`;
+          return createPageUrl('NewsDetail') + '?id=' + notification.reference_id;
         case 'user':
           return createPageUrl('GerenciarUsuarios');
         case 'feed_post':
+        case 'feed_comment':
           return createPageUrl('Feed');
         case 'occurrence':
           return createPageUrl('Ocorrencias');
@@ -147,28 +150,50 @@ export default function NotificationBell({ user }) {
           return createPageUrl('ResponderChat');
         case 'request':
           return createPageUrl('GerenciarSolicitacoes');
+        case 'payment':
+          return createPageUrl('PaymentsPage');
         default:
           return null;
       }
     }
 
+    // 3. Fallback: job_id
     if (notification.job_id) {
-      return `${createPageUrl('JobDetail')}?id=${notification.job_id}`;
+      return createPageUrl('JobDetail') + '?id=' + notification.job_id;
     }
 
-    return null;
+    // 4. Fallback por tipo
+    switch (notification.type) {
+      case 'job':
+        return createPageUrl('Jobs');
+      case 'news':
+        return createPageUrl('News');
+      case 'feed':
+        return createPageUrl('Feed');
+      case 'user':
+      case 'admin':
+        return createPageUrl('GerenciarUsuarios');
+      default:
+        return null;
+    }
   };
 
   const handleNotificationClick = (notification) => {
+    const url = getRedirectUrl(notification);
+    
+    // Só processa se houver URL válida
+    if (!url) return;
+    
+    // Marcar como lida
     if (!notification.is_read) {
       markAsReadMutation.mutate(notification.id);
     }
     
-    const url = getRedirectUrl(notification);
-    if (url) {
-      navigate(url);
-      setOpen(false);
-    }
+    // Fechar popover e navegar
+    setOpen(false);
+    setTimeout(() => {
+      window.location.href = url;
+    }, 50);
   };
 
   return (
