@@ -96,7 +96,7 @@ export default function Profile() {
   // Mutation para atualizar perfil
   const updateProfileMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await base44.asServiceRole.entities.User.update(user.id, data);
+      await base44.auth.updateMe(data);
       await new Promise(resolve => setTimeout(resolve, 300));
       const freshUser = await base44.auth.me();
       return freshUser;
