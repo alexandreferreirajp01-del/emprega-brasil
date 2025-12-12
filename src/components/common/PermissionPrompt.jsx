@@ -103,8 +103,8 @@ export default function PermissionPrompt() {
         setSuccess(true);
         setTimeout(() => {
           setLoading(false);
-          setStep(2);
-        }, 1000);
+          finishSetup(); // Fechar o modal após sucesso
+        }, 1500);
         return;
       }
       
@@ -124,8 +124,8 @@ export default function PermissionPrompt() {
           setSuccess(true);
           setTimeout(() => {
             setLoading(false);
-            setStep(2);
-          }, 1000);
+            finishSetup(); // Fechar o modal após sucesso
+          }, 1500);
           return;
         }
       }
@@ -149,8 +149,8 @@ export default function PermissionPrompt() {
       
       setTimeout(() => {
         setLoading(false);
-        setStep(2);
-      }, 1000);
+        finishSetup(); // Fechar o modal após sucesso
+      }, 1500);
       
     } catch (error) {
       console.error('Erro geral:', error);
@@ -202,7 +202,7 @@ export default function PermissionPrompt() {
         
         {step === 1 && (
           <>
-            <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] p-6 text-center">
+            <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-6 text-center">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 {success ? (
                   <CheckCircle className="w-8 h-8 text-white" />
@@ -250,7 +250,7 @@ export default function PermissionPrompt() {
                   <Button
                     onClick={subscribePush}
                     disabled={loading}
-                    className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl text-base font-medium mb-3"
+                    className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] rounded-xl text-base font-medium mb-3"
                   >
                     {loading ? (
                       <>
@@ -271,7 +271,7 @@ export default function PermissionPrompt() {
                     disabled={loading}
                     className="w-full text-slate-500"
                   >
-                    Pular
+                    Talvez depois
                   </Button>
                 </>
               )}
