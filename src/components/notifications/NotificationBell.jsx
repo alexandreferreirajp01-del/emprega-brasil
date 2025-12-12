@@ -238,10 +238,10 @@ export default function NotificationBell({ user }) {
                 const isClickable = !!redirectUrl;
 
                 return (
-                  <div
+                  <button
                     key={notification.id}
                     onClick={() => isClickable && handleNotificationClick(notification)}
-                    className={`p-3 transition-colors group ${!notification.is_read ? 'bg-[#0A66C2]/5' : ''} ${isClickable ? 'hover:bg-slate-50 cursor-pointer' : ''}`}
+                    className={`w-full p-3 transition-colors group text-left ${!notification.is_read ? 'bg-[#0A66C2]/5' : ''} ${isClickable ? 'hover:bg-slate-50 cursor-pointer' : ''}`}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getIconStyle(notification.type)}`}>
@@ -274,7 +274,7 @@ export default function NotificationBell({ user }) {
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>

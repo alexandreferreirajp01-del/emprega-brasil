@@ -261,14 +261,11 @@ export default function Notifications() {
               const isClickable = !!redirectUrl;
 
               return (
-                <div
+                <Card 
                   key={notification.id}
                   onClick={(e) => isClickable && handleNotificationClick(notification, e)}
-                  className={`${isClickable ? 'cursor-pointer' : ''}`}
+                  className={`rounded-2xl overflow-hidden transition-all ${isClickable ? 'cursor-pointer hover:shadow-md active:scale-[0.99]' : ''} ${!notification.is_read ? 'border-l-4 border-l-[#0A66C2]' : ''}`}
                 >
-                  <Card 
-                    className={`rounded-2xl overflow-hidden transition-all ${isClickable ? 'hover:shadow-md active:scale-[0.99]' : ''} ${!notification.is_read ? 'border-l-4 border-l-[#0A66C2]' : ''}`}
-                  >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${getIconStyle(notification.type)}`}>
@@ -306,8 +303,7 @@ export default function Notifications() {
                         </div>
                       </div>
                     </CardContent>
-                  </Card>
-                </div>
+                </Card>
               );
             })}
           </div>

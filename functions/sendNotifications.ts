@@ -29,9 +29,10 @@ Deno.serve(async (req) => {
             title: notification.title,
             message: notification.message,
             type: 'job',
-            link: jobUrl,
-            is_read: false,
-            created_at: brasiliaTime.toISOString()
+            reference_type: 'job',
+            reference_id: jobId,
+            job_id: jobId,
+            is_read: false
           });
           results.bell.sent++;
         }
