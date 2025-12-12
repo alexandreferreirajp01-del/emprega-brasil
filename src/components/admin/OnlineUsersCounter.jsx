@@ -84,30 +84,30 @@ export default function OnlineUsersCounter() {
   const uniqueUsers = new Set(activeSessions.map(s => s.user_email)).size;
 
   return (
-    <div className="grid grid-cols-2 gap-3 mb-4">
-      <Card className="rounded-xl border-green-200 bg-green-50">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
-              <Activity className="w-5 h-5 text-white" />
+    <div className="grid grid-cols-2 gap-2 mb-4">
+      <Card className="rounded-xl border-emerald-200 bg-emerald-50">
+        <CardContent className="p-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+              <Activity className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-green-700">{onlineCount}</p>
-              <p className="text-xs text-green-600">Sessões Ativas</p>
+              <p className="text-xl font-bold text-emerald-700">{onlineCount}</p>
+              <p className="text-[10px] text-emerald-600">Sessões Ativas</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="rounded-xl border-blue-200 bg-blue-50">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-              <Users className="w-5 h-5 text-white" />
+      <Card className="rounded-xl border-sky-200 bg-sky-50">
+        <CardContent className="p-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center">
+              <Users className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-blue-700">{uniqueUsers}</p>
-              <p className="text-xs text-blue-600">Usuários Online</p>
+              <p className="text-xl font-bold text-sky-700">{uniqueUsers}</p>
+              <p className="text-[10px] text-sky-600">Usuários Online</p>
             </div>
           </div>
         </CardContent>
