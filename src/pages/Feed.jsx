@@ -44,7 +44,29 @@ export default function Feed() {
   });
 
   const criarPostMutation = useMutation({
-    mutationFn: (data) => base44.entities.FeedPost.create(data),
+    mutationFn: async (data) => {
+      const newPost = await base44.entities.FeedPost.create(data);
+      
+      // Notificar admin/owner sobre novo post
+      try {
+        const allUsers = await base44.entities.User.list();
+        const admins = allUsers.filter(u => u.role === 'admin' || u.subscription_type === 'admin');
+        
+        for (const admin of admins) {
+          await base44.entities.Notification.create({
+            user_email: admin.email,
+            title: '📝 Novo post no Feed',
+            message: `${data.autor_nome} publicou: "${data.conteudo?.substring(0, 50)}..."`,
+            type: 'system',
+            is_read: false
+          });
+        }
+      } catch (e) {
+        console.warn('Erro ao notificar admins:', e);
+      }
+      
+      return newPost;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feed-posts'] });
       setNovoPost('');
