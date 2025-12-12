@@ -10,6 +10,7 @@ import { Bell, Send, Loader2, Upload, Briefcase, Newspaper, Gift, Sparkles, Mail
 import { Switch } from "@/components/ui/switch";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import WhatsAppNotificationHelper from "@/components/admin/WhatsAppNotificationHelper";
 
 const NOTIFICATION_ICONS = [
   { value: 'briefcase', label: 'Vaga', icon: Briefcase, emoji: '📁' },
@@ -128,6 +129,7 @@ export default function NotificationSender({ showToast, job, news, socialPost, c
   const [sendEmail, setSendEmail] = useState(false);
   const [sendWhatsApp, setSendWhatsApp] = useState(false);
   const [premiumOnly, setPremiumOnly] = useState(false);
+  const [showWhatsAppHelper, setShowWhatsAppHelper] = useState(false);
   const queryClient = useQueryClient();
 
   const handleCategoryChange = (category) => {
@@ -204,26 +206,17 @@ Vagas Abertas Paraíba
         }
       }
 
-      // Enviar para grupos do WhatsApp se marcado
-      if (data.sendWhatsApp) {
-        try {
-          const whatsappResult = await base44.functions.invoke('sendWhatsAppNotification', {
-            title: data.title,
-            message: data.message,
-            icon: data.iconType
-          });
-          console.log('WhatsApp notification sent:', whatsappResult.data);
-        } catch (error) {
-          console.error('Erro ao enviar WhatsApp:', error);
-        }
-      }
-
-      return { count: targetUsers.length };
+      return { count: targetUsers.length, sendWhatsApp: data.sendWhatsApp };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       showToast?.(`Notificação enviada para ${data.count} usuários!`);
-      onClose?.();
+      
+      if (data.sendWhatsApp) {
+        setShowWhatsAppHelper(true);
+      } else {
+        onClose?.();
+      }
     },
     onError: () => showToast?.('Erro ao enviar notificações', 'error')
   });
@@ -286,6 +279,7 @@ Vagas Abertas Paraíba
   };
 
   return (
+    <>
     <Card className="rounded-xl border-2 border-[#0056ff]/20 bg-gradient-to-br from-blue-50 to-white">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
@@ -500,8 +494,19 @@ Vagas Abertas Paraíba
               Enviar para {premiumOnly ? 'Usuários Premium' : 'Todos os Usuários'}
             </>
           )}
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
+          </Button>
+          </CardContent>
+          </Card>
+
+          <WhatsAppNotificationHelper
+          title={title}
+          message={message}
+          isOpen={showWhatsAppHelper}
+          onClose={() => {
+          setShowWhatsAppHelper(false);
+          onClose?.();
+          }}
+          />
+          </>
+          );
+          }
