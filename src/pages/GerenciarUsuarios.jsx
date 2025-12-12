@@ -308,10 +308,13 @@ export default function GerenciarUsuarios() {
                 <div key={u.id} className="p-3 bg-white rounded-xl flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <Avatar className="w-10 h-10 flex-shrink-0">
-                      <AvatarImage src={u.profile_photo} />
-                      <AvatarFallback className="bg-amber-200 text-amber-700 text-sm">
-                        {u.full_name?.[0] || u.email?.[0]}
-                      </AvatarFallback>
+                      {u.profile_photo ? (
+                        <AvatarImage src={u.profile_photo} alt={u.full_name || 'Usuário'} />
+                      ) : (
+                        <AvatarFallback className="bg-amber-200 text-amber-700 text-sm">
+                          {u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?'}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-sm truncate">{u.full_name || 'Sem nome'}</p>
@@ -420,10 +423,13 @@ export default function GerenciarUsuarios() {
                       {/* User Info */}
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <Avatar className="w-10 h-10 flex-shrink-0">
-                          <AvatarImage src={u.profile_photo} />
-                          <AvatarFallback className="bg-indigo-100 text-indigo-600 text-sm">
-                            {u.full_name?.[0] || u.email?.[0]}
-                          </AvatarFallback>
+                          {u.profile_photo ? (
+                            <AvatarImage src={u.profile_photo} alt={u.full_name || 'Usuário'} />
+                          ) : (
+                            <AvatarFallback className="bg-indigo-100 text-indigo-600 text-sm">
+                              {u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?'}
+                            </AvatarFallback>
+                          )}
                         </Avatar>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
