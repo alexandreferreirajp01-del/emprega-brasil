@@ -140,27 +140,27 @@ export default function Ocorrencias() {
               Voltar
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold text-white mb-2">Ocorrências</h1>
-          <p className="text-white/80">Gerencie reports e problemas reportados pelos usuários</p>
+          <h1 className="text-xl md:text-2xl font-bold text-white mb-2">Ocorrências</h1>
+          <p className="text-sm md:text-base text-white/80">Gerencie reports e problemas reportados pelos usuários</p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 -mt-6">
         {/* Filtros */}
         <Card className="mb-6 rounded-2xl shadow-lg">
-          <CardContent className="p-4">
+          <CardContent className="p-3 md:p-4">
             <Tabs value={filter} onValueChange={setFilter}>
-              <TabsList className="grid w-full grid-cols-4 rounded-xl">
-                <TabsTrigger value="pending" className="rounded-lg">
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-2 rounded-xl h-auto bg-transparent p-0">
+                <TabsTrigger value="pending" className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-yellow-100 data-[state=active]:text-yellow-700">
                   Pendentes ({occurrences.filter(o => o.status === 'pending').length})
                 </TabsTrigger>
-                <TabsTrigger value="answered" className="rounded-lg">
+                <TabsTrigger value="answered" className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-green-100 data-[state=active]:text-green-700">
                   Respondidas ({occurrences.filter(o => o.status === 'answered').length})
                 </TabsTrigger>
-                <TabsTrigger value="resolved" className="rounded-lg">
+                <TabsTrigger value="resolved" className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">
                   Resolvidas ({occurrences.filter(o => o.status === 'resolved').length})
                 </TabsTrigger>
-                <TabsTrigger value="all" className="rounded-lg">
+                <TabsTrigger value="all" className="rounded-lg text-xs md:text-sm py-2 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-700">
                   Todas ({occurrences.length})
                 </TabsTrigger>
               </TabsList>
@@ -171,41 +171,41 @@ export default function Ocorrencias() {
         {/* Lista de Ocorrências */}
         {selectedOccurrence ? (
           <Card className="rounded-2xl shadow-lg">
-            <CardHeader className="border-b">
-              <div className="flex items-start justify-between">
+            <CardHeader className="border-b p-4 md:p-6">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                 <div className="flex-1">
-                  <CardTitle className="flex items-center gap-2 mb-2">
-                    <AlertCircle className="w-5 h-5 text-orange-500" />
-                    {selectedOccurrence.subject}
+                  <CardTitle className="flex items-center gap-2 mb-2 text-base md:text-lg">
+                    <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
+                    <span className="break-words">{selectedOccurrence.subject}</span>
                   </CardTitle>
                   {getStatusBadge(selectedOccurrence.status)}
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedOccurrence(null)} className="rounded-lg">
+                <Button variant="ghost" size="sm" onClick={() => setSelectedOccurrence(null)} className="rounded-lg self-start md:self-center">
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Voltar
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
               {/* Info do Usuário */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                 <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
-                  <User className="w-5 h-5 text-slate-400" />
-                  <div>
+                  <User className="w-4 h-4 md:w-5 md:h-5 text-slate-400 flex-shrink-0" />
+                  <div className="min-w-0">
                     <p className="text-xs text-slate-500">Usuário</p>
-                    <p className="font-medium text-sm">{selectedOccurrence.user_name}</p>
+                    <p className="font-medium text-sm truncate">{selectedOccurrence.user_name}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
-                  <Mail className="w-5 h-5 text-slate-400" />
-                  <div>
+                  <Mail className="w-4 h-4 md:w-5 md:h-5 text-slate-400 flex-shrink-0" />
+                  <div className="min-w-0">
                     <p className="text-xs text-slate-500">Email</p>
                     <p className="font-medium text-sm truncate">{selectedOccurrence.user_email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
-                  <Calendar className="w-5 h-5 text-slate-400" />
-                  <div>
+                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-slate-400 flex-shrink-0" />
+                  <div className="min-w-0">
                     <p className="text-xs text-slate-500">Data</p>
                     <p className="font-medium text-sm">{new Date(selectedOccurrence.created_date).toLocaleDateString('pt-BR')}</p>
                   </div>
@@ -224,11 +224,11 @@ export default function Ocorrencias() {
               {/* Mensagem do Usuário */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <MessageSquare className="w-4 h-4 text-slate-600" />
-                  <h3 className="font-semibold text-slate-800">Mensagem do Usuário</h3>
+                  <MessageSquare className="w-4 h-4 text-slate-600 flex-shrink-0" />
+                  <h3 className="font-semibold text-slate-800 text-sm md:text-base">Mensagem do Usuário</h3>
                 </div>
-                <div className="p-4 bg-slate-50 rounded-xl">
-                  <p className="text-slate-700 whitespace-pre-wrap">{selectedOccurrence.message}</p>
+                <div className="p-3 md:p-4 bg-slate-50 rounded-xl">
+                  <p className="text-slate-700 whitespace-pre-wrap text-sm md:text-base break-words">{selectedOccurrence.message}</p>
                 </div>
               </div>
 
@@ -252,21 +252,21 @@ export default function Ocorrencias() {
               {selectedOccurrence.status === 'pending' && (
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <Send className="w-4 h-4 text-[#0A66C2]" />
-                    <h3 className="font-semibold text-slate-800">Responder Ocorrência</h3>
+                    <Send className="w-4 h-4 text-[#0A66C2] flex-shrink-0" />
+                    <h3 className="font-semibold text-slate-800 text-sm md:text-base">Responder Ocorrência</h3>
                   </div>
                   <Textarea
                     value={response}
                     onChange={(e) => setResponse(e.target.value)}
                     placeholder="Digite sua resposta para o usuário..."
-                    className="rounded-xl min-h-[150px] mb-4"
+                    className="rounded-xl min-h-[120px] md:min-h-[150px] mb-3 text-sm md:text-base"
                     maxLength={2000}
                   />
-                  <p className="text-xs text-slate-500 mb-4">{response.length}/2000 caracteres</p>
+                  <p className="text-xs text-slate-500 mb-3 md:mb-4">{response.length}/2000 caracteres</p>
                   <Button
                     onClick={handleRespond}
                     disabled={!response.trim() || respondMutation.isPending}
-                    className="w-full bg-[#0A66C2] hover:bg-[#004182] rounded-xl h-12"
+                    className="w-full bg-[#0A66C2] hover:bg-[#004182] rounded-xl h-11 md:h-12 text-sm md:text-base"
                   >
                     {respondMutation.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -297,18 +297,20 @@ export default function Ocorrencias() {
                   className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
                   onClick={() => setSelectedOccurrence(occurrence)}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-slate-800 mb-1">{occurrence.subject}</h3>
-                        <p className="text-sm text-slate-600">{occurrence.job_title}</p>
+                  <CardContent className="p-4 md:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-slate-800 mb-1 text-sm md:text-base break-words">{occurrence.subject}</h3>
+                        <p className="text-xs md:text-sm text-slate-600 truncate">{occurrence.job_title}</p>
                       </div>
-                      {getStatusBadge(occurrence.status)}
+                      <div className="self-start sm:self-center">
+                        {getStatusBadge(occurrence.status)}
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-600 mb-4 line-clamp-2">{occurrence.message}</p>
-                    <div className="flex items-center justify-between text-xs text-slate-500">
-                      <span>{occurrence.user_name}</span>
-                      <span>{new Date(occurrence.created_date).toLocaleDateString('pt-BR')}</span>
+                    <p className="text-xs md:text-sm text-slate-600 mb-3 md:mb-4 line-clamp-2 break-words">{occurrence.message}</p>
+                    <div className="flex items-center justify-between text-xs text-slate-500 gap-2">
+                      <span className="truncate">{occurrence.user_name}</span>
+                      <span className="flex-shrink-0">{new Date(occurrence.created_date).toLocaleDateString('pt-BR')}</span>
                     </div>
                   </CardContent>
                 </Card>

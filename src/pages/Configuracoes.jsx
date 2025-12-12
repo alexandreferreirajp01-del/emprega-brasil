@@ -28,7 +28,7 @@ const menuItems = [
   { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'indigo', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários', permissionId: 'gerenciar_usuarios' },
   { id: 'comunidade', name: 'Gerenciar Comunidade', icon: MessageSquare, color: 'purple', page: 'GerenciarComunidade', description: 'Posts, comentários e chat', permissionId: 'gerenciar_comunidade' },
   { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores', permissionId: 'solicitacoes' },
-  { id: 'ocorrencias', name: 'Ocorrências', icon: AlertCircle, color: 'rose', page: 'Ocorrencias', description: 'Gerenciar reports de vagas', roles: ['admin', 'dono'], permissionId: 'ocorrencias' },
+  { id: 'ocorrencias', name: 'Ocorrências', icon: AlertCircle, color: 'orange', page: 'Ocorrencias', description: 'Gerenciar reports de vagas', roles: ['admin', 'dono'], permissionId: 'ocorrencias' },
   { id: 'dividerProducao', type: 'divider', label: 'Ferramentas de Produção' },
   { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego', permissionId: 'postar_vagas' },
   { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA', permissionId: 'posts_massa' },
