@@ -53,6 +53,9 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
         { icon: Shield, text: 'Prioridade no suporte' },
         { icon: FileText, text: 'Ferramentas de currículo e carta' },
         { icon: Eye, text: 'Navegação sem anúncios' },
+        { icon: Award, text: 'Acesso a cursos profissionalizantes' },
+        { icon: TrendingUp, text: 'Aplicativos de renda extra exclusivos' },
+        { icon: Users, text: 'Comunidade premium de networking' },
       ]
     },
     recruiter: {
