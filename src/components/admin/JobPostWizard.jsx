@@ -237,6 +237,14 @@ function Step3Notification({ enabled, template, premiumOnly, sendEmail, onChange
                 </div>
                 <Switch checked={sendEmail} onCheckedChange={(val) => onChange({ sendEmail: val })} />
               </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-slate-800">WhatsApp</p>
+                  <p className="text-xs text-slate-500">Enviar para grupos do WhatsApp</p>
+                </div>
+                <Switch checked={false} disabled />
+              </div>
             </div>
           </>
         )}
@@ -415,7 +423,7 @@ export default function JobPostWizard({
       <Button
         onClick={handlePublish}
         disabled={!isValid() || isPublishing}
-        className="w-full h-14 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full h-14 bg-[#0A66C2] hover:bg-[#004182] rounded-xl text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isPublishing ? (
           <>
@@ -477,7 +485,7 @@ export default function JobPostWizard({
             variant="ghost"
             size="sm"
             onClick={() => setNotificationChoiceMade(false)}
-            className="ml-2 text-blue-600 hover:text-blue-700"
+            className="ml-2 text-[#0A66C2] hover:text-[#004182]"
           >
             Alterar
           </Button>
