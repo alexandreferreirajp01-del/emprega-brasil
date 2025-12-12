@@ -41,6 +41,7 @@ const menuItems = [
   { id: 'fluxo-usuarios', name: 'Fluxo de Usuários', icon: Users, color: 'emerald', page: 'FluxoUsuarios', description: 'Monitoramento em tempo real', roles: ['admin', 'dono'], permissionId: 'fluxo_usuarios' },
   { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
   { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },
+  { id: 'migrate-notifications', name: 'Migrar Notificações', icon: Database, color: 'amber', action: 'migrate', description: 'Atualizar notificações antigas (executar 1x)', roles: ['admin', 'dono'] },
   { id: 'divider2', type: 'divider', label: 'Painel Base44' },
   { id: 'base44', name: 'Abrir Painel Base44', icon: Settings, color: 'slate', external: true, description: 'Overview, Users, Data, Analytics, Domains, Integrations, Security, Code, Agents, Logs, API, Settings, Secrets' },
 ];
@@ -67,6 +68,8 @@ export default function Configuracoes() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [migrating, setMigrating] = useState(false);
+  const [migrationResult, setMigrationResult] = useState(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -92,8 +95,23 @@ export default function Configuracoes() {
     checkAuth();
   }, []);
 
-  const handleItemClick = (item) => {
-    if (item.page) {
+  const handleItemClick = async (item) => {
+    if (item.action === 'migrate') {
+      if (!confirm('Deseja migrar todas as notificações antigas? Isso pode levar alguns segundos.')) return;
+      
+      setMigrating(true);
+      setMigrationResult(null);
+      
+      try {
+        const response = await base44.functions.invoke('migrateNotifications');
+        setMigrationResult(response.data);
+        alert(response.data.message || 'Migração concluída com sucesso!');
+      } catch (error) {
+        alert('Erro na migração: ' + error.message);
+      } finally {
+        setMigrating(false);
+      }
+    } else if (item.page) {
       window.location.href = createPageUrl(item.page);
     } else if (item.external) {
       window.open('https://app.base44.com', '_blank');
@@ -191,7 +209,8 @@ export default function Configuracoes() {
                 <button
                   key={item.id}
                   onClick={() => handleItemClick(item)}
-                  className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors text-left ${!isLast ? 'border-b border-slate-100' : ''}`}
+                  disabled={migrating && item.action === 'migrate'}
+                  className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors text-left ${!isLast ? 'border-b border-slate-100' : ''} ${migrating && item.action === 'migrate' ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
                     <Icon className="w-5 h-5" />
@@ -200,7 +219,9 @@ export default function Configuracoes() {
                     <p className="font-medium text-slate-800 text-sm">{item.name}</p>
                     <p className="text-xs text-slate-500 truncate">{item.description}</p>
                   </div>
-                  {item.external ? (
+                  {migrating && item.action === 'migrate' ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-400 flex-shrink-0" />
+                  ) : item.external ? (
                     <ExternalLink className="w-4 h-4 text-slate-400 flex-shrink-0" />
                   ) : (
                     <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
