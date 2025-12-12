@@ -123,7 +123,7 @@ export default function NotificationBell({ user }) {
   };
 
   const getRedirectUrl = (notification) => {
-    // 1. redirect_page com parâmetros
+    // 1. redirect_page tem prioridade absoluta
     if (notification.redirect_page) {
       const params = notification.redirect_params || {};
       const queryString = Object.keys(params).length > 0 
@@ -132,7 +132,7 @@ export default function NotificationBell({ user }) {
       return createPageUrl(notification.redirect_page) + queryString;
     }
 
-    // 2. reference_type + reference_id
+    // 2. reference_type + reference_id - SEMPRE detalhe específico
     if (notification.reference_type && notification.reference_id) {
       switch (notification.reference_type) {
         case 'job':
@@ -157,25 +157,18 @@ export default function NotificationBell({ user }) {
       }
     }
 
-    // 3. Fallback: job_id
+    // 3. job_id - SEMPRE detalhe da vaga
     if (notification.job_id) {
       return createPageUrl('JobDetail') + '?id=' + notification.job_id;
     }
 
-    // 4. Fallback por tipo
-    switch (notification.type) {
-      case 'job':
-        return createPageUrl('Jobs');
-      case 'news':
-        return createPageUrl('News');
-      case 'feed':
-        return createPageUrl('Feed');
-      case 'user':
-      case 'admin':
-        return createPageUrl('GerenciarUsuarios');
-      default:
-        return null;
+    // 4. Notificações admin/user sem referência
+    if (notification.type === 'admin' || notification.type === 'user') {
+      return createPageUrl('GerenciarUsuarios');
     }
+
+    // Sem referência = não clicável
+    return null;
   };
 
   const handleNotificationClick = (notification) => {
