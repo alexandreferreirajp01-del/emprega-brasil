@@ -11,6 +11,7 @@ import PasswordInput from "@/components/common/PasswordInput";
 export default function Register() {
   const [formData, setFormData] = useState({
     full_name: '',
+    username: '',
     email: '',
     phone: '',
     city: '',
@@ -27,6 +28,12 @@ export default function Register() {
 
     if (!formData.full_name.trim()) {
       newErrors.full_name = 'Nome completo é obrigatório';
+    }
+
+    if (!formData.username.trim()) {
+      newErrors.username = 'Nome de usuário é obrigatório';
+    } else if (formData.username.length < 3) {
+      newErrors.username = 'Nome de usuário deve ter no mínimo 3 caracteres';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,35 +75,31 @@ export default function Register() {
     setLoading(true);
 
     try {
-      // Chamar função backend para criar usuário
-      const response = await base44.functions.invoke('registerUser', {
-        full_name: formData.full_name,
+      // Chamar função auth para criar usuário manual
+      const response = await base44.functions.invoke('auth', {
+        custom_full_name: formData.full_name,
+        username: formData.username,
         email: formData.email.toLowerCase(),
-        phone: formData.phone,
-        city: formData.city,
-        state: formData.state,
         password: formData.password
       });
 
-      // Verificar se houve erro
-      if (response.data && !response.data.success) {
+      if (response.data.success) {
+        setSuccess(true);
+        setTimeout(() => {
+          window.location.href = createPageUrl('Splash');
+        }, 3000);
+      } else {
         if (response.data.error) {
-          if (response.data.error.includes('já está cadastrado')) {
+          if (response.data.error.includes('já cadastrado')) {
             setErrors({ email: response.data.error });
+          } else if (response.data.error.includes('já existe')) {
+            setErrors({ username: response.data.error });
           } else {
             setErrors({ general: response.data.error });
           }
         }
         setLoading(false);
-        return;
       }
-
-      setSuccess(true);
-
-      // Redirecionar para login após 3 segundos
-      setTimeout(() => {
-        base44.auth.redirectToLogin(createPageUrl('Home'));
-      }, 3000);
 
     } catch (error) {
       console.error('Erro ao criar conta:', error);
@@ -183,6 +186,23 @@ export default function Register() {
                 </div>
                 {errors.full_name && (
                   <p className="text-red-500 text-xs mt-1 ml-1">{errors.full_name}</p>
+                )}
+              </div>
+
+              {/* Nome de Usuário */}
+              <div>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Input
+                    type="text"
+                    placeholder="Nome de usuário *"
+                    value={formData.username}
+                    onChange={(e) => handleChange('username', e.target.value.toLowerCase().replace(/\s/g, ''))}
+                    className={`pl-11 h-12 rounded-xl text-base ${errors.username ? 'border-red-500' : ''}`}
+                  />
+                </div>
+                {errors.username && (
+                  <p className="text-red-500 text-xs mt-1 ml-1">{errors.username}</p>
                 )}
               </div>
 

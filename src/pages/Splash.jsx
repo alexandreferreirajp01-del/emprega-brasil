@@ -39,7 +39,7 @@ export default function Splash() {
     checkSession();
   }, []);
 
-  // Login com email/senha
+  // Login com email/senha ou username/senha
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -51,11 +51,17 @@ export default function Splash() {
     setError('');
     
     try {
-      // Base44 usa redirecionamento OAuth, então vamos redirecionar com os dados
-      localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
-      base44.auth.redirectToLogin(createPageUrl('Home'));
+      const response = await base44.functions.invoke('auth', { username: email, password });
+      
+      if (response.data.success) {
+        localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+        window.location.href = createPageUrl('Home');
+      } else {
+        setError(response.data.error || 'Erro ao fazer login');
+        setLoading(false);
+      }
     } catch (err) {
-      setError('Erro ao fazer login. Tente novamente.');
+      setError(err.response?.data?.error || 'Usuário ou senha inválidos');
       setLoading(false);
     }
   };
@@ -105,12 +111,12 @@ export default function Splash() {
           {/* Formulário de Email/Senha */}
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div className="space-y-3">
-              {/* Campo Email */}
+              {/* Campo Email ou Username */}
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
-                  type="email"
-                  placeholder="E-mail"
+                  type="text"
+                  placeholder="E-mail ou nome de usuário"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-11 h-12 rounded-xl border-slate-200 text-base"

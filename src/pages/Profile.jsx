@@ -25,7 +25,8 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
   const [editForm, setEditForm] = useState({ 
-    full_name: '', 
+    custom_full_name: '', 
+    username: '',
     phone: '', 
     city: '', 
     state: 'PB',
@@ -52,7 +53,8 @@ export default function Profile() {
   useEffect(() => {
     if (user && !isEditing) {
       setEditForm({
-        full_name: user.full_name || '',
+        custom_full_name: user.custom_full_name || '',
+        username: user.username || '',
         phone: user.phone || '',
         city: user.city || '',
         state: user.state || 'PB',
@@ -94,15 +96,11 @@ export default function Profile() {
   // Mutation para atualizar perfil
   const updateProfileMutation = useMutation({
     mutationFn: async (data) => {
-      // Usar função backend personalizada que preserva dados do usuário
-      const response = await base44.functions.invoke('updateProfile', data);
-      
-      // Aguardar processamento
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Buscar dados atualizados do servidor
-      const freshUser = await base44.auth.me();
-      return freshUser;
+      const response = await base44.functions.invoke('auth', data);
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Erro ao atualizar perfil');
+      }
+      return response.data.user;
     },
     onSuccess: (freshUser) => {
       // Atualizar cache com dados frescos do servidor
@@ -110,7 +108,8 @@ export default function Profile() {
       
       // Atualizar formulário com dados salvos
       setEditForm({
-        full_name: freshUser.full_name || '',
+        custom_full_name: freshUser.custom_full_name || '',
+        username: freshUser.username || '',
         phone: freshUser.phone || '',
         city: freshUser.city || '',
         state: freshUser.state || 'PB',
@@ -128,14 +127,20 @@ export default function Profile() {
 
   const handleSaveProfile = async () => {
     // Validação
-    if (!editForm.full_name || editForm.full_name.trim().length < 3) {
-      showToast('Nome deve ter no mínimo 3 caracteres', 'error');
+    if (!editForm.custom_full_name || editForm.custom_full_name.trim().length < 3) {
+      showToast('Nome completo deve ter no mínimo 3 caracteres', 'error');
       return;
     }
 
-    // Preparar dados - enviar TODOS os campos para garantir persistência
+    if (!editForm.username || editForm.username.trim().length < 3) {
+      showToast('Nome de usuário deve ter no mínimo 3 caracteres', 'error');
+      return;
+    }
+
+    // Preparar dados
     const updateData = {
-      full_name: editForm.full_name.trim(),
+      custom_full_name: editForm.custom_full_name.trim(),
+      username: editForm.username.trim(),
       phone: editForm.phone.trim(),
       city: editForm.city.trim(),
       state: editForm.state.trim().toUpperCase() || 'PB'
@@ -156,7 +161,8 @@ export default function Profile() {
   const handleCancelEdit = () => {
     if (user) {
       setEditForm({
-        full_name: user.full_name || '',
+        custom_full_name: user.custom_full_name || '',
+        username: user.username || '',
         phone: user.phone || '',
         city: user.city || '',
         state: user.state || 'PB',
@@ -168,7 +174,8 @@ export default function Profile() {
 
   // Verificar se houve mudanças no formulário (dirty check)
   const hasChanges = user && (
-    editForm.full_name.trim() !== (user.full_name || '') ||
+    editForm.custom_full_name.trim() !== (user.custom_full_name || '') ||
+    editForm.username.trim() !== (user.username || '') ||
     editForm.phone.trim() !== (user.phone || '') ||
     editForm.city.trim() !== (user.city || '') ||
     editForm.state.trim().toUpperCase() !== (user.state || 'PB').toUpperCase() ||
@@ -274,7 +281,7 @@ export default function Profile() {
                 <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-white shadow-lg">
                   <AvatarImage src={user?.profile_photo} />
                   <AvatarFallback className="bg-[#0A66C2] text-white text-2xl sm:text-3xl">
-                    {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                    {user?.custom_full_name?.[0] || user?.username?.[0] || user?.email?.[0]?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <label className="absolute bottom-0 right-0 w-9 h-9 sm:w-10 sm:h-10 bg-[#0A66C2] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#004182]">
@@ -282,7 +289,7 @@ export default function Profile() {
                   <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={updatePhotoMutation.isPending} />
                 </label>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">{user?.full_name || 'Usuário'}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">{user?.custom_full_name || user?.username || 'Usuário'}</h2>
               {getSubscriptionBadge()}
             </div>
 
@@ -291,9 +298,19 @@ export default function Profile() {
                 <div className="space-y-2">
                   <Label>Nome Completo</Label>
                   <Input 
-                    value={editForm.full_name} 
-                    onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} 
+                    value={editForm.custom_full_name} 
+                    onChange={(e) => setEditForm({ ...editForm, custom_full_name: e.target.value })} 
                     placeholder="Seu nome completo" 
+                    className="rounded-xl h-11" 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Nome de Usuário</Label>
+                  <Input 
+                    value={editForm.username} 
+                    onChange={(e) => setEditForm({ ...editForm, username: e.target.value.toLowerCase().replace(/\s/g, '') })} 
+                    placeholder="seu.usuario" 
                     className="rounded-xl h-11" 
                   />
                 </div>
@@ -377,7 +394,7 @@ export default function Profile() {
                   <User className="w-5 h-5 text-slate-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-slate-500">Nome Completo</p>
-                    <p className="font-medium text-slate-800 text-sm">{user?.full_name || 'Não informado'}</p>
+                    <p className="font-medium text-slate-800 text-sm">{user?.custom_full_name || 'Não informado'}</p>
                   </div>
                   <button 
                     onClick={() => setIsEditing(true)} 
@@ -385,6 +402,13 @@ export default function Profile() {
                   >
                     <Edit className="w-4 h-4 text-slate-400" />
                   </button>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                  <User className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-500">Nome de Usuário</p>
+                    <p className="font-medium text-slate-800 text-sm">{user?.username || 'Não informado'}</p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <Mail className="w-5 h-5 text-slate-400 flex-shrink-0" />
