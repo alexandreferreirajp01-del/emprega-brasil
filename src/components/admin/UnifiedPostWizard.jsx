@@ -12,7 +12,7 @@ import {
   Calendar, Check, Loader2, Eye, Globe, Clock, Zap, Edit, Mail,
   Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code
 } from "lucide-react";
-import WhatsAppNotificationHelper from "@/components/admin/WhatsAppNotificationHelper";
+import BulkWhatsAppSender from "@/components/admin/BulkWhatsAppSender";
 import {
   Select,
   SelectContent,
@@ -680,8 +680,8 @@ export default function UnifiedPostWizard({
         </DialogContent>
       </Dialog>
 
-      {/* Helper WhatsApp */}
-      <WhatsAppNotificationHelper
+      {/* Bulk WhatsApp Sender */}
+      <BulkWhatsAppSender
         title={customTitle || `${template.emoji} ${template.title}`}
         message={customMessage || template.msg}
         isOpen={showWhatsAppHelper}

@@ -10,7 +10,7 @@ import { Bell, Send, Loader2, Upload, Briefcase, Newspaper, Gift, Sparkles, Mail
 import { Switch } from "@/components/ui/switch";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import WhatsAppNotificationHelper from "@/components/admin/WhatsAppNotificationHelper";
+import BulkWhatsAppSender from "@/components/admin/BulkWhatsAppSender";
 
 const NOTIFICATION_ICONS = [
   { value: 'briefcase', label: 'Vaga', icon: Briefcase, emoji: '📁' },
@@ -498,14 +498,14 @@ Vagas Abertas Paraíba
           </CardContent>
           </Card>
 
-          <WhatsAppNotificationHelper
-          title={title}
-          message={message}
-          isOpen={showWhatsAppHelper}
-          onClose={() => {
-          setShowWhatsAppHelper(false);
-          onClose?.();
-          }}
+          <BulkWhatsAppSender
+            title={title}
+            message={message}
+            isOpen={showWhatsAppHelper}
+            onClose={() => {
+              setShowWhatsAppHelper(false);
+              onClose?.();
+            }}
           />
           </>
           );
