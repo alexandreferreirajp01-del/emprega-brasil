@@ -229,7 +229,7 @@ export default function Home() {
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-slate-800 group-hover:text-blue-600 transition-colors truncate">
+                            <h3 className="font-semibold text-slate-800 group-hover:text-[#0A66C2] transition-colors truncate">
                               {job.title}
                             </h3>
                             <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs shrink-0">

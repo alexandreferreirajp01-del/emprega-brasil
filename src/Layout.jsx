@@ -184,7 +184,7 @@ export default function Layout({ children, currentPageName }) {
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-      <meta name="theme-color" content="#0056ff" />
+      <meta name="theme-color" content="#0A66C2" />
       <meta name="application-name" content="Vagas Abertas PB" />
       <meta name="apple-mobile-web-app-title" content="Vagas Abertas PB" />
       {/* Bloqueio total de tradução - todos os navegadores */}
