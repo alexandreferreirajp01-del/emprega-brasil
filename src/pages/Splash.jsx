@@ -176,7 +176,7 @@ export default function Splash() {
 
           {/* Links de recuperação */}
           <div className="flex justify-center gap-4 text-sm">
-            <Link to={createPageUrl('ForgotPassword')} className="text-white/80 hover:text-white hover:underline">
+            <Link to={createPageUrl('ForgotPassword')} className="text-slate-600 hover:text-slate-800 hover:underline">
               Esqueci minha senha
             </Link>
           </div>
@@ -186,9 +186,9 @@ export default function Splash() {
             type="button"
             variant="ghost"
             onClick={handleVisitorLogin}
-            className="w-full h-12 rounded-xl text-white/80 hover:text-white hover:bg-white/10 text-base font-medium"
+            className="w-full h-12 rounded-xl text-slate-600 hover:text-slate-800 hover:bg-slate-100 text-base font-medium border border-slate-200"
           >
-            <Briefcase className="w-5 h-5 mr-2 text-slate-400" />
+            <Briefcase className="w-5 h-5 mr-2 text-slate-500" />
             Entrar como Visitante
           </Button>
 
@@ -203,13 +203,13 @@ export default function Splash() {
           </Link>
 
           {/* Texto informativo */}
-          <p className="text-center text-xs text-white/60 pt-2">
+          <p className="text-center text-xs text-slate-500 pt-2">
             Ao entrar, você concorda com nossos{' '}
-            <a href={createPageUrl('Terms')} className="text-white/80 hover:text-white hover:underline">
+            <a href={createPageUrl('Terms')} className="text-slate-600 hover:text-slate-800 hover:underline">
               Termos de Uso
             </a>{' '}
             e{' '}
-            <a href={createPageUrl('Privacy')} className="text-white/80 hover:text-white hover:underline">
+            <a href={createPageUrl('Privacy')} className="text-slate-600 hover:text-slate-800 hover:underline">
               Política de Privacidade
             </a>
           </p>
@@ -217,7 +217,7 @@ export default function Splash() {
       </Card>
 
       {/* Footer */}
-      <p className="text-white/50 text-xs mt-8 text-center">
+      <p className="text-white/70 text-xs mt-8 text-center">
         © {new Date().getFullYear()} Vagas Abertas Paraíba
       </p>
     </div>

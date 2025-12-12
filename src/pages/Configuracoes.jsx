@@ -5,7 +5,7 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -23,6 +23,7 @@ const menuItems = [
   { id: 'responder-chat', name: 'Responder Chat', icon: MessageSquare, color: 'cyan', page: 'ResponderChat', description: 'Responder mensagens dos usuários', permissionId: 'responder_chat' },
   { id: 'dividerRecrutador', type: 'divider', label: 'Área do Recrutador', roles: ['recruiter', 'admin', 'dono'] },
   { id: 'recruiter-area', name: 'Painel do Recrutador', icon: Briefcase, color: 'blue', page: 'RecruiterArea', description: 'Ferramentas exclusivas para recrutadores', roles: ['recruiter', 'admin', 'dono'], permissionId: 'recruiter_area' },
+  { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores', roles: ['admin', 'dono'], permissionId: 'solicitacoes' },
   { id: 'divider0', type: 'divider', label: 'Gerenciamento' },
   { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'purple', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'], permissionId: 'permissoes' },
   { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'slate', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros', permissionId: 'gerenciador_filtros' },
@@ -64,6 +65,7 @@ const colorClasses = {
 export default function Configuracoes() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -120,9 +122,29 @@ export default function Configuracoes() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4">
+        {/* Barra de Pesquisa */}
+        <div className="mb-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar configuração..."
+              className="pl-11 h-12 rounded-xl border-slate-200 text-base"
+            />
+          </div>
+        </div>
+
         <Card className="rounded-2xl overflow-hidden">
           <CardContent className="p-0">
-            {menuItems.map((item, index) => {
+            {menuItems.filter(item => {
+              // Filtrar por busca
+              if (!searchTerm) return true;
+              if (item.type === 'divider') return false;
+              const search = searchTerm.toLowerCase();
+              return item.name?.toLowerCase().includes(search) || 
+                     item.description?.toLowerCase().includes(search);
+            }).map((item, index) => {
               // Verificar permissão de acesso
               const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || 
                              user?.subscription_type === 'dono';
@@ -152,6 +174,8 @@ export default function Configuracoes() {
               }
               
               if (item.type === 'divider') {
+                // Não renderizar dividers se houver busca ativa
+                if (searchTerm) return null;
                 return (
                   <div key={item.id} className="px-4 py-3 bg-slate-50 border-t border-b">
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{item.label}</p>
@@ -185,6 +209,18 @@ export default function Configuracoes() {
             })}
           </CardContent>
         </Card>
+
+        {searchTerm && menuItems.filter(item => {
+          if (item.type === 'divider') return false;
+          const search = searchTerm.toLowerCase();
+          return item.name?.toLowerCase().includes(search) || 
+                 item.description?.toLowerCase().includes(search);
+        }).length === 0 && (
+          <div className="text-center py-8 text-slate-400">
+            <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <p>Nenhuma configuração encontrada</p>
+          </div>
+        )}
 
         <p className="text-center text-xs text-slate-400 mt-4">
           Itens com <ExternalLink className="w-3 h-3 inline" /> abrem o painel Base44
