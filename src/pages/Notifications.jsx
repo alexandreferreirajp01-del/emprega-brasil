@@ -170,14 +170,17 @@ export default function Notifications() {
     return null;
   };
 
-  const handleNotificationClick = (notification) => {
+  const handleNotificationClick = (notification, e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
     if (!notification.is_read) {
       markAsReadMutation.mutate(notification.id);
     }
     
     const url = getRedirectUrl(notification);
     if (url) {
-      navigate(url);
+      window.location.href = url;
     }
   };
 
@@ -240,49 +243,53 @@ export default function Notifications() {
               const isClickable = !!redirectUrl;
 
               return (
-                <Card 
+                <div
                   key={notification.id}
-                  className={`rounded-2xl overflow-hidden transition-all ${isClickable ? 'cursor-pointer hover:shadow-md' : ''} ${!notification.is_read ? 'border-l-4 border-l-[#0A66C2]' : ''}`}
-                  onClick={() => isClickable && handleNotificationClick(notification)}
+                  onClick={(e) => isClickable && handleNotificationClick(notification, e)}
+                  className={`${isClickable ? 'cursor-pointer' : ''}`}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${getIconStyle(notification.type)}`}>
-                        {notification.icon_url ? (
-                          <img src={notification.icon_url} alt="" className="w-7 h-7 rounded-full object-cover" />
-                        ) : (
-                          getNotificationIcon(notification)
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-slate-800 line-clamp-2">
-                              {notification.title}
-                            </p>
-                            <p className="text-sm text-slate-600 line-clamp-3 mt-1">
-                              {notification.message}
-                            </p>
-                            <div className="flex items-center gap-3 mt-2">
-                              <p className="text-xs text-slate-400">
-                                {formatTimeAgo(notification.created_date)}
+                  <Card 
+                    className={`rounded-2xl overflow-hidden transition-all ${isClickable ? 'hover:shadow-md active:scale-[0.99]' : ''} ${!notification.is_read ? 'border-l-4 border-l-[#0A66C2]' : ''}`}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${getIconStyle(notification.type)}`}>
+                          {notification.icon_url ? (
+                            <img src={notification.icon_url} alt="" className="w-7 h-7 rounded-full object-cover" />
+                          ) : (
+                            getNotificationIcon(notification)
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-slate-800 line-clamp-2">
+                                {notification.title}
                               </p>
-                              {!notification.is_read && (
-                                <Badge className="bg-[#0A66C2] text-white text-xs">Nova</Badge>
-                              )}
+                              <p className="text-sm text-slate-600 line-clamp-3 mt-1">
+                                {notification.message}
+                              </p>
+                              <div className="flex items-center gap-3 mt-2">
+                                <p className="text-xs text-slate-400">
+                                  {formatTimeAgo(notification.created_date)}
+                                </p>
+                                {!notification.is_read && (
+                                  <Badge className="bg-[#0A66C2] text-white text-xs">Nova</Badge>
+                                )}
+                              </div>
                             </div>
+                            <button
+                              onClick={(e) => deleteNotification(e, notification.id)}
+                              className="p-2 hover:bg-red-100 rounded-lg transition-colors flex-shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </button>
                           </div>
-                          <button
-                            onClick={(e) => deleteNotification(e, notification.id)}
-                            className="p-2 hover:bg-red-100 rounded-lg transition-colors flex-shrink-0"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </button>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </div>
               );
             })}
           </div>

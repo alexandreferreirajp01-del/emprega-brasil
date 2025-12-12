@@ -135,14 +135,17 @@ export default function UnifiedPostWizard({
       timezone: 'America/Sao_Paulo'
     } : null;
 
+    // Preparar jobs em lote para acelerar
+    const jobsToPublish = jobsData.map((j, idx) => ({
+      ...j,
+      contract_types: selectedContractTypes,
+      is_premium: individualPremiumFlags[idx] !== undefined ? individualPremiumFlags[idx] : isPremium,
+      is_featured: isFeatured,
+      published_at: brasiliaTime
+    }));
+
     const finalData = {
-      jobs: jobsData.map((j, idx) => ({
-        ...j,
-        contract_types: selectedContractTypes,
-        is_premium: individualPremiumFlags[idx] !== undefined ? individualPremiumFlags[idx] : isPremium,
-        is_featured: isFeatured,
-        published_at: brasiliaTime
-      })),
+      jobs: jobsToPublish,
       notification: notificationData,
       schedule: scheduleData
     };
@@ -153,9 +156,9 @@ export default function UnifiedPostWizard({
       await onPublish?.(finalData);
     }
     
-    // Mostrar helper do WhatsApp se marcado
+    // Mostrar helper do WhatsApp se marcado (não bloquear)
     if (notificationData?.channels?.whatsapp) {
-      setShowWhatsAppHelper(true);
+      setTimeout(() => setShowWhatsAppHelper(true), 100);
     }
   };
 

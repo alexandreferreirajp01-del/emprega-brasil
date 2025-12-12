@@ -192,112 +192,89 @@ export default function PermissionPrompt() {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden relative">
+      <div className="bg-white rounded-2xl max-w-[340px] w-full shadow-2xl overflow-hidden relative">
         <button
           onClick={finishSetup}
-          className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center transition-colors"
+          className="absolute top-2 right-2 z-10 w-7 h-7 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition-colors"
         >
-          <X className="w-5 h-5 text-white" />
+          <X className="w-4 h-4 text-slate-600" />
         </button>
         
         {step === 1 && (
           <>
-            <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-6 text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                {success ? (
-                  <CheckCircle className="w-8 h-8 text-white" />
-                ) : (
-                  <Bell className="w-8 h-8 text-white" />
-                )}
+            <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-4 text-center">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Bell className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-xl font-bold text-white">
-                {success ? 'Ativado com Sucesso!' : 'Ativar Notificações?'}
-              </h2>
-              <p className="text-white/80 text-sm mt-1">
-                {success ? 'Você receberá alertas de vagas' : 'Receba alertas de novas vagas'}
-              </p>
+              <h2 className="text-lg font-bold text-white">Ativar Notificações</h2>
+              <p className="text-white/80 text-xs mt-1">Receba alertas de novas vagas</p>
             </div>
 
-            <div className="p-6">
-              {success ? (
-                <div className="text-center py-4">
-                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-3" />
-                  <p className="text-green-600 font-medium">Notificações ativadas!</p>
+            <div className="p-4">
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center gap-2 text-xs text-slate-600">
+                  <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                  <span>Novas vagas em primeira mão</span>
                 </div>
-              ) : (
-                <>
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center gap-3 text-sm text-slate-600">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <CheckCircle className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <span>Novas vagas em primeira mão</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-slate-600">
-                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                      </div>
-                      <span>Alertas de Home Office</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-slate-600">
-                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                        <CheckCircle className="w-4 h-4 text-purple-600" />
-                      </div>
-                      <span>Notícias e atualizações</span>
-                    </div>
-                  </div>
-                  
-                  <Button
-                    onClick={subscribePush}
-                    disabled={loading}
-                    className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] rounded-xl text-base font-medium mb-3"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Ativando...
-                      </>
-                    ) : (
-                      <>
-                        <Bell className="w-5 h-5 mr-2" />
-                        Ativar Notificações
-                      </>
-                    )}
-                  </Button>
+                <div className="flex items-center gap-2 text-xs text-slate-600">
+                  <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <span>Alertas de vagas Home Office</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-600">
+                  <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                  <span>Notícias e atualizações</span>
+                </div>
+              </div>
+              
+              <Button
+                onClick={subscribePush}
+                disabled={loading}
+                className="w-full h-11 bg-[#0A66C2] hover:bg-[#004182] rounded-xl text-sm font-medium mb-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Ativando...
+                  </>
+                ) : (
+                  <>
+                    <Bell className="w-4 h-4 mr-2" />
+                    Ativar Notificações
+                  </>
+                )}
+              </Button>
 
-                  <Button
-                    variant="ghost"
-                    onClick={finishSetup}
-                    disabled={loading}
-                    className="w-full text-slate-500"
-                  >
-                    Talvez depois
-                  </Button>
-                </>
-              )}
+              <Button
+                variant="ghost"
+                onClick={finishSetup}
+                disabled={loading}
+                className="w-full h-9 text-slate-500 text-xs hover:bg-slate-50"
+              >
+                Talvez depois
+              </Button>
             </div>
           </>
         )}
 
         {step === 2 && (
           <>
-            <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-8 h-8 text-white" />
+            <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 text-center">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                <MapPin className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-xl font-bold text-white">Permitir Localização?</h2>
-              <p className="text-white/80 text-sm mt-1">Encontre vagas perto de você</p>
+              <h2 className="text-lg font-bold text-white">Permitir Localização?</h2>
+              <p className="text-white/80 text-xs mt-1">Vagas perto de você</p>
             </div>
 
-            <div className="p-6">
-              <p className="text-slate-600 text-sm text-center mb-6">
-                Usamos sua localização apenas para mostrar vagas na sua região.
+            <div className="p-4">
+              <p className="text-slate-600 text-xs text-center mb-4">
+                Sua localização ajuda a mostrar vagas na sua região.
               </p>
               
               <Button
                 onClick={requestLocation}
                 disabled={loading}
-                className="w-full h-12 bg-green-500 hover:bg-green-600 rounded-xl text-base font-medium mb-3"
+                className="w-full h-11 bg-green-500 hover:bg-green-600 rounded-xl text-sm font-medium mb-2"
               >
                 {loading ? 'Configurando...' : 'Permitir Localização'}
               </Button>
@@ -306,7 +283,7 @@ export default function PermissionPrompt() {
                 variant="ghost"
                 onClick={skipCurrent}
                 disabled={loading}
-                className="w-full text-slate-500"
+                className="w-full h-9 text-slate-500 text-xs hover:bg-slate-50"
               >
                 Pular
               </Button>

@@ -123,23 +123,36 @@ export default function PostsEmMassa() {
         });
         alert('Vagas agendadas!');
       } else {
+        // Criar vagas em paralelo (máximo 5 por vez para não sobrecarregar)
+        const batchSize = 5;
+        const batches = [];
+        for (let i = 0; i < jobsToCreate.length; i += batchSize) {
+          batches.push(jobsToCreate.slice(i, i + batchSize));
+        }
+
         let firstJobId = null;
-        for (const job of jobsToCreate) {
-          const created = await base44.entities.Job.create(job);
-          if (!firstJobId) firstJobId = created.id;
+        for (const batch of batches) {
+          const results = await Promise.all(
+            batch.map(job => base44.entities.Job.create(job))
+          );
+          if (!firstJobId && results[0]) {
+            firstJobId = results[0].id;
+          }
         }
         
+        // Notificações em background (não bloquear)
         if (wizardData.notification && firstJobId) {
-          const users = await base44.entities.User.list();
-          const targetUsers = wizardData.notification.premiumOnly 
-            ? users.filter(u => u.subscription_type === 'premium' || u.role === 'admin').map(u => u.email)
-            : users.map(u => u.email);
+          base44.entities.User.list().then(users => {
+            const targetUsers = wizardData.notification.premiumOnly 
+              ? users.filter(u => u.subscription_type === 'premium' || u.role === 'admin').map(u => u.email)
+              : users.map(u => u.email);
 
-          await base44.functions.invoke('sendNotifications', {
-            notification: wizardData.notification,
-            jobId: firstJobId,
-            targetUsers
-          });
+            base44.functions.invoke('sendNotifications', {
+              notification: wizardData.notification,
+              jobId: firstJobId,
+              targetUsers
+            }).catch(() => {});
+          }).catch(() => {});
         }
         
         alert(`${jobsToCreate.length} vagas publicadas!`);
