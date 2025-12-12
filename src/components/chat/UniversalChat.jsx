@@ -179,16 +179,16 @@ export default function UniversalChat() {
       {/* Chat Button - Fixed Position */}
       <button
         onClick={() => setChatOpen(!chatOpen)}
-        className="fixed bottom-20 md:bottom-6 right-4 z-50 w-12 h-12 bg-[#0A66C2] hover:bg-[#004182] rounded-2xl shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 relative"
+        className="fixed bottom-20 md:bottom-6 right-4 z-[9999] w-14 h-14 bg-[#25D366] hover:bg-[#20bd5a] shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110"
         aria-label="Abrir chat de suporte"
         style={{ 
-          borderRadius: '20px 20px 20px 4px',
+          borderRadius: '24px 24px 24px 6px',
         }}
       >
         {chatOpen ? (
-          <X className="w-5 h-5 text-white" />
+          <X className="w-6 h-6 text-white" />
         ) : (
-          <MessageCircle className="w-5 h-5 text-white" />
+          <MessageCircle className="w-6 h-6 text-white" />
         )}
       </button>
 
