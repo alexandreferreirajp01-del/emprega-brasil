@@ -118,10 +118,10 @@ export default function NotificationBell({ user }) {
 
   const getIconStyle = (type) => {
     switch (type) {
-      case 'news': return 'bg-green-100 text-green-600';
-      case 'promo': return 'bg-purple-100 text-purple-600';
-      case 'chat': return 'bg-blue-100 text-blue-600';
-      case 'highlight': return 'bg-yellow-100 text-yellow-600';
+      case 'news': return 'bg-[#057642]/10 text-[#057642]';
+      case 'promo': return 'bg-[#0A66C2]/10 text-[#0A66C2]';
+      case 'chat': return 'bg-[#0A66C2]/10 text-[#0A66C2]';
+      case 'highlight': return 'bg-[#F9C846]/10 text-[#F9C846]';
       default: return 'bg-slate-100 text-slate-600';
     }
   };
@@ -134,7 +134,7 @@ export default function NotificationBell({ user }) {
           size="icon" 
           className="relative rounded-full hover:bg-slate-100"
         >
-          <Bell className="w-5 h-5 text-slate-600" />
+          <Bell className="w-5 h-5 text-[#1D2226]" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
               {unreadCount > 99 ? '99+' : unreadCount}
@@ -155,7 +155,7 @@ export default function NotificationBell({ user }) {
               variant="ghost" 
               size="sm" 
               onClick={markAllAsRead}
-              className="text-xs text-[#0056ff] hover:text-[#0044cc]"
+              className="text-xs text-[#0A66C2] hover:text-[#004182]"
             >
               <Check className="w-3 h-3 mr-1" />
               Marcar todas
@@ -185,7 +185,7 @@ export default function NotificationBell({ user }) {
                     }
                   }}
                 >
-                  <div className={`p-3 hover:bg-slate-50 transition-colors cursor-pointer group ${!notification.is_read ? 'bg-blue-50' : ''}`}>
+                  <div className={`p-3 hover:bg-slate-50 transition-colors cursor-pointer group ${!notification.is_read ? 'bg-[#0A66C2]/5' : ''}`}>
                     <div className="flex items-start gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getIconStyle(notification.type)}`}>
                         {notification.icon_url ? (
@@ -207,7 +207,7 @@ export default function NotificationBell({ user }) {
                       </div>
                       <div className="flex items-center gap-1">
                         {!notification.is_read && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
+                          <div className="w-2 h-2 bg-[#0A66C2] rounded-full flex-shrink-0" />
                         )}
                         <button
                           onClick={(e) => deleteNotification(e, notification.id)}
@@ -228,7 +228,7 @@ export default function NotificationBell({ user }) {
         {uniqueNotifications.length > 0 && (
           <div className="p-2 border-t bg-white sticky bottom-0">
             <Link to={createPageUrl('Jobs')} onClick={() => setOpen(false)}>
-              <Button variant="ghost" className="w-full text-[#0056ff] text-sm">
+              <Button variant="ghost" className="w-full text-[#0A66C2] text-sm">
                 Ver todas as vagas
               </Button>
             </Link>
