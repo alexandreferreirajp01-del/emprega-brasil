@@ -149,6 +149,24 @@ export default function UniversalChat() {
         is_read: false,
       });
       
+      // Notificar admin/owner sobre nova mensagem
+      try {
+        const allUsers = await base44.entities.User.list();
+        const admins = allUsers.filter(u => u.role === 'admin' || u.subscription_type === 'admin');
+        
+        for (const admin of admins) {
+          await base44.entities.Notification.create({
+            user_email: admin.email,
+            title: '💬 Nova mensagem no Chat',
+            message: `${getSenderName()}: "${text.substring(0, 50)}..."`,
+            type: 'system',
+            is_read: false
+          });
+        }
+      } catch (e) {
+        console.warn('Erro ao notificar admins:', e);
+      }
+      
       // Reload to get real message
       await loadChatHistory();
     } catch (e) {
