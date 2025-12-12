@@ -261,7 +261,7 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       {/* Top Navigation */}
-      <header className="bg-white shadow-sm sticky top-0 z-40" translate="no">
+      <header className="bg-white shadow-sm sticky top-0 z-40" translate="no" style={{ backgroundColor: '#FFFFFF', backgroundImage: 'none' }}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-24">
             {/* Logo */}
@@ -274,7 +274,7 @@ export default function Layout({ children, currentPageName }) {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-bold text-slate-800 leading-tight">Vagas Abertas</span>
+                <span className="text-xl md:text-2xl font-bold text-[#1D2226] leading-tight">Vagas Abertas</span>
                 <span className="text-sm text-[#0A66C2] font-medium">Paraíba</span>
               </div>
             </Link>
@@ -285,7 +285,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link key={item.page} to={createPageUrl(item.page)}>
                   <Button 
                     variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : ''}`}
+                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : 'text-[#1D2226]'}`}
                   >
                     <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
                     <span>{item.name}</span>
@@ -301,13 +301,13 @@ export default function Layout({ children, currentPageName }) {
               )}
               {isVisitor ? (
                 <Link to={createPageUrl('Splash')}>
-                  <Button className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl text-sm px-4">
+                  <Button className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl text-sm px-4 text-white">
                     Entrar
                   </Button>
                 </Link>
               ) : (
                 <Link to={createPageUrl('Profile')}>
-                  <Button variant="outline" className="rounded-xl text-sm px-3">
+                  <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] border-slate-200 hover:bg-slate-50">
                     <User className="w-4 h-4 mr-1.5" />
                     Perfil
                   </Button>
@@ -324,6 +324,7 @@ export default function Layout({ children, currentPageName }) {
                 variant="ghost" 
                 size="icon" 
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-[#1D2226]"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </Button>
