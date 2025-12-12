@@ -132,7 +132,6 @@ export default function Notifications() {
   };
 
   const getRedirectUrl = (notification) => {
-    // Prioridade: redirect_page > reference_type > job_id
     if (notification.redirect_page) {
       const params = notification.redirect_params || {};
       const queryString = Object.keys(params).length > 0 
@@ -144,12 +143,13 @@ export default function Notifications() {
     if (notification.reference_type && notification.reference_id) {
       switch (notification.reference_type) {
         case 'job':
-          return `${createPageUrl('JobDetail')}?id=${notification.reference_id}`;
+          return createPageUrl('JobDetail') + '?id=' + notification.reference_id;
         case 'news':
-          return `${createPageUrl('NewsDetail')}?id=${notification.reference_id}`;
+          return createPageUrl('NewsDetail') + '?id=' + notification.reference_id;
         case 'user':
           return createPageUrl('GerenciarUsuarios');
         case 'feed_post':
+        case 'feed_comment':
           return createPageUrl('Feed');
         case 'occurrence':
           return createPageUrl('Ocorrencias');
@@ -157,31 +157,34 @@ export default function Notifications() {
           return createPageUrl('ResponderChat');
         case 'request':
           return createPageUrl('GerenciarSolicitacoes');
+        case 'payment':
+          return createPageUrl('PaymentsPage');
         default:
-          return null;
+          return createPageUrl('Home');
       }
     }
 
-    // Fallback para job_id (compatibilidade)
     if (notification.job_id) {
-      return `${createPageUrl('JobDetail')}?id=${notification.job_id}`;
+      return createPageUrl('JobDetail') + '?id=' + notification.job_id;
     }
 
-    return null;
+    return createPageUrl('Home');
   };
 
   const handleNotificationClick = (notification, e) => {
-    e?.preventDefault();
-    e?.stopPropagation();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
     if (!notification.is_read) {
       markAsReadMutation.mutate(notification.id);
     }
     
     const url = getRedirectUrl(notification);
-    if (url) {
+    setTimeout(() => {
       window.location.href = url;
-    }
+    }, 100);
   };
 
   if (loading) {

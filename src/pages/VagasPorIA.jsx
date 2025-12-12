@@ -100,16 +100,17 @@ export default function VagasPorIA() {
           const createdJob = await base44.entities.Job.create(jobData);
           
           if (wizardData.notification) {
-            const users = await base44.entities.User.list();
-            const targetUsers = wizardData.notification.premiumOnly 
-              ? users.filter(u => u.subscription_type === 'premium' || u.role === 'admin').map(u => u.email)
-              : users.map(u => u.email);
+            base44.entities.User.list().then(users => {
+              const targetUsers = wizardData.notification.premiumOnly 
+                ? users.filter(u => u.subscription_type === 'premium' || u.role === 'admin').map(u => u.email)
+                : users.map(u => u.email);
 
-            await base44.functions.invoke('sendNotifications', {
-              notification: wizardData.notification,
-              jobId: createdJob.id,
-              targetUsers
-            });
+              base44.functions.invoke('sendNotifications', {
+                notification: wizardData.notification,
+                jobId: createdJob.id,
+                targetUsers
+              }).catch(() => {});
+            }).catch(() => {});
           }
           
           alert('Vaga publicada!');

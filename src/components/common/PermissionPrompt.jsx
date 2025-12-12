@@ -35,12 +35,11 @@ export default function PermissionPrompt() {
     const lastPrompt = localStorage.getItem('vagas_push_last_prompt');
     const now = Date.now();
     
-    // Verificar se o navegador suporta notificações
     const supportsNotifications = 'Notification' in window && 'serviceWorker' in navigator;
     
-    // Mostrar se nunca viu OU se passou mais de 7 dias (e suporta notificações)
-    if (supportsNotifications && (!hasSeenPrompt || (lastPrompt && now - parseInt(lastPrompt) > 7 * 24 * 60 * 60 * 1000))) {
-      const timer = setTimeout(() => setStep(1), 3000);
+    // Mostrar sempre que não viu ou passou 3 dias
+    if (supportsNotifications && (!hasSeenPrompt || (lastPrompt && now - parseInt(lastPrompt) > 3 * 24 * 60 * 60 * 1000))) {
+      const timer = setTimeout(() => setStep(1), 2000);
       return () => clearTimeout(timer);
     }
   }, []);
