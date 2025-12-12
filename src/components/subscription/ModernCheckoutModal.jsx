@@ -22,6 +22,24 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
   const [error, setError] = useState('');
 
   const plans = {
+    basic: {
+      name: 'Básico',
+      price: 'Grátis',
+      period: 'Para sempre',
+      subtitle: 'Acesso Limitado',
+      icon: Users,
+      color: 'slate',
+      benefits: [
+        { icon: Eye, text: 'Visualizar vagas públicas' },
+        { icon: Briefcase, text: 'Candidatar-se às vagas' },
+        { icon: MessageSquare, text: 'Acesso ao feed da comunidade' },
+      ],
+      limitations: [
+        'Sem acesso a vagas premium',
+        'Anúncios visíveis',
+        'Ferramentas limitadas'
+      ]
+    },
     premium: {
       name: 'Premium',
       price: 'R$ 29,90',
@@ -82,7 +100,7 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
         amount: price,
         status: 'pending',
         payment_method: paymentMethod,
-        notes: `Assinatura ${currentPlan.name} - ${paymentMethod} ${couponCode ? `- Cupom: ${couponCode}` : ''}`
+        notes: `Assinatura ${currentPlan.name} - ${paymentMethod}`
       });
 
       // Mensagem WhatsApp
@@ -91,7 +109,6 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
         `📧 *Email:* ${user?.email || 'N/A'}\n` +
         `💳 *Plano:* ${currentPlan.name} - ${currentPlan.price}\n` +
         `💰 *Método:* ${paymentMethods.find(m => m.id === paymentMethod)?.name}\n` +
-        `${couponCode ? `🎟️ *Cupom:* ${couponCode}\n` : ''}` +
         `\n✅ *Aguardando confirmação de pagamento*`;
 
       const whatsappURL = `https://wa.me/5583991971320?text=${encodeURIComponent(whatsappMessage)}`;
@@ -137,10 +154,11 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
           </Card>
 
           {/* Seleção de Planos */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             {Object.entries(plans).map(([key, plan]) => {
               const Icon = plan.icon;
               const isSelected = selectedPlan === key;
+              const isFree = key === 'basic';
               return (
                 <Card
                   key={key}
@@ -148,8 +166,8 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
                     isSelected 
                       ? `border-2 border-${plan.color}-600 shadow-lg` 
                       : 'border-2 border-transparent hover:border-slate-200'
-                  }`}
-                  onClick={() => setSelectedPlan(key)}
+                  } ${isFree ? 'opacity-90' : ''}`}
+                  onClick={() => !isFree && setSelectedPlan(key)}
                 >
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
@@ -162,7 +180,7 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
                           <p className="text-sm text-slate-500">{plan.subtitle}</p>
                         </div>
                       </div>
-                      {isSelected && (
+                      {isSelected && !isFree && (
                         <div className={`w-6 h-6 bg-${plan.color}-600 rounded-full flex items-center justify-center`}>
                           <Check className="w-4 h-4 text-white" />
                         </div>
@@ -181,6 +199,13 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
                           <span className="text-slate-700">{benefit.text}</span>
                         </div>
                       ))}
+                      {plan.limitations && (
+                        <div className="pt-2 mt-2 border-t space-y-1">
+                          {plan.limitations.map((limit, i) => (
+                            <div key={i} className="text-xs text-slate-400">• {limit}</div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -209,19 +234,7 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
             </CardContent>
           </Card>
 
-          {/* Cupom */}
-          <Card>
-            <CardContent className="p-6">
-              <Label htmlFor="coupon" className="font-medium mb-2 block">Cupom de Desconto</Label>
-              <Input
-                id="coupon"
-                placeholder="Digite seu cupom"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                className="h-12"
-              />
-            </CardContent>
-          </Card>
+
 
           {/* Erro */}
           {error && (
