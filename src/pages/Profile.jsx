@@ -41,14 +41,16 @@ export default function Profile() {
     queryKey: ['currentUser'],
     queryFn: async () => {
       const userData = await base44.auth.me();
-      // Atualizar formulário de edição com os dados atuais
-      setEditForm({
-        full_name: userData.full_name || '',
-        phone: userData.phone || '',
-        city: userData.city || '',
-        state: userData.state || 'PB',
-        password: ''
-      });
+      // Atualizar formulário de edição APENAS se não estiver editando
+      if (!isEditing) {
+        setEditForm({
+          full_name: userData.full_name || '',
+          phone: userData.phone || '',
+          city: userData.city || '',
+          state: userData.state || 'PB',
+          password: ''
+        });
+      }
       return userData;
     },
     refetchInterval: 5000, // Atualizar a cada 5 segundos
