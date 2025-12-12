@@ -109,16 +109,16 @@ export default function Home() {
 
 
   const stats = [
-    { label: 'Vagas Ativas', value: jobs.length, icon: Briefcase, color: 'text-blue-600' },
-    { label: 'Notícias', value: news.length, icon: Newspaper, color: 'text-green-600' },
-    { label: 'Posts', value: posts.length, icon: MessageCircle, color: 'text-purple-600' },
+    { label: 'Vagas Ativas', value: jobs.length, icon: Briefcase, color: 'text-[#0A66C2]' },
+    { label: 'Notícias', value: news.length, icon: Newspaper, color: 'text-[#057642]' },
+    { label: 'Posts', value: posts.length, icon: MessageCircle, color: 'text-[#0A66C2]' },
   ];
 
   const quickActions = [
-    { label: 'Buscar Vagas', icon: Search, page: 'Jobs', color: 'bg-blue-600', desc: 'Encontre oportunidades' },
-    { label: 'Feed', icon: MessageCircle, page: 'Feed', color: 'bg-purple-600', desc: 'Conecte-se' },
-    { label: 'Notícias', icon: Newspaper, page: 'News', color: 'bg-green-600', desc: 'Fique informado' },
-    { label: 'Grupos', icon: Users, page: 'Groups', color: 'bg-orange-600', desc: 'WhatsApp' },
+    { label: 'Buscar Vagas', icon: Search, page: 'Jobs', color: 'bg-[#0A66C2]', desc: 'Encontre oportunidades' },
+    { label: 'Feed', icon: MessageCircle, page: 'Feed', color: 'bg-[#0A66C2]', desc: 'Conecte-se' },
+    { label: 'Notícias', icon: Newspaper, page: 'News', color: 'bg-[#057642]', desc: 'Fique informado' },
+    { label: 'Grupos', icon: Users, page: 'Groups', color: 'bg-[#F9C846]', desc: 'WhatsApp' },
   ];
 
   const tabs = [
@@ -206,7 +206,7 @@ export default function Home() {
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Featured Jobs */}
             <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden" style={{ minHeight: '400px' }}>
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-3 sm:p-4 flex items-center justify-between">
+              <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-3 sm:p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
                     <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" />
@@ -225,7 +225,7 @@ export default function Home() {
               <CardContent className="p-4 space-y-3">
                 {featuredJobs.slice(0, 5).map((job) => (
                   <Link key={job.id} to={createPageUrl('JobDetail') + `?id=${job.id}`}>
-                    <div className="p-4 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-blue-100">
+                    <div className="p-4 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-[#0A66C2]/20">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
@@ -294,7 +294,7 @@ export default function Home() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex-1 py-2.5 sm:py-3 px-1 sm:px-2 text-center transition-all duration-300 relative ${
                       activeTab === tab.id 
-                        ? 'bg-[#0056ff] text-white' 
+                        ? 'bg-[#0A66C2] text-white' 
                         : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -310,7 +310,7 @@ export default function Home() {
                   <div className="divide-y">
                     {jobs.slice(0, 8).map((job) => (
                       <Link key={job.id} to={createPageUrl('JobDetail') + `?id=${job.id}`}>
-                        <div className="p-4 hover:bg-blue-50 transition-colors cursor-pointer">
+                        <div className="p-4 hover:bg-[#0A66C2]/5 transition-colors cursor-pointer">
                           <h4 className="font-medium text-slate-800 text-sm truncate mb-1">{job.title}</h4>
                           <p className="text-slate-500 text-xs truncate">{job.company}</p>
                           <div className="flex items-center gap-2 mt-2">
@@ -339,7 +339,7 @@ export default function Home() {
                   <div className="divide-y">
                     {news.slice(0, 8).map((item) => (
                       <Link key={item.id} to={createPageUrl('NewsDetail') + `?id=${item.id}`}>
-                        <div className="p-4 hover:bg-green-50 transition-colors cursor-pointer">
+                        <div className="p-4 hover:bg-[#057642]/5 transition-colors cursor-pointer">
                           <h4 className="font-medium text-slate-800 text-sm line-clamp-2 mb-1">{item.title}</h4>
                           <div className="flex items-center gap-2 mt-2">
                             {item.category && (
@@ -366,13 +366,13 @@ export default function Home() {
                   <div className="divide-y">
                     {posts.slice(0, 8).map((post) => (
                       <Link key={post.id} to={createPageUrl('Feed')}>
-                        <div className="p-3 sm:p-4 hover:bg-purple-50 transition-colors cursor-pointer">
+                        <div className="p-3 sm:p-4 hover:bg-[#0A66C2]/5 transition-colors cursor-pointer">
                           <div className="flex items-center gap-2 mb-2">
                             {post.autor_foto ? (
                               <img src={post.autor_foto} alt="" className="w-6 h-6 rounded-full object-cover" />
                             ) : (
-                              <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                                <MessageCircle className="w-3 h-3 text-purple-600" />
+                              <div className="w-6 h-6 bg-[#0A66C2]/10 rounded-full flex items-center justify-center">
+                                <MessageCircle className="w-3 h-3 text-[#0A66C2]" />
                               </div>
                             )}
                             <span className="text-xs text-slate-500 font-medium">{post.autor_nome || 'Usuário'}</span>
@@ -405,7 +405,7 @@ export default function Home() {
               {/* View All Link */}
               <div className="p-3 border-t bg-slate-50">
                 <Link to={createPageUrl(activeTab === 'jobs' ? 'Jobs' : activeTab === 'news' ? 'News' : 'Feed')}>
-                  <Button variant="ghost" className="w-full text-[#0A66C2] hover:bg-blue-50 rounded-xl">
+                  <Button variant="ghost" className="w-full text-[#0A66C2] hover:bg-[#0A66C2]/5 rounded-xl">
                     Ver Todos <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
