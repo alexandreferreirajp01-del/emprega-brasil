@@ -9,13 +9,13 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 
 const CATEGORIAS = {
-  ebooks: { label: 'eBooks', icon: BookOpen, cor: 'bg-blue-100 text-blue-700' },
-  guias_entrevista: { label: 'Guias de Entrevista', icon: FileText, cor: 'bg-green-100 text-green-700' },
-  kits_curriculo: { label: 'Kits de Currículo', icon: File, cor: 'bg-purple-100 text-purple-700' },
-  planilhas: { label: 'Planilhas', icon: FileSpreadsheet, cor: 'bg-orange-100 text-orange-700' },
-  pdfs_estudo: { label: 'PDFs de Estudo', icon: FileText, cor: 'bg-red-100 text-red-700' },
-  modelos_prontos: { label: 'Modelos Prontos', icon: File, cor: 'bg-teal-100 text-teal-700' },
-  apostilas: { label: 'Apostilas', icon: BookOpen, cor: 'bg-indigo-100 text-indigo-700' },
+  ebooks: { label: 'eBooks', icon: BookOpen, cor: 'bg-slate-100 text-slate-700' },
+  guias_entrevista: { label: 'Guias de Entrevista', icon: FileText, cor: 'bg-slate-100 text-slate-700' },
+  kits_curriculo: { label: 'Kits de Currículo', icon: File, cor: 'bg-slate-100 text-slate-700' },
+  planilhas: { label: 'Planilhas', icon: FileSpreadsheet, cor: 'bg-slate-100 text-slate-700' },
+  pdfs_estudo: { label: 'PDFs de Estudo', icon: FileText, cor: 'bg-slate-100 text-slate-700' },
+  modelos_prontos: { label: 'Modelos Prontos', icon: File, cor: 'bg-slate-100 text-slate-700' },
+  apostilas: { label: 'Apostilas', icon: BookOpen, cor: 'bg-slate-100 text-slate-700' },
   outros: { label: 'Outros', icon: File, cor: 'bg-slate-100 text-slate-700' }
 };
 
