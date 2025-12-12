@@ -12,6 +12,7 @@ import {
   Calendar, Check, Loader2, Eye, Globe, Clock, Zap, Edit, Mail,
   Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code
 } from "lucide-react";
+import WhatsAppNotificationHelper from "@/components/admin/WhatsAppNotificationHelper";
 import {
   Select,
   SelectContent,
@@ -85,6 +86,9 @@ export default function UnifiedPostWizard({
   const [premiumOnlyNotif, setPremiumOnlyNotif] = useState(false);
   const [notificationConfigured, setNotificationConfigured] = useState(false);
   
+  // WhatsApp Helper
+  const [showWhatsAppHelper, setShowWhatsAppHelper] = useState(false);
+  
   // Etapa 5 - Publicação
   const [publishMode, setPublishMode] = useState('now');
   const [scheduleDate, setScheduleDate] = useState('');
@@ -147,6 +151,11 @@ export default function UnifiedPostWizard({
       await onSchedule?.(finalData);
     } else {
       await onPublish?.(finalData);
+    }
+    
+    // Mostrar helper do WhatsApp se marcado
+    if (notificationData?.channels?.whatsapp) {
+      setShowWhatsAppHelper(true);
     }
   };
 
@@ -670,6 +679,14 @@ export default function UnifiedPostWizard({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Helper WhatsApp */}
+      <WhatsAppNotificationHelper
+        title={customTitle || `${template.emoji} ${template.title}`}
+        message={customMessage || template.msg}
+        isOpen={showWhatsAppHelper}
+        onClose={() => setShowWhatsAppHelper(false)}
+      />
     </div>
   );
 }
