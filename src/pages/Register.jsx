@@ -125,7 +125,7 @@ export default function Register() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-600 via-green-700 to-green-800 flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-[#057642] flex flex-col items-center justify-center px-4">
         <Card className="w-full max-w-md rounded-2xl shadow-2xl border-0">
           <CardContent className="p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -146,7 +146,7 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] flex flex-col items-center justify-start pt-8 px-4 pb-8">
+    <div className="min-h-screen bg-[#0A66C2] flex flex-col items-center justify-start pt-8 px-4 pb-8">
       <div className="w-full max-w-md">
         <Link to={createPageUrl('Splash')}>
           <Button variant="ghost" className="text-white hover:bg-white/20 mb-4">
@@ -293,7 +293,7 @@ export default function Register() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 bg-[#0056ff] hover:bg-[#0044cc] rounded-xl text-base font-semibold"
+                className="w-full h-12 bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl text-base font-semibold"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -310,9 +310,9 @@ export default function Register() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-white/50 text-xs mt-4">
+        <p className="text-center text-white/60 text-xs mt-4">
           Ao criar uma conta, você concorda com nossos{' '}
-          <Link to={createPageUrl('Terms')} className="text-white hover:underline">
+          <Link to={createPageUrl('Terms')} className="text-white/80 hover:text-white hover:underline">
             Termos de Uso
           </Link>
         </p>
