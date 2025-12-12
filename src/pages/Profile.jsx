@@ -133,11 +133,11 @@ export default function Profile() {
       return;
     }
 
-    // Preparar dados para atualização
+    // Preparar dados - enviar TODOS os campos para garantir persistência
     const updateData = {
       full_name: editForm.full_name.trim(),
-      phone: editForm.phone.trim() || '',
-      city: editForm.city.trim() || '',
+      phone: editForm.phone.trim(),
+      city: editForm.city.trim(),
       state: editForm.state.trim().toUpperCase() || 'PB'
     };
     
