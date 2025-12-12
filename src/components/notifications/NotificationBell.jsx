@@ -7,23 +7,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Bell, Briefcase, Check, Newspaper, Gift, Sparkles, MessageCircle, Trash2 } from "lucide-react";
+import { Bell, Briefcase, Check, Newspaper, Gift, Sparkles, MessageCircle, Trash2, User, Users } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function NotificationBell({ user }) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  // Buscar APENAS notificações do usuário ou globais (sent_to_all)
   const { data: notifications = [] } = useQuery({
     queryKey: ['user-notifications', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
       try {
-        // Buscar notificações pessoais
         const personal = await base44.entities.Notification.filter(
           { user_email: user.email },
           '-created_date',
@@ -38,14 +37,12 @@ export default function NotificationBell({ user }) {
     refetchInterval: 30000,
   });
 
-  // Remover duplicatas baseado em título + mensagem + data (arredondada ao minuto)
   const uniqueNotifications = useMemo(() => {
     const seen = new Map();
     
     return notifications
       .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))
       .filter(n => {
-        // Criar chave única baseada no conteúdo
         const dateKey = n.created_date ? new Date(n.created_date).toISOString().slice(0, 16) : '';
         const key = `${n.title}_${n.message?.slice(0, 50)}_${dateKey}`;
         
@@ -59,7 +56,6 @@ export default function NotificationBell({ user }) {
 
   const unreadCount = uniqueNotifications.filter(n => !n.is_read).length;
 
-  // Marcar como lida
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId) => {
       await base44.entities.Notification.update(notificationId, { is_read: true });
@@ -69,7 +65,6 @@ export default function NotificationBell({ user }) {
     }
   });
 
-  // Marcar todas como lidas
   const markAllAsRead = async () => {
     const unread = uniqueNotifications.filter(n => !n.is_read);
     await Promise.all(unread.map(n => 
@@ -78,16 +73,13 @@ export default function NotificationBell({ user }) {
     queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
   };
 
-  // Deletar notificação
   const deleteNotification = async (e, notificationId) => {
     e.preventDefault();
     e.stopPropagation();
     try {
       await base44.entities.Notification.delete(notificationId);
       queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
-    } catch (e) {
-      // Ignorar
-    }
+    } catch (e) {}
   };
 
   const formatTimeAgo = (date) => {
@@ -110,7 +102,9 @@ export default function NotificationBell({ user }) {
     switch (notification.type) {
       case 'news': return <Newspaper className="w-5 h-5" />;
       case 'promo': return <Gift className="w-5 h-5" />;
-      case 'chat': return <MessageCircle className="w-5 h-5" />;
+      case 'user': return <User className="w-5 h-5" />;
+      case 'feed': return <MessageCircle className="w-5 h-5" />;
+      case 'admin': return <Users className="w-5 h-5" />;
       case 'highlight': return <Sparkles className="w-5 h-5" />;
       default: return <Briefcase className="w-5 h-5" />;
     }
@@ -120,9 +114,60 @@ export default function NotificationBell({ user }) {
     switch (type) {
       case 'news': return 'bg-[#057642]/10 text-[#057642]';
       case 'promo': return 'bg-[#0A66C2]/10 text-[#0A66C2]';
-      case 'chat': return 'bg-[#0A66C2]/10 text-[#0A66C2]';
+      case 'user': return 'bg-purple-100 text-purple-600';
+      case 'feed': return 'bg-blue-100 text-blue-600';
+      case 'admin': return 'bg-orange-100 text-orange-600';
       case 'highlight': return 'bg-[#F9C846]/10 text-[#F9C846]';
       default: return 'bg-slate-100 text-slate-600';
+    }
+  };
+
+  const getRedirectUrl = (notification) => {
+    if (notification.redirect_page) {
+      const params = notification.redirect_params || {};
+      const queryString = Object.keys(params).length > 0 
+        ? '?' + new URLSearchParams(params).toString() 
+        : '';
+      return createPageUrl(notification.redirect_page) + queryString;
+    }
+
+    if (notification.reference_type && notification.reference_id) {
+      switch (notification.reference_type) {
+        case 'job':
+          return `${createPageUrl('JobDetail')}?id=${notification.reference_id}`;
+        case 'news':
+          return `${createPageUrl('NewsDetail')}?id=${notification.reference_id}`;
+        case 'user':
+          return createPageUrl('GerenciarUsuarios');
+        case 'feed_post':
+          return createPageUrl('Feed');
+        case 'occurrence':
+          return createPageUrl('Ocorrencias');
+        case 'chat':
+          return createPageUrl('ResponderChat');
+        case 'request':
+          return createPageUrl('GerenciarSolicitacoes');
+        default:
+          return null;
+      }
+    }
+
+    if (notification.job_id) {
+      return `${createPageUrl('JobDetail')}?id=${notification.job_id}`;
+    }
+
+    return null;
+  };
+
+  const handleNotificationClick = (notification) => {
+    if (!notification.is_read) {
+      markAsReadMutation.mutate(notification.id);
+    }
+    
+    const url = getRedirectUrl(notification);
+    if (url) {
+      navigate(url);
+      setOpen(false);
     }
   };
 
@@ -147,7 +192,6 @@ export default function NotificationBell({ user }) {
         align="end"
         sideOffset={8}
       >
-        {/* Header fixo */}
         <div className="p-3 border-b flex items-center justify-between bg-white sticky top-0 z-10">
           <h3 className="font-semibold text-slate-800">Notificações</h3>
           {unreadCount > 0 && (
@@ -163,7 +207,6 @@ export default function NotificationBell({ user }) {
           )}
         </div>
 
-        {/* Lista com scroll */}
         <ScrollArea className="flex-1 max-h-[400px] overflow-y-auto">
           {uniqueNotifications.length === 0 ? (
             <div className="p-8 text-center text-slate-400">
@@ -172,20 +215,16 @@ export default function NotificationBell({ user }) {
             </div>
           ) : (
             <div className="divide-y">
-              {uniqueNotifications.slice(0, 30).map((notification) => (
-                <Link
-                  key={notification.id}
-                  to={notification.job_id ? `${createPageUrl('JobDetail')}?id=${notification.job_id}` : '#'}
-                  onClick={() => {
-                    if (!notification.is_read) {
-                      markAsReadMutation.mutate(notification.id);
-                    }
-                    if (notification.job_id) {
-                      setOpen(false);
-                    }
-                  }}
-                >
-                  <div className={`p-3 hover:bg-slate-50 transition-colors cursor-pointer group ${!notification.is_read ? 'bg-[#0A66C2]/5' : ''}`}>
+              {uniqueNotifications.slice(0, 30).map((notification) => {
+                const redirectUrl = getRedirectUrl(notification);
+                const isClickable = !!redirectUrl;
+
+                return (
+                  <div
+                    key={notification.id}
+                    onClick={() => isClickable && handleNotificationClick(notification)}
+                    className={`p-3 transition-colors group ${!notification.is_read ? 'bg-[#0A66C2]/5' : ''} ${isClickable ? 'hover:bg-slate-50 cursor-pointer' : ''}`}
+                  >
                     <div className="flex items-start gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getIconStyle(notification.type)}`}>
                         {notification.icon_url ? (
@@ -218,20 +257,24 @@ export default function NotificationBell({ user }) {
                       </div>
                     </div>
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           )}
         </ScrollArea>
 
-        {/* Footer fixo */}
         {uniqueNotifications.length > 0 && (
           <div className="p-2 border-t bg-white sticky bottom-0">
-            <Link to={createPageUrl('Jobs')} onClick={() => setOpen(false)}>
-              <Button variant="ghost" className="w-full text-[#0A66C2] text-sm">
-                Ver todas as vagas
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              className="w-full text-[#0A66C2] text-sm"
+              onClick={() => {
+                navigate(createPageUrl('Notifications'));
+                setOpen(false);
+              }}
+            >
+              Ver todas
+            </Button>
           </div>
         )}
       </PopoverContent>

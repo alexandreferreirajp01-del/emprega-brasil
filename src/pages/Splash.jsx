@@ -58,9 +58,20 @@ export default function Splash() {
       });
       
       const data = await response.json();
-      
+
       if (data.success) {
         localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+
+        // Notificar admins sobre novo login
+        try {
+          await base44.functions.invoke('notifyNewUser', {
+            user_email: email,
+            user_name: email
+          });
+        } catch (e) {
+          // Ignorar erro de notificação
+        }
+
         window.location.href = createPageUrl('Home');
       } else {
         setError(data.error || 'Erro ao fazer login');
@@ -73,8 +84,22 @@ export default function Splash() {
   };
 
   // Login com Google
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+    
+    // Tentar notificar admins (será executado após o login bem-sucedido)
+    try {
+      const user = await base44.auth.me();
+      if (user) {
+        await base44.functions.invoke('notifyNewUser', {
+          user_email: user.email,
+          user_name: user.custom_full_name || user.username || user.email
+        });
+      }
+    } catch (e) {
+      // Ignorar - usuário ainda não autenticado
+    }
+    
     base44.auth.redirectToLogin(createPageUrl('Home'));
   };
 

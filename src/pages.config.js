@@ -54,6 +54,7 @@ import ActivatePremiumManual from './pages/ActivatePremiumManual';
 import PostarNoticia from './pages/PostarNoticia';
 import Ocorrencias from './pages/Ocorrencias';
 import FluxoUsuarios from './pages/FluxoUsuarios';
+import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -114,6 +115,7 @@ export const PAGES = {
     "PostarNoticia": PostarNoticia,
     "Ocorrencias": Ocorrencias,
     "FluxoUsuarios": FluxoUsuarios,
+    "Notifications": Notifications,
 }
 
 export const pagesConfig = {
