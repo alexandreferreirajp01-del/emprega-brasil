@@ -184,12 +184,12 @@ export default function Layout({ children, currentPageName }) {
       {/* PWA/APK Meta Tags - Injeta no head */}
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-      <meta name="theme-color" content="#0A66C2" />
-      <meta name="theme-color" media="(prefers-color-scheme: light)" content="#0A66C2" />
-      <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A66C2" />
-      <meta name="msapplication-navbutton-color" content="#0A66C2" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="#0A66C2" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      <meta name="theme-color" content="#FFFFFF" />
+      <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FFFFFF" />
+      <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#FFFFFF" />
+      <meta name="msapplication-navbutton-color" content="#FFFFFF" />
+      <meta name="msapplication-TileColor" content="#FFFFFF" />
       <meta name="application-name" content="Vagas Abertas PB" />
       <meta name="apple-mobile-web-app-title" content="Vagas Abertas PB" />
       {/* Bloqueio total de tradução - todos os navegadores */}
