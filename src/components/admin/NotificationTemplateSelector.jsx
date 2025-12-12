@@ -78,6 +78,7 @@ export default function NotificationTemplateSelector({
   const [selectedIcon, setSelectedIcon] = useState('job');
   const [premiumOnly, setPremiumOnly] = useState(false);
   const [sendEmail, setSendEmail] = useState(false);
+  const [sendWhatsApp, setSendWhatsApp] = useState(false);
 
   const applyTemplate = (template) => {
     let finalTitle = template.title;
@@ -108,13 +109,14 @@ export default function NotificationTemplateSelector({
       message: newMessage || message,
       icon: selectedIcon,
       premiumOnly,
-      sendEmail
+      sendEmail,
+      sendWhatsApp
     });
   };
 
   React.useEffect(() => {
     updateNotificationData();
-  }, [title, message, selectedIcon, premiumOnly, sendEmail]);
+  }, [title, message, selectedIcon, premiumOnly, sendEmail, sendWhatsApp]);
 
   return (
     <Card className="rounded-2xl shadow-lg">
@@ -262,7 +264,10 @@ export default function NotificationTemplateSelector({
                 <p className="text-xs text-slate-500">Envia para grupos do WhatsApp</p>
               </div>
             </div>
-            <Switch checked={false} disabled />
+            <Switch checked={sendWhatsApp} onCheckedChange={(val) => {
+              setSendWhatsApp(val);
+              updateNotificationData();
+            }} />
           </div>
         </div>
 
