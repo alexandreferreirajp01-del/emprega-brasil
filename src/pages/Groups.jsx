@@ -110,7 +110,7 @@ export default function Groups() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-12 px-4">
+      <div className="bg-[#0A66C2] pt-6 pb-12 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-2xl font-bold text-white mb-2">Grupos de Vagas</h1>
           <p className="text-white/70">Entre em nossos grupos exclusivos para receber vagas diariamente</p>
@@ -157,7 +157,7 @@ export default function Groups() {
                     <div className="flex-1 p-5">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="font-semibold text-slate-800 group-hover:text-[#0056ff] transition-colors">
+                          <h3 className="font-semibold text-slate-800 group-hover:text-[#0A66C2] transition-colors">
                             {group.name}
                           </h3>
                           <p className="text-sm text-slate-500 mt-1">{group.description}</p>
