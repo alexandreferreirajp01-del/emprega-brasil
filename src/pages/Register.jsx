@@ -75,27 +75,32 @@ export default function Register() {
     setLoading(true);
 
     try {
-      // Chamar função auth para criar usuário manual
-      const response = await base44.functions.invoke('auth', {
-        custom_full_name: formData.full_name,
-        username: formData.username,
-        email: formData.email.toLowerCase(),
-        password: formData.password
+      const response = await fetch('/api/functions/auth/manual_register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          custom_full_name: formData.full_name,
+          username: formData.username,
+          email: formData.email.toLowerCase(),
+          password: formData.password
+        })
       });
 
-      if (response.data.success) {
+      const data = await response.json();
+
+      if (data.success) {
         setSuccess(true);
         setTimeout(() => {
           window.location.href = createPageUrl('Splash');
         }, 3000);
       } else {
-        if (response.data.error) {
-          if (response.data.error.includes('já cadastrado')) {
-            setErrors({ email: response.data.error });
-          } else if (response.data.error.includes('já existe')) {
-            setErrors({ username: response.data.error });
+        if (data.error) {
+          if (data.error.includes('já cadastrado')) {
+            setErrors({ email: data.error });
+          } else if (data.error.includes('já existe')) {
+            setErrors({ username: data.error });
           } else {
-            setErrors({ general: response.data.error });
+            setErrors({ general: data.error });
           }
         }
         setLoading(false);

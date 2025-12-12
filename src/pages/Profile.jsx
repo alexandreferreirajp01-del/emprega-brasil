@@ -96,11 +96,10 @@ export default function Profile() {
   // Mutation para atualizar perfil
   const updateProfileMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await base44.functions.invoke('auth', data);
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Erro ao atualizar perfil');
-      }
-      return response.data.user;
+      const response = await base44.asServiceRole.entities.User.update(user.id, data);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const freshUser = await base44.auth.me();
+      return freshUser;
     },
     onSuccess: (freshUser) => {
       // Atualizar cache com dados frescos do servidor

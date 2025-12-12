@@ -51,17 +51,23 @@ export default function Splash() {
     setError('');
     
     try {
-      const response = await base44.functions.invoke('auth', { username: email, password });
+      const response = await fetch('/api/functions/auth/manual_login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email, password })
+      });
       
-      if (response.data.success) {
+      const data = await response.json();
+      
+      if (data.success) {
         localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
         window.location.href = createPageUrl('Home');
       } else {
-        setError(response.data.error || 'Erro ao fazer login');
+        setError(data.error || 'Erro ao fazer login');
         setLoading(false);
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Usuário ou senha inválidos');
+      setError('Usuário ou senha inválidos');
       setLoading(false);
     }
   };
