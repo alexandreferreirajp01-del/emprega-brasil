@@ -115,7 +115,7 @@ export default function Home() {
   ];
 
   const quickActions = [
-    { label: 'Buscar Vagas', icon: Search, page: 'Jobs', color: 'bg-[#0A66C2]', desc: 'Encontre oportunidades' },
+    { label: 'Buscar Vagas', icon: Search, page: 'Jobs', color: 'bg-white', iconColor: 'text-[#0A66C2]', desc: 'Encontre oportunidades' },
     { label: 'Feed', icon: MessageCircle, page: 'Feed', color: 'bg-[#0A66C2]', desc: 'Conecte-se' },
     { label: 'Notícias', icon: Newspaper, page: 'News', color: 'bg-[#057642]', desc: 'Fique informado' },
     { label: 'Grupos', icon: Users, page: 'Groups', color: 'bg-[#F9C846]', desc: 'WhatsApp' },
@@ -187,8 +187,8 @@ export default function Home() {
                     <Link key={i} to={createPageUrl(action.page)}>
                       <Card className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl sm:rounded-2xl border-0 overflow-hidden h-full">
                         <CardContent className="p-3 sm:p-5">
-                          <div className={`w-10 h-10 sm:w-12 sm:h-12 ${action.color} rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform`}>
-                            <action.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                          <div className={`w-10 h-10 sm:w-12 sm:h-12 ${action.color} rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform ${action.color === 'bg-white' ? 'border-2 border-[#0A66C2]' : ''}`}>
+                            <action.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${action.iconColor || 'text-white'}`} />
                           </div>
                           <h3 className="font-semibold text-slate-800 text-sm sm:text-base leading-tight">{action.label}</h3>
                           <p className="text-slate-500 text-xs sm:text-sm leading-tight mt-0.5">{action.desc}</p>
