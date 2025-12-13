@@ -93,13 +93,12 @@ export default function Layout({ children, currentPageName }) {
       try {
         const isAuthenticated = await base44.auth.isAuthenticated();
         if (!isAuthenticated) {
-          setIsVisitor(true);
           return;
         }
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (e) {
-        setIsVisitor(true);
+        // Erro ao verificar autenticação
       }
     };
     checkAuth();

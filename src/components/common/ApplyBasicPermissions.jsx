@@ -13,9 +13,6 @@ export default function ApplyBasicPermissions({ user }) {
     const applyPermissions = async () => {
       if (!user) return;
       
-      // Não aplicar para visitantes
-      if (localStorage.getItem('vagas_abertas_visitor_mode') === 'true') return;
-      
       // Se o usuário não tem permissões definidas, aplicar padrões básicos
       if (!user.permissions || Object.keys(user.permissions).length === 0) {
         try {
