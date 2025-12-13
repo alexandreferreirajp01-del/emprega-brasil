@@ -21,9 +21,21 @@ export default function Utilidades() {
       try {
         const u = await base44.auth.me();
         setUser(u);
+        
+        // Verificar acesso imediatamente
+        const isPremium = u?.subscription_type === 'premium' || 
+                         u?.subscription_type === 'admin' || 
+                         u?.subscription_type === 'recruiter' ||
+                         u?.role === 'admin';
+        
+        if (!isPremium) {
+          window.location.href = createPageUrl('Subscription');
+          return;
+        }
       } catch {
-        // Permite visualizar sem autenticação para mostrar upgrade
-        setUser(null);
+        // Sem autenticação - redirecionar para escolher plano
+        window.location.href = createPageUrl('Subscription');
+        return;
       } finally {
         setLoading(false);
       }
@@ -31,18 +43,11 @@ export default function Utilidades() {
     loadUser();
   }, []);
 
-  // Verificar acesso Premium (apenas premium, admin, recruiter)
+  // Verificar acesso Premium
   const hasPremium = user?.subscription_type === 'premium' || 
                      user?.subscription_type === 'admin' || 
                      user?.subscription_type === 'recruiter' ||
                      user?.role === 'admin';
-
-  // Redirecionar imediatamente se não tem premium
-  React.useEffect(() => {
-    if (!loading && user && !hasPremium) {
-      window.location.href = createPageUrl('Subscription');
-    }
-  }, [loading, user, hasPremium]);
 
   // Mostrar loading ou redirecionar
   if (loading || (user && !hasPremium)) {
