@@ -23,7 +23,7 @@ export default function Subscription() {
   }, []);
 
   const handleBasic = () => {
-    window.location.href = '/info/Splash';
+    window.location.href = 'https://vagasabertasparaiba.info/splash';
   };
 
   const handlePremium = () => {
