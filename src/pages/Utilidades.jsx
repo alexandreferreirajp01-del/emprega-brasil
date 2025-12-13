@@ -12,7 +12,7 @@ import PremiumModal from "@/components/subscription/PremiumModal";
 
 export default function Utilidades() {
   const [user, setUser] = useState(null);
-  const [authChecked, setAuthChecked] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('biblioteca');
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
@@ -22,12 +22,15 @@ export default function Utilidades() {
         const isAuth = await base44.auth.isAuthenticated();
         
         if (!isAuth) {
+          // Não autenticado - redirecionar para subscription
           window.location.replace(createPageUrl('Subscription'));
           return;
         }
         
         const u = await base44.auth.me();
+        setUser(u);
         
+        // Verificar acesso premium
         const isPremium = u?.subscription_type === 'premium' || 
                          u?.subscription_type === 'admin' || 
                          u?.subscription_type === 'recruiter' ||
@@ -37,18 +40,30 @@ export default function Utilidades() {
           window.location.replace(createPageUrl('Subscription'));
           return;
         }
-        
-        setUser(u);
-        setAuthChecked(true);
       } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
         window.location.replace(createPageUrl('Subscription'));
+        return;
+      } finally {
+        setLoading(false);
       }
     };
     loadUser();
   }, []);
 
-  if (!authChecked) {
-    return null;
+  // Verificar acesso Premium
+  const hasPremium = user?.subscription_type === 'premium' || 
+                     user?.subscription_type === 'admin' || 
+                     user?.subscription_type === 'recruiter' ||
+                     user?.role === 'admin';
+
+  // Mostrar loading ou redirecionar
+  if (loading || (user && !hasPremium)) {
+    return (
+      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
+      </div>
+    );
   }
 
   return (
