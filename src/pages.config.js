@@ -54,6 +54,7 @@ import PostarNoticia from './pages/PostarNoticia';
 import Ocorrencias from './pages/Ocorrencias';
 import FluxoUsuarios from './pages/FluxoUsuarios';
 import Notifications from './pages/Notifications';
+import Subscription from './pages/Subscription';
 import __Layout from './Layout.jsx';
 
 
@@ -114,6 +115,7 @@ export const PAGES = {
     "Ocorrencias": Ocorrencias,
     "FluxoUsuarios": FluxoUsuarios,
     "Notifications": Notifications,
+    "Subscription": Subscription,
 }
 
 export const pagesConfig = {
