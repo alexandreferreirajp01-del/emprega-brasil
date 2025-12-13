@@ -6,10 +6,10 @@ import { Loader2 } from 'lucide-react';
 // Páginas públicas que não precisam de autenticação
 const PUBLIC_PAGES = [
   'Splash', 'Home', 'Jobs', 'JobDetail', 'News', 'NewsDetail', 
-  'Groups', 'Subscription', 'About', 'Contact', 'FAQ', 
+  'Groups', 'Subscription', 'Payment', 'About', 'Contact', 'FAQ', 
   'Terms', 'Privacy', 'Cookies', 'Security', 'LGPD', 
   'Advertise', 'Careers', 'Parcerias', 'Login', 'Register',
-  'ForgotPassword', 'ResetPassword'
+  'ForgotPassword', 'ResetPassword', 'ActivateBasic'
 ];
 
 // Páginas que exigem Premium

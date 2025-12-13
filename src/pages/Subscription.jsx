@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,10 +8,25 @@ import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 
 export default function Subscription() {
-  // Scroll to top on mount
+  const [mounted, setMounted] = React.useState(false);
+
+  // Garantir que a página monte sempre
   useEffect(() => {
+    setMounted(true);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
+
+  // Se não montou ainda, mostrar loading mínimo
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#0A66C2] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600">Carregando planos...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubscribePremium = () => {
     window.location.href = createPageUrl('Payment');
