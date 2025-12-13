@@ -2,31 +2,34 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Shield, Zap, Star, MessageCircle, Users, UserPlus, Briefcase } from "lucide-react";
+import { Check, Crown, Shield, Zap, Star, MessageCircle, Users, UserPlus, Briefcase, ArrowLeft } from "lucide-react";
 import { createPageUrl } from "@/utils";
-import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 
 export default function Subscription() {
-  const [mounted, setMounted] = React.useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Garantir que a página monte sempre
   useEffect(() => {
-    setMounted(true);
     window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    // Tentar carregar usuário, mas nunca bloquear a renderização
+    const loadUser = async () => {
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (isAuth) {
+          const currentUser = await base44.auth.me();
+          setUser(currentUser);
+        }
+      } catch (e) {
+        // Usuário não autenticado - OK, página é pública
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadUser();
   }, []);
-
-  // Se não montou ainda, mostrar loading mínimo
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#0A66C2] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600">Carregando planos...</p>
-        </div>
-      </div>
-    );
-  }
 
   const handleSubscribePremium = () => {
     window.location.href = createPageUrl('Payment');
@@ -42,19 +45,21 @@ export default function Subscription() {
       const isAuthenticated = await base44.auth.isAuthenticated();
       
       if (isAuthenticated) {
-        // Usuário já autenticado - ativar plano básico
         await base44.auth.updateMe({ subscription_type: 'basic' });
         window.location.href = createPageUrl('Home');
       } else {
-        // Não autenticado - redirecionar para cadastro
         localStorage.setItem('pending_subscription', 'basic');
-        base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
+        window.location.href = createPageUrl('Splash');
       }
     } catch (e) {
-      // Erro - redirecionar para cadastro
       localStorage.setItem('pending_subscription', 'basic');
-      base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
+      window.location.href = createPageUrl('Splash');
     }
+  };
+
+  const handleGoBack = () => {
+    const lastRoute = localStorage.getItem('last_valid_route') || 'Home';
+    window.location.href = createPageUrl(lastRoute);
   };
 
   const basicFeatures = [
@@ -86,36 +91,41 @@ export default function Subscription() {
     "Ver currículos de candidatos"
   ];
 
+  // Renderização sempre garantida - apenas mostra loading durante check inicial
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#0A66C2] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600">Carregando planos...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#003399] pt-8 pb-16 px-4 relative">
         <Button
-          onClick={() => window.location.href = createPageUrl('Home')}
+          onClick={handleGoBack}
           variant="ghost"
           className="absolute top-4 left-4 text-white hover:bg-white/10"
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          <ArrowLeft className="w-5 h-5 mr-2" />
           Voltar
         </Button>
-        <div className="max-w-5xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <Badge className="bg-white/20 text-white border-0 mb-4 px-4 py-1">
-              <Crown className="w-4 h-4 mr-2" />
-              Escolha seu Plano
-            </Badge>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Desbloqueie Todo o Potencial
-            </h1>
-            <p className="text-white/70 text-lg max-w-2xl mx-auto">
-              Tenha acesso a todas as funcionalidades exclusivas
-            </p>
-          </motion.div>
+        <div className="max-w-5xl mx-auto text-center pt-8">
+          <Badge className="bg-white/20 text-white border-0 mb-4 px-4 py-1">
+            <Crown className="w-4 h-4 mr-2" />
+            Escolha seu Plano
+          </Badge>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Desbloqueie Todo o Potencial
+          </h1>
+          <p className="text-white/70 text-lg max-w-2xl mx-auto">
+            Tenha acesso a todas as funcionalidades exclusivas
+          </p>
         </div>
       </div>
 
@@ -123,163 +133,140 @@ export default function Subscription() {
       <div className="max-w-5xl mx-auto px-4 -mt-8">
         <div className="grid md:grid-cols-3 gap-6">
           {/* Basic Plan */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="shadow-xl rounded-3xl overflow-hidden border-0 h-full">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mb-4">
-                  <Users className="w-7 h-7 text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-white mb-1">Membro Básico</h2>
-                <p className="text-white/70 text-sm">Participe da comunidade</p>
+          <Card className="shadow-xl rounded-3xl overflow-hidden border-0 h-full">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-center">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mb-4">
+                <Users className="w-7 h-7 text-white" />
               </div>
-              
-              <CardContent className="p-6">
-                <div className="text-center mb-6">
-                  <span className="text-3xl font-bold text-green-600">GRÁTIS</span>
-                  <p className="text-slate-500 text-sm">Apenas crie sua conta</p>
-                </div>
+              <h2 className="text-xl font-bold text-white mb-1">Básico</h2>
+              <p className="text-white/70 text-sm">Participe da comunidade</p>
+            </div>
+            
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <span className="text-3xl font-bold text-green-600">GRÁTIS</span>
+                <p className="text-slate-500 text-sm">Apenas crie sua conta</p>
+              </div>
 
-                <div className="space-y-3 mb-6">
-                  {basicFeatures.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-3 h-3 text-blue-600" />
-                      </div>
-                      <span className="text-sm text-slate-700">{feature}</span>
+              <div className="space-y-3 mb-6">
+                {basicFeatures.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 text-blue-600" />
                     </div>
-                  ))}
-                </div>
+                    <span className="text-sm text-slate-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
 
-                <Button 
-                  onClick={handleChooseBasic}
-                  variant="outline"
-                  className="w-full h-12 font-semibold rounded-xl border-blue-500 text-blue-600 hover:bg-blue-50"
-                >
-                  <UserPlus className="w-5 h-5 mr-2" />
-                  Escolher Básico
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
+              <Button 
+                onClick={handleChooseBasic}
+                variant="outline"
+                className="w-full h-12 font-semibold rounded-xl border-blue-500 text-blue-600 hover:bg-blue-50"
+              >
+                <UserPlus className="w-5 h-5 mr-2" />
+                Escolher Básico
+              </Button>
+            </CardContent>
+          </Card>
 
           {/* Premium Plan */}
-          <motion.div
-           initial={{ opacity: 0, y: 30 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ delay: 0.2 }}
-          >
-           <Card className="shadow-xl rounded-3xl overflow-hidden border-0 h-full relative">
-             <div className="absolute top-4 right-4">
-               <Badge className="bg-yellow-400 text-yellow-900 border-0">
-                 <Star className="w-3 h-3 mr-1" />
-                 Recomendado
-               </Badge>
-             </div>
-              <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-6 text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mb-4">
-                  <Crown className="w-7 h-7 text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-white mb-1">Membro Premium</h2>
-                <p className="text-white/70 text-sm">Acesso completo</p>
+          <Card className="shadow-xl rounded-3xl overflow-hidden border-0 h-full relative">
+            <div className="absolute top-4 right-4 z-10">
+              <Badge className="bg-yellow-400 text-yellow-900 border-0">
+                <Star className="w-3 h-3 mr-1" />
+                Recomendado
+              </Badge>
+            </div>
+            <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-6 text-center">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mb-4">
+                <Crown className="w-7 h-7 text-white" />
               </div>
-              
-              <CardContent className="p-6">
-                <div className="text-center mb-6">
-                  <span className="text-3xl font-bold text-slate-800">R$ 29,90</span>
-                  <p className="text-slate-500 text-sm">Pagamento único</p>
-                  <Badge variant="outline" className="mt-2 text-green-600 border-green-200 bg-green-50 text-xs">
-                    <Shield className="w-3 h-3 mr-1" />
-                    Garantia de 7 dias
-                  </Badge>
-                </div>
-
-                <div className="space-y-3 mb-6">
-                  {premiumFeatures.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-3 h-3 text-green-600" />
-                      </div>
-                      <span className="text-sm text-slate-700">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <Button 
-                  onClick={handleSubscribePremium}
-                  className="w-full h-12 font-semibold bg-[#25D366] hover:bg-[#20bd5a] rounded-xl"
-                >
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  Assinar Premium
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Recruiter Plan */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="shadow-xl rounded-3xl overflow-hidden border-0 ring-2 ring-purple-500 h-full relative">
-              <div className="absolute top-4 right-4">
-                <Badge className="bg-purple-500 text-white border-0">
-                  <Briefcase className="w-3 h-3 mr-1" />
-                  Empresas
+              <h2 className="text-xl font-bold text-white mb-1">Premium</h2>
+              <p className="text-white/70 text-sm">Acesso completo</p>
+            </div>
+            
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <span className="text-3xl font-bold text-slate-800">R$ 29,90</span>
+                <p className="text-slate-500 text-sm">Pagamento único</p>
+                <Badge variant="outline" className="mt-2 text-green-600 border-green-200 bg-green-50 text-xs">
+                  <Shield className="w-3 h-3 mr-1" />
+                  Garantia de 7 dias
                 </Badge>
               </div>
-              <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mb-4">
-                  <Briefcase className="w-7 h-7 text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-white mb-1">Recrutador</h2>
-                <p className="text-white/70 text-sm">Para empresas e RH</p>
-              </div>
-              
-              <CardContent className="p-6">
-                <div className="text-center mb-6">
-                  <span className="text-3xl font-bold text-purple-600">R$ 9,90</span>
-                  <p className="text-slate-500 text-sm">por mês</p>
-                </div>
 
-                <div className="space-y-3 mb-6">
-                  {recruiterFeatures.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-3 h-3 text-purple-600" />
-                      </div>
-                      <span className="text-sm text-slate-700">{feature}</span>
+              <div className="space-y-3 mb-6">
+                {premiumFeatures.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 text-green-600" />
                     </div>
-                  ))}
-                </div>
+                    <span className="text-sm text-slate-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
 
-                <Button 
-                  onClick={handleSubscribeRecruiter}
-                  className="w-full h-12 font-semibold bg-purple-600 hover:bg-purple-700 rounded-xl"
-                >
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  Assinar Recrutador
-                </Button>
+              <Button 
+                onClick={handleSubscribePremium}
+                className="w-full h-12 font-semibold bg-[#25D366] hover:bg-[#20bd5a] rounded-xl text-white"
+              >
+                <MessageCircle className="w-5 h-5 mr-2" />
+                Assinar Premium
+              </Button>
+            </CardContent>
+          </Card>
 
-                <p className="text-xs text-center text-slate-500 mt-3">
-                  * Postagens sujeitas a aprovação do admin
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          {/* Recruiter Plan */}
+          <Card className="shadow-xl rounded-3xl overflow-hidden border-0 ring-2 ring-purple-500 h-full relative">
+            <div className="absolute top-4 right-4 z-10">
+              <Badge className="bg-purple-500 text-white border-0">
+                <Briefcase className="w-3 h-3 mr-1" />
+                Empresas
+              </Badge>
+            </div>
+            <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-center">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mb-4">
+                <Briefcase className="w-7 h-7 text-white" />
+              </div>
+              <h2 className="text-xl font-bold text-white mb-1">Recrutador</h2>
+              <p className="text-white/70 text-sm">Para empresas e RH</p>
+            </div>
+            
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <span className="text-3xl font-bold text-purple-600">R$ 9,90</span>
+                <p className="text-slate-500 text-sm">por mês</p>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                {recruiterFeatures.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 text-purple-600" />
+                    </div>
+                    <span className="text-sm text-slate-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Button 
+                onClick={handleSubscribeRecruiter}
+                className="w-full h-12 font-semibold bg-purple-600 hover:bg-purple-700 rounded-xl text-white"
+              >
+                <MessageCircle className="w-5 h-5 mr-2" />
+                Assinar Recrutador
+              </Button>
+
+              <p className="text-xs text-center text-slate-500 mt-3">
+                * Postagens sujeitas a aprovação do admin
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Trust Badges */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8 text-center"
-        >
+        <div className="mt-8 text-center">
           <div className="flex items-center justify-center gap-6 text-slate-400">
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5" />
@@ -290,11 +277,11 @@ export default function Subscription() {
               <span className="text-sm">Acesso Imediato</span>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* FAQ Section */}
-            <div className="max-w-2xl mx-auto px-4 py-12">
+      <div className="max-w-2xl mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold text-slate-800 text-center mb-8">Dúvidas Frequentes</h2>
         
         <div className="space-y-4">
