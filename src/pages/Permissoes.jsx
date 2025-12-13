@@ -273,7 +273,7 @@ export default function Permissoes() {
                       <div className="flex items-start gap-3">
                         <Avatar className="w-10 h-10 flex-shrink-0">
                           <AvatarImage src={u.profile_photo} />
-                          <AvatarFallback className="bg-indigo-100 text-indigo-600 text-sm">
+                          <AvatarFallback className="bg-slate-200 text-slate-700 text-sm">
                             {u.full_name?.[0] || u.email?.[0]}
                           </AvatarFallback>
                         </Avatar>
@@ -310,7 +310,7 @@ export default function Permissoes() {
                   <div className="flex items-center gap-2 mt-2">
                     <Avatar className="w-8 h-8">
                       <AvatarImage src={selectedUser.profile_photo} />
-                      <AvatarFallback className="bg-indigo-100 text-indigo-600 text-xs">
+                      <AvatarFallback className="bg-slate-200 text-slate-700 text-xs">
                         {selectedUser.full_name?.[0] || selectedUser.email?.[0]}
                       </AvatarFallback>
                     </Avatar>

@@ -178,33 +178,33 @@ Equipe Vagas Abertas Paraíba`
           <ScrollArea className="h-[500px]">
             <div className="space-y-3">
               {filteredPayments.map((payment) => (
-                <div key={payment.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-slate-50 rounded-xl">
+                  <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
                       payment.status === 'approved' ? 'bg-green-100' :
                       payment.status === 'pending' ? 'bg-amber-100' :
                       payment.status === 'rejected' ? 'bg-red-100' :
                       'bg-purple-100'
                     }`}>
-                      <CreditCard className={`w-6 h-6 ${
+                      <CreditCard className={`w-5 h-5 sm:w-6 sm:h-6 ${
                         payment.status === 'approved' ? 'text-green-600' :
                         payment.status === 'pending' ? 'text-amber-600' :
                         payment.status === 'rejected' ? 'text-red-600' :
                         'text-purple-600'
                       }`} />
                     </div>
-                    <div>
-                      <p className="font-medium text-slate-800">{payment.user_email}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge className={statusColors[payment.status]}>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm sm:text-base text-slate-800 break-all">{payment.user_email}</p>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <Badge className={`${statusColors[payment.status]} text-xs`}>
                           {statusLabels[payment.status]}
                         </Badge>
-                        <Badge variant="outline">{payment.payment_method || 'N/A'}</Badge>
-                        <span className="text-sm text-slate-500">
+                        <Badge variant="outline" className="text-xs">{payment.payment_method || 'N/A'}</Badge>
+                        <span className="text-xs sm:text-sm text-slate-500">
                           R$ {(payment.amount || 0).toFixed(2)}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-1">
+                      <p className="text-xs text-slate-400 mt-1 break-words">
                         {new Date(payment.created_date).toLocaleString('pt-BR')}
                         {payment.notes && ` • ${payment.notes}`}
                       </p>
@@ -212,7 +212,7 @@ Equipe Vagas Abertas Paraíba`
                   </div>
                   
                   {payment.status === 'pending' && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 sm:flex-shrink-0">
                       <Button
                         size="sm"
                         onClick={() => updatePaymentMutation.mutate({ 
@@ -221,7 +221,7 @@ Equipe Vagas Abertas Paraíba`
                           userEmail: payment.user_email
                         })}
                         disabled={updatePaymentMutation.isPending}
-                        className="bg-green-600 hover:bg-green-700 rounded-lg"
+                        className="bg-green-600 hover:bg-green-700 rounded-lg flex-1 sm:flex-initial"
                       >
                         {updatePaymentMutation.isPending ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -238,7 +238,7 @@ Equipe Vagas Abertas Paraíba`
                           userEmail: payment.user_email
                         })}
                         disabled={updatePaymentMutation.isPending}
-                        className="text-red-600 hover:bg-red-50 rounded-lg"
+                        className="text-red-600 hover:bg-red-50 rounded-lg flex-1 sm:flex-initial"
                       >
                         <X className="w-4 h-4" />
                       </Button>

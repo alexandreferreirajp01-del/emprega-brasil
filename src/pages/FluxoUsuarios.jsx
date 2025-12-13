@@ -169,7 +169,7 @@ export default function FluxoUsuarios() {
                 {selectedUser.photo ? (
                   <AvatarImage src={selectedUser.photo} alt={selectedUser.name} />
                 ) : (
-                  <AvatarFallback className="bg-white/20 text-white">
+                  <AvatarFallback className="bg-slate-600 text-white">
                     {selectedUser.name[0].toUpperCase()}
                   </AvatarFallback>
                 )}
@@ -347,7 +347,7 @@ export default function FluxoUsuarios() {
                         {userInfo.photo ? (
                           <AvatarImage src={userInfo.photo} alt={userInfo.name} />
                         ) : (
-                          <AvatarFallback className="bg-[#0A66C2]/10 text-[#0A66C2]">
+                          <AvatarFallback className="bg-slate-200 text-slate-700">
                             {userInfo.name[0].toUpperCase()}
                           </AvatarFallback>
                         )}
