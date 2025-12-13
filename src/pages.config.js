@@ -3,7 +3,6 @@ import Home from './pages/Home';
 import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
 import Groups from './pages/Groups';
-import Subscription from './pages/Subscription';
 import Profile from './pages/Profile';
 import PendingAccess from './pages/PendingAccess';
 import News from './pages/News';
@@ -64,7 +63,6 @@ export const PAGES = {
     "Jobs": Jobs,
     "JobDetail": JobDetail,
     "Groups": Groups,
-    "Subscription": Subscription,
     "Profile": Profile,
     "PendingAccess": PendingAccess,
     "News": News,
