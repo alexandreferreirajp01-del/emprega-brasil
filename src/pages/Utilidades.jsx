@@ -34,22 +34,15 @@ export default function Utilidades() {
   const isMember = !user || !user?.subscription_type || user?.subscription_type === 'member';
   const hasPremium = user && !isMember && user?.subscription_type !== 'basic';
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
-      </div>
-    );
-  }
-
-  // Redirecionar imediatamente para página de planos
-  useEffect(() => {
-    if (!loading && !hasPremium) {
-      window.location.replace(createPageUrl('Subscription'));
+  // Redirecionar imediatamente se não tem premium
+  React.useEffect(() => {
+    if (!loading && user && !hasPremium) {
+      window.location.href = createPageUrl('Subscription');
     }
-  }, [loading, hasPremium]);
+  }, [loading, user, hasPremium]);
 
-  if (!hasPremium) {
+  // Mostrar loading ou redirecionar
+  if (loading || (user && !hasPremium)) {
     return (
       <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />

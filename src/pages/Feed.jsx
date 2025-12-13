@@ -38,16 +38,23 @@ export default function Feed() {
   const isMember = !user || !user?.subscription_type || user?.subscription_type === 'member';
   const hasPremium = user && !isMember && user?.subscription_type !== 'basic';
 
+  // Redirecionar imediatamente se não tem premium
+  React.useEffect(() => {
+    if (!loading && user && !hasPremium) {
+      window.location.href = createPageUrl('Subscription');
+    }
+  }, [loading, user, hasPremium]);
+
   const { data: posts = [], isLoading: loadingPosts } = useQuery({
     queryKey: ['feed-posts'],
     queryFn: () => base44.entities.FeedPost.list('-created_date', 50),
-    enabled: !!user
+    enabled: !!user && hasPremium
   });
 
   const { data: salvos = [] } = useQuery({
     queryKey: ['feed-salvos', user?.email],
     queryFn: () => base44.entities.FeedSalvo.filter({ user_email: user.email }),
-    enabled: !!user?.email
+    enabled: !!user?.email && hasPremium
   });
 
   const criarPostMutation = useMutation({
@@ -128,22 +135,8 @@ export default function Feed() {
     return labels[plano] || 'Básico';
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
-      </div>
-    );
-  }
-
-  // Redirecionar imediatamente para página de planos
-  useEffect(() => {
-    if (!loading && !hasPremium) {
-      window.location.replace(createPageUrl('Subscription'));
-    }
-  }, [loading, hasPremium]);
-
-  if (!hasPremium) {
+  // Mostrar loading ou redirecionar
+  if (loading || (user && !hasPremium)) {
     return (
       <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
