@@ -28,33 +28,49 @@ export default function Subscription() {
     loadUser();
   }, []);
 
-  const handleSubscribePremium = () => {
+  const handleSubscribePremium = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    console.log('Premium clicked');
     const userName = user?.full_name || user?.email || 'interessado';
     const message = encodeURIComponent(`Olá! Sou ${userName} e gostaria de assinar o plano Premium por R$ 29,90 (pagamento único)`);
-    window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
+    const whatsappUrl = `https://wa.me/5583991971320?text=${message}`;
+    console.log('Opening WhatsApp:', whatsappUrl);
+    window.open(whatsappUrl, '_blank');
   };
 
-  const handleSubscribeRecruiter = () => {
+  const handleSubscribeRecruiter = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    console.log('Recruiter clicked');
     const userName = user?.full_name || user?.email || 'interessado';
     const message = encodeURIComponent(`Olá! Sou ${userName} e gostaria de assinar o plano Recrutador por R$ 9,90/mês`);
-    window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
+    const whatsappUrl = `https://wa.me/5583991971320?text=${message}`;
+    console.log('Opening WhatsApp:', whatsappUrl);
+    window.open(whatsappUrl, '_blank');
   };
 
-  const handleChooseBasic = async () => {
+  const handleChooseBasic = async (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    console.log('Basic clicked');
     try {
       const isAuthenticated = await base44.auth.isAuthenticated();
       
       if (isAuthenticated) {
+        console.log('User authenticated, updating to basic');
         await base44.auth.updateMe({ subscription_type: 'basic' });
         window.location.href = createPageUrl('Home');
       } else {
+        console.log('User not authenticated, redirecting to login');
         sessionStorage.setItem('needs_login', 'true');
-        sessionStorage.setItem('redirect_after_login', 'Subscription');
+        sessionStorage.setItem('redirect_after_login', 'Home');
         window.location.href = createPageUrl('Splash');
       }
     } catch (e) {
+      console.log('Error checking auth, redirecting to login');
       sessionStorage.setItem('needs_login', 'true');
-      sessionStorage.setItem('redirect_after_login', 'Subscription');
+      sessionStorage.setItem('redirect_after_login', 'Home');
       window.location.href = createPageUrl('Splash');
     }
   };
@@ -150,9 +166,10 @@ export default function Subscription() {
               </div>
 
               <Button 
+                type="button"
                 onClick={handleChooseBasic}
                 variant="outline"
-                className="w-full h-11 sm:h-12 font-semibold rounded-xl border-blue-500 text-blue-600 hover:bg-blue-50 text-sm sm:text-base"
+                className="w-full h-11 sm:h-12 font-semibold rounded-xl border-blue-500 text-blue-600 hover:bg-blue-50 text-sm sm:text-base cursor-pointer"
               >
                 <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 Escolher Básico
@@ -198,8 +215,9 @@ export default function Subscription() {
               </div>
 
               <Button 
+                type="button"
                 onClick={handleSubscribePremium}
-                className="w-full h-11 sm:h-12 font-semibold bg-[#25D366] hover:bg-[#20bd5a] rounded-xl text-white text-sm sm:text-base"
+                className="w-full h-11 sm:h-12 font-semibold bg-[#25D366] hover:bg-[#20bd5a] rounded-xl text-white text-sm sm:text-base cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 Assinar Premium
@@ -241,8 +259,9 @@ export default function Subscription() {
               </div>
 
               <Button 
+                type="button"
                 onClick={handleSubscribeRecruiter}
-                className="w-full h-11 sm:h-12 font-semibold bg-purple-600 hover:bg-purple-700 rounded-xl text-white text-sm sm:text-base"
+                className="w-full h-11 sm:h-12 font-semibold bg-purple-600 hover:bg-purple-700 rounded-xl text-white text-sm sm:text-base cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 Assinar Recrutador
