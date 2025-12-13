@@ -23,18 +23,12 @@ export default function Subscription() {
   };
 
   const handleSubscribePremium = () => {
-    scrollToBottom();
-    setTimeout(() => {
-      window.location.href = createPageUrl('Payment');
-    }, 600);
+    window.location.href = createPageUrl('Payment');
   };
 
   const handleSubscribeRecruiter = () => {
-    scrollToBottom();
-    setTimeout(() => {
-      const message = encodeURIComponent('Olá! Gostaria de assinar o plano Recrutador por R$ 9,90/mês');
-      window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
-    }, 600);
+    const message = encodeURIComponent('Olá! Gostaria de assinar o plano Recrutador por R$ 9,90/mês');
+    window.open(`https://wa.me/5583991971320?text=${message}`, '_blank');
   };
 
   const handleChooseBasic = async () => {

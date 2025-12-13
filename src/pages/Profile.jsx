@@ -215,7 +215,7 @@ export default function Profile() {
     );
   }
 
-  // Se não há usuário, mostrar prompt de login
+  // Se não há usuário, redirecionar para página de planos
   if (!isLoading && !displayUser) {
     return (
       <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center p-4">
@@ -223,17 +223,27 @@ export default function Profile() {
           <CardContent className="p-8 text-center">
             <User className="w-16 h-16 text-slate-300 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Faça login para acessar seu perfil</h2>
-            <p className="text-slate-600 mb-6">Entre para gerenciar suas informações</p>
-            <Button 
-              onClick={() => {
-                sessionStorage.setItem('needs_login', 'true');
-                sessionStorage.setItem('redirect_after_login', 'Profile');
-                window.location.href = createPageUrl('Splash');
-              }}
-              className="w-full bg-[#0A66C2] hover:bg-[#004182]"
-            >
-              Fazer Login
-            </Button>
+            <p className="text-slate-600 mb-6">Entre ou escolha um plano para continuar</p>
+            <div className="space-y-3">
+              <Button 
+                onClick={() => {
+                  sessionStorage.setItem('needs_login', 'true');
+                  sessionStorage.setItem('redirect_after_login', 'Profile');
+                  window.location.href = createPageUrl('Splash');
+                }}
+                className="w-full bg-[#0A66C2] hover:bg-[#004182]"
+              >
+                Fazer Login
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => window.location.href = createPageUrl('Subscription')}
+                className="w-full"
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Ver Planos
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -243,8 +253,9 @@ export default function Profile() {
   const isDono = displayUser?.email === 'alexandreferreirajp01@gmail.com' || displayUser?.subscription_type === 'dono';
   const isAdmin = displayUser?.role === 'admin' || displayUser?.subscription_type === 'admin';
   const isRecruiter = displayUser?.subscription_type === 'recruiter';
-  const isMember = !displayUser?.subscription_type || displayUser?.subscription_type === 'member';
-  const canEdit = !isMember; // Apenas membros sem plano não podem editar
+  const isBasic = displayUser?.subscription_type === 'basic';
+  const isPremium = displayUser?.subscription_type === 'premium';
+  const canEdit = true; // Todos podem editar perfil
 
   const getSubscriptionBadge = () => {
     if (isDono) {
@@ -279,18 +290,11 @@ export default function Profile() {
         </div>
       );
     }
-    if (displayUser?.subscription_type === 'basic') {
-      return (
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200">
-          <User className="w-4 h-4 text-slate-600" />
-          <span className="text-sm font-medium text-slate-700">Básico</span>
-        </div>
-      );
-    }
+    // Básico (padrão)
     return (
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200">
         <User className="w-4 h-4 text-slate-600" />
-        <span className="text-sm font-medium text-slate-700">Membro</span>
+        <span className="text-sm font-medium text-slate-700">Básico</span>
       </div>
     );
   };
@@ -343,14 +347,7 @@ export default function Profile() {
               {getSubscriptionBadge()}
             </div>
 
-            {!canEdit && (
-              <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                <p className="text-sm text-amber-800 text-center">
-                  <Lock className="w-4 h-4 inline mr-2" />
-                  Upgrade para Premium para editar seu perfil
-                </p>
-              </div>
-            )}
+
 
             {isEditing && canEdit ? (
               <div className="space-y-4 mb-6">
@@ -520,22 +517,13 @@ export default function Profile() {
             )}
 
             <div className="space-y-3">
-              {isMember && (
+              {isBasic && (
                 <Button 
-                  onClick={() => setShowPremiumModal(true)}
-                  className="w-full h-12 bg-gradient-to-r from-[#0A66C2] to-[#004182] hover:from-[#004182] hover:to-[#0A66C2] text-white rounded-xl shadow-lg"
-                >
-                  <Crown className="w-5 h-5 mr-2" />
-                  Assinar Premium
-                </Button>
-              )}
-              {displayUser?.subscription_type === 'basic' && (
-                <Button 
-                  onClick={() => setShowPremiumModal(true)}
+                  onClick={() => window.location.href = createPageUrl('Subscription')}
                   className="w-full h-12 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white rounded-xl shadow-lg"
                 >
                   <Crown className="w-5 h-5 mr-2" />
-                  Upgrade para Premium
+                  Seja Premium
                 </Button>
               )}
               <Button variant="outline" className="w-full h-12 rounded-xl text-[#C30000] border-red-200 hover:bg-red-50" onClick={handleLogout}>
