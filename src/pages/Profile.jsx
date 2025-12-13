@@ -488,5 +488,6 @@ export default function Profile() {
         }}
       />
     </div>
+    </VisitorRedirect>
   );
 }
