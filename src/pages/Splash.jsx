@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Mail, Lock, Briefcase } from "lucide-react";
+import { Loader2, Mail, Lock, Briefcase, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import PasswordInput from "@/components/common/PasswordInput";
 
@@ -29,14 +29,14 @@ export default function Splash() {
       return;
     }
     
-    // Limpar flag e mostrar tela de login
-    sessionStorage.removeItem('needs_login');
+    // Não limpar flag aqui - apenas ao fazer login ou clicar em voltar
     
     const checkSession = async () => {
       try {
         const isAuth = await base44.auth.isAuthenticated();
         if (isAuth) {
           // Se já está autenticado, vai pra Home
+          sessionStorage.removeItem('needs_login');
           window.location.href = createPageUrl('Home');
           return;
         }
@@ -49,6 +49,18 @@ export default function Splash() {
     };
     
     checkSession();
+    
+    // Listener para botão voltar do navegador
+    const handlePopState = () => {
+      sessionStorage.removeItem('needs_login');
+      window.location.href = createPageUrl('Home');
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
 
   // Login com email/senha ou username/senha
@@ -73,6 +85,7 @@ export default function Splash() {
 
       if (data.success) {
         localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+        sessionStorage.removeItem('needs_login');
 
         // Notificar admins sobre novo login
         try {
@@ -98,6 +111,7 @@ export default function Splash() {
   // Login com Google
   const handleGoogleLogin = async () => {
     localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+    sessionStorage.removeItem('needs_login');
     
     // Tentar notificar admins (será executado após o login bem-sucedido)
     try {
@@ -130,6 +144,21 @@ export default function Splash() {
   // Tela de login
   return (
     <div className="min-h-screen bg-[#0A66C2] flex flex-col items-center justify-start pt-12 px-4 pb-8">
+      {/* Botão Voltar */}
+      <div className="w-full max-w-md mb-4">
+        <Button
+          variant="ghost"
+          onClick={() => {
+            sessionStorage.removeItem('needs_login');
+            window.location.href = createPageUrl('Home');
+          }}
+          className="text-white hover:bg-white/10 -ml-2"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Voltar para Início
+        </Button>
+      </div>
+      
       {/* Logo e Nome */}
       <div className="text-center mb-8">
         <div className="w-20 h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-4">
