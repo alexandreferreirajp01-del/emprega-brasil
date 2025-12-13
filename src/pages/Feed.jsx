@@ -23,25 +23,33 @@ export default function Feed() {
   useEffect(() => {
     const init = async () => {
       try {
+        const isAuth = await base44.auth.isAuthenticated();
+        
+        if (!isAuth) {
+          // Não autenticado - redirecionar para planos
+          window.location.href = createPageUrl('Subscription');
+          return;
+        }
+        
         const u = await base44.auth.me();
         setUser(u);
         
-        // Verificar acesso imediatamente
+        // Verificar acesso Premium
         const isPremium = u?.subscription_type === 'premium' || 
                          u?.subscription_type === 'admin' || 
                          u?.subscription_type === 'recruiter' ||
                          u?.role === 'admin';
         
         if (!isPremium) {
+          // Básico - redirecionar para planos
           window.location.href = createPageUrl('Subscription');
           return;
         }
-      } catch {
-        // Sem autenticação - redirecionar para escolher plano
-        window.location.href = createPageUrl('Subscription');
-        return;
-      } finally {
+        
         setLoading(false);
+      } catch (error) {
+        // Erro - redirecionar para planos
+        window.location.href = createPageUrl('Subscription');
       }
     };
     init();
