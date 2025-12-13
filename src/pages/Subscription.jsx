@@ -23,7 +23,7 @@ export default function Subscription() {
   }, []);
 
   const handleBasic = () => {
-    window.location.href = '/info/Splash';
+    window.location.href = createPageUrl('Splash');
   };
 
   const handlePremium = () => {
