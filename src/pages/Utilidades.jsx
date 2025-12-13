@@ -42,9 +42,14 @@ export default function Utilidades() {
     );
   }
 
-  // Redirecionar automaticamente para página de planos se não for premium
+  // Redirecionar para planos se não for premium
+  useEffect(() => {
+    if (!loading && !hasPremium) {
+      window.location.href = createPageUrl('Subscription');
+    }
+  }, [loading, hasPremium]);
+
   if (!hasPremium) {
-    window.location.href = createPageUrl('Subscription');
     return (
       <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
