@@ -71,23 +71,30 @@ export default function Profile() {
     }
   }, [displayUser?.id]); // Apenas quando o ID do usuário mudar
 
-  // Redirecionar se não autenticado
+  // Verificar autenticação no carregamento
+  const [authChecked, setAuthChecked] = useState(false);
+  
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const isAuth = await base44.auth.isAuthenticated();
         if (!isAuth) {
           window.location.replace(createPageUrl('Subscription'));
+          return;
         }
+        setAuthChecked(true);
       } catch (e) {
         window.location.replace(createPageUrl('Subscription'));
       }
     };
-    
-    if (error) {
-      checkAuth();
+    checkAuth();
+  }, []);
+  
+  useEffect(() => {
+    if (error && authChecked) {
+      window.location.replace(createPageUrl('Subscription'));
     }
-  }, [error]);
+  }, [error, authChecked]);
 
   // Mutation para atualizar foto de perfil
   const updatePhotoMutation = useMutation({
@@ -205,6 +212,11 @@ export default function Profile() {
     sessionStorage.clear();
     window.location.href = createPageUrl('Splash');
   };
+
+  // Não renderizar nada até verificar auth
+  if (!authChecked) {
+    return null;
+  }
 
   // Renderizar estrutura imediatamente, carregar dados depois
   if (!displayUser && isLoading) {
