@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Search, Briefcase, MessageCircle, Newspaper, Crown, ArrowRight, 
   MapPin, Calendar, Users, Star, TrendingUp, Building2, Eye,
-  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake
+  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake, Sparkles
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -418,6 +418,67 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
+            </Card>
+
+            {/* Banner Planos Premium */}
+            <Card 
+              className="rounded-2xl border-0 shadow-2xl bg-gradient-to-br from-purple-600 via-blue-600 to-blue-700 cursor-pointer hover:shadow-3xl hover:scale-[1.02] transition-all duration-300 overflow-hidden relative"
+              onClick={() => window.location.href = createPageUrl('Subscription')}
+            >
+              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+              
+              <CardContent className="p-6 relative z-10">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center shadow-lg">
+                      <Crown className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-xl leading-tight">Planos Premium</h3>
+                      <p className="text-white/90 text-sm">Escolha o plano ideal para você</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
+                    <div className="text-white/90 text-xs mb-1">Básico</div>
+                    <div className="text-white font-bold text-base">Grátis</div>
+                  </div>
+                  <div className="bg-white/30 backdrop-blur-sm rounded-lg p-3 text-center border-2 border-yellow-300">
+                    <div className="text-yellow-200 text-xs mb-1 flex items-center justify-center gap-1">
+                      <Star className="w-2.5 h-2.5" /> Popular
+                    </div>
+                    <div className="text-white font-bold text-base">R$ 9,90</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-700 to-purple-900 rounded-lg p-3 text-center">
+                    <div className="text-purple-200 text-xs mb-1 flex items-center justify-center gap-1">
+                      <Sparkles className="w-2.5 h-2.5" /> Black
+                    </div>
+                    <div className="text-white font-bold text-base">R$ 59</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 text-white/90 text-xs mb-3">
+                  <CheckCircle className="w-4 h-4 text-green-300" />
+                  <span>Acesso a vagas exclusivas</span>
+                </div>
+                <div className="flex items-center gap-2 text-white/90 text-xs mb-3">
+                  <CheckCircle className="w-4 h-4 text-green-300" />
+                  <span>Ferramentas profissionais completas</span>
+                </div>
+                <div className="flex items-center gap-2 text-white/90 text-xs mb-4">
+                  <CheckCircle className="w-4 h-4 text-green-300" />
+                  <span>Suporte prioritário via WhatsApp</span>
+                </div>
+                
+                <Button className="w-full bg-white text-blue-600 hover:bg-white/90 rounded-xl font-bold h-11 shadow-lg">
+                  <Crown className="w-4 h-4 mr-2" />
+                  Ver Todos os Planos
+                </Button>
+              </CardContent>
             </Card>
 
             {/* Banner Parcerias */}
