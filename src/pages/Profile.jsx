@@ -71,21 +71,10 @@ export default function Profile() {
     }
   }, [displayUser?.id]); // Apenas quando o ID do usuário mudar
 
-  // Redirecionar se não autenticado
+  // Não redirecionar - permite visualizar perfil para mostrar upgrade
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const isAuth = await base44.auth.isAuthenticated();
-        if (!isAuth) {
-          window.location.replace(createPageUrl('Subscription'));
-        }
-      } catch (e) {
-        window.location.replace(createPageUrl('Subscription'));
-      }
-    };
-    
     if (error) {
-      checkAuth();
+      // Permite visualizar perfil mesmo sem login
     }
   }, [error]);
 

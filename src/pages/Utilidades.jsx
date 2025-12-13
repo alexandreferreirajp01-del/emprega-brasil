@@ -19,30 +19,22 @@ export default function Utilidades() {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const isAuth = await base44.auth.isAuthenticated();
-        
-        if (!isAuth) {
-          // Não autenticado - redirecionar para subscription
-          window.location.replace(createPageUrl('Subscription'));
-          return;
-        }
-        
         const u = await base44.auth.me();
         setUser(u);
         
-        // Verificar acesso premium
+        // Verificar acesso imediatamente
         const isPremium = u?.subscription_type === 'premium' || 
                          u?.subscription_type === 'admin' || 
                          u?.subscription_type === 'recruiter' ||
                          u?.role === 'admin';
         
         if (!isPremium) {
-          window.location.replace(createPageUrl('Subscription'));
+          window.location.href = createPageUrl('Subscription');
           return;
         }
-      } catch (error) {
-        console.error('Erro ao verificar autenticação:', error);
-        window.location.replace(createPageUrl('Subscription'));
+      } catch {
+        // Sem autenticação - redirecionar para escolher plano
+        window.location.href = createPageUrl('Subscription');
         return;
       } finally {
         setLoading(false);
