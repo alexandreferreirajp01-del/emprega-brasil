@@ -23,7 +23,6 @@ export default function Subscription() {
   }, []);
 
   const handleBasic = () => {
-    sessionStorage.setItem('needs_login', 'true');
     window.location.href = '/info/Splash';
   };
 
