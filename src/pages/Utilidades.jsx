@@ -59,10 +59,8 @@ export default function Utilidades() {
     </Card>
   );
 
-  const hasPremium = user?.subscription_type === 'premium' || 
-                     user?.subscription_type === 'admin' ||
-                     user?.subscription_type === 'recruiter' ||
-                     user?.role === 'admin';
+  const isMember = !user?.subscription_type || user?.subscription_type === 'member';
+  const hasPremium = !isMember && user?.subscription_type !== 'basic'; // Básico também não tem acesso
 
   return (
     <RequireAuth>
