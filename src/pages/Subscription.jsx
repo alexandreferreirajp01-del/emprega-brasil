@@ -8,12 +8,11 @@ import { base44 } from "@/api/base44Client";
 
 export default function Subscription() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
     
-    // Tentar carregar usuário, mas nunca bloquear a renderização
+    // Tentar carregar usuário em background, sem bloquear renderização
     const loadUser = async () => {
       try {
         const isAuth = await base44.auth.isAuthenticated();
@@ -23,8 +22,6 @@ export default function Subscription() {
         }
       } catch (e) {
         // Usuário não autenticado - OK, página é pública
-      } finally {
-        setLoading(false);
       }
     };
     
@@ -90,18 +87,6 @@ export default function Subscription() {
     "Enviar mensagens via Inbox",
     "Ver currículos de candidatos"
   ];
-
-  // Renderização sempre garantida - apenas mostra loading durante check inicial
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#0A66C2] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600">Carregando planos...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
