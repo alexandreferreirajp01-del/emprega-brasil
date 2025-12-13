@@ -22,20 +22,9 @@ export default function Subscription() {
     loadUser();
   }, []);
 
-  const handleBasic = async () => {
-    try {
-      const isAuth = await base44.auth.isAuthenticated();
-      if (isAuth) {
-        await base44.auth.updateMe({ subscription_type: 'basic' });
-        window.location.href = '/info/Home';
-      } else {
-        sessionStorage.setItem('needs_login', 'true');
-        window.location.href = '/info/Splash';
-      }
-    } catch (error) {
-      sessionStorage.setItem('needs_login', 'true');
-      window.location.href = '/info/Splash';
-    }
+  const handleBasic = () => {
+    sessionStorage.setItem('needs_login', 'true');
+    window.location.href = '/info/Splash';
   };
 
   const handlePremium = () => {
