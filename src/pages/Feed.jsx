@@ -35,8 +35,7 @@ export default function Feed() {
   }, []);
 
   const isMember = !user?.subscription_type || user?.subscription_type === 'member';
-  const isBasic = user?.subscription_type === 'basic';
-  const hasPremium = !isMember && !isBasic;
+  const hasPremium = !isMember && user?.subscription_type !== 'basic';
 
   const { data: posts = [], isLoading: loadingPosts } = useQuery({
     queryKey: ['feed-posts'],
@@ -136,18 +135,7 @@ export default function Feed() {
     );
   }
 
-  // Se é BÁSICO, redirecionar para checkout
-  if (isBasic && !loading) {
-    window.location.href = createPageUrl('Subscription');
-    return (
-      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
-      </div>
-    );
-  }
-
-  // Se é MEMBRO, mostrar bloqueio
-  if (isMember && !loading) {
+  if (!hasPremium) {
     return (
       <div className="min-h-screen bg-[#F3F2EF] pb-20">
         <div className="bg-gradient-to-r from-[#1D2226] to-[#383E45] pt-6 pb-8 px-4">
