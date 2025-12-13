@@ -198,6 +198,7 @@ export default function Profile() {
   const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || user?.subscription_type === 'dono';
   const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
   const isRecruiter = user?.subscription_type === 'recruiter';
+  const canEdit = user?.subscription_type === 'premium' || isDono || isAdmin || isRecruiter;
 
   const getSubscriptionBadge = () => {
     if (isDono) {
@@ -283,16 +284,27 @@ export default function Profile() {
                     {user?.custom_full_name?.[0] || user?.username?.[0] || user?.email?.[0]?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <label className="absolute bottom-0 right-0 w-9 h-9 sm:w-10 sm:h-10 bg-[#0A66C2] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#004182]">
-                  <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={updatePhotoMutation.isPending} />
-                </label>
+                {canEdit && (
+                  <label className="absolute bottom-0 right-0 w-9 h-9 sm:w-10 sm:h-10 bg-[#0A66C2] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#004182]">
+                    <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={updatePhotoMutation.isPending} />
+                  </label>
+                )}
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">{user?.custom_full_name || user?.username || 'Usuário'}</h2>
               {getSubscriptionBadge()}
             </div>
 
-            {isEditing ? (
+            {!canEdit && (
+              <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <p className="text-sm text-amber-800 text-center">
+                  <Lock className="w-4 h-4 inline mr-2" />
+                  Upgrade para Premium para editar seu perfil
+                </p>
+              </div>
+            )}
+
+            {isEditing && canEdit ? (
               <div className="space-y-4 mb-6">
                 <div className="space-y-2">
                   <Label>Nome Completo</Label>
@@ -395,12 +407,14 @@ export default function Profile() {
                     <p className="text-xs text-slate-500">Nome Completo</p>
                     <p className="font-medium text-slate-800 text-sm">{user?.custom_full_name || 'Não informado'}</p>
                   </div>
-                  <button 
-                    onClick={() => setIsEditing(true)} 
-                    className="p-2 hover:bg-slate-200 rounded-lg"
-                  >
-                    <Edit className="w-4 h-4 text-slate-400" />
-                  </button>
+                  {canEdit && (
+                    <button 
+                      onClick={() => setIsEditing(true)} 
+                      className="p-2 hover:bg-slate-200 rounded-lg"
+                    >
+                      <Edit className="w-4 h-4 text-slate-400" />
+                    </button>
+                  )}
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <User className="w-5 h-5 text-slate-400 flex-shrink-0" />
