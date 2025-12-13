@@ -155,11 +155,15 @@ export default function Home() {
                       </Button>
                     </Link>
                     {!user && (
-                      <Link to={createPageUrl('Splash')}>
-                        <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-[#0A66C2] text-white hover:bg-[#004182] rounded-xl w-full sm:w-auto font-bold shadow-lg">
-                          Entrar / Cadastrar
-                        </Button>
-                      </Link>
+                      <Button 
+                        onClick={() => {
+                          sessionStorage.setItem('needs_login', 'true');
+                          window.location.href = createPageUrl('Splash');
+                        }}
+                        className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-[#0A66C2] text-white hover:bg-[#004182] rounded-xl w-full sm:w-auto font-bold shadow-lg"
+                      >
+                        Entrar / Cadastrar
+                      </Button>
                     )}
                   </div>
                 </div>

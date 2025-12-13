@@ -13,12 +13,14 @@ export default function RequireAuth({ children, redirectTo = 'Splash' }) {
         const isAuth = await base44.auth.isAuthenticated();
         
         if (!isAuth) {
+          sessionStorage.setItem('needs_login', 'true');
           window.location.href = createPageUrl(redirectTo);
           return;
         }
         
         setAuthenticated(true);
       } catch (e) {
+        sessionStorage.setItem('needs_login', 'true');
         window.location.href = createPageUrl(redirectTo);
       } finally {
         setChecking(false);

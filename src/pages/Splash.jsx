@@ -20,6 +20,18 @@ export default function Splash() {
   useEffect(() => {
     window.scrollTo(0, 0);
     
+    // Verificar se veio de um redirecionamento para login
+    const needsLogin = sessionStorage.getItem('needs_login');
+    
+    if (!needsLogin) {
+      // Se não precisa de login, vai direto para Home
+      window.location.href = createPageUrl('Home');
+      return;
+    }
+    
+    // Limpar flag e mostrar tela de login
+    sessionStorage.removeItem('needs_login');
+    
     const checkSession = async () => {
       try {
         const isAuth = await base44.auth.isAuthenticated();

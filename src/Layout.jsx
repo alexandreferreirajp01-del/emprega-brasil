@@ -307,11 +307,15 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                 </>
               ) : (
-                <Link to={createPageUrl('Splash')}>
-                  <Button className="bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl text-sm px-6 font-semibold">
-                    Entrar
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={() => {
+                    sessionStorage.setItem('needs_login', 'true');
+                    window.location.href = createPageUrl('Splash');
+                  }}
+                  className="bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl text-sm px-6 font-semibold"
+                >
+                  Entrar
+                </Button>
               )}
             </div>
 
