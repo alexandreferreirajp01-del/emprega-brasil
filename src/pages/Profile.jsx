@@ -63,10 +63,10 @@ export default function Profile() {
     }
   }, [user?.id]); // Apenas quando o ID do usuário mudar
 
-  // Redirecionar se não autenticado
+  // Não redirecionar - permite visualizar perfil para mostrar upgrade
   useEffect(() => {
     if (error) {
-      window.location.href = createPageUrl('Splash');
+      // Permite visualizar perfil mesmo sem login
     }
   }, [error]);
 
@@ -191,6 +191,31 @@ export default function Profile() {
     return (
       <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
+      </div>
+    );
+  }
+
+  // Se não há usuário, redirecionar apenas após tentativa de carregamento
+  if (!isLoading && !user) {
+    return (
+      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center">
+            <User className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+            <h2 className="text-xl font-bold mb-2">Faça login para acessar seu perfil</h2>
+            <p className="text-slate-600 mb-6">Entre para gerenciar suas informações</p>
+            <Button 
+              onClick={() => {
+                sessionStorage.setItem('needs_login', 'true');
+                sessionStorage.setItem('redirect_after_login', 'Profile');
+                window.location.href = createPageUrl('Splash');
+              }}
+              className="w-full bg-[#0A66C2] hover:bg-[#004182]"
+            >
+              Fazer Login
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
