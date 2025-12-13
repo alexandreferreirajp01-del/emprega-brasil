@@ -9,12 +9,19 @@ const PUBLIC_PAGES = [
   'Groups', 'Subscription', 'About', 'Contact', 'FAQ', 
   'Terms', 'Privacy', 'Cookies', 'Security', 'LGPD', 
   'Advertise', 'Careers', 'Parcerias', 'Login', 'Register',
-  'ForgotPassword', 'ResetPassword'
+  'ForgotPassword', 'ResetPassword', 'ActivateBasic'
+];
+
+// Páginas que exigem autenticação
+const AUTH_REQUIRED_PAGES = [
+  'Profile', 'Favoritos', 'Historico', 'Mensagens', 'Feed',
+  'Notifications', 'Configuracoes'
 ];
 
 // Páginas que exigem Premium
 const PREMIUM_PAGES = [
-  'Utilidades', 'BibliotecaProfissional', 'ProfessionalResume'
+  'Utilidades', 'BibliotecaProfissional', 'ProfessionalResume',
+  'Feed'
 ];
 
 export default function RouteGuard({ children, currentPageName }) {
@@ -36,15 +43,25 @@ export default function RouteGuard({ children, currentPageName }) {
           return;
         }
 
-        // Verificar autenticação
-        const isAuth = await base44.auth.isAuthenticated();
+        // Verificar se precisa de autenticação
+        const needsAuth = AUTH_REQUIRED_PAGES.includes(currentPageName) || 
+                         PREMIUM_PAGES.includes(currentPageName);
         
-        if (!isAuth) {
-          // Não autenticado tentando acessar página restrita
-          console.log('Usuário não autenticado, redirecionando...');
-          sessionStorage.setItem('needs_login', 'true');
-          sessionStorage.setItem('redirect_after_login', currentPageName);
-          window.location.replace(createPageUrl('Splash'));
+        if (needsAuth) {
+          const isAuth = await base44.auth.isAuthenticated();
+          
+          if (!isAuth) {
+            // Não autenticado tentando acessar página restrita
+            sessionStorage.setItem('needs_login', 'true');
+            sessionStorage.setItem('redirect_after_login', currentPageName);
+            window.location.replace(createPageUrl('Splash'));
+            return;
+          }
+        } else {
+          // Página pública
+          localStorage.setItem('last_valid_route', currentPageName);
+          setCanAccess(true);
+          setChecking(false);
           return;
         }
 
