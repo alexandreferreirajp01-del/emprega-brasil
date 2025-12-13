@@ -12,22 +12,21 @@ import PremiumModal from "@/components/subscription/PremiumModal";
 
 export default function Utilidades() {
   const [user, setUser] = useState(null);
-  const [authChecked, setAuthChecked] = useState(false);
   const [tab, setTab] = useState('biblioteca');
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   useEffect(() => {
-    const loadUser = async () => {
+    let mounted = true;
+    
+    (async () => {
       try {
         const isAuth = await base44.auth.isAuthenticated();
-        
         if (!isAuth) {
           window.location.replace(createPageUrl('Subscription'));
           return;
         }
         
         const u = await base44.auth.me();
-        
         const isPremium = u?.subscription_type === 'premium' || 
                          u?.subscription_type === 'admin' || 
                          u?.subscription_type === 'recruiter' ||
@@ -38,18 +37,16 @@ export default function Utilidades() {
           return;
         }
         
-        setUser(u);
-        setAuthChecked(true);
+        if (mounted) setUser(u);
       } catch (error) {
         window.location.replace(createPageUrl('Subscription'));
       }
-    };
-    loadUser();
+    })();
+    
+    return () => { mounted = false; };
   }, []);
 
-  if (!authChecked) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-[#F3F2EF] pb-20">
