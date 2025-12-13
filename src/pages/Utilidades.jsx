@@ -60,7 +60,18 @@ export default function Utilidades() {
   );
 
   const isMember = !user?.subscription_type || user?.subscription_type === 'member';
-  const hasPremium = !isMember && user?.subscription_type !== 'basic'; // Básico também não tem acesso
+  const isBasic = user?.subscription_type === 'basic';
+  const hasPremium = !isMember && !isBasic;
+
+  // Se é BÁSICO, redirecionar para checkout
+  if (isBasic && user) {
+    window.location.href = createPageUrl('Subscription');
+    return (
+      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
+      </div>
+    );
+  }
 
   return (
     <RequireAuth>

@@ -12,9 +12,10 @@ const PUBLIC_PAGES = [
   'ForgotPassword', 'ResetPassword'
 ];
 
-// Páginas que exigem Premium
-const PREMIUM_PAGES = [
-  'Utilidades', 'BibliotecaProfissional', 'ProfessionalResume'
+// Páginas que exigem autenticação mas podem ser acessadas (mostram bloqueio interno)
+const AUTH_PAGES = [
+  'Feed', 'Utilidades', 'Profile', 'Favoritos', 'Historico', 'Mensagens',
+  'BibliotecaProfissional', 'ProfessionalResume'
 ];
 
 export default function RouteGuard({ children, currentPageName }) {
@@ -36,38 +37,26 @@ export default function RouteGuard({ children, currentPageName }) {
           return;
         }
 
-        // Verificar autenticação
-        const isAuth = await base44.auth.isAuthenticated();
-        
-        if (!isAuth) {
-          // Não autenticado tentando acessar página restrita
-          console.log('Usuário não autenticado, redirecionando...');
-          sessionStorage.setItem('needs_login', 'true');
-          sessionStorage.setItem('redirect_after_login', currentPageName);
-          window.location.replace(createPageUrl('Splash'));
-          return;
-        }
-
-        // Buscar dados do usuário
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-
-        // Verificar se é página premium
-        if (PREMIUM_PAGES.includes(currentPageName)) {
-          const hasPremium = currentUser.subscription_type === 'premium' || 
-                            currentUser.subscription_type === 'admin' ||
-                            currentUser.subscription_type === 'recruiter' ||
-                            currentUser.role === 'admin';
+        // Se é página que exige auth, verificar
+        if (AUTH_PAGES.includes(currentPageName)) {
+          const isAuth = await base44.auth.isAuthenticated();
           
-          if (!hasPremium) {
-            console.log('Usuário não tem premium, redirecionando...');
-            // Redirecionar para planos ou home
-            const fallbackRoute = lastValidRoute && PUBLIC_PAGES.includes(lastValidRoute) 
-              ? lastValidRoute 
-              : 'Home';
-            window.location.replace(createPageUrl(fallbackRoute));
+          if (!isAuth) {
+            // Não autenticado - redirecionar para login
+            console.log('Usuário não autenticado, redirecionando...');
+            sessionStorage.setItem('needs_login', 'true');
+            sessionStorage.setItem('redirect_after_login', currentPageName);
+            window.location.replace(createPageUrl('Splash'));
             return;
           }
+
+          // Autenticado - permitir acesso (a página decide se mostra bloqueio interno)
+          const currentUser = await base44.auth.me();
+          setUser(currentUser);
+          localStorage.setItem('last_valid_route', currentPageName);
+          setCanAccess(true);
+          setChecking(false);
+          return;
         }
 
         // Validações adicionais de permissões podem ser adicionadas aqui
