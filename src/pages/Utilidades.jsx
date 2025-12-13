@@ -10,8 +10,6 @@ import BibliotecaSection from "@/components/utilidades/BibliotecaSection";
 import FerramentasSection from "@/components/utilidades/FerramentasSection";
 import PremiumModal from "@/components/subscription/PremiumModal";
 
-import VisitorRedirect from "@/components/common/VisitorRedirect";
-
 export default function Utilidades() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,13 +22,21 @@ export default function Utilidades() {
         const u = await base44.auth.me();
         setUser(u);
       } catch {
-        // Erro ao carregar usuário
+        window.location.href = createPageUrl('Splash');
       } finally {
         setLoading(false);
       }
     };
     loadUser();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
+      </div>
+    );
+  }
 
   // Verificar acesso premium
   const hasPremiumAccess = user?.subscription_type === 'premium' || 
@@ -61,7 +67,6 @@ export default function Utilidades() {
   );
 
   return (
-    <VisitorRedirect>
     <div className="min-h-screen bg-[#F3F2EF] pb-20">
       <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-4 px-4">
         <div className="max-w-4xl mx-auto">
@@ -107,6 +112,5 @@ export default function Utilidades() {
         }}
       />
     </div>
-    </VisitorRedirect>
   );
 }

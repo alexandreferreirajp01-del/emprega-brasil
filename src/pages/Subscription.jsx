@@ -38,9 +38,6 @@ export default function Subscription() {
   };
 
   const handleChooseBasic = async () => {
-    // Remover modo visitante
-    localStorage.removeItem('vagas_abertas_visitor_mode');
-    
     try {
       const isAuthenticated = await base44.auth.isAuthenticated();
       
@@ -49,14 +46,14 @@ export default function Subscription() {
         await base44.auth.updateMe({ subscription_type: 'basic' });
         window.location.href = createPageUrl('Home');
       } else {
-        // Não autenticado - redirecionar para login
+        // Não autenticado - redirecionar para cadastro
         localStorage.setItem('pending_subscription', 'basic');
-        base44.auth.redirectToLogin(createPageUrl('Home'));
+        base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
       }
     } catch (e) {
-      // Erro - redirecionar para login
+      // Erro - redirecionar para cadastro
       localStorage.setItem('pending_subscription', 'basic');
-      base44.auth.redirectToLogin(createPageUrl('Home'));
+      base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
     }
   };
 

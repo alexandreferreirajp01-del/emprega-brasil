@@ -18,7 +18,6 @@ import CookieConsent from "@/components/common/CookieConsent";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
-  const [isVisitor, setIsVisitor] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Scroll para o topo ao mudar de página
@@ -296,47 +295,28 @@ export default function Layout({ children, currentPageName }) {
 
             {/* User Actions */}
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
-              {!isVisitor && user && (
-                <NotificationBell user={user} />
-              )}
-              {isVisitor ? (
-                  <>
-                    <Link to={createPageUrl('Subscription')}>
-                      <Button className="bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-xl text-sm px-4 font-bold mr-2">
-                        Planos
-                      </Button>
-                    </Link>
-                    <Link to={createPageUrl('Splash')}>
-                      <Button variant="outline" className="rounded-xl text-sm px-4 text-[#1D2226] border-slate-200 hover:bg-slate-50">
-                        Entrar
-                      </Button>
-                    </Link>
-                  </>
-                  ) : (
-                  <>
+              {user ? (
+                <>
+                  <NotificationBell user={user} />
                   <Link to={createPageUrl('Profile')}>
                     <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] border-slate-200 hover:bg-slate-50">
                       <User className="w-4 h-4 mr-1.5" />
                       Perfil
                     </Button>
                   </Link>
-                  <Button 
-                    onClick={handleLogout}
-                    variant="ghost" 
-                    className="rounded-xl text-sm px-3 text-red-600 hover:bg-red-50"
-                  >
-                    <LogOut className="w-4 h-4 mr-1.5" />
-                    Sair
+                </>
+              ) : (
+                <Link to={createPageUrl('Splash')}>
+                  <Button className="bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl text-sm px-6 font-semibold">
+                    Entrar
                   </Button>
-                  </>
-                  )}
+                </Link>
+              )}
             </div>
 
             {/* Mobile/Tablet Menu Button */}
             <div className="lg:hidden flex items-center gap-1">
-              {!isVisitor && user && (
-                <NotificationBell user={user} />
-              )}
+              {user && <NotificationBell user={user} />}
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -370,20 +350,7 @@ export default function Layout({ children, currentPageName }) {
               ))}
 
               <div className="pt-2 border-t">
-                {isVisitor ? (
-                  <>
-                    <Link to={createPageUrl('Subscription')} onClick={() => setMobileMenuOpen(false)}>
-                      <Button className="w-full bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-xl mb-2 font-bold">
-                        Ver Planos
-                      </Button>
-                    </Link>
-                    <Link to={createPageUrl('Splash')} onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full rounded-xl">
-                        Entrar
-                      </Button>
-                    </Link>
-                  </>
-                ) : (
+                {user ? (
                   <>
                     <Link to={createPageUrl('Profile')} onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="outline" className="w-full rounded-xl mb-2">
@@ -400,6 +367,12 @@ export default function Layout({ children, currentPageName }) {
                       Sair
                     </Button>
                   </>
+                ) : (
+                  <Link to={createPageUrl('Splash')} onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl font-semibold">
+                      Entrar / Cadastrar
+                    </Button>
+                  </Link>
                 )}
               </div>
             </nav>

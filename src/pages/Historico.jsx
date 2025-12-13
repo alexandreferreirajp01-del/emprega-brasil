@@ -7,8 +7,6 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import VisitorRedirect from "@/components/common/VisitorRedirect";
-
 export default function Historico() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
@@ -19,7 +17,7 @@ export default function Historico() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (e) {
-        // Erro ao carregar usuário
+        window.location.href = createPageUrl('Splash');
       }
     };
     loadUser();
@@ -73,8 +71,15 @@ export default function Historico() {
     });
   };
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-[#0056ff] border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
   return (
-    <VisitorRedirect>
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-gradient-to-r from-purple-500 to-indigo-500 pt-6 pb-8 px-4">
         <div className="max-w-4xl mx-auto">
@@ -171,6 +176,5 @@ export default function Historico() {
         )}
       </div>
     </div>
-    </VisitorRedirect>
   );
 }

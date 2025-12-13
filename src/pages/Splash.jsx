@@ -103,11 +103,7 @@ export default function Splash() {
     base44.auth.redirectToLogin(createPageUrl('Home'));
   };
 
-  // Entrar como visitante
-  const handleVisitorLogin = () => {
-    localStorage.setItem('vagas_abertas_visitor_mode', 'true');
-    window.location.href = createPageUrl('Home');
-  };
+
 
   // Tela de carregamento
   if (status === 'checking') {
@@ -218,16 +214,7 @@ export default function Splash() {
             </Link>
           </div>
 
-          {/* Botão Visitante */}
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={handleVisitorLogin}
-            className="w-full h-12 rounded-xl text-slate-600 hover:text-slate-800 hover:bg-slate-100 text-base font-medium border border-slate-200"
-          >
-            <Briefcase className="w-5 h-5 mr-2 text-slate-500" />
-            Entrar como Visitante
-          </Button>
+
 
           {/* Botão Criar Cadastro */}
           <Link to={createPageUrl('Register')}>

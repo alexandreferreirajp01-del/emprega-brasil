@@ -10,8 +10,6 @@ import { base44 } from "@/api/base44Client";
 import TimeAgo from "@/components/common/TimeAgo";
 import { createPageUrl } from "@/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import VisitorRedirect from "@/components/common/VisitorRedirect";
-
 export default function Mensagens() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +38,7 @@ export default function Mensagens() {
           });
         }
       } catch {
-        // Erro ao carregar usuário
+        window.location.href = createPageUrl('Splash');
       } finally {
         setLoading(false);
       }
@@ -152,8 +150,15 @@ export default function Mensagens() {
 
 
 
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
+      </div>
+    );
+  }
+
   return (
-    <VisitorRedirect>
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-4 px-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
@@ -324,6 +329,5 @@ export default function Mensagens() {
         )}
       </div>
     </div>
-    </VisitorRedirect>
   );
 }

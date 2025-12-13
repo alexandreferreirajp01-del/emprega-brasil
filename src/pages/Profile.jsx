@@ -14,7 +14,6 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
-import VisitorRedirect from "@/components/common/VisitorRedirect";
 import { Link } from "react-router-dom";
 import PasswordInput from "@/components/common/PasswordInput";
 import PremiumModal from "@/components/subscription/PremiumModal";
@@ -243,14 +242,13 @@ export default function Profile() {
     }
     return (
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200">
-        <User className="w-4 h-4 text-slate-500" />
-        <span className="text-sm font-medium text-slate-600">Visitante</span>
+        <User className="w-4 h-4 text-slate-600" />
+        <span className="text-sm font-medium text-slate-700">Membro</span>
       </div>
     );
   };
 
   return (
-    <VisitorRedirect>
     <div className="min-h-screen bg-[#F3F2EF] pb-20">
       <AnimatePresence>
         {toast && (
@@ -488,6 +486,5 @@ export default function Profile() {
         }}
       />
     </div>
-    </VisitorRedirect>
   );
 }

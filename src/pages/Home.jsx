@@ -34,7 +34,6 @@ async function fetchWithRetry(fetchFn, maxRetries = 5) {
 
 export default function Home() {
   const [user, setUser] = useState(null);
-  const [isVisitor, setIsVisitor] = useState(false);
   const [activeTab, setActiveTab] = useState('jobs');
   const [jobs, setJobs] = useState([]);
   const [allViews, setAllViews] = useState([]);
@@ -48,14 +47,12 @@ export default function Home() {
     const checkAuth = async () => {
       try {
         const isAuth = await base44.auth.isAuthenticated();
-        if (!isAuth) {
-          setIsVisitor(true);
-          return;
+        if (isAuth) {
+          const currentUser = await base44.auth.me();
+          setUser(currentUser);
         }
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
       } catch (e) {
-        setIsVisitor(true);
+        // Não autenticado
       }
     };
     checkAuth();
@@ -152,15 +149,15 @@ export default function Home() {
 
                   <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
                     <Link to={createPageUrl('Jobs')}>
-                        <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl shadow-lg w-full sm:w-auto">
-                          <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                          Buscar Vagas
-                        </Button>
-                      </Link>
-                    {isVisitor && (
-                      <Link to={createPageUrl('Subscription')}>
-                        <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-slate-200 text-slate-900 hover:bg-slate-300 rounded-xl w-full sm:w-auto font-bold shadow-lg">
-                          Ver Planos
+                      <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl shadow-lg w-full sm:w-auto">
+                        <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        Buscar Vagas
+                      </Button>
+                    </Link>
+                    {!user && (
+                      <Link to={createPageUrl('Splash')}>
+                        <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-[#0A66C2] text-white hover:bg-[#004182] rounded-xl w-full sm:w-auto font-bold shadow-lg">
+                          Entrar / Cadastrar
                         </Button>
                       </Link>
                     )}
@@ -438,8 +435,8 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {/* Premium CTA - apenas para visitantes e básicos */}
-            {(isVisitor || !user || (user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.role !== 'admin')) && (
+            {/* Premium CTA - apenas para não-premium */}
+            {user && user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.role !== 'admin' && (
               <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#0A66C2] to-[#004182] text-white overflow-hidden">
                 <CardContent className="p-6 text-center relative">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
