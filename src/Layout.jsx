@@ -361,11 +361,18 @@ export default function Layout({ children, currentPageName }) {
 
               <div className="pt-2 border-t">
                 {isVisitor ? (
-                  <Link to={createPageUrl('Splash')} onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full bg-[#0A66C2] hover:bg-[#004182] rounded-xl">
-                      Entrar
-                    </Button>
-                  </Link>
+                  <>
+                    <Link to={createPageUrl('Subscription')} onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 rounded-xl mb-2 font-semibold">
+                        Ver Planos
+                      </Button>
+                    </Link>
+                    <Link to={createPageUrl('Splash')} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full rounded-xl">
+                        Entrar
+                      </Button>
+                    </Link>
+                  </>
                 ) : (
                   <>
                     <Link to={createPageUrl('Profile')} onClick={() => setMobileMenuOpen(false)}>
