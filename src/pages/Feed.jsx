@@ -164,12 +164,13 @@ export default function Feed() {
                 R$ 29,90
                 <span className="text-base font-normal text-white/70 block mt-1">pagamento único vitalício</span>
               </div>
-              <Button 
-                onClick={() => setShowPremiumModal(true)}
-                className="bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl h-14 px-8 text-lg font-bold"
-              >
-                Assinar Agora
-              </Button>
+              <Link to={createPageUrl('Subscription')}>
+                <Button 
+                  className="bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl h-14 px-8 text-lg font-bold"
+                >
+                  Assinar Agora
+                </Button>
+              </Link>
               <div className="flex items-center justify-center gap-2 mt-6 text-white/70">
                 <Shield className="w-5 h-5" />
                 <span>Garantia de 7 dias</span>
