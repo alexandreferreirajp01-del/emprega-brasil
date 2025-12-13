@@ -300,12 +300,19 @@ export default function Layout({ children, currentPageName }) {
                 <NotificationBell user={user} />
               )}
               {isVisitor ? (
-                <Link to={createPageUrl('Splash')}>
-                  <Button className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl text-sm px-4 text-white">
-                    Entrar
-                  </Button>
-                </Link>
-              ) : (
+                  <>
+                    <Link to={createPageUrl('Subscription')}>
+                      <Button className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 rounded-xl text-sm px-4 font-semibold mr-2">
+                        Planos
+                      </Button>
+                    </Link>
+                    <Link to={createPageUrl('Splash')}>
+                      <Button variant="outline" className="rounded-xl text-sm px-4 text-[#1D2226] border-slate-200 hover:bg-slate-50">
+                        Entrar
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
                 <Link to={createPageUrl('Profile')}>
                   <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] border-slate-200 hover:bg-slate-50">
                     <User className="w-4 h-4 mr-1.5" />

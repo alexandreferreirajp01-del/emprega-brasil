@@ -87,7 +87,17 @@ export default function Subscription() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-8 pb-16 px-4">
+      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-8 pb-16 px-4 relative">
+        <Button
+          onClick={() => window.location.href = createPageUrl('Home')}
+          variant="ghost"
+          className="absolute top-4 left-4 text-white hover:bg-white/10"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Voltar
+        </Button>
         <div className="max-w-5xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
