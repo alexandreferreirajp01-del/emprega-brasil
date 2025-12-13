@@ -100,16 +100,13 @@ export default function Subscription() {
                 ))}
               </div>
 
-              <button
-                onClick={() => {
-                  sessionStorage.setItem('needs_login', 'true');
-                  window.location.href = createPageUrl('Splash');
-                }}
+              <a
+                href={createPageUrl('Splash')}
                 className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
               >
                 <UserPlus className="w-5 h-5" />
                 Escolher Básico
-              </button>
+              </a>
             </CardContent>
           </Card>
 
@@ -151,17 +148,15 @@ export default function Subscription() {
                 ))}
               </div>
 
-              <button
-                onClick={() => {
-                  const name = user?.full_name || user?.email || 'interessado';
-                  const msg = `Olá! Sou ${name} e gostaria de assinar o plano Premium por R$ 29,90 (pagamento único)`;
-                  window.open(`https://wa.me/5583991971320?text=${encodeURIComponent(msg)}`, '_blank');
-                }}
+              <a
+                href={`https://wa.me/5583991971320?text=${encodeURIComponent(`Olá! Sou ${user?.full_name || user?.email || 'interessado'} e gostaria de assinar o plano Premium por R$ 29,90 (pagamento único)`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-full h-12 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
               >
                 <MessageCircle className="w-5 h-5" />
                 Assinar Premium
-              </button>
+              </a>
             </CardContent>
           </Card>
 
@@ -199,17 +194,15 @@ export default function Subscription() {
                 ))}
               </div>
 
-              <button
-                onClick={() => {
-                  const name = user?.full_name || user?.email || 'interessado';
-                  const msg = `Olá! Sou ${name} e gostaria de assinar o plano Recrutador por R$ 9,90/mês`;
-                  window.open(`https://wa.me/5583991971320?text=${encodeURIComponent(msg)}`, '_blank');
-                }}
+              <a
+                href={`https://wa.me/5583991971320?text=${encodeURIComponent(`Olá! Sou ${user?.full_name || user?.email || 'interessado'} e gostaria de assinar o plano Recrutador por R$ 9,90/mês`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
               >
                 <MessageCircle className="w-5 h-5" />
                 Assinar Recrutador
-              </button>
+              </a>
 
               <p className="text-xs text-center text-slate-500 mt-3">
                 * Postagens sujeitas a aprovação do admin
