@@ -119,14 +119,21 @@ export default function Layout({ children, currentPageName }) {
   // Verificar se pode usar currículo (apenas Premium)
   const canUseResume = user?.subscription_type === 'premium';
 
-  // Menu principal limpo - apenas itens básicos
-      const navItems = [
-        { name: 'Início', icon: Home, page: 'Home' },
-          { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-          { name: 'Utilidades', icon: Briefcase, page: 'Utilidades' },
-          { name: 'Feed', icon: MessageCircle, page: 'Feed' },
-          { name: 'Perfil', icon: User, page: 'Profile' },
-      ];
+  // Menu principal com controle de acesso
+  const navItems = [
+    { name: 'Início', icon: Home, page: 'Home', public: true },
+    { name: 'Vagas', icon: Briefcase, page: 'Jobs', public: true },
+    { name: 'Utilidades', icon: Briefcase, page: 'Utilidades', requiresAuth: true },
+    { name: 'Feed', icon: MessageCircle, page: 'Feed', requiresAuth: true },
+    { name: 'Perfil', icon: User, page: 'Profile', requiresAuth: true },
+  ];
+
+  const handleNavClick = (item, e) => {
+    if (item.requiresAuth && !user) {
+      e.preventDefault();
+      window.location.href = createPageUrl('Subscription');
+    }
+  };
 
   const handleLogout = () => {
     localStorage.clear();
@@ -286,7 +293,11 @@ export default function Layout({ children, currentPageName }) {
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1 flex-wrap max-w-[60%]">
               {navItems.map((item) => (
-                <Link key={item.page} to={createPageUrl(item.page)}>
+                <Link 
+                  key={item.page} 
+                  to={createPageUrl(item.page)}
+                  onClick={(e) => handleNavClick(item, e)}
+                >
                   <Button 
                     variant={currentPageName === item.page ? "secondary" : "ghost"}
                     className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : 'text-[#1D2226]'}`}
@@ -296,7 +307,7 @@ export default function Layout({ children, currentPageName }) {
                   </Button>
                 </Link>
               ))}
-                  </nav>
+            </nav>
 
             {/* User Actions */}
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
@@ -346,7 +357,10 @@ export default function Layout({ children, currentPageName }) {
                 <Link 
                   key={item.page} 
                   to={createPageUrl(item.page)}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => {
+                    handleNavClick(item, e);
+                    setMobileMenuOpen(false);
+                  }}
                 >
                   <Button 
                     variant={currentPageName === item.page ? "secondary" : "ghost"}
@@ -487,6 +501,7 @@ export default function Layout({ children, currentPageName }) {
             <Link 
               key={item.page} 
               to={createPageUrl(item.page)}
+              onClick={(e) => handleNavClick(item, e)}
               className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 ${
                 currentPageName === item.page ? 'text-[#0A66C2]' : 'text-slate-500'
               }`}
