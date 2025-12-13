@@ -13,7 +13,7 @@ import PremiumModal from "@/components/subscription/PremiumModal";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
   const [novoPost, setNovoPost] = useState('');
   const [imagens, setImagens] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -26,15 +26,12 @@ export default function Feed() {
         const isAuth = await base44.auth.isAuthenticated();
         
         if (!isAuth) {
-          // Não autenticado - redirecionar para subscription
           window.location.replace(createPageUrl('Subscription'));
           return;
         }
         
         const u = await base44.auth.me();
-        setUser(u);
         
-        // Verificar acesso premium
         const isPremium = u?.subscription_type === 'premium' || 
                          u?.subscription_type === 'admin' || 
                          u?.subscription_type === 'recruiter' ||
@@ -44,33 +41,26 @@ export default function Feed() {
           window.location.replace(createPageUrl('Subscription'));
           return;
         }
+        
+        setUser(u);
+        setAuthChecked(true);
       } catch (error) {
-        console.error('Erro ao verificar autenticação:', error);
         window.location.replace(createPageUrl('Subscription'));
-        return;
-      } finally {
-        setLoading(false);
       }
     };
     init();
   }, []);
 
-  // Verificar acesso Premium
-  const hasPremium = user?.subscription_type === 'premium' || 
-                     user?.subscription_type === 'admin' || 
-                     user?.subscription_type === 'recruiter' ||
-                     user?.role === 'admin';
-
   const { data: posts = [], isLoading: loadingPosts } = useQuery({
     queryKey: ['feed-posts'],
     queryFn: () => base44.entities.FeedPost.list('-created_date', 50),
-    enabled: !!user && hasPremium
+    enabled: authChecked && !!user
   });
 
   const { data: salvos = [] } = useQuery({
     queryKey: ['feed-salvos', user?.email],
     queryFn: () => base44.entities.FeedSalvo.filter({ user_email: user.email }),
-    enabled: !!user?.email && hasPremium
+    enabled: authChecked && !!user?.email
   });
 
   const criarPostMutation = useMutation({
@@ -151,13 +141,8 @@ export default function Feed() {
     return labels[plano] || 'Básico';
   };
 
-  // Mostrar loading ou redirecionar
-  if (loading || (user && !hasPremium)) {
-    return (
-      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
-      </div>
-    );
+  if (!authChecked) {
+    return null;
   }
 
   return (
