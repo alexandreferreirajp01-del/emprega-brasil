@@ -27,6 +27,7 @@ export default function Layout({ children, currentPageName }) {
 
   // Pages that don't need layout
   const noLayoutPages = ['Splash', 'Login', 'Register'];
+  const publicPages = ['Home', 'Jobs', 'JobDetail', 'News', 'NewsDetail', 'Groups', 'Subscription', 'About', 'Contact', 'FAQ', 'Terms', 'Privacy', 'Cookies', 'Security', 'LGPD', 'Advertise', 'Careers', 'Parcerias'];
 
   // Esconder botão Base44 edit no modo produção/APK - FORÇADO
   useEffect(() => {

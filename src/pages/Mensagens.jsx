@@ -150,15 +150,8 @@ export default function Mensagens() {
 
 
 
-  if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
-      </div>
-    );
-  }
-
   return (
+    <RequireAuth>
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-4 px-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
@@ -329,5 +322,6 @@ export default function Mensagens() {
         )}
       </div>
     </div>
+    </RequireAuth>
   );
 }

@@ -52,7 +52,7 @@ export default function Home() {
           setUser(currentUser);
         }
       } catch (e) {
-        // Não autenticado
+        // Não autenticado - OK, Home é pública
       }
     };
     checkAuth();

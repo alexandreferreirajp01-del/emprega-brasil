@@ -50,15 +50,8 @@ export default function Favoritos() {
     return jobs.find(j => j.id === jobId);
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-[#0056ff] border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
   return (
+    <RequireAuth>
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-gradient-to-r from-red-500 to-pink-500 pt-6 pb-8 px-4">
         <div className="max-w-4xl mx-auto">
@@ -152,5 +145,6 @@ export default function Favoritos() {
         )}
       </div>
     </div>
+    </RequireAuth>
   );
 }
