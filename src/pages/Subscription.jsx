@@ -23,6 +23,8 @@ export default function Subscription() {
   }, []);
 
   const handleBasic = () => {
+    sessionStorage.setItem('needs_login', 'true');
+    sessionStorage.setItem('from_subscription', 'true');
     window.location.replace('https://vagasabertasparaiba.info/splash');
   };
 
