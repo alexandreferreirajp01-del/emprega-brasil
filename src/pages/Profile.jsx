@@ -38,30 +38,38 @@ export default function Profile() {
     setTimeout(() => setToast(null), 4000);
   };
 
+  // Estado inicial otimizado - renderiza UI imediatamente
+  const [userLocal, setUserLocal] = useState(null);
+  
   // Buscar dados do usuário com React Query
   const { data: user, isLoading, error, refetch } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
       const userData = await base44.auth.me();
+      setUserLocal(userData); // Atualiza estado local
       return userData;
     },
-    staleTime: Infinity, // Não refazer query automaticamente
-    retry: 3
+    staleTime: 60000, // Cache por 1 minuto
+    retry: 1, // Apenas 1 retry para não atrasar
+    refetchOnWindowFocus: false
   });
+
+  // Usar dados em cache se disponível
+  const displayUser = user || userLocal;
 
   // Sincronizar form com dados do usuário apenas no carregamento inicial
   useEffect(() => {
-    if (user && !isEditing) {
+    if (displayUser && !isEditing) {
       setEditForm({
-        custom_full_name: user.custom_full_name || '',
-        username: user.username || '',
-        phone: user.phone || '',
-        city: user.city || '',
-        state: user.state || 'PB',
+        custom_full_name: displayUser.custom_full_name || '',
+        username: displayUser.username || '',
+        phone: displayUser.phone || '',
+        city: displayUser.city || '',
+        state: displayUser.state || 'PB',
         password: ''
       });
     }
-  }, [user?.id]); // Apenas quando o ID do usuário mudar
+  }, [displayUser?.id]); // Apenas quando o ID do usuário mudar
 
   // Não redirecionar - permite visualizar perfil para mostrar upgrade
   useEffect(() => {
@@ -158,13 +166,13 @@ export default function Profile() {
   };
 
   const handleCancelEdit = () => {
-    if (user) {
+    if (displayUser) {
       setEditForm({
-        custom_full_name: user.custom_full_name || '',
-        username: user.username || '',
-        phone: user.phone || '',
-        city: user.city || '',
-        state: user.state || 'PB',
+        custom_full_name: displayUser.custom_full_name || '',
+        username: displayUser.username || '',
+        phone: displayUser.phone || '',
+        city: displayUser.city || '',
+        state: displayUser.state || 'PB',
         password: ''
       });
     }
@@ -172,12 +180,12 @@ export default function Profile() {
   };
 
   // Verificar se houve mudanças no formulário (dirty check)
-  const hasChanges = user && (
-    editForm.custom_full_name.trim() !== (user.custom_full_name || '') ||
-    editForm.username.trim() !== (user.username || '') ||
-    editForm.phone.trim() !== (user.phone || '') ||
-    editForm.city.trim() !== (user.city || '') ||
-    editForm.state.trim().toUpperCase() !== (user.state || 'PB').toUpperCase() ||
+  const hasChanges = displayUser && (
+    editForm.custom_full_name.trim() !== (displayUser.custom_full_name || '') ||
+    editForm.username.trim() !== (displayUser.username || '') ||
+    editForm.phone.trim() !== (displayUser.phone || '') ||
+    editForm.city.trim() !== (displayUser.city || '') ||
+    editForm.state.trim().toUpperCase() !== (displayUser.state || 'PB').toUpperCase() ||
     (editForm.password && editForm.password.trim().length > 0)
   );
 
@@ -187,16 +195,28 @@ export default function Profile() {
     window.location.href = createPageUrl('Splash');
   };
 
-  if (isLoading) {
+  // Renderizar estrutura imediatamente, carregar dados depois
+  if (!displayUser && isLoading) {
     return (
-      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
+      <div className="min-h-screen bg-[#F3F2EF] pb-20">
+        <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-8 pb-20 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 -mt-12">
+          <Card className="shadow-xl rounded-3xl overflow-hidden">
+            <CardContent className="p-6 sm:p-8 flex items-center justify-center min-h-[400px]">
+              <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
-  // Se não há usuário, redirecionar apenas após tentativa de carregamento
-  if (!isLoading && !user) {
+  // Se não há usuário, mostrar prompt de login
+  if (!isLoading && !displayUser) {
     return (
       <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
@@ -220,10 +240,10 @@ export default function Profile() {
     );
   }
 
-  const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || user?.subscription_type === 'dono';
-  const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
-  const isRecruiter = user?.subscription_type === 'recruiter';
-  const isMember = !user?.subscription_type || user?.subscription_type === 'member';
+  const isDono = displayUser?.email === 'alexandreferreirajp01@gmail.com' || displayUser?.subscription_type === 'dono';
+  const isAdmin = displayUser?.role === 'admin' || displayUser?.subscription_type === 'admin';
+  const isRecruiter = displayUser?.subscription_type === 'recruiter';
+  const isMember = !displayUser?.subscription_type || displayUser?.subscription_type === 'member';
   const canEdit = !isMember; // Apenas membros sem plano não podem editar
 
   const getSubscriptionBadge = () => {
@@ -251,7 +271,7 @@ export default function Profile() {
         </div>
       );
     }
-    if (user?.subscription_type === 'premium') {
+    if (displayUser?.subscription_type === 'premium') {
       return (
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200">
           <Crown className="w-4 h-4 text-amber-600" />
@@ -259,7 +279,7 @@ export default function Profile() {
         </div>
       );
     }
-    if (user?.subscription_type === 'basic') {
+    if (displayUser?.subscription_type === 'basic') {
       return (
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200">
           <User className="w-4 h-4 text-slate-600" />
@@ -305,9 +325,9 @@ export default function Profile() {
             <div className="flex flex-col items-center mb-6">
               <div className="relative mb-4">
                 <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-white shadow-lg">
-                  <AvatarImage src={user?.profile_photo} />
+                  <AvatarImage src={displayUser?.profile_photo} />
                   <AvatarFallback className="bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 text-2xl sm:text-3xl">
-                    {user?.profile_photo ? null : (
+                    {displayUser?.profile_photo ? null : (
                       <User className="w-12 h-12 sm:w-14 sm:h-14" />
                     )}
                   </AvatarFallback>
@@ -319,7 +339,7 @@ export default function Profile() {
                   </label>
                 )}
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">{user?.custom_full_name || user?.username || 'Usuário'}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">{displayUser?.custom_full_name || displayUser?.username || 'Usuário'}</h2>
               {getSubscriptionBadge()}
             </div>
 
@@ -357,7 +377,7 @@ export default function Profile() {
                 <div className="space-y-2">
                   <Label>E-mail</Label>
                   <Input 
-                    value={user?.email} 
+                    value={displayUser?.email} 
                     disabled 
                     className="rounded-xl h-11 bg-slate-50" 
                   />
@@ -433,7 +453,7 @@ export default function Profile() {
                   <User className="w-5 h-5 text-slate-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-slate-500">Nome Completo</p>
-                    <p className="font-medium text-slate-800 text-sm">{user?.custom_full_name || 'Não informado'}</p>
+                    <p className="font-medium text-slate-800 text-sm">{displayUser?.custom_full_name || 'Não informado'}</p>
                   </div>
                   {canEdit && (
                     <button 
@@ -448,29 +468,29 @@ export default function Profile() {
                   <User className="w-5 h-5 text-slate-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-slate-500">Nome de Usuário</p>
-                    <p className="font-medium text-slate-800 text-sm">{user?.username || 'Não informado'}</p>
+                    <p className="font-medium text-slate-800 text-sm">{displayUser?.username || 'Não informado'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <Mail className="w-5 h-5 text-slate-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-slate-500">E-mail</p>
-                    <p className="font-medium text-slate-800 text-sm truncate">{user?.email}</p>
+                    <p className="font-medium text-slate-800 text-sm truncate">{displayUser?.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <Phone className="w-5 h-5 text-slate-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-slate-500">Telefone</p>
-                    <p className="font-medium text-slate-800 text-sm">{user?.phone || 'Não informado'}</p>
+                    <p className="font-medium text-slate-800 text-sm">{displayUser?.phone || 'Não informado'}</p>
                   </div>
                 </div>
-                {(user?.city || user?.state) && (
+                {(displayUser?.city || displayUser?.state) && (
                   <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                     <MapPin className="w-5 h-5 text-slate-400 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-slate-500">Localização</p>
-                      <p className="font-medium text-slate-800 text-sm">{user?.city}, {user?.state}</p>
+                      <p className="font-medium text-slate-800 text-sm">{displayUser?.city}, {displayUser?.state}</p>
                     </div>
                   </div>
                 )}
@@ -479,7 +499,7 @@ export default function Profile() {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-slate-500">Membro desde</p>
                     <p className="font-medium text-slate-800 text-sm">
-                      {user?.created_date ? new Date(user.created_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Não informado'}
+                      {displayUser?.created_date ? new Date(displayUser.created_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Não informado'}
                     </p>
                   </div>
                 </div>
@@ -509,7 +529,7 @@ export default function Profile() {
                   Assinar Premium
                 </Button>
               )}
-              {user?.subscription_type === 'basic' && (
+              {displayUser?.subscription_type === 'basic' && (
                 <Button 
                   onClick={() => setShowPremiumModal(true)}
                   className="w-full h-12 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white rounded-xl shadow-lg"
@@ -530,7 +550,7 @@ export default function Profile() {
       <PremiumModal
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
-        user={user}
+        user={displayUser}
         onSuccess={() => {
           refetch();
           showToast('🎉 Bem-vindo ao Premium!');
