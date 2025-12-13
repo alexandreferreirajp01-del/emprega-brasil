@@ -40,7 +40,7 @@ export default function Mensagens() {
           });
         }
       } catch {
-        window.location.href = createPageUrl('Splash');
+        // Erro ao carregar usuário
       } finally {
         setLoading(false);
       }
@@ -151,14 +151,6 @@ export default function Mensagens() {
   );
 
 
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
-      </div>
-    );
-  }
 
   return (
     <VisitorRedirect>

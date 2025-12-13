@@ -19,26 +19,18 @@ export default function Utilidades() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   useEffect(() => {
-    const init = async () => {
+    const loadUser = async () => {
       try {
         const u = await base44.auth.me();
         setUser(u);
       } catch {
-        window.location.href = createPageUrl('Splash');
+        // Erro ao carregar usuário
       } finally {
         setLoading(false);
       }
     };
-    init();
+    loadUser();
   }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
-      </div>
-    );
-  }
 
   // Verificar acesso premium
   const hasPremiumAccess = user?.subscription_type === 'premium' || 

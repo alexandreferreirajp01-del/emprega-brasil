@@ -14,15 +14,15 @@ export default function Historico() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (e) {
-        window.location.href = createPageUrl('Splash');
+        // Erro ao carregar usuário
       }
     };
-    checkAuth();
+    loadUser();
   }, []);
 
   const { data: history = [], isLoading } = useQuery({
@@ -72,14 +72,6 @@ export default function Historico() {
       minute: '2-digit'
     });
   };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-[#0056ff] border-t-transparent rounded-full" />
-      </div>
-    );
-  }
 
   return (
     <VisitorRedirect>
