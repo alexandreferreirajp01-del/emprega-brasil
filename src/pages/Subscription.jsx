@@ -38,20 +38,25 @@ export default function Subscription() {
   };
 
   const handleChooseBasic = async () => {
+    // Remover modo visitante
     localStorage.removeItem('vagas_abertas_visitor_mode');
     
     try {
       const isAuthenticated = await base44.auth.isAuthenticated();
+      
       if (isAuthenticated) {
+        // Usuário já autenticado - ativar plano básico
         await base44.auth.updateMe({ subscription_type: 'basic' });
         window.location.href = createPageUrl('Home');
       } else {
+        // Não autenticado - redirecionar para login
         localStorage.setItem('pending_subscription', 'basic');
-        base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
+        base44.auth.redirectToLogin(createPageUrl('Home'));
       }
     } catch (e) {
+      // Erro - redirecionar para login
       localStorage.setItem('pending_subscription', 'basic');
-      base44.auth.redirectToLogin(createPageUrl('ActivateBasic'));
+      base44.auth.redirectToLogin(createPageUrl('Home'));
     }
   };
 

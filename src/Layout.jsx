@@ -312,14 +312,24 @@ export default function Layout({ children, currentPageName }) {
                       </Button>
                     </Link>
                   </>
-                ) : (
-                <Link to={createPageUrl('Profile')}>
-                  <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] border-slate-200 hover:bg-slate-50">
-                    <User className="w-4 h-4 mr-1.5" />
-                    Perfil
+                  ) : (
+                  <>
+                  <Link to={createPageUrl('Profile')}>
+                    <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] border-slate-200 hover:bg-slate-50">
+                      <User className="w-4 h-4 mr-1.5" />
+                      Perfil
+                    </Button>
+                  </Link>
+                  <Button 
+                    onClick={handleLogout}
+                    variant="ghost" 
+                    className="rounded-xl text-sm px-3 text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut className="w-4 h-4 mr-1.5" />
+                    Sair
                   </Button>
-                </Link>
-              )}
+                  </>
+                  )}
             </div>
 
             {/* Mobile/Tablet Menu Button */}
