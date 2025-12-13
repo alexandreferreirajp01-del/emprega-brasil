@@ -13,6 +13,7 @@ import PremiumModal from "@/components/subscription/PremiumModal";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [novoPost, setNovoPost] = useState('');
   const [imagens, setImagens] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -20,17 +21,17 @@ export default function Feed() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    let mounted = true;
-    
-    (async () => {
+    const init = async () => {
       try {
         const isAuth = await base44.auth.isAuthenticated();
+        
         if (!isAuth) {
           window.location.replace(createPageUrl('Subscription'));
           return;
         }
         
         const u = await base44.auth.me();
+        
         const isPremium = u?.subscription_type === 'premium' || 
                          u?.subscription_type === 'admin' || 
                          u?.subscription_type === 'recruiter' ||
@@ -41,25 +42,25 @@ export default function Feed() {
           return;
         }
         
-        if (mounted) setUser(u);
+        setUser(u);
+        setAuthChecked(true);
       } catch (error) {
         window.location.replace(createPageUrl('Subscription'));
       }
-    })();
-    
-    return () => { mounted = false; };
+    };
+    init();
   }, []);
 
   const { data: posts = [], isLoading: loadingPosts } = useQuery({
     queryKey: ['feed-posts'],
     queryFn: () => base44.entities.FeedPost.list('-created_date', 50),
-    enabled: !!user
+    enabled: authChecked && !!user
   });
 
   const { data: salvos = [] } = useQuery({
     queryKey: ['feed-salvos', user?.email],
     queryFn: () => base44.entities.FeedSalvo.filter({ user_email: user.email }),
-    enabled: !!user?.email
+    enabled: authChecked && !!user?.email
   });
 
   const criarPostMutation = useMutation({
@@ -140,7 +141,9 @@ export default function Feed() {
     return labels[plano] || 'Básico';
   };
 
-  if (!user) return null;
+  if (!authChecked) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-[#F3F2EF] pb-20">
