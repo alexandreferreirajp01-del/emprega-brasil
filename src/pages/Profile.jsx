@@ -198,7 +198,8 @@ export default function Profile() {
   const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || user?.subscription_type === 'dono';
   const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
   const isRecruiter = user?.subscription_type === 'recruiter';
-  const canEdit = user?.subscription_type === 'premium' || isDono || isAdmin || isRecruiter;
+  const isMember = !user?.subscription_type || user?.subscription_type === 'member';
+  const canEdit = !isMember; // Apenas membros sem plano não podem editar
 
   const getSubscriptionBadge = () => {
     if (isDono) {
@@ -280,8 +281,10 @@ export default function Profile() {
               <div className="relative mb-4">
                 <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-white shadow-lg">
                   <AvatarImage src={user?.profile_photo} />
-                  <AvatarFallback className="bg-[#0A66C2] text-white text-2xl sm:text-3xl">
-                    {user?.custom_full_name?.[0] || user?.username?.[0] || user?.email?.[0]?.toUpperCase()}
+                  <AvatarFallback className="bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 text-2xl sm:text-3xl">
+                    {user?.profile_photo ? null : (
+                      <User className="w-12 h-12 sm:w-14 sm:h-14" />
+                    )}
                   </AvatarFallback>
                 </Avatar>
                 {canEdit && (
@@ -472,13 +475,22 @@ export default function Profile() {
             )}
 
             <div className="space-y-3">
-              {user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.subscription_type !== 'recruiter' && user?.subscription_type !== 'dono' && user?.role !== 'admin' && (
+              {isMember && (
                 <Button 
                   onClick={() => setShowPremiumModal(true)}
-                  className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
+                  className="w-full h-12 bg-gradient-to-r from-[#0A66C2] to-[#004182] hover:from-[#004182] hover:to-[#0A66C2] text-white rounded-xl shadow-lg"
                 >
                   <Crown className="w-5 h-5 mr-2" />
-                  {user?.subscription_type === 'basic' ? 'Upgrade para Premium' : 'Assinar Plano'}
+                  Assinar Premium
+                </Button>
+              )}
+              {user?.subscription_type === 'basic' && (
+                <Button 
+                  onClick={() => setShowPremiumModal(true)}
+                  className="w-full h-12 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white rounded-xl shadow-lg"
+                >
+                  <Crown className="w-5 h-5 mr-2" />
+                  Upgrade para Premium
                 </Button>
               )}
               <Button variant="outline" className="w-full h-12 rounded-xl text-[#C30000] border-red-200 hover:bg-red-50" onClick={handleLogout}>
