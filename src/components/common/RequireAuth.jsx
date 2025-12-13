@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import { Loader2 } from 'lucide-react';
 
-export default function RequireAuth({ children, redirectTo = 'Splash' }) {
+export default function RequireAuth({ children, redirectTo = 'Splash', requirePremium = false }) {
   const [checking, setChecking] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
@@ -14,21 +14,38 @@ export default function RequireAuth({ children, redirectTo = 'Splash' }) {
         
         if (!isAuth) {
           sessionStorage.setItem('needs_login', 'true');
-          window.location.href = createPageUrl(redirectTo);
+          const currentPath = window.location.pathname;
+          sessionStorage.setItem('redirect_after_login', currentPath);
+          window.location.replace(createPageUrl(redirectTo));
           return;
+        }
+
+        // Se requer premium, validar
+        if (requirePremium) {
+          const user = await base44.auth.me();
+          const hasPremium = user.subscription_type === 'premium' || 
+                            user.subscription_type === 'admin' ||
+                            user.subscription_type === 'recruiter' ||
+                            user.role === 'admin';
+          
+          if (!hasPremium) {
+            const lastValidRoute = localStorage.getItem('last_valid_route') || 'Home';
+            window.location.replace(createPageUrl(lastValidRoute));
+            return;
+          }
         }
         
         setAuthenticated(true);
       } catch (e) {
         sessionStorage.setItem('needs_login', 'true');
-        window.location.href = createPageUrl(redirectTo);
+        window.location.replace(createPageUrl(redirectTo));
       } finally {
         setChecking(false);
       }
     };
     
     checkAuth();
-  }, [redirectTo]);
+  }, [redirectTo, requirePremium]);
 
   if (checking) {
     return (

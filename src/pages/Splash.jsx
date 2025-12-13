@@ -51,12 +51,17 @@ export default function Splash() {
     checkSession();
     
     // Listener para botão voltar do navegador
-    const handlePopState = () => {
+    const handlePopState = (event) => {
+      event.preventDefault();
       sessionStorage.removeItem('needs_login');
-      window.location.href = createPageUrl('Home');
+      sessionStorage.removeItem('redirect_after_login');
+      window.location.replace(createPageUrl('Home'));
     };
     
     window.addEventListener('popstate', handlePopState);
+    
+    // Também interceptar navegação do navegador
+    window.history.pushState(null, '', window.location.href);
     
     return () => {
       window.removeEventListener('popstate', handlePopState);
@@ -85,7 +90,11 @@ export default function Splash() {
 
       if (data.success) {
         localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+        
+        // Verificar se havia redirecionamento pendente
+        const redirectTo = sessionStorage.getItem('redirect_after_login');
         sessionStorage.removeItem('needs_login');
+        sessionStorage.removeItem('redirect_after_login');
 
         // Notificar admins sobre novo login
         try {
@@ -97,7 +106,9 @@ export default function Splash() {
           // Ignorar erro de notificação
         }
 
-        window.location.href = createPageUrl('Home');
+        // Redirecionar para página que tentou acessar ou Home
+        const targetPage = redirectTo || 'Home';
+        window.location.replace(createPageUrl(targetPage));
       } else {
         setError(data.error || 'Erro ao fazer login');
         setLoading(false);
@@ -111,7 +122,11 @@ export default function Splash() {
   // Login com Google
   const handleGoogleLogin = async () => {
     localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+    
+    // Verificar se havia redirecionamento pendente
+    const redirectTo = sessionStorage.getItem('redirect_after_login');
     sessionStorage.removeItem('needs_login');
+    sessionStorage.removeItem('redirect_after_login');
     
     // Tentar notificar admins (será executado após o login bem-sucedido)
     try {
@@ -126,7 +141,9 @@ export default function Splash() {
       // Ignorar - usuário ainda não autenticado
     }
     
-    base44.auth.redirectToLogin(createPageUrl('Home'));
+    // Redirecionar para página que tentou acessar ou Home
+    const targetPage = redirectTo || 'Home';
+    base44.auth.redirectToLogin(createPageUrl(targetPage));
   };
 
 

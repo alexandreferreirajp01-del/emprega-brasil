@@ -60,7 +60,7 @@ export default function Utilidades() {
   );
 
   return (
-    <RequireAuth>
+    <RequireAuth requirePremium={true}>
     <div className="min-h-screen bg-[#F3F2EF] pb-20">
       <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-4 px-4">
         <div className="max-w-4xl mx-auto">

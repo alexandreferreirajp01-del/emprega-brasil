@@ -15,6 +15,8 @@ import ServiceWorkerManager from "@/components/push/ServiceWorkerManager";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import ApplyBasicPermissions from "@/components/common/ApplyBasicPermissions";
 import CookieConsent from "@/components/common/CookieConsent";
+import RouteGuard from "@/components/common/RouteGuard";
+import NavigationFallback from "@/components/common/NavigationFallback";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -177,8 +179,11 @@ export default function Layout({ children, currentPageName }) {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col notranslate" translate="no" lang="pt-BR">
-        {/* Service Worker Manager - registra SW inline */}
-        <ServiceWorkerManager />
+      {/* Fallback de navegação anti-tela-branca */}
+      <NavigationFallback />
+
+      {/* Service Worker Manager - registra SW inline */}
+      <ServiceWorkerManager />
         {/* Aplicar permissões básicas automaticamente */}
         <ApplyBasicPermissions user={user} />
       {/* PWA/APK Meta Tags - Injeta no head */}
