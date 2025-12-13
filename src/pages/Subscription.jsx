@@ -74,7 +74,7 @@ export default function Subscription() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-8 pb-16 px-4 relative">
+      <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#003399] pt-8 pb-16 px-4 relative">
         <Button
           onClick={() => window.location.href = createPageUrl('Home')}
           variant="ghost"
@@ -164,7 +164,7 @@ export default function Subscription() {
                  Recomendado
                </Badge>
              </div>
-              <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] p-6 text-center">
+              <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-6 text-center">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mb-4">
                   <Crown className="w-7 h-7 text-white" />
                 </div>
