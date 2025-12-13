@@ -31,8 +31,11 @@ export default function Utilidades() {
     loadUser();
   }, []);
 
-  const isMember = !user || !user?.subscription_type || user?.subscription_type === 'member';
-  const hasPremium = user && !isMember && user?.subscription_type !== 'basic';
+  // Verificar acesso Premium (apenas premium, admin, recruiter)
+  const hasPremium = user?.subscription_type === 'premium' || 
+                     user?.subscription_type === 'admin' || 
+                     user?.subscription_type === 'recruiter' ||
+                     user?.role === 'admin';
 
   // Redirecionar imediatamente se não tem premium
   React.useEffect(() => {
