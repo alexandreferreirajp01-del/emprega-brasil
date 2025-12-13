@@ -26,7 +26,8 @@ export default function Feed() {
         const u = await base44.auth.me();
         setUser(u);
       } catch {
-        window.location.href = createPageUrl('Splash');
+        // Permite visualizar sem autenticação para mostrar upgrade
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -34,8 +35,8 @@ export default function Feed() {
     init();
   }, []);
 
-  const isMember = !user?.subscription_type || user?.subscription_type === 'member';
-  const hasPremium = !isMember && user?.subscription_type !== 'basic';
+  const isMember = !user || !user?.subscription_type || user?.subscription_type === 'member';
+  const hasPremium = user && !isMember && user?.subscription_type !== 'basic';
 
   const { data: posts = [], isLoading: loadingPosts } = useQuery({
     queryKey: ['feed-posts'],
