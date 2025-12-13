@@ -10,6 +10,7 @@ import { base44 } from "@/api/base44Client";
 import TimeAgo from "@/components/common/TimeAgo";
 import { createPageUrl } from "@/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import VisitorRedirect from "@/components/common/VisitorRedirect";
 
 export default function Mensagens() {
   const [user, setUser] = useState(null);
@@ -331,5 +332,6 @@ export default function Mensagens() {
         )}
       </div>
     </div>
+    </VisitorRedirect>
   );
 }
