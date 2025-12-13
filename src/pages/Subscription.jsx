@@ -8,19 +8,10 @@ import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 
 export default function Subscription() {
-  const faqSectionRef = useRef(null);
-
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
-
-  const scrollToBottom = () => {
-    window.scrollTo({ 
-      top: document.documentElement.scrollHeight, 
-      behavior: 'smooth' 
-    });
-  };
 
   const handleSubscribePremium = () => {
     window.location.href = createPageUrl('Payment');
@@ -288,7 +279,7 @@ export default function Subscription() {
       </div>
 
       {/* FAQ Section */}
-      <div ref={faqSectionRef} className="max-w-2xl mx-auto px-4 py-12">
+            <div className="max-w-2xl mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold text-slate-800 text-center mb-8">Dúvidas Frequentes</h2>
         
         <div className="space-y-4">
