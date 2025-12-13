@@ -81,6 +81,7 @@ export default function Historico() {
   }
 
   return (
+    <VisitorRedirect>
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-gradient-to-r from-purple-500 to-indigo-500 pt-6 pb-8 px-4">
         <div className="max-w-4xl mx-auto">
@@ -177,5 +178,6 @@ export default function Historico() {
         )}
       </div>
     </div>
+    </VisitorRedirect>
   );
 }

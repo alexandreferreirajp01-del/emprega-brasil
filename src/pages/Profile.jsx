@@ -14,6 +14,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
+import VisitorRedirect from "@/components/common/VisitorRedirect";
 import { Link } from "react-router-dom";
 import PasswordInput from "@/components/common/PasswordInput";
 import PremiumModal from "@/components/subscription/PremiumModal";
@@ -249,6 +250,7 @@ export default function Profile() {
   };
 
   return (
+    <VisitorRedirect>
     <div className="min-h-screen bg-[#F3F2EF] pb-20">
       <AnimatePresence>
         {toast && (

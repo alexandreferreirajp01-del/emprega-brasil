@@ -159,7 +159,7 @@ export default function Home() {
                       </Link>
                     {isVisitor && (
                       <Link to={createPageUrl('Subscription')}>
-                        <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-yellow-400 text-slate-900 hover:bg-yellow-500 rounded-xl w-full sm:w-auto font-semibold shadow-lg">
+                        <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-slate-200 text-slate-900 hover:bg-slate-300 rounded-xl w-full sm:w-auto font-bold shadow-lg">
                           Ver Planos
                         </Button>
                       </Link>

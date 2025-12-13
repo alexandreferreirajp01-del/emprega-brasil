@@ -160,6 +160,7 @@ export default function Mensagens() {
   }
 
   return (
+    <VisitorRedirect>
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-4 px-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">

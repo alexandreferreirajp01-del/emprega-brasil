@@ -302,7 +302,7 @@ export default function Layout({ children, currentPageName }) {
               {isVisitor ? (
                   <>
                     <Link to={createPageUrl('Subscription')}>
-                      <Button className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 rounded-xl text-sm px-4 font-semibold mr-2">
+                      <Button className="bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-xl text-sm px-4 font-bold mr-2">
                         Planos
                       </Button>
                     </Link>
@@ -363,7 +363,7 @@ export default function Layout({ children, currentPageName }) {
                 {isVisitor ? (
                   <>
                     <Link to={createPageUrl('Subscription')} onClick={() => setMobileMenuOpen(false)}>
-                      <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 rounded-xl mb-2 font-semibold">
+                      <Button className="w-full bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-xl mb-2 font-bold">
                         Ver Planos
                       </Button>
                     </Link>
