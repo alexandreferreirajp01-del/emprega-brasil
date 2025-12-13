@@ -59,8 +59,13 @@ export default function Utilidades() {
     </Card>
   );
 
+  const hasPremium = user?.subscription_type === 'premium' || 
+                     user?.subscription_type === 'admin' ||
+                     user?.subscription_type === 'recruiter' ||
+                     user?.role === 'admin';
+
   return (
-    <RequireAuth requirePremium={true}>
+    <RequireAuth>
     <div className="min-h-screen bg-[#F3F2EF] pb-20">
       <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-4 px-4">
         <div className="max-w-4xl mx-auto">
