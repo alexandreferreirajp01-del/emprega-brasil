@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
         Home, Briefcase, User, Menu, X, 
-        LogOut, Newspaper, Users, MessageCircle
+        LogOut, Newspaper, Users, MessageCircle, Moon, Sun
       } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -21,11 +21,36 @@ import NavigationFallback from "@/components/common/NavigationFallback";
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   // Scroll para o topo ao mudar de página
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [currentPageName]);
+
+  // Carregar e aplicar tema
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  // Alternar tema
+  const toggleTheme = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   // Pages that don't need layout
   const noLayoutPages = ['Splash', 'Login', 'Register'];
@@ -177,7 +202,7 @@ export default function Layout({ children, currentPageName }) {
     }, []);
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col notranslate" translate="no" lang="pt-BR">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col notranslate transition-colors duration-300" translate="no" lang="pt-BR">
       {/* Fallback de navegação anti-tela-branca */}
       <NavigationFallback />
 
@@ -265,7 +290,7 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       {/* Top Navigation */}
-      <header className="bg-white shadow-sm sticky top-0 z-40" translate="no" style={{ backgroundColor: '#FFFFFF', backgroundImage: 'none' }}>
+      <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-40 transition-colors duration-300" translate="no">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-24">
             {/* Logo */}
@@ -278,8 +303,8 @@ export default function Layout({ children, currentPageName }) {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-bold text-[#1D2226] leading-tight">Vagas Abertas</span>
-                <span className="text-sm text-[#0A66C2] font-medium">Paraíba</span>
+                <span className="text-xl md:text-2xl font-bold text-[#1D2226] dark:text-white leading-tight transition-colors">Vagas Abertas</span>
+                <span className="text-sm text-[#0A66C2] dark:text-blue-400 font-medium transition-colors">Paraíba</span>
               </div>
             </Link>
 
@@ -289,7 +314,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link key={item.page} to={createPageUrl(item.page)}>
                   <Button 
                     variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : 'text-[#1D2226]'}`}
+                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap transition-colors ${currentPageName === item.page ? 'bg-[#0A66C2]/10 text-[#0A66C2] dark:bg-blue-500/20 dark:text-blue-400' : 'text-[#1D2226] dark:text-slate-200'}`}
                   >
                     <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
                     <span>{item.name}</span>
@@ -300,11 +325,19 @@ export default function Layout({ children, currentPageName }) {
 
             {/* User Actions */}
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleTheme}
+                className="text-[#1D2226] dark:text-white rounded-xl"
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </Button>
               {user ? (
                 <>
                   <NotificationBell user={user} />
                   <Link to={createPageUrl('Profile')}>
-                    <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] border-slate-200 hover:bg-slate-50">
+                    <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] dark:text-white border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                       <User className="w-4 h-4 mr-1.5" />
                       Perfil
                     </Button>
@@ -329,8 +362,16 @@ export default function Layout({ children, currentPageName }) {
               <Button 
                 variant="ghost" 
                 size="icon" 
+                onClick={toggleTheme}
+                className="text-[#1D2226] dark:text-white"
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-[#1D2226]"
+                className="text-[#1D2226] dark:text-white"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </Button>
@@ -340,7 +381,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile/Tablet Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t bg-white">
+          <div className="lg:hidden border-t bg-white dark:bg-slate-800 dark:border-slate-700 transition-colors">
             <nav className="p-4 space-y-2">
               {navItems.map((item) => (
                 <Link 
@@ -350,7 +391,7 @@ export default function Layout({ children, currentPageName }) {
                 >
                   <Button 
                     variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`w-full justify-start rounded-xl ${currentPageName === item.page ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : ''}`}
+                    className={`w-full justify-start rounded-xl transition-colors ${currentPageName === item.page ? 'bg-[#0A66C2]/10 text-[#0A66C2] dark:bg-blue-500/20 dark:text-blue-400' : 'dark:text-slate-200'}`}
                   >
                     <item.icon className="w-5 h-5 mr-3" />
                     {item.name}
@@ -358,18 +399,18 @@ export default function Layout({ children, currentPageName }) {
                 </Link>
               ))}
 
-              <div className="pt-2 border-t">
+              <div className="pt-2 border-t dark:border-slate-700">
                 {user ? (
                   <>
                     <Link to={createPageUrl('Profile')} onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full rounded-xl mb-2">
+                      <Button variant="outline" className="w-full rounded-xl mb-2 dark:border-slate-600 dark:text-white">
                         <User className="w-5 h-5 mr-3" />
                         Meu Perfil
                       </Button>
                     </Link>
                     <Button 
                       variant="ghost" 
-                      className="w-full text-red-600 rounded-xl"
+                      className="w-full text-red-600 dark:text-red-400 rounded-xl"
                       onClick={handleLogout}
                     >
                       <LogOut className="w-5 h-5 mr-3" />
@@ -397,7 +438,7 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       {/* Footer - Completo e AdSense Ready */}
-      <footer className="bg-slate-800 text-white py-12 hidden md:block" translate="no">
+      <footer className="bg-slate-800 dark:bg-slate-950 text-white py-12 hidden md:block transition-colors" translate="no">
         <div className="max-w-7xl mx-auto px-4">
           {/* Criador e Foto */}
           <div className="text-center mb-10">
@@ -481,14 +522,14 @@ export default function Layout({ children, currentPageName }) {
       </footer>
 
       {/* Bottom Navigation (Mobile) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom" translate="no">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 shadow-lg z-40 safe-area-bottom transition-colors" translate="no">
         <div className="flex items-center justify-around h-16 pb-safe">
           {navItems.slice(0, 5).map((item) => (
             <Link 
               key={item.page} 
               to={createPageUrl(item.page)}
-              className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 ${
-                currentPageName === item.page ? 'text-[#0A66C2]' : 'text-slate-500'
+              className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 transition-colors ${
+                currentPageName === item.page ? 'text-[#0A66C2] dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
               }`}
             >
               <item.icon className="w-5 h-5 mb-0.5 flex-shrink-0" />
