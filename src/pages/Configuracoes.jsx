@@ -13,6 +13,8 @@ import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 
 const menuItems = [
+  { id: 'divider-sistema', type: 'divider', label: 'Sistema', roles: ['admin', 'dono'] },
+  { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', icon: Settings, color: 'purple', page: 'GerenciarFuncoes', description: 'Habilitar/desabilitar funções do app', roles: ['admin', 'dono'] },
   { id: 'dividerInteracoes', type: 'divider', label: 'Interações' },
   { id: 'favoritas', name: 'Favoritas', icon: Heart, color: 'rose', page: 'Favoritos', description: 'Vagas salvas como favoritas', permissionId: 'favoritas' },
   { id: 'historico', name: 'Histórico', icon: History, color: 'violet', page: 'Historico', description: 'Vagas visualizadas recentemente', permissionId: 'historico' },
@@ -130,8 +132,8 @@ export default function Configuracoes() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F2EF] pb-20">
-      <div className="bg-gradient-to-r from-[#1D2226] to-[#383E45] pt-6 pb-8 px-4">
+    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
+      <div className="bg-gradient-to-r from-[#1D2226] to-[#383E45] dark:from-slate-800 dark:to-slate-950 pt-6 pb-8 px-4 transition-colors">
         <div className="max-w-2xl mx-auto">
           <Link to={createPageUrl('Profile')}>
             <Button variant="ghost" className="text-white hover:bg-white/20 mb-2 -ml-2">
@@ -157,7 +159,7 @@ export default function Configuracoes() {
           </div>
         </div>
 
-        <Card className="rounded-2xl overflow-hidden">
+        <Card className="rounded-2xl overflow-hidden dark:bg-slate-800 transition-colors">
           <CardContent className="p-0">
             {menuItems.filter(item => {
               // Filtrar por busca
@@ -199,8 +201,8 @@ export default function Configuracoes() {
                 // Não renderizar dividers se houver busca ativa
                 if (searchTerm) return null;
                 return (
-                  <div key={item.id} className="px-4 py-3 bg-slate-50 border-t border-b">
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{item.label}</p>
+                  <div key={item.id} className="px-4 py-3 bg-slate-50 dark:bg-slate-700/50 border-t border-b dark:border-slate-600 transition-colors">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{item.label}</p>
                   </div>
                 );
               }
@@ -213,14 +215,14 @@ export default function Configuracoes() {
                   key={item.id}
                   onClick={() => handleItemClick(item)}
                   disabled={migrating && item.action === 'migrate'}
-                  className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors text-left ${!isLast ? 'border-b border-slate-100' : ''} ${migrating && item.action === 'migrate' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''} ${migrating && item.action === 'migrate' ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-800 text-sm">{item.name}</p>
-                    <p className="text-xs text-slate-500 truncate">{item.description}</p>
+                    <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
                   </div>
                   {migrating && item.action === 'migrate' ? (
                     <Loader2 className="w-4 h-4 animate-spin text-slate-400 flex-shrink-0" />

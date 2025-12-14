@@ -160,7 +160,7 @@ export default function Splash() {
 
   // Tela de login
   return (
-    <div className="min-h-screen bg-[#0A66C2] flex flex-col items-center justify-start pt-12 px-4 pb-8">
+    <div className="min-h-screen bg-[#0A66C2] dark:bg-slate-900 flex flex-col items-center justify-start pt-12 px-4 pb-8 transition-colors">
       {/* Botão Voltar */}
       <div className="w-full max-w-md mb-4">
         <Button

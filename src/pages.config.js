@@ -58,6 +58,7 @@ import Subscription from './pages/Subscription';
 import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPrecos from './pages/GerenciarPrecos';
 import GerenciarCores from './pages/GerenciarCores';
+import GerenciarFuncoes from './pages/GerenciarFuncoes';
 import __Layout from './Layout.jsx';
 
 
@@ -122,6 +123,7 @@ export const PAGES = {
     "GerenciarPlanos": GerenciarPlanos,
     "GerenciarPrecos": GerenciarPrecos,
     "GerenciarCores": GerenciarCores,
+    "GerenciarFuncoes": GerenciarFuncoes,
 }
 
 export const pagesConfig = {
