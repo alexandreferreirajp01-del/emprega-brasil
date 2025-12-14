@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Search, Briefcase, MessageCircle, Newspaper, Crown, ArrowRight, 
   MapPin, Calendar, Users, Star, TrendingUp, Building2, Eye,
-  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake, Sparkles
+  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake, Sparkles, Moon, Sun
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -41,6 +41,29 @@ export default function Home() {
   const [news, setNews] = useState([]);
   const [posts, setPosts] = useState([]);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Carregar preferência de tema
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setDarkMode(true);
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  // Alternar tema
+  const toggleTheme = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -126,10 +149,20 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F3F2EF]">
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-slate-900' : 'bg-[#F3F2EF]'}`}>
       <VisitTracker pageName="Home" user={user} />
+      
+      {/* Botão de Tema Fixo */}
+      <Button
+        onClick={toggleTheme}
+        className={`fixed bottom-24 right-4 z-50 w-14 h-14 rounded-full shadow-lg ${darkMode ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-slate-800 hover:bg-slate-900'}`}
+        size="icon"
+      >
+        {darkMode ? <Sun className="w-6 h-6 text-white" /> : <Moon className="w-6 h-6 text-white" />}
+      </Button>
+
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden">
+      <div className={`bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden ${darkMode ? 'opacity-90' : ''}`}>
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-60 h-60 bg-white rounded-full blur-3xl"></div>
@@ -187,13 +220,13 @@ export default function Home() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                   {quickActions.map((action, i) => (
                     <Link key={i} to={createPageUrl(action.page)}>
-                      <Card className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl sm:rounded-2xl border-0 overflow-hidden h-full">
+                      <Card className={`shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl sm:rounded-2xl border-0 overflow-hidden h-full ${darkMode ? 'bg-slate-800' : 'bg-white'}`}>
                         <CardContent className="p-3 sm:p-5">
                           <div className={`w-10 h-10 sm:w-12 sm:h-12 ${action.color} rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform ${action.color === 'bg-white' ? 'border-2 border-[#0A66C2]' : ''}`}>
                             <action.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${action.iconColor || 'text-white'}`} />
                           </div>
-                          <h3 className="font-semibold text-slate-800 text-sm sm:text-base leading-tight">{action.label}</h3>
-                          <p className="text-slate-500 text-xs sm:text-sm leading-tight mt-0.5">{action.desc}</p>
+                          <h3 className={`font-semibold text-sm sm:text-base leading-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>{action.label}</h3>
+                          <p className={`text-xs sm:text-sm leading-tight mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{action.desc}</p>
                         </CardContent>
                       </Card>
                     </Link>
@@ -207,7 +240,7 @@ export default function Home() {
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Featured Jobs */}
-            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden" style={{ minHeight: '400px' }}>
+            <Card className={`rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden ${darkMode ? 'bg-slate-800' : ''}`} style={{ minHeight: '400px' }}>
               <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-3 sm:p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
@@ -227,11 +260,11 @@ export default function Home() {
               <CardContent className="p-3 sm:p-4 space-y-3">
                 {featuredJobs.slice(0, 5).map((job) => (
                   <Link key={job.id} to={createPageUrl('JobDetail') + `?id=${job.id}`}>
-                    <div className="p-3 sm:p-4 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-[#0A66C2]/20">
+                    <div className={`p-3 sm:p-4 rounded-xl transition-colors cursor-pointer group border border-transparent hover:border-[#0A66C2]/20 ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-slate-50'}`}>
                       <div className="flex flex-col gap-3">
                         {/* Título e Badge */}
                         <div className="flex items-start gap-2">
-                          <h3 className="font-semibold text-slate-800 group-hover:text-[#0A66C2] transition-colors flex-1 text-sm sm:text-base line-clamp-2">
+                          <h3 className={`font-semibold group-hover:text-[#0A66C2] transition-colors flex-1 text-sm sm:text-base line-clamp-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
                             {job.title}
                           </h3>
                           <Badge className="bg-yellow-100 text-yellow-700 border-0 text-[10px] sm:text-xs shrink-0 whitespace-nowrap">
@@ -240,7 +273,7 @@ export default function Home() {
                         </div>
 
                         {/* Empresa */}
-                        <p className="text-slate-500 text-xs sm:text-sm flex items-center gap-1">
+                        <p className={`text-xs sm:text-sm flex items-center gap-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                           <Building2 className="w-3 h-3 shrink-0" />
                           <span className="truncate">{job.company || 'Empresa'}</span>
                         </p>
@@ -261,8 +294,8 @@ export default function Home() {
                         </div>
 
                         {/* Rodapé com Stats */}
-                        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                          <div className="flex items-center gap-3 text-[10px] sm:text-xs text-slate-400">
+                        <div className={`flex items-center justify-between pt-2 border-t ${darkMode ? 'border-slate-700' : 'border-slate-100'}`}>
+                          <div className={`flex items-center gap-3 text-[10px] sm:text-xs ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               <TimeAgo date={job.created_date} />
