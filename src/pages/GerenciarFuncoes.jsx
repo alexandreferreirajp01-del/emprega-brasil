@@ -503,16 +503,17 @@ export default function GerenciarFuncoes() {
               </Card>
             );
           })}
-        </div>
 
-        {/* Empty State */}
-        {filtered.length === 0 && (
+          {/* Empty State */}
+          {filtered.length === 0 && (
           <Card className="dark:bg-slate-800 dark:border-slate-700">
             <CardContent className="py-12 text-center">
               <Search className="w-12 h-12 text-slate-400 mx-auto mb-4" />
               <p className="text-slate-500 dark:text-slate-400">Nenhuma função encontrada</p>
             </CardContent>
           </Card>
+          )}
+        </div>
         )}
 
         {/* Info */}
