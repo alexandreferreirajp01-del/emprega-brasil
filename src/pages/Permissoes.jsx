@@ -21,31 +21,41 @@ import { Link } from "react-router-dom";
 const ADMIN_PASSWORD = "Vagas2026#";
 
 const APP_FUNCTIONS = [
+  // Interações
   { id: 'favoritas', label: 'Favoritas', category: 'Interações' },
   { id: 'historico', label: 'Histórico', category: 'Interações' },
   { id: 'mensagens', label: 'Mensagens', category: 'Interações' },
   { id: 'curriculos', label: 'Ver Currículos', category: 'Interações' },
   { id: 'responder_chat', label: 'Responder Chat', category: 'Interações' },
+  { id: 'lista_transmissao', label: 'Lista de Transmissão', category: 'Interações' },
+  { id: 'ocorrencias', label: 'Ocorrências', category: 'Interações' },
+  
+  // Recrutador
   { id: 'recruiter_area', label: 'Painel do Recrutador', category: 'Recrutador' },
-  { id: 'lista_transmissao', label: 'Lista de Transmissão', category: 'Gerenciamento' },
+  { id: 'solicitacoes', label: 'Solicitações', category: 'Recrutador' },
+  
+  // Gerenciamento
   { id: 'gerenciar_vagas', label: 'Gerenciar Vagas', category: 'Gerenciamento' },
-  { id: 'gerenciar_usuarios', label: 'Usuários', category: 'Gerenciamento' },
-  { id: 'gerenciar_comunidade', label: 'Gerenciar Comunidade', category: 'Gerenciamento' },
-  { id: 'solicitacoes', label: 'Solicitações', category: 'Gerenciamento' },
+  { id: 'gerenciar_usuarios', label: 'Gerenciar Usuários', category: 'Gerenciamento' },
+  { id: 'gerenciar_comunidade', label: 'Feed', category: 'Gerenciamento' },
   { id: 'gerenciador_filtros', label: 'Gerenciador de Filtros', category: 'Gerenciamento' },
+  { id: 'biblioteca_admin', label: 'Biblioteca', category: 'Gerenciamento' },
+  { id: 'gerenciar_planos', label: 'Gerenciar Planos', category: 'Gerenciamento' },
+  
+  // Produção
   { id: 'postar_vagas', label: 'Postar Vagas', category: 'Produção' },
   { id: 'posts_massa', label: 'Posts em Massa', category: 'Produção' },
   { id: 'vagas_ia', label: 'Vagas por IA', category: 'Produção' },
   { id: 'vagas_home_office', label: 'Vagas Home Office', category: 'Produção' },
-  { id: 'biblioteca_admin', label: 'Biblioteca', category: 'Produção' },
   { id: 'noticias', label: 'Gerenciar Notícias', category: 'Produção' },
-  { id: 'analytics', label: 'Analytics do App', category: 'Ferramentas' },
-  { id: 'pagamentos', label: 'Pagamentos', category: 'Ferramentas' },
-  { id: 'feed', label: 'Feed', category: 'Ferramentas' },
-  { id: 'permissoes', label: 'Permissões', category: 'Administração' },
+  
+  // Analytics e Monitoramento
+  { id: 'fluxo_usuarios', label: 'Fluxo de Usuários', category: 'Analytics e Monitoramento' },
+  { id: 'analytics', label: 'Analytics do App', category: 'Analytics e Monitoramento' },
+  { id: 'pagamentos', label: 'Pagamentos', category: 'Analytics e Monitoramento' },
 ];
 
-const CATEGORIES = ['Interações', 'Recrutador', 'Gerenciamento', 'Produção', 'Ferramentas', 'Administração'];
+const CATEGORIES = ['Interações', 'Recrutador', 'Gerenciamento', 'Produção', 'Analytics e Monitoramento'];
 
 export default function Permissoes() {
   const [user, setUser] = useState(null);
