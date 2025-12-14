@@ -77,8 +77,18 @@ export default function Configuracoes() {
   const [migrating, setMigrating] = useState(false);
   const [migrationResult, setMigrationResult] = useState(null);
   const [items, setItems] = useState(() => {
-    const saved = localStorage.getItem('menu_order');
-    return saved ? JSON.parse(saved) : menuItems;
+    const savedSettings = localStorage.getItem('app_settings_v2');
+    if (savedSettings) {
+      const parsed = JSON.parse(savedSettings);
+      // Mesclar com menuItems, mantendo propriedades completas
+      return parsed.map(setting => {
+        const original = menuItems.find(m => m.id === setting.id);
+        return original ? { ...original, name: setting.name, description: setting.description } : original;
+      }).filter(Boolean);
+    }
+    
+    const savedOrder = localStorage.getItem('menu_order');
+    return savedOrder ? JSON.parse(savedOrder) : menuItems;
   });
 
   useEffect(() => {
@@ -113,7 +123,14 @@ export default function Configuracoes() {
     [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
     
     setItems(newItems);
-    localStorage.setItem('menu_order', JSON.stringify(newItems));
+    
+    // Salvar ordem e nomes
+    const simplified = newItems.map(item => ({
+      id: item.id,
+      name: item.name,
+      description: item.description
+    }));
+    localStorage.setItem('app_settings_v2', JSON.stringify(simplified));
   };
 
   const handleItemClick = async (item) => {

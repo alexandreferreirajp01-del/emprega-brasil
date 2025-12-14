@@ -31,7 +31,36 @@ const DEFAULT_CONFIG = {
     direct_messages: { name: 'Mensagens Diretas', enabled: true },
     whatsapp_groups: { name: 'Grupos WhatsApp', enabled: true },
     biblioteca: { name: 'Biblioteca', enabled: true },
-  }
+  },
+  settings: [
+    { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', description: 'Habilitar/desabilitar funções do app' },
+    { id: 'favoritas', name: 'Favoritas', description: 'Vagas salvas como favoritas' },
+    { id: 'historico', name: 'Histórico', description: 'Vagas visualizadas recentemente' },
+    { id: 'mensagens', name: 'Mensagens', description: 'Conversas diretas entre usuários' },
+    { id: 'feed', name: 'Feed', description: 'Posts, comentários e chat' },
+    { id: 'transmissao', name: 'Lista de Transmissão', description: 'Enviar mensagens em massa' },
+    { id: 'ocorrencias', name: 'Ocorrências', description: 'Gerenciar reports de vagas' },
+    { id: 'curriculos', name: 'Ver Currículos', description: 'Visualizar currículos de candidatos' },
+    { id: 'responder-chat', name: 'Responder Chat', description: 'Responder mensagens dos usuários' },
+    { id: 'recruiter-area', name: 'Painel do Recrutador', description: 'Ferramentas exclusivas para recrutadores' },
+    { id: 'solicitacoes', name: 'Solicitações', description: 'Aprovar conteúdos de recrutadores' },
+    { id: 'permissoes', name: 'Permissões de Acesso', description: 'Controlar acesso às funções do app' },
+    { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros' },
+    { id: 'vagas', name: 'Gerenciar Vagas', description: 'Visualizar e excluir vagas' },
+    { id: 'usuarios', name: 'Gerenciar Usuários', description: 'Aprovar e gerenciar usuários' },
+    { id: 'planos', name: 'Gerenciar Planos', description: 'Controle de assinaturas e cobranças' },
+    { id: 'precos', name: 'Gerenciar Preços', description: 'Ajustar valores dos planos' },
+    { id: 'cores', name: 'Gerenciar Cores', description: 'Personalizar cores da aplicação' },
+    { id: 'postar-vaga', name: 'Postar Vagas', description: 'Criar novas vagas de emprego' },
+    { id: 'posts-massa', name: 'Posts em Massa', description: 'Upload múltiplas imagens e extraia vagas com IA' },
+    { id: 'vagas-ia', name: 'Vagas por IA', description: 'Gerar vagas com inteligência artificial' },
+    { id: 'vagas-home', name: 'Vagas Home Office', description: 'Publicar vagas remotas' },
+    { id: 'biblioteca', name: 'Biblioteca', description: 'Gerenciar materiais e recursos' },
+    { id: 'noticias', name: 'Notícias', description: 'Criar, editar e gerenciar notícias' },
+    { id: 'fluxo-usuarios', name: 'Fluxo de Usuários', description: 'Monitoramento em tempo real' },
+    { id: 'analytics-app', name: 'Analytics do App', description: 'Análises em tempo real' },
+    { id: 'payments', name: 'Pagamentos', description: 'Gerenciar pagamentos' },
+  ]
 };
 
 export default function GerenciarFuncoes() {
@@ -57,12 +86,14 @@ export default function GerenciarFuncoes() {
         const savedAppConfig = localStorage.getItem('app_config_v2');
         const savedPages = localStorage.getItem('app_pages_v2');
         const savedFunctions = localStorage.getItem('app_features_v2');
-        
-        if (savedAppConfig || savedPages || savedFunctions) {
+        const savedSettings = localStorage.getItem('app_settings_v2');
+
+        if (savedAppConfig || savedPages || savedFunctions || savedSettings) {
           const appConfig = savedAppConfig ? JSON.parse(savedAppConfig) : {};
           const pagesConfig = savedPages ? JSON.parse(savedPages) : {};
           const functionsConfig = savedFunctions ? JSON.parse(savedFunctions) : {};
-          
+          const settingsConfig = savedSettings ? JSON.parse(savedSettings) : DEFAULT_CONFIG.settings;
+
           setConfig({
             appName: appConfig.appName || DEFAULT_CONFIG.appName,
             appSubtitle: appConfig.appSubtitle || DEFAULT_CONFIG.appSubtitle,
@@ -82,7 +113,8 @@ export default function GerenciarFuncoes() {
                 enabled: savedFunc?.enabled !== undefined ? savedFunc.enabled : DEFAULT_CONFIG.functions[key].enabled
               };
               return acc;
-            }, {})
+            }, {}),
+            settings: settingsConfig
           });
         }
       } catch (error) {
@@ -129,7 +161,10 @@ export default function GerenciarFuncoes() {
     }, {});
     
     localStorage.setItem('app_features_v2', JSON.stringify(functionsForStorage));
-    
+
+    // Salvar settings config
+    localStorage.setItem('app_settings_v2', JSON.stringify(config.settings));
+
     // Notificar outras partes do app
     window.dispatchEvent(new Event('storage'));
     window.dispatchEvent(new Event('app_config_updated'));
@@ -198,6 +233,29 @@ export default function GerenciarFuncoes() {
     }));
   };
 
+  const moveSettingItem = (index, direction) => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= config.settings.length) return;
+    
+    const newSettings = [...config.settings];
+    [newSettings[index], newSettings[newIndex]] = [newSettings[newIndex], newSettings[index]];
+    
+    setConfig(prev => ({
+      ...prev,
+      settings: newSettings
+    }));
+  };
+
+  const updateSettingName = (index, field, value) => {
+    const newSettings = [...config.settings];
+    newSettings[index] = { ...newSettings[index], [field]: value };
+    
+    setConfig(prev => ({
+      ...prev,
+      settings: newSettings
+    }));
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
@@ -224,7 +282,7 @@ export default function GerenciarFuncoes() {
 
       <div className="max-w-4xl mx-auto px-4 -mt-4">
         {/* Tabs */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-4">
           <Button
             onClick={() => setActiveTab('functions')}
             variant={activeTab === 'functions' ? 'default' : 'outline'}
@@ -240,6 +298,17 @@ export default function GerenciarFuncoes() {
           >
             <Layout className="w-4 h-4 mr-2" />
             Páginas
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <Button
+            onClick={() => setActiveTab('settings')}
+            variant={activeTab === 'settings' ? 'default' : 'outline'}
+            className={activeTab === 'settings' ? 'bg-blue-600' : 'dark:bg-slate-800 dark:border-slate-700'}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Configurações
           </Button>
           <Button
             onClick={() => setActiveTab('app')}
@@ -335,6 +404,55 @@ export default function GerenciarFuncoes() {
                     className="flex-1 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     placeholder="Nome da página"
                   />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <Card className="dark:bg-slate-800 dark:border-slate-700 mb-4">
+            <CardHeader>
+              <CardTitle className="text-lg dark:text-white">Itens das Configurações Gerais</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {config.settings.map((setting, index) => (
+                <div key={setting.id} className="flex items-start gap-2 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                  <div className="flex flex-col gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => moveSettingItem(index, 'up')}
+                      disabled={index === 0}
+                    >
+                      <ArrowUp className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => moveSettingItem(index, 'down')}
+                      disabled={index === config.settings.length - 1}
+                    >
+                      <ArrowDown className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Input
+                      value={setting.name}
+                      onChange={(e) => updateSettingName(index, 'name', e.target.value)}
+                      className="dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                      placeholder="Nome da configuração"
+                    />
+                    <Input
+                      value={setting.description}
+                      onChange={(e) => updateSettingName(index, 'description', e.target.value)}
+                      className="dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm"
+                      placeholder="Descrição"
+                    />
+                  </div>
                 </div>
               ))}
             </CardContent>
