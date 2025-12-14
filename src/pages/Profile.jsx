@@ -343,7 +343,7 @@ export default function Profile() {
                   </label>
                 )}
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">{displayUser?.custom_full_name || displayUser?.username || 'Usuário'}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-2">{displayUser?.custom_full_name || displayUser?.username || 'Usuário'}</h2>
               {getSubscriptionBadge()}
             </div>
 
@@ -352,76 +352,76 @@ export default function Profile() {
             {isEditing && canEdit ? (
               <div className="space-y-4 mb-6">
                 <div className="space-y-2">
-                  <Label>Nome Completo</Label>
+                  <Label className="dark:text-slate-300">Nome Completo</Label>
                   <Input 
                     value={editForm.custom_full_name} 
                     onChange={(e) => setEditForm({ ...editForm, custom_full_name: e.target.value })} 
                     placeholder="Seu nome completo" 
-                    className="rounded-xl h-11" 
+                    className="rounded-xl h-11 dark:bg-slate-700 dark:border-slate-600 dark:text-white" 
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Nome de Usuário</Label>
+                  <Label className="dark:text-slate-300">Nome de Usuário</Label>
                   <Input 
                     value={editForm.username} 
                     onChange={(e) => setEditForm({ ...editForm, username: e.target.value.toLowerCase().replace(/\s/g, '') })} 
                     placeholder="seu.usuario" 
-                    className="rounded-xl h-11" 
+                    className="rounded-xl h-11 dark:bg-slate-700 dark:border-slate-600 dark:text-white" 
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>E-mail</Label>
+                  <Label className="dark:text-slate-300">E-mail</Label>
                   <Input 
                     value={displayUser?.email} 
                     disabled 
-                    className="rounded-xl h-11 bg-slate-50" 
+                    className="rounded-xl h-11 bg-slate-50 dark:bg-slate-700/50 dark:text-slate-400" 
                   />
-                  <p className="text-xs text-slate-500">E-mail não pode ser alterado</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">E-mail não pode ser alterado</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Telefone</Label>
+                  <Label className="dark:text-slate-300">Telefone</Label>
                   <Input 
                     value={editForm.phone} 
                     onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} 
                     placeholder="(83) 99999-9999" 
-                    className="rounded-xl h-11" 
+                    className="rounded-xl h-11 dark:bg-slate-700 dark:border-slate-600 dark:text-white" 
                   />
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="col-span-2 space-y-2">
-                    <Label>Cidade</Label>
+                    <Label className="dark:text-slate-300">Cidade</Label>
                     <Input 
                       value={editForm.city} 
                       onChange={(e) => setEditForm({ ...editForm, city: e.target.value })} 
                       placeholder="Sua cidade" 
-                      className="rounded-xl h-11" 
+                      className="rounded-xl h-11 dark:bg-slate-700 dark:border-slate-600 dark:text-white" 
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Estado</Label>
+                    <Label className="dark:text-slate-300">Estado</Label>
                     <Input 
                       value={editForm.state} 
                       onChange={(e) => setEditForm({ ...editForm, state: e.target.value.toUpperCase() })} 
                       maxLength={2}
                       placeholder="PB" 
-                      className="rounded-xl h-11" 
+                      className="rounded-xl h-11 dark:bg-slate-700 dark:border-slate-600 dark:text-white" 
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Nova Senha (opcional)</Label>
+                  <Label className="dark:text-slate-300">Nova Senha (opcional)</Label>
                   <PasswordInput
                     value={editForm.password} 
                     onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} 
                     placeholder="Deixe em branco para não alterar" 
-                    className="rounded-xl h-11" 
+                    className="rounded-xl h-11 dark:bg-slate-700 dark:border-slate-600 dark:text-white" 
                   />
-                  <p className="text-xs text-slate-500">Mínimo 6 caracteres</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Mínimo 6 caracteres</p>
                 </div>
 
                 <div className="flex gap-3 pt-4">
@@ -509,9 +509,9 @@ export default function Profile() {
 
             {(isDono || isAdmin || isRecruiter) && (
               <Link to={createPageUrl('Configuracoes')} className="block mb-4">
-                <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100">
-                  <Settings className="w-5 h-5 text-slate-600" />
-                  <span className="text-slate-700 font-medium text-sm">Configurações Gerais</span>
+                <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                  <Settings className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                  <span className="text-slate-700 dark:text-slate-200 font-medium text-sm">Configurações Gerais</span>
                 </Button>
               </Link>
             )}

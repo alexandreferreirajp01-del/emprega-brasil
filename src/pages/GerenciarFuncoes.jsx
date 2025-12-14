@@ -118,7 +118,12 @@ export default function GerenciarFuncoes() {
     }));
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     setSaving(true);
     try {
       localStorage.setItem('app_functions', JSON.stringify(functions));
@@ -127,10 +132,9 @@ export default function GerenciarFuncoes() {
       // Recarregar a página para aplicar mudanças
       setTimeout(() => {
         window.location.reload();
-      }, 1000);
+      }, 1500);
     } catch (error) {
       toast.error('Erro ao salvar configurações');
-    } finally {
       setSaving(false);
     }
   };

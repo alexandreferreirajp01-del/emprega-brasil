@@ -404,11 +404,11 @@ export default function Jobs() {
 
       {/* Filters */}
       <div className="max-w-6xl mx-auto px-4 -mt-4 mb-6">
-        <Card className="shadow-lg rounded-xl border-0">
+        <Card className="shadow-lg rounded-xl border-0 dark:bg-slate-800 dark:border-slate-700 transition-colors">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-slate-700">Filtrar:</span>
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Filtrar:</span>
                 {activeFiltersCount > 0 && (
                   <Badge className="bg-[#0A66C2]/10 text-[#0A66C2] border-0 text-xs">
                     {activeFiltersCount}
@@ -419,7 +419,7 @@ export default function Jobs() {
                   <button
                     onClick={() => setShowPremiumOnly(!showPremiumOnly)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      showPremiumOnly ? 'bg-purple-600' : 'bg-slate-200'
+                      showPremiumOnly ? 'bg-purple-600' : 'bg-slate-200 dark:bg-slate-600'
                     }`}
                   >
                     <span
@@ -428,7 +428,7 @@ export default function Jobs() {
                       }`}
                     />
                   </button>
-                  <span className="text-xs text-slate-600 flex items-center gap-1">
+                  <span className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1">
                     <Lock className="w-3 h-3" />
                     Premium
                   </span>
@@ -439,7 +439,7 @@ export default function Jobs() {
                   variant="ghost" 
                   size="sm" 
                   onClick={clearFilters} 
-                  className="text-slate-600 hover:text-slate-800 h-8"
+                  className="text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white h-8"
                 >
                   <X className="w-4 h-4 mr-1" /> Limpar
                 </Button>
@@ -600,7 +600,7 @@ export default function Jobs() {
 
       {/* Results */}
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <p className="text-sm text-slate-500 mb-4">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
           {filteredJobs.length} vaga{filteredJobs.length !== 1 ? 's' : ''} encontrada{filteredJobs.length !== 1 ? 's' : ''}
         </p>
 
@@ -644,7 +644,7 @@ export default function Jobs() {
               }
 
               return (
-                <Card key={job.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-[#0A66C2]">
+                <Card key={job.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-[#0A66C2] dark:bg-slate-800 dark:border-slate-700 dark:hover:border-l-blue-400">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <Link to={createPageUrl('JobDetail') + `?id=${job.id}`} className="flex-1">
@@ -683,11 +683,11 @@ export default function Jobs() {
 
         {filteredJobs.length === 0 && !isLoading && (
           <div className="text-center py-16">
-            <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
               <Briefcase className="w-10 h-10 text-slate-400" />
             </div>
-            <h3 className="text-xl font-semibold text-slate-800 mb-2">Nenhuma vaga encontrada</h3>
-            <p className="text-slate-500 mb-4">Não encontramos vagas com os filtros selecionados</p>
+            <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">Nenhuma vaga encontrada</h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-4">Não encontramos vagas com os filtros selecionados</p>
             {hasActiveFilters && (
               <Button onClick={clearFilters} variant="outline" className="rounded-xl">
                 <X className="w-4 h-4 mr-2" />
@@ -719,7 +719,7 @@ function JobCardContent({ job, viewCount }) {
     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <h3 className="font-semibold text-lg text-slate-800 group-hover:text-[#0A66C2] transition-colors">
+          <h3 className="font-semibold text-lg text-slate-800 dark:text-white group-hover:text-[#0A66C2] dark:group-hover:text-blue-400 transition-colors">
             {job.title || 'Vaga não informada'}
           </h3>
           {job.is_featured && (
@@ -734,7 +734,7 @@ function JobCardContent({ job, viewCount }) {
           )}
         </div>
         
-        <p className="text-slate-500 flex items-center gap-1 mb-3">
+        <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-3">
           <Building2 className="w-4 h-4 flex-shrink-0" />
           <span className="truncate">{job.company || 'Empresa confidencial'}</span>
         </p>
@@ -766,11 +766,11 @@ function JobCardContent({ job, viewCount }) {
       </div>
       
       <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-1 text-right">
-        <p className="text-sm text-slate-500 flex items-center gap-1">
+        <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
           <Calendar className="w-4 h-4" />
           {getTimeAgo(job.created_date)}
         </p>
-        <p className="text-xs text-slate-400 flex items-center gap-1">
+        <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
           <Eye className="w-3 h-3" />
           {viewCount} views
         </p>
