@@ -22,11 +22,17 @@ export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [navItems, setNavItems] = useState([]);
 
   // Scroll para o topo ao mudar de página
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [currentPageName]);
+
+  // Carregar itens de navegação
+  useEffect(() => {
+    setNavItems(loadNavItems());
+  }, []);
 
   // Carregar e aplicar tema
   useEffect(() => {
@@ -34,24 +40,23 @@ export default function Layout({ children, currentPageName }) {
     if (savedTheme === 'dark') {
       setDarkMode(true);
       document.documentElement.classList.add('dark');
-      // Mudar cor da barra de endereços para dark
-      updateThemeColor('#0f172a'); // slate-900
+      updateThemeColor('#0f172a');
     } else {
       document.documentElement.classList.remove('dark');
-      // Mudar cor da barra de endereços para light
       updateThemeColor('#FFFFFF');
     }
 
     // Listener para atualizações de configuração
     const handleConfigUpdate = () => {
-      // Forçar re-render ao detectar mudanças
-      setUser(prev => ({ ...prev }));
+      setNavItems(loadNavItems());
     };
 
     window.addEventListener('app_config_updated', handleConfigUpdate);
+    window.addEventListener('storage', handleConfigUpdate);
 
     return () => {
       window.removeEventListener('app_config_updated', handleConfigUpdate);
+      window.removeEventListener('storage', handleConfigUpdate);
     };
   }, []);
 
@@ -199,8 +204,8 @@ export default function Layout({ children, currentPageName }) {
   // Verificar se pode usar currículo (apenas Premium)
   const canUseResume = user?.subscription_type === 'premium';
 
-  // Menu principal - buscar nomes customizados
-      const getNavItems = () => {
+  // Função para carregar itens de navegação
+      const loadNavItems = () => {
         const defaultItems = [
           { name: 'Início', icon: Home, page: 'Home' },
           { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
@@ -222,8 +227,6 @@ export default function Layout({ children, currentPageName }) {
           return defaultItems;
         }
       };
-
-      const navItems = getNavItems();
 
   const handleLogout = () => {
     localStorage.clear();
