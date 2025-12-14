@@ -183,11 +183,9 @@ export default function GerenciarFuncoes() {
   };
 
   const handleRestore = () => {
-    if (!confirm('Tem certeza que deseja restaurar todas as configurações para o padrão? Esta ação não pode ser desfeita.')) {
+    if (!confirm('Tem certeza que deseja restaurar todas as configurações para o padrão? Todas as alterações não salvas serão perdidas.')) {
       return;
     }
-    
-    setSaving(true);
     
     // Limpar localStorage
     localStorage.removeItem('app_config_v2');
