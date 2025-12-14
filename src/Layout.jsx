@@ -342,8 +342,8 @@ export default function Layout({ children, currentPageName }) {
                 <img 
                   src={(() => {
                     try {
-                      const builder = JSON.parse(localStorage.getItem('builder_config_v1') || '{}');
-                      return builder.logoUrl || 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg';
+                      const config = JSON.parse(localStorage.getItem('app_config_v2') || '{}');
+                      return config.logoUrl || 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg';
                     } catch {
                       return 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg';
                     }
@@ -356,8 +356,8 @@ export default function Layout({ children, currentPageName }) {
                 <span className="text-xl md:text-2xl font-bold text-[#1D2226] dark:text-white leading-tight transition-colors">
                   {(() => {
                     try {
-                      const builder = JSON.parse(localStorage.getItem('builder_config_v1') || '{}');
-                      return builder.appName || 'Vagas Abertas';
+                      const config = JSON.parse(localStorage.getItem('app_config_v2') || '{}');
+                      return config.appName || 'Vagas Abertas';
                     } catch {
                       return 'Vagas Abertas';
                     }
@@ -366,8 +366,8 @@ export default function Layout({ children, currentPageName }) {
                 <span className="text-sm text-[#0A66C2] dark:text-blue-400 font-medium transition-colors">
                   {(() => {
                     try {
-                      const builder = JSON.parse(localStorage.getItem('builder_config_v1') || '{}');
-                      return builder.appSubtitle || 'Paraíba';
+                      const config = JSON.parse(localStorage.getItem('app_config_v2') || '{}');
+                      return config.appSubtitle || 'Paraíba';
                     } catch {
                       return 'Paraíba';
                     }
@@ -593,13 +593,13 @@ export default function Layout({ children, currentPageName }) {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 shadow-lg z-40 safe-area-bottom transition-colors" translate="no">
         <div className="flex items-center justify-around h-16 pb-safe">
           {navItems.slice(0, 5).map((item) => {
-            // Buscar nome customizado das páginas do Modo Construtor
+            // Buscar nome customizado das páginas
             let displayName = item.name;
             try {
-              const builder = JSON.parse(localStorage.getItem('builder_config_v1') || '{}');
-              const pageKey = item.page.toLowerCase();
-              if (builder.pages && builder.pages[pageKey]) {
-                displayName = builder.pages[pageKey];
+              const pages = JSON.parse(localStorage.getItem('app_pages_v2') || '{}');
+              const pageKey = `page_${item.page.toLowerCase()}`;
+              if (pages[pageKey] && pages[pageKey].name) {
+                displayName = pages[pageKey].name;
               }
             } catch (e) {
               // Usar nome padrão
