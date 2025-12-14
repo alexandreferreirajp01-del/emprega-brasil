@@ -182,6 +182,28 @@ export default function GerenciarFuncoes() {
     }, 800);
   };
 
+  const handleRestore = () => {
+    if (!confirm('Tem certeza que deseja restaurar todas as configurações para o padrão? Todas as alterações não salvas serão perdidas.')) {
+      return;
+    }
+    
+    // Limpar localStorage
+    localStorage.removeItem('app_config_v2');
+    localStorage.removeItem('app_pages_v2');
+    localStorage.removeItem('app_features_v2');
+    localStorage.removeItem('app_settings_v2');
+    
+    // Notificar
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('app_config_updated'));
+    
+    toast.success('Restaurado! Recarregando...');
+    
+    setTimeout(() => {
+      window.location.reload();
+    }, 800);
+  };
+
   const updatePageName = (key, newName) => {
     setConfig(prev => ({
       ...prev,
@@ -598,19 +620,29 @@ export default function GerenciarFuncoes() {
           </Card>
         )}
 
-        {/* Save Button */}
-        <Button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full bg-green-600 hover:bg-green-700 h-12 text-base font-semibold"
-        >
-          {saving ? (
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-          ) : (
-            <Save className="w-5 h-5 mr-2" />
-          )}
-          Salvar Alterações
-        </Button>
+        {/* Action Buttons */}
+        <div className="space-y-3">
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full bg-green-600 hover:bg-green-700 h-12 text-base font-semibold"
+          >
+            {saving ? (
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-5 h-5 mr-2" />
+            )}
+            Salvar Alterações
+          </Button>
+
+          <Button
+            onClick={handleRestore}
+            variant="outline"
+            className="w-full h-12 text-base font-semibold border-2 dark:border-slate-600"
+          >
+            Restaurar Padrão
+          </Button>
+        </div>
       </div>
     </div>
   );
