@@ -6,7 +6,7 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette, Wrench
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -14,7 +14,8 @@ import { Link } from "react-router-dom";
 
 const menuItems = [
   { id: 'divider-sistema', type: 'divider', label: 'Sistema', roles: ['admin', 'dono'] },
-  { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', icon: Settings, color: 'purple', page: 'GerenciarFuncoes', description: 'Habilitar/desabilitar funções do app', roles: ['admin', 'dono'] },
+  { id: 'modo-construtor', name: 'Modo Construtor', icon: Wrench, color: 'purple', page: 'ModoConstutor', description: 'Editar toda interface do app', roles: ['admin', 'dono'] },
+  { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', icon: Settings, color: 'blue', page: 'GerenciarFuncoes', description: 'Habilitar/desabilitar funções do app', roles: ['admin', 'dono'] },
   { id: 'dividerInteracoes', type: 'divider', label: 'Interações' },
   { id: 'favoritas', name: 'Favoritas', icon: Heart, color: 'rose', page: 'Favoritos', description: 'Vagas salvas como favoritas', permissionId: 'favoritas' },
   { id: 'historico', name: 'Histórico', icon: History, color: 'violet', page: 'Historico', description: 'Vagas visualizadas recentemente', permissionId: 'historico' },
