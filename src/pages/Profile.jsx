@@ -300,7 +300,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F3F2EF] pb-20">
+    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -317,14 +317,14 @@ export default function Profile() {
         )}
       </AnimatePresence>
 
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-8 pb-20 px-4">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-8 pb-20 px-4 transition-colors">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 -mt-12">
-        <Card className="shadow-xl rounded-3xl overflow-hidden">
+        <Card className="shadow-xl rounded-3xl overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors">
           <CardContent className="p-6 sm:p-8">
             <div className="flex flex-col items-center mb-6">
               <div className="relative mb-4">
