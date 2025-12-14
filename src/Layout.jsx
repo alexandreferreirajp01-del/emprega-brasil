@@ -41,6 +41,18 @@ export default function Layout({ children, currentPageName }) {
       // Mudar cor da barra de endereços para light
       updateThemeColor('#FFFFFF');
     }
+
+    // Listener para atualizações de configuração
+    const handleConfigUpdate = () => {
+      // Forçar re-render ao detectar mudanças
+      setUser(prev => ({ ...prev }));
+    };
+
+    window.addEventListener('app_config_updated', handleConfigUpdate);
+
+    return () => {
+      window.removeEventListener('app_config_updated', handleConfigUpdate);
+    };
   }, []);
 
   // Função para atualizar a cor da barra de endereços

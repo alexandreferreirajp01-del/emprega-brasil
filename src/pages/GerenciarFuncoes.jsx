@@ -223,12 +223,23 @@ export default function GerenciarFuncoes() {
   const handleUpdateItem = async (key, isPage = false) => {
     setUpdatingItem(key);
     try {
+      // Salvar tudo no localStorage
       localStorage.setItem('app_features_v2', JSON.stringify(features));
       localStorage.setItem('app_pages_v2', JSON.stringify(pages));
-      toast.success('Atualizado! Recarregando...');
-      setTimeout(() => window.location.reload(), 800);
+      localStorage.setItem('app_config_v2', JSON.stringify(appConfig));
+      
+      // Disparar evento para notificar o app
+      window.dispatchEvent(new Event('app_config_updated'));
+      
+      setHasChanges(false);
+      toast.success('Aplicado! Recarregando...');
+      
+      // Forçar reload completo
+      setTimeout(() => {
+        window.location.href = window.location.href;
+      }, 600);
     } catch (error) {
-      toast.error('Erro ao atualizar');
+      toast.error('Erro ao aplicar');
       setUpdatingItem(null);
     }
   };
