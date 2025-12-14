@@ -162,7 +162,7 @@ export default function Feed() {
 
   return (
     <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
-      <div className="bg-gradient-to-r from-[#1D2226] to-[#383E45] dark:from-slate-800 dark:to-slate-950 pt-6 pb-4 px-4 transition-colors">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-6 pb-4 px-4 transition-colors">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold text-white">Feed</h1>
           <p className="text-white/70 dark:text-slate-300 text-sm">Compartilhe e conecte-se</p>
@@ -171,12 +171,12 @@ export default function Feed() {
 
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         {/* Criar Post */}
-        <Card className="rounded-xl dark:bg-slate-800 transition-colors">
+        <Card className="rounded-xl dark:bg-slate-800 dark:border-slate-700 transition-colors">
           <CardContent className="p-4">
             <div className="flex gap-3">
               <Avatar className="w-10 h-10">
                 <AvatarImage src={user?.profile_photo} />
-                <AvatarFallback className="bg-[#0A66C2]/10 text-[#0A66C2]">
+                <AvatarFallback className="bg-[#0A66C2]/10 dark:bg-blue-900/30 text-[#0A66C2] dark:text-blue-400">
                   {user?.full_name?.[0] || 'U'}
                 </AvatarFallback>
               </Avatar>
@@ -185,7 +185,7 @@ export default function Feed() {
                   value={novoPost}
                   onChange={(e) => setNovoPost(e.target.value)}
                   placeholder="O que você está pensando?"
-                  className="rounded-lg resize-none min-h-[80px] dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                  className="rounded-lg resize-none min-h-[80px] dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder:text-slate-400"
                 />
                 
                 {imagens.length > 0 && (
@@ -213,7 +213,7 @@ export default function Feed() {
                       className="hidden"
                       onChange={handleUploadImagem}
                     />
-                    <Button type="button" variant="ghost" size="sm" className="text-slate-500" asChild>
+                    <Button type="button" variant="ghost" size="sm" className="text-slate-500 dark:text-slate-400" asChild>
                       <span>
                         {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Image className="w-4 h-4 mr-2" />}
                         Foto
@@ -240,7 +240,7 @@ export default function Feed() {
             <Loader2 className="w-6 h-6 animate-spin text-[#0A66C2]" />
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">
+          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
             <p>Nenhuma publicação ainda.</p>
             <p className="text-sm">Seja o primeiro a publicar!</p>
           </div>
