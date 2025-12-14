@@ -21,33 +21,39 @@ import { Link } from "react-router-dom";
 const ADMIN_PASSWORD = "Vagas2026#";
 
 const APP_FUNCTIONS = [
-  // Interações
-  { id: 'favoritas', label: 'Favoritas', category: 'Interações' },
-  { id: 'historico', label: 'Histórico', category: 'Interações' },
-  { id: 'mensagens', label: 'Mensagens', category: 'Interações' },
-  { id: 'curriculos', label: 'Ver Currículos', category: 'Interações' },
-  { id: 'responder_chat', label: 'Responder Chat', category: 'Interações' },
-  { id: 'lista_transmissao', label: 'Lista de Transmissão', category: 'Interações' },
-  { id: 'ocorrencias', label: 'Ocorrências', category: 'Interações' },
-  
-  // Recrutador
-  { id: 'recruiter_area', label: 'Painel do Recrutador', category: 'Recrutador' },
-  { id: 'solicitacoes', label: 'Solicitações', category: 'Recrutador' },
+  // Sistema
+  { id: 'gerenciar_funcoes', label: 'Gerenciar Funções', category: 'Sistema' },
+  { id: 'permissoes', label: 'Permissões de Acesso', category: 'Sistema' },
+  { id: 'gerenciar_cores', label: 'Gerenciar Cores', category: 'Sistema' },
   
   // Gerenciamento
   { id: 'gerenciar_vagas', label: 'Gerenciar Vagas', category: 'Gerenciamento' },
   { id: 'gerenciar_usuarios', label: 'Gerenciar Usuários', category: 'Gerenciamento' },
+  { id: 'noticias', label: 'Gerenciar Notícias', category: 'Gerenciamento' },
   { id: 'gerenciar_comunidade', label: 'Feed', category: 'Gerenciamento' },
   { id: 'gerenciador_filtros', label: 'Gerenciador de Filtros', category: 'Gerenciamento' },
   { id: 'biblioteca_admin', label: 'Biblioteca', category: 'Gerenciamento' },
   { id: 'gerenciar_planos', label: 'Gerenciar Planos', category: 'Gerenciamento' },
+  { id: 'gerenciar_precos', label: 'Gerenciar Preços', category: 'Gerenciamento' },
   
-  // Produção
-  { id: 'postar_vagas', label: 'Postar Vagas', category: 'Produção' },
-  { id: 'posts_massa', label: 'Posts em Massa', category: 'Produção' },
-  { id: 'vagas_ia', label: 'Vagas por IA', category: 'Produção' },
-  { id: 'vagas_home_office', label: 'Vagas Home Office', category: 'Produção' },
-  { id: 'noticias', label: 'Gerenciar Notícias', category: 'Produção' },
+  // Ferramentas de Produção
+  { id: 'postar_vagas', label: 'Postar Vagas', category: 'Ferramentas de Produção' },
+  { id: 'posts_massa', label: 'Posts em Massa', category: 'Ferramentas de Produção' },
+  { id: 'vagas_ia', label: 'Vagas por IA', category: 'Ferramentas de Produção' },
+  { id: 'vagas_home_office', label: 'Vagas Home Office', category: 'Ferramentas de Produção' },
+  
+  // Área do Recrutador
+  { id: 'recruiter_area', label: 'Painel do Recrutador', category: 'Área do Recrutador' },
+  { id: 'solicitacoes', label: 'Solicitações', category: 'Área do Recrutador' },
+  
+  // Interações
+  { id: 'favoritas', label: 'Favoritas', category: 'Interações' },
+  { id: 'historico', label: 'Histórico', category: 'Interações' },
+  { id: 'mensagens', label: 'Mensagens', category: 'Interações' },
+  { id: 'lista_transmissao', label: 'Lista de Transmissão', category: 'Interações' },
+  { id: 'curriculos', label: 'Ver Currículos', category: 'Interações' },
+  { id: 'responder_chat', label: 'Responder Chat', category: 'Interações' },
+  { id: 'ocorrencias', label: 'Ocorrências', category: 'Interações' },
   
   // Analytics e Monitoramento
   { id: 'fluxo_usuarios', label: 'Fluxo de Usuários', category: 'Analytics e Monitoramento' },
@@ -55,7 +61,7 @@ const APP_FUNCTIONS = [
   { id: 'pagamentos', label: 'Pagamentos', category: 'Analytics e Monitoramento' },
 ];
 
-const CATEGORIES = ['Interações', 'Recrutador', 'Gerenciamento', 'Produção', 'Analytics e Monitoramento'];
+const CATEGORIES = ['Sistema', 'Gerenciamento', 'Ferramentas de Produção', 'Área do Recrutador', 'Interações', 'Analytics e Monitoramento'];
 
 export default function Permissoes() {
   const [user, setUser] = useState(null);
