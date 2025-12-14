@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Save, Loader2, Settings, Layout, Image } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Settings, Layout, Image, ArrowUp, ArrowDown } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
@@ -181,6 +181,23 @@ export default function GerenciarFuncoes() {
     }));
   };
 
+  const moveItem = (type, index, direction) => {
+    const items = type === 'functions' ? Object.entries(config.functions) : Object.entries(config.pages);
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    if (newIndex < 0 || newIndex >= items.length) return;
+    
+    const newItems = [...items];
+    [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
+    
+    const reordered = Object.fromEntries(newItems);
+    
+    setConfig(prev => ({
+      ...prev,
+      [type]: reordered
+    }));
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
@@ -241,8 +258,28 @@ export default function GerenciarFuncoes() {
               <CardTitle className="text-lg dark:text-white">Funcionalidades do App</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {Object.entries(config.functions).map(([key, func]) => (
-                <div key={key} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
+              {Object.entries(config.functions).map(([key, func], index) => (
+                <div key={key} className="flex items-center gap-2 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                  <div className="flex flex-col gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => moveItem('functions', index, 'up')}
+                      disabled={index === 0}
+                    >
+                      <ArrowUp className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => moveItem('functions', index, 'down')}
+                      disabled={index === Object.keys(config.functions).length - 1}
+                    >
+                      <ArrowDown className="w-3 h-3" />
+                    </Button>
+                  </div>
                   <Switch
                     checked={func.enabled}
                     onCheckedChange={() => toggleFunction(key)}
@@ -266,8 +303,28 @@ export default function GerenciarFuncoes() {
               <CardTitle className="text-lg dark:text-white">Páginas de Navegação</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {Object.entries(config.pages).map(([key, page]) => (
-                <div key={key} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
+              {Object.entries(config.pages).map(([key, page], index) => (
+                <div key={key} className="flex items-center gap-2 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                  <div className="flex flex-col gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => moveItem('pages', index, 'up')}
+                      disabled={index === 0}
+                    >
+                      <ArrowUp className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => moveItem('pages', index, 'down')}
+                      disabled={index === Object.keys(config.pages).length - 1}
+                    >
+                      <ArrowDown className="w-3 h-3" />
+                    </Button>
+                  </div>
                   <Switch
                     checked={page.enabled}
                     onCheckedChange={() => togglePage(key)}
