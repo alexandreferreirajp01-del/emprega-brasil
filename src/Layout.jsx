@@ -29,9 +29,47 @@ export default function Layout({ children, currentPageName }) {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [currentPageName]);
 
-  // Carregar itens de navegação
+  // Carregar itens de navegação e escutar mudanças
   useEffect(() => {
-    setNavItems(loadNavItems());
+    const loadItems = () => {
+      const defaultItems = [
+        { name: 'Início', icon: Home, page: 'Home' },
+        { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
+        { name: 'Utilidades', icon: Settings, page: 'Utilidades' },
+        { name: 'Feed', icon: MessageCircle, page: 'Feed' },
+        { name: 'Perfil', icon: User, page: 'Profile' },
+      ];
+      
+      try {
+        const pages = JSON.parse(localStorage.getItem('app_pages_v2') || '{}');
+        const updatedItems = defaultItems.map(item => {
+          const pageKey = `page_${item.page.toLowerCase()}`;
+          if (pages[pageKey] && pages[pageKey].name) {
+            return { ...item, name: pages[pageKey].name };
+          }
+          return item;
+        });
+        setNavItems(updatedItems);
+      } catch (e) {
+        setNavItems(defaultItems);
+      }
+    };
+
+    // Carregar inicialmente
+    loadItems();
+    
+    // Listener para atualizações
+    const handleUpdate = () => {
+      loadItems();
+    };
+    
+    window.addEventListener('app_config_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    
+    return () => {
+      window.removeEventListener('app_config_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
   }, []);
 
   // Carregar e aplicar tema
@@ -45,19 +83,6 @@ export default function Layout({ children, currentPageName }) {
       document.documentElement.classList.remove('dark');
       updateThemeColor('#FFFFFF');
     }
-
-    // Listener para atualizações de configuração
-    const handleConfigUpdate = () => {
-      setNavItems(loadNavItems());
-    };
-
-    window.addEventListener('app_config_updated', handleConfigUpdate);
-    window.addEventListener('storage', handleConfigUpdate);
-
-    return () => {
-      window.removeEventListener('app_config_updated', handleConfigUpdate);
-      window.removeEventListener('storage', handleConfigUpdate);
-    };
   }, []);
 
   // Função para atualizar a cor da barra de endereços
@@ -203,30 +228,6 @@ export default function Layout({ children, currentPageName }) {
   
   // Verificar se pode usar currículo (apenas Premium)
   const canUseResume = user?.subscription_type === 'premium';
-
-  // Função para carregar itens de navegação
-      const loadNavItems = () => {
-        const defaultItems = [
-          { name: 'Início', icon: Home, page: 'Home' },
-          { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-          { name: 'Utilidades', icon: Settings, page: 'Utilidades' },
-          { name: 'Feed', icon: MessageCircle, page: 'Feed' },
-          { name: 'Perfil', icon: User, page: 'Profile' },
-        ];
-
-        try {
-          const pages = JSON.parse(localStorage.getItem('app_pages_v2') || '{}');
-          return defaultItems.map(item => {
-            const pageKey = `page_${item.page.toLowerCase()}`;
-            if (pages[pageKey] && pages[pageKey].name) {
-              return { ...item, name: pages[pageKey].name };
-            }
-            return item;
-          });
-        } catch (e) {
-          return defaultItems;
-        }
-      };
 
   const handleLogout = () => {
     localStorage.clear();
