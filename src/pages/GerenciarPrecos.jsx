@@ -8,12 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ArrowLeft, Loader2, DollarSign, Plus, Edit, Trash2, Save, 
-  AlertCircle, Crown, Sparkles, Briefcase, Users, Star, Tag
+  AlertCircle, Crown, Sparkles, Briefcase, Users, Star, Tag, BookOpen
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import PlanosManual from "@/components/admin/PlanosManual";
 
 const ICON_OPTIONS = [
   { value: 'Crown', label: 'Coroa', component: Crown },
@@ -29,6 +30,7 @@ export default function GerenciarPrecos() {
   const [editDialog, setEditDialog] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
   const [formData, setFormData] = useState({});
+  const [showManual, setShowManual] = useState(false);
   const queryClient = useQueryClient();
 
   const showToast = (message, type = 'success') => {
@@ -185,18 +187,33 @@ export default function GerenciarPrecos() {
               </h1>
               <p className="text-white/70 text-sm">Configure e gerencie todos os planos de assinatura</p>
             </div>
-            <Button
-              onClick={handleNew}
-              className="bg-white text-green-600 hover:bg-white/90 rounded-xl"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Novo Plano
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowManual(!showManual)}
+                variant="outline"
+                className="bg-white/20 text-white border-white/30 hover:bg-white/30 rounded-xl"
+              >
+                <BookOpen className="w-5 h-5 mr-2" />
+                {showManual ? 'Ocultar' : 'Ver'} Manual
+              </Button>
+              <Button
+                onClick={handleNew}
+                className="bg-white text-green-600 hover:bg-white/90 rounded-xl"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Novo Plano
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-4">
+        {/* Manual */}
+        {showManual && (
+          <PlanosManual />
+        )}
+
         {loadingPlans ? (
           <div className="text-center py-12">
             <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#0A66C2]" />
