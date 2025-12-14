@@ -35,6 +35,15 @@ export default function ColorPickerModal({ isOpen, onClose, mode = 'gradient', o
   const [badgeText, setBadgeText] = useState(initialColors.badgeText || '#78350f');
   const [singleColor, setSingleColor] = useState(initialColor);
 
+  // Atualizar estados quando as props mudarem
+  React.useEffect(() => {
+    setGradientStart(initialColors.gradientStart || '#2563eb');
+    setGradientEnd(initialColors.gradientEnd || '#1d4ed8');
+    setBadgeBg(initialColors.badgeBg || '#fbbf24');
+    setBadgeText(initialColors.badgeText || '#78350f');
+    setSingleColor(initialColor);
+  }, [initialColors.gradientStart, initialColors.gradientEnd, initialColors.badgeBg, initialColors.badgeText, initialColor]);
+
   const handleSave = () => {
     if (mode === 'gradient') {
       onSave({ gradientStart, gradientEnd });
