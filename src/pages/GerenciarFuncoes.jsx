@@ -244,7 +244,42 @@ export default function GerenciarFuncoes() {
     if (newIndex < 0 || newIndex >= config.settings.length) return;
     
     const newSettings = [...config.settings];
-    [newSettings[index], newSettings[newIndex]] = [newSettings[newIndex], newSettings[index]];
+    const item = newSettings[index];
+    
+    // Se for um divider, mover o grupo inteiro
+    if (item.type === 'divider') {
+      // Encontrar o próximo divider
+      let groupEnd = index + 1;
+      while (groupEnd < newSettings.length && newSettings[groupEnd].type !== 'divider') {
+        groupEnd++;
+      }
+      
+      // Extrair o grupo (divider + itens)
+      const group = newSettings.splice(index, groupEnd - index);
+      
+      // Calcular nova posição
+      let targetIndex = direction === 'up' ? index - 1 : index + 1;
+      
+      // Se for para cima, encontrar o início do grupo anterior
+      if (direction === 'up' && targetIndex >= 0) {
+        while (targetIndex > 0 && newSettings[targetIndex - 1].type !== 'divider') {
+          targetIndex--;
+        }
+      }
+      
+      // Se for para baixo, pular o próximo grupo
+      if (direction === 'down' && targetIndex < newSettings.length) {
+        while (targetIndex < newSettings.length && newSettings[targetIndex].type !== 'divider') {
+          targetIndex++;
+        }
+      }
+      
+      // Inserir o grupo na nova posição
+      newSettings.splice(Math.max(0, Math.min(targetIndex, newSettings.length)), 0, ...group);
+    } else {
+      // Mover item individual normalmente
+      [newSettings[index], newSettings[newIndex]] = [newSettings[newIndex], newSettings[index]];
+    }
     
     setConfig(prev => ({
       ...prev,
