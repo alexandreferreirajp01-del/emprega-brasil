@@ -175,18 +175,15 @@ export default function GerenciarFuncoes() {
     setHasChanges(true);
   };
 
-  const handleEditName = (key, newName, isPage = false) => {
-    if (isPage) {
-      setPages(prev => ({
-        ...prev,
-        [key]: { ...prev[key], name: newName }
-      }));
-    } else {
-      setFeatures(prev => ({
-        ...prev,
-        [key]: { ...prev[key], name: newName }
-      }));
-    }
+  const handleEditSave = (key, isPage = false) => {
+    // Salvar no localStorage imediatamente
+    localStorage.setItem('app_features_v2', JSON.stringify(features));
+    localStorage.setItem('app_pages_v2', JSON.stringify(pages));
+    
+    // Disparar evento
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('app_config_updated'));
+    
     setEditingItem(null);
     setHasChanges(true);
     toast.success('Nome atualizado!');
@@ -198,12 +195,20 @@ export default function GerenciarFuncoes() {
       localStorage.setItem('app_features_v2', JSON.stringify(features));
       localStorage.setItem('app_pages_v2', JSON.stringify(pages));
       localStorage.setItem('app_config_v2', JSON.stringify(appConfig));
-      toast.success('Alterações salvas! Recarregando...');
+      
+      // Disparar evento para notificar outras partes do app
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('app_config_updated'));
+      
       setHasChanges(false);
-      setTimeout(() => window.location.reload(), 1500);
+      toast.success('Salvo! Aplicando...');
+      
+      // Forçar reload completo da página
+      setTimeout(() => {
+        window.location.replace(window.location.href);
+      }, 800);
     } catch (error) {
       toast.error('Erro ao salvar');
-    } finally {
       setSaving(false);
     }
   };
@@ -489,14 +494,11 @@ export default function GerenciarFuncoes() {
                               }
                             }}
                             onBlur={() => {
-                              setEditingItem(null);
-                              setHasChanges(true);
+                              handleEditSave(key, activeTab === 'pages');
                             }}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
-                                setEditingItem(null);
-                                setHasChanges(true);
-                                toast.success('Nome atualizado!');
+                                handleEditSave(key, activeTab === 'pages');
                               }
                             }}
                             className="h-8 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
