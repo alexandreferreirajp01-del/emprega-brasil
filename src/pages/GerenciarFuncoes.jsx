@@ -319,6 +319,30 @@ export default function GerenciarFuncoes() {
     }));
   };
 
+  const handleRestore = () => {
+    if (!confirm('Tem certeza que deseja restaurar todas as configurações para o padrão? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+    
+    setSaving(true);
+    
+    // Limpar todas as configurações personalizadas
+    localStorage.removeItem('app_config_v2');
+    localStorage.removeItem('app_pages_v2');
+    localStorage.removeItem('app_features_v2');
+    localStorage.removeItem('app_settings_v2');
+    
+    // Notificar o app sobre as mudanças
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('app_config_updated'));
+    
+    toast.success('Configurações restauradas! Recarregando...');
+    
+    setTimeout(() => {
+      window.location.reload();
+    }, 800);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
