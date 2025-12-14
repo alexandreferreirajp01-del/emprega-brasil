@@ -68,7 +68,7 @@ export default function Utilidades() {
 
   return (
     <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
-      <div className="bg-gradient-to-r from-[#1D2226] to-[#383E45] dark:from-slate-800 dark:to-slate-950 pt-6 pb-4 px-4 transition-colors">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-6 pb-4 px-4 transition-colors">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold text-white">Utilidades</h1>
           <p className="text-white/70 dark:text-slate-300 text-sm">Recursos profissionais para sua carreira</p>
