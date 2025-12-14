@@ -114,18 +114,18 @@ export default function FeedPostCard({ post, user, isSalvo }) {
   };
 
   return (
-    <Card className="rounded-xl overflow-hidden">
+    <Card className="rounded-xl overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors">
       <CardContent className="p-0">
         <div className="p-4 flex items-center gap-3">
           <Avatar className="w-10 h-10">
             <AvatarImage src={post.autor_foto} />
-            <AvatarFallback className="bg-purple-100 text-purple-700">
+            <AvatarFallback className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
               {post.autor_nome?.[0] || 'U'}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-800">{post.autor_nome}</span>
+              <span className="font-semibold text-slate-800 dark:text-white">{post.autor_nome}</span>
               <Badge className={`text-xs ${getPlanoColor(post.autor_plano)}`}>
                 {getPlanoLabel(post.autor_plano)}
               </Badge>
@@ -135,7 +135,7 @@ export default function FeedPostCard({ post, user, isSalvo }) {
         </div>
 
         {post.conteudo && (
-          <p className="px-4 pb-3 text-slate-700 whitespace-pre-wrap">{post.conteudo}</p>
+          <p className="px-4 pb-3 text-slate-700 dark:text-slate-200 whitespace-pre-wrap">{post.conteudo}</p>
         )}
 
         {post.imagens?.length > 0 && (
@@ -167,35 +167,35 @@ export default function FeedPostCard({ post, user, isSalvo }) {
           </div>
         )}
 
-        <div className="p-4 flex items-center gap-4 border-t">
-          <button onClick={() => curtirMutation.mutate()} className={`flex items-center gap-1 ${curtido ? 'text-red-500' : 'text-slate-500'}`}>
+        <div className="p-4 flex items-center gap-4 border-t dark:border-slate-700 transition-colors">
+          <button onClick={() => curtirMutation.mutate()} className={`flex items-center gap-1 ${curtido ? 'text-red-500 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'}`}>
             <Heart className={`w-5 h-5 ${curtido ? 'fill-current' : ''}`} />
             <span className="text-sm">{post.total_curtidas || 0}</span>
           </button>
-          <button onClick={() => setShowComentarios(!showComentarios)} className="flex items-center gap-1 text-slate-500">
+          <button onClick={() => setShowComentarios(!showComentarios)} className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm">{post.total_comentarios || 0}</span>
           </button>
-          <div className="flex items-center gap-1 text-slate-400">
+          <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500">
             <Eye className="w-4 h-4" />
             <span className="text-sm">{viewCount}</span>
           </div>
-          <button onClick={() => salvarMutation.mutate()} className={`flex items-center gap-1 ${isSalvo ? 'text-purple-500' : 'text-slate-500'}`}>
+          <button onClick={() => salvarMutation.mutate()} className={`flex items-center gap-1 ${isSalvo ? 'text-purple-500 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400'}`}>
             <Bookmark className={`w-5 h-5 ${isSalvo ? 'fill-current' : ''}`} />
           </button>
-          <button onClick={handleCompartilhar} className="text-slate-500 ml-auto">
+          <button onClick={handleCompartilhar} className="text-slate-500 dark:text-slate-400 ml-auto">
             <Share2 className="w-5 h-5" />
           </button>
         </div>
 
         {showComentarios && (
-          <div className="px-4 pb-4 border-t pt-4 space-y-3">
+          <div className="px-4 pb-4 border-t dark:border-slate-700 pt-4 space-y-3">
             <div className="flex gap-2">
               <Input
                 value={novoComentario}
                 onChange={(e) => setNovoComentario(e.target.value)}
                 placeholder="Escreva um comentário..."
-                className="rounded-full"
+                className="rounded-full dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 onKeyPress={(e) => e.key === 'Enter' && handleComentar()}
               />
               <Button
@@ -212,11 +212,11 @@ export default function FeedPostCard({ post, user, isSalvo }) {
                 <div key={c.id} className="flex gap-2">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={c.autor_foto} />
-                    <AvatarFallback className="bg-slate-100 text-slate-600 text-xs">{c.autor_nome?.[0]}</AvatarFallback>
+                    <AvatarFallback className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs">{c.autor_nome?.[0]}</AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 bg-slate-50 rounded-xl p-2">
-                    <span className="font-semibold text-sm text-slate-800">{c.autor_nome}</span>
-                    <p className="text-sm text-slate-700">{c.conteudo}</p>
+                  <div className="flex-1 bg-slate-50 dark:bg-slate-700/50 rounded-xl p-2">
+                    <span className="font-semibold text-sm text-slate-800 dark:text-white">{c.autor_nome}</span>
+                    <p className="text-sm text-slate-700 dark:text-slate-200">{c.conteudo}</p>
                   </div>
                 </div>
               ))}

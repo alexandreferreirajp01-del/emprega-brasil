@@ -99,8 +99,11 @@ export default function GerenciarFuncoes() {
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     if (password === MASTER_PASSWORD) {
       setAuthenticated(true);
+      setPassword('');
       toast.success('Acesso autorizado!');
     } else {
       toast.error('Senha incorreta!');
