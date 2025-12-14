@@ -515,6 +515,20 @@ export default function GerenciarFuncoes() {
                   );
                 }
                 
+                // Verificar se pode mover para cima (não é primeiro do grupo e não vai bater no divider)
+                const canMoveUp = (() => {
+                  if (index === 0) return false;
+                  const prevItem = config.settings[index - 1];
+                  return prevItem.type !== 'divider';
+                })();
+                
+                // Verificar se pode mover para baixo (não é último e próximo não é divider)
+                const canMoveDown = (() => {
+                  if (index === config.settings.length - 1) return false;
+                  const nextItem = config.settings[index + 1];
+                  return nextItem.type !== 'divider';
+                })();
+                
                 return (
                   <div key={setting.id} className="flex items-start gap-2 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
                     <div className="flex flex-col gap-1">
@@ -523,7 +537,7 @@ export default function GerenciarFuncoes() {
                         size="icon"
                         className="h-6 w-6"
                         onClick={() => moveSettingItem(index, 'up')}
-                        disabled={index === 0}
+                        disabled={!canMoveUp}
                       >
                         <ArrowUp className="w-3 h-3" />
                       </Button>
@@ -532,7 +546,7 @@ export default function GerenciarFuncoes() {
                         size="icon"
                         className="h-6 w-6"
                         onClick={() => moveSettingItem(index, 'down')}
-                        disabled={index === config.settings.length - 1}
+                        disabled={!canMoveDown}
                       >
                         <ArrowDown className="w-3 h-3" />
                       </Button>
