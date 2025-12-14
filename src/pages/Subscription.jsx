@@ -65,7 +65,7 @@ export default function Subscription() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:bg-slate-900 transition-colors">
+    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 transition-colors">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-8 pb-20 px-4 transition-colors">
         <div className="max-w-6xl mx-auto text-center">
@@ -120,12 +120,12 @@ export default function Subscription() {
                   <p className={`${isBlack ? 'text-purple-200' : 'text-white/80'} text-xs`}>{plan.description}</p>
                 </div>
                 
-                <CardContent className={`p-4 ${isBlack ? 'bg-gradient-to-br from-slate-900 to-black' : ''}`}>
+                <CardContent className={`p-4 ${isBlack ? 'bg-gradient-to-br from-slate-900 to-black' : 'dark:bg-slate-800'}`}>
                   <div className="text-center mb-4">
-                    <div className={`text-3xl font-bold ${isBlack ? 'text-purple-400' : plan.billing_cycle === 'free' ? 'text-green-600' : 'text-blue-600'} mb-1`}>
+                    <div className={`text-3xl font-bold ${isBlack ? 'text-purple-400' : plan.billing_cycle === 'free' ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'} mb-1`}>
                       {plan.billing_cycle === 'free' ? 'GRÁTIS' : `R$ ${plan.price.toFixed(2)}`}
                     </div>
-                    <p className={`${isBlack ? 'text-purple-200' : 'text-slate-500'} text-xs`}>
+                    <p className={`${isBlack ? 'text-purple-200' : 'text-slate-500 dark:text-slate-400'} text-xs`}>
                       {plan.billing_cycle === 'monthly' ? 'por mês' : 
                        plan.billing_cycle === 'lifetime' ? 'pagamento único' : 
                        'Para sempre'}
