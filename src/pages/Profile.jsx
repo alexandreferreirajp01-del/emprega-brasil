@@ -446,56 +446,56 @@ export default function Profile() {
               </div>
             ) : (
               <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <User className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl transition-colors">
+                  <User className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-500">Nome Completo</p>
-                    <p className="font-medium text-slate-800 text-sm">{displayUser?.custom_full_name || 'Não informado'}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Nome Completo</p>
+                    <p className="font-medium text-slate-800 dark:text-white text-sm">{displayUser?.custom_full_name || 'Não informado'}</p>
                   </div>
                   {canEdit && (
                     <button 
                       onClick={() => setIsEditing(true)} 
-                      className="p-2 hover:bg-slate-200 rounded-lg"
+                      className="p-2 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg"
                     >
-                      <Edit className="w-4 h-4 text-slate-400" />
+                      <Edit className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                     </button>
                   )}
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <User className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl transition-colors">
+                  <User className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-500">Nome de Usuário</p>
-                    <p className="font-medium text-slate-800 text-sm">{displayUser?.username || 'Não informado'}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Nome de Usuário</p>
+                    <p className="font-medium text-slate-800 dark:text-white text-sm">{displayUser?.username || 'Não informado'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <Mail className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl transition-colors">
+                  <Mail className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-500">E-mail</p>
-                    <p className="font-medium text-slate-800 text-sm truncate">{displayUser?.email}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">E-mail</p>
+                    <p className="font-medium text-slate-800 dark:text-white text-sm truncate">{displayUser?.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <Phone className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl transition-colors">
+                  <Phone className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-500">Telefone</p>
-                    <p className="font-medium text-slate-800 text-sm">{displayUser?.phone || 'Não informado'}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Telefone</p>
+                    <p className="font-medium text-slate-800 dark:text-white text-sm">{displayUser?.phone || 'Não informado'}</p>
                   </div>
                 </div>
                 {(displayUser?.city || displayUser?.state) && (
-                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                    <MapPin className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl transition-colors">
+                    <MapPin className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-slate-500">Localização</p>
-                      <p className="font-medium text-slate-800 text-sm">{displayUser?.city}, {displayUser?.state}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Localização</p>
+                      <p className="font-medium text-slate-800 dark:text-white text-sm">{displayUser?.city}, {displayUser?.state}</p>
                     </div>
                   </div>
                 )}
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <Calendar className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl transition-colors">
+                  <Calendar className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-500">Membro desde</p>
-                    <p className="font-medium text-slate-800 text-sm">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Membro desde</p>
+                    <p className="font-medium text-slate-800 dark:text-white text-sm">
                       {displayUser?.created_date ? new Date(displayUser.created_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Não informado'}
                     </p>
                   </div>
@@ -526,7 +526,7 @@ export default function Profile() {
                   Seja Premium
                 </Button>
               )}
-              <Button variant="outline" className="w-full h-12 rounded-xl text-[#C30000] border-red-200 hover:bg-red-50" onClick={handleLogout}>
+              <Button variant="outline" className="w-full h-12 rounded-xl text-[#C30000] dark:text-red-400 border-red-200 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/20" onClick={handleLogout}>
                 <LogOut className="w-5 h-5 mr-2" />Sair da Conta
               </Button>
             </div>
