@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Palette, Sparkles, Tag } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-// Paleta de cores sugeridas para início rápido
 const PRESET_COLORS = [
   { name: 'Azul', start: '#2563eb', end: '#1d4ed8' },
   { name: 'Roxo', start: '#9333ea', end: '#7e22ce' },
@@ -27,17 +28,20 @@ const PRESET_BADGES = [
   { name: 'Laranja', bg: '#f97316', text: '#ffffff' },
 ];
 
-export default function ColorPickerModal({ isOpen, onClose, mode = 'gradient', onSave, initialColors = {} }) {
+export default function ColorPickerModal({ isOpen, onClose, mode = 'gradient', onSave, initialColors = {}, initialColor = '#0A66C2' }) {
   const [gradientStart, setGradientStart] = useState(initialColors.gradientStart || '#2563eb');
   const [gradientEnd, setGradientEnd] = useState(initialColors.gradientEnd || '#1d4ed8');
   const [badgeBg, setBadgeBg] = useState(initialColors.badgeBg || '#fbbf24');
   const [badgeText, setBadgeText] = useState(initialColors.badgeText || '#78350f');
+  const [singleColor, setSingleColor] = useState(initialColor);
 
   const handleSave = () => {
     if (mode === 'gradient') {
       onSave({ gradientStart, gradientEnd });
-    } else {
+    } else if (mode === 'badge') {
       onSave({ badgeBg, badgeText });
+    } else if (mode === 'single') {
+      onSave(singleColor);
     }
     onClose();
   };
@@ -58,13 +62,41 @@ export default function ColorPickerModal({ isOpen, onClose, mode = 'gradient', o
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Palette className="w-5 h-5" />
-            {mode === 'gradient' ? 'Escolher Cores do Gradiente' : 'Escolher Cores do Badge'}
+            {mode === 'gradient' ? 'Escolher Cores do Gradiente' : mode === 'badge' ? 'Escolher Cores do Badge' : 'Escolher Cor'}
           </DialogTitle>
         </DialogHeader>
 
-        {mode === 'gradient' ? (
+        {mode === 'single' ? (
           <div className="space-y-6">
-            {/* Preview do Gradiente */}
+            <div>
+              <Label className="text-sm font-semibold mb-3 block">Selecione a Cor</Label>
+              <div className="flex flex-col md:flex-row gap-4 items-start">
+                <div className="flex-1">
+                  <HexColorPicker 
+                    color={singleColor} 
+                    onChange={setSingleColor}
+                    style={{ width: '100%', height: '200px' }}
+                  />
+                </div>
+                <div className="space-y-3 w-full md:w-auto">
+                  <div>
+                    <Label className="text-xs text-slate-500 mb-1 block">HEX</Label>
+                    <Input
+                      value={singleColor}
+                      onChange={(e) => setSingleColor(e.target.value)}
+                      className="font-mono w-full md:w-40"
+                    />
+                  </div>
+                  <div 
+                    className="w-full md:w-40 h-20 rounded-lg border-2 border-slate-200"
+                    style={{ backgroundColor: singleColor }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : mode === 'gradient' ? (
+          <div className="space-y-6">
             <div className="relative">
               <div 
                 className="w-full h-32 rounded-2xl shadow-lg flex items-center justify-center"
@@ -79,7 +111,6 @@ export default function ColorPickerModal({ isOpen, onClose, mode = 'gradient', o
               </div>
             </div>
 
-            {/* Cores Sugeridas */}
             <div>
               <p className="text-sm font-medium text-slate-700 mb-3">Cores Sugeridas</p>
               <div className="grid grid-cols-4 gap-2">
@@ -102,7 +133,6 @@ export default function ColorPickerModal({ isOpen, onClose, mode = 'gradient', o
               </div>
             </div>
 
-            {/* Seletores de Cor */}
             <Tabs defaultValue="start" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="start">Cor Inicial</TabsTrigger>
@@ -156,7 +186,6 @@ export default function ColorPickerModal({ isOpen, onClose, mode = 'gradient', o
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Preview do Badge */}
             <div className="flex items-center justify-center p-8 bg-slate-50 rounded-2xl">
               <Badge 
                 className="text-lg px-6 py-2"
@@ -171,7 +200,6 @@ export default function ColorPickerModal({ isOpen, onClose, mode = 'gradient', o
               </Badge>
             </div>
 
-            {/* Cores Sugeridas */}
             <div>
               <p className="text-sm font-medium text-slate-700 mb-3">Combinações Sugeridas</p>
               <div className="grid grid-cols-3 gap-2">
@@ -193,7 +221,6 @@ export default function ColorPickerModal({ isOpen, onClose, mode = 'gradient', o
               </div>
             </div>
 
-            {/* Seletores de Cor */}
             <Tabs defaultValue="bg" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="bg">Cor de Fundo</TabsTrigger>
