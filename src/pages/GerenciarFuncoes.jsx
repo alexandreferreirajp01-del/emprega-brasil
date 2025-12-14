@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
-  ArrowLeft, Save, Search, Loader2, CheckCircle, XCircle, Settings, Edit2, FileText, Layout, Image, Type
+  ArrowLeft, Save, Search, Loader2, CheckCircle, XCircle, Settings, Edit2, FileText, Layout, Image, Type, RefreshCw
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -103,6 +103,7 @@ export default function GerenciarFuncoes() {
   const [hasChanges, setHasChanges] = useState(false);
   const [activeTab, setActiveTab] = useState('functions');
   const [editingItem, setEditingItem] = useState(null);
+  const [updatingItem, setUpdatingItem] = useState(null);
   const [appConfig, setAppConfig] = useState({
     appName: 'Vagas Abertas',
     appSubtitle: 'Paraíba',
@@ -216,6 +217,19 @@ export default function GerenciarFuncoes() {
       }
       setHasChanges(true);
       toast.success('Configurações restauradas');
+    }
+  };
+
+  const handleUpdateItem = async (key, isPage = false) => {
+    setUpdatingItem(key);
+    try {
+      localStorage.setItem('app_features_v2', JSON.stringify(features));
+      localStorage.setItem('app_pages_v2', JSON.stringify(pages));
+      toast.success('Atualizado! Recarregando...');
+      setTimeout(() => window.location.reload(), 800);
+    } catch (error) {
+      toast.error('Erro ao atualizar');
+      setUpdatingItem(null);
     }
   };
 
@@ -487,8 +501,23 @@ export default function GerenciarFuncoes() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => handleUpdateItem(key, activeTab === 'pages')}
+                          disabled={updatingItem === key}
+                          className="h-8 w-8"
+                          title="Aplicar alterações agora"
+                        >
+                          {updatingItem === key ? (
+                            <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+                          ) : (
+                            <RefreshCw className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => setEditingItem(key)}
                           className="h-8 w-8"
+                          title="Editar nome"
                         >
                           <Edit2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                         </Button>
