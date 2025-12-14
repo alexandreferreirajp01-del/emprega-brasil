@@ -5,12 +5,13 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
-  ArrowLeft, Save, Search, Loader2, CheckCircle, XCircle, Settings, Edit2, FileText, Layout
+  ArrowLeft, Save, Search, Loader2, CheckCircle, XCircle, Settings, Edit2, FileText, Layout, Image, Type
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 const DEFAULT_FEATURES = {
   // Sistema
@@ -102,6 +103,11 @@ export default function GerenciarFuncoes() {
   const [hasChanges, setHasChanges] = useState(false);
   const [activeTab, setActiveTab] = useState('functions');
   const [editingItem, setEditingItem] = useState(null);
+  const [appConfig, setAppConfig] = useState({
+    appName: 'Vagas Abertas',
+    appSubtitle: 'Paraíba',
+    logoUrl: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg'
+  });
 
   useEffect(() => {
     const init = async () => {
@@ -133,6 +139,15 @@ export default function GerenciarFuncoes() {
             setPages(JSON.parse(savedPages));
           } catch (e) {
             console.error('Erro ao carregar páginas:', e);
+          }
+        }
+        
+        const savedAppConfig = localStorage.getItem('app_config_v2');
+        if (savedAppConfig) {
+          try {
+            setAppConfig(JSON.parse(savedAppConfig));
+          } catch (e) {
+            console.error('Erro ao carregar configurações do app:', e);
           }
         }
       } catch (error) {
@@ -181,9 +196,10 @@ export default function GerenciarFuncoes() {
     try {
       localStorage.setItem('app_features_v2', JSON.stringify(features));
       localStorage.setItem('app_pages_v2', JSON.stringify(pages));
-      toast.success('Configurações salvas!');
+      localStorage.setItem('app_config_v2', JSON.stringify(appConfig));
+      toast.success('Alterações salvas! Recarregando...');
       setHasChanges(false);
-      setTimeout(() => window.location.reload(), 1000);
+      setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
       toast.error('Erro ao salvar');
     } finally {
@@ -253,22 +269,30 @@ export default function GerenciarFuncoes() {
 
       <div className="max-w-5xl mx-auto px-4 -mt-4">
         {/* Tabs */}
-        <div className="flex gap-2 mb-4">
+        <div className="grid grid-cols-3 gap-2 mb-4">
           <Button
             onClick={() => setActiveTab('functions')}
             variant={activeTab === 'functions' ? 'default' : 'outline'}
-            className={`flex-1 ${activeTab === 'functions' ? 'bg-blue-600' : 'dark:bg-slate-700 dark:border-slate-600 dark:text-white'}`}
+            className={`${activeTab === 'functions' ? 'bg-blue-600' : 'dark:bg-slate-700 dark:border-slate-600 dark:text-white'}`}
           >
-            <Settings className="w-4 h-4 mr-2" />
-            Funções ({functionsEnabled}/{Object.keys(features).length})
+            <Settings className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Funções ({functionsEnabled})</span>
           </Button>
           <Button
             onClick={() => setActiveTab('pages')}
             variant={activeTab === 'pages' ? 'default' : 'outline'}
-            className={`flex-1 ${activeTab === 'pages' ? 'bg-blue-600' : 'dark:bg-slate-700 dark:border-slate-600 dark:text-white'}`}
+            className={`${activeTab === 'pages' ? 'bg-blue-600' : 'dark:bg-slate-700 dark:border-slate-600 dark:text-white'}`}
           >
-            <Layout className="w-4 h-4 mr-2" />
-            Páginas ({pagesEnabled}/{Object.keys(pages).length})
+            <Layout className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Páginas ({pagesEnabled})</span>
+          </Button>
+          <Button
+            onClick={() => setActiveTab('app')}
+            variant={activeTab === 'app' ? 'default' : 'outline'}
+            className={`${activeTab === 'app' ? 'bg-blue-600' : 'dark:bg-slate-700 dark:border-slate-600 dark:text-white'}`}
+          >
+            <Image className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">App</span>
           </Button>
         </div>
 
@@ -309,8 +333,90 @@ export default function GerenciarFuncoes() {
           </CardContent>
         </Card>
 
+        {/* App Config Tab */}
+        {activeTab === 'app' && (
+          <Card className="dark:bg-slate-800 dark:border-slate-700">
+            <CardHeader>
+              <CardTitle className="dark:text-white">Configurações do Aplicativo</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+                  Nome do Aplicativo
+                </label>
+                <Input
+                  value={appConfig.appName}
+                  onChange={(e) => {
+                    setAppConfig(prev => ({ ...prev, appName: e.target.value }));
+                    setHasChanges(true);
+                  }}
+                  placeholder="Ex: Vagas Abertas"
+                  className="dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+                  Subtítulo do Aplicativo
+                </label>
+                <Input
+                  value={appConfig.appSubtitle}
+                  onChange={(e) => {
+                    setAppConfig(prev => ({ ...prev, appSubtitle: e.target.value }));
+                    setHasChanges(true);
+                  }}
+                  placeholder="Ex: Paraíba"
+                  className="dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+                  URL do Logo
+                </label>
+                <Textarea
+                  value={appConfig.logoUrl}
+                  onChange={(e) => {
+                    setAppConfig(prev => ({ ...prev, logoUrl: e.target.value }));
+                    setHasChanges(true);
+                  }}
+                  placeholder="Cole a URL da imagem do logo"
+                  className="dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  rows={3}
+                />
+              </div>
+
+              {/* Preview */}
+              <div className="border dark:border-slate-600 rounded-xl p-6 bg-slate-50 dark:bg-slate-700/50">
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">Prévia</p>
+                <div className="flex items-center gap-3 bg-white dark:bg-slate-800 p-4 rounded-lg">
+                  <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+                    <img 
+                      src={appConfig.logoUrl} 
+                      alt="Logo" 
+                      className="w-full h-full object-contain rounded-lg"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/48?text=Logo';
+                      }}
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold text-slate-800 dark:text-white leading-tight">
+                      {appConfig.appName || 'Nome do App'}
+                    </span>
+                    <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                      {appConfig.appSubtitle || 'Subtítulo'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Features by Category */}
-        <div className="space-y-4">
+        {activeTab !== 'app' && (
+          <div className="space-y-4">
           {categories.map(category => {
             const categoryFeatures = filtered.filter(([_, f]) => f.category === category);
             if (categoryFeatures.length === 0) return null;

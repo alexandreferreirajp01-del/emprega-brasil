@@ -340,14 +340,39 @@ export default function Layout({ children, currentPageName }) {
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
               <div className="w-12 h-12 flex items-center justify-center">
                 <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg" 
-                  alt="Vagas Abertas Paraíba" 
+                  src={(() => {
+                    try {
+                      const config = JSON.parse(localStorage.getItem('app_config_v2') || '{}');
+                      return config.logoUrl || 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg';
+                    } catch {
+                      return 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg';
+                    }
+                  })()} 
+                  alt="Logo" 
                   className="w-full h-full object-contain"
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-bold text-[#1D2226] dark:text-white leading-tight transition-colors">Vagas Abertas</span>
-                <span className="text-sm text-[#0A66C2] dark:text-blue-400 font-medium transition-colors">Paraíba</span>
+                <span className="text-xl md:text-2xl font-bold text-[#1D2226] dark:text-white leading-tight transition-colors">
+                  {(() => {
+                    try {
+                      const config = JSON.parse(localStorage.getItem('app_config_v2') || '{}');
+                      return config.appName || 'Vagas Abertas';
+                    } catch {
+                      return 'Vagas Abertas';
+                    }
+                  })()}
+                </span>
+                <span className="text-sm text-[#0A66C2] dark:text-blue-400 font-medium transition-colors">
+                  {(() => {
+                    try {
+                      const config = JSON.parse(localStorage.getItem('app_config_v2') || '{}');
+                      return config.appSubtitle || 'Paraíba';
+                    } catch {
+                      return 'Paraíba';
+                    }
+                  })()}
+                </span>
               </div>
             </Link>
 
@@ -567,20 +592,34 @@ export default function Layout({ children, currentPageName }) {
       {/* Bottom Navigation (Mobile) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 shadow-lg z-40 safe-area-bottom transition-colors" translate="no">
         <div className="flex items-center justify-around h-16 pb-safe">
-          {navItems.slice(0, 5).map((item) => (
+          {navItems.slice(0, 5).map((item) => {
+            // Buscar nome customizado das páginas
+            let displayName = item.name;
+            try {
+              const pages = JSON.parse(localStorage.getItem('app_pages_v2') || '{}');
+              const pageKey = `page_${item.page.toLowerCase()}`;
+              if (pages[pageKey] && pages[pageKey].name) {
+                displayName = pages[pageKey].name;
+              }
+            } catch (e) {
+              // Usar nome padrão
+            }
+
+            return (
             <Link 
               key={item.page} 
               to={createPageUrl(item.page)}
               className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 transition-colors ${
                 currentPageName === item.page ? 'text-[#0A66C2] dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
               }`}
-            >
+              >
               <item.icon className="w-5 h-5 mb-0.5 flex-shrink-0" />
-              <span className="text-[10px] truncate max-w-full">{item.name}</span>
-            </Link>
-          ))}
-        </div>
-      </nav>
+              <span className="text-[10px] truncate max-w-full">{displayName}</span>
+              </Link>
+              );
+              })}
+              </div>
+              </nav>
 
       {/* Floating Buttons */}
       <FloatingButtons />
