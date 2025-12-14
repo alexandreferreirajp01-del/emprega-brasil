@@ -355,9 +355,9 @@ export default function Jobs() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F3F2EF] pb-20">
+    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-8 px-4">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-6 pb-8 px-4 transition-colors">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold text-white">Vagas de Emprego</h1>
@@ -377,15 +377,15 @@ export default function Jobs() {
           </div>
           
           {/* Search */}
-          <div className="bg-white rounded-xl p-3 shadow-lg">
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-3 shadow-lg transition-colors">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
               <Input
                 type="text"
                 placeholder="Pesquisar por cargo, empresa, cidade..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-12 pl-12 pr-4 rounded-lg border-0 bg-slate-50 text-base w-full"
+                className="h-12 pl-12 pr-4 rounded-lg border-0 bg-slate-50 dark:bg-slate-700 dark:text-white text-base w-full transition-colors"
               />
               {searchTerm && (
                 <Button
