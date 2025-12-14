@@ -73,7 +73,6 @@ const DEFAULT_FUNCTIONS = [
 export default function GerenciarFuncoes() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [functions, setFunctions] = useState([]);
@@ -81,6 +80,7 @@ export default function GerenciarFuncoes() {
   const [editingFunction, setEditingFunction] = useState(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -116,12 +116,25 @@ export default function GerenciarFuncoes() {
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (password === MASTER_PASSWORD) {
-      setAuthenticated(true);
+      // Senha correta - salvar alterações
       setPassword('');
-      toast.success('Acesso autorizado!');
+      setShowPasswordDialog(false);
+      proceedWithSave();
     } else {
       toast.error('Senha incorreta!');
       setPassword('');
+    }
+  };
+
+  const proceedWithSave = async () => {
+    setSaving(true);
+    try {
+      localStorage.setItem('app_functions_config', JSON.stringify(functions));
+      toast.success('Configurações salvas com sucesso!');
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      toast.error('Erro ao salvar configurações');
+      setSaving(false);
     }
   };
 
@@ -159,16 +172,9 @@ export default function GerenciarFuncoes() {
     setShowEditDialog(true);
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      localStorage.setItem('app_functions_config', JSON.stringify(functions));
-      toast.success('Configurações salvas com sucesso!');
-      setTimeout(() => window.location.reload(), 1500);
-    } catch (error) {
-      toast.error('Erro ao salvar configurações');
-      setSaving(false);
-    }
+  const handleSave = () => {
+    // Mostrar diálogo de senha para confirmar
+    setShowPasswordDialog(true);
   };
 
   const getIconComponent = (iconName) => {
@@ -199,45 +205,7 @@ export default function GerenciarFuncoes() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
-        {!authenticated ? (
-          <Card className="rounded-2xl overflow-hidden shadow-lg dark:bg-slate-800 dark:border-slate-700 transition-colors">
-            <CardContent className="p-8">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Lock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-                </div>
-                <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Autenticação Necessária</h2>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Digite a senha master para acessar</p>
-              </div>
-
-              <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Senha Master"
-                    className="pl-11 pr-11 h-12 rounded-xl border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-base"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-
-                <Button type="submit" className="w-full h-12 bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 rounded-xl text-base font-semibold">
-                  Autenticar
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
+        <>
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
               <Card className="flex-1 rounded-2xl overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors">
                 <CardContent className="p-4 sm:p-6">
@@ -325,12 +293,71 @@ export default function GerenciarFuncoes() {
               </CardContent>
             </Card>
 
-            <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-4">
-              Total: {functions.length} funções • Ativas: {functions.filter(f => f.enabled).length}
-            </p>
-          </>
-        )}
+        <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-4">
+          Total: {functions.length} funções • Ativas: {functions.filter(f => f.enabled).length}
+        </p>
+        </>
       </div>
+
+      {/* Password Dialog */}
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent className="max-w-md bg-white dark:bg-slate-800 dark:border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 dark:text-white">Confirmar Alterações</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              </div>
+              <p className="text-slate-600 dark:text-slate-400 text-sm">Digite a senha master para salvar as alterações</p>
+            </div>
+
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Senha Master"
+                  className="pl-11 pr-11 h-12 rounded-xl border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-base"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowPasswordDialog(false);
+                    setPassword('');
+                  }}
+                  className="flex-1 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  disabled={saving}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800"
+                  disabled={saving}
+                >
+                  {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirmar'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
