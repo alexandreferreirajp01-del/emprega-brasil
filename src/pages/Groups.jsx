@@ -108,27 +108,27 @@ export default function Groups() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
       {/* Header */}
-      <div className="bg-[#0A66C2] pt-6 pb-12 px-4">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-6 pb-12 px-4 transition-colors">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-2xl font-bold text-white mb-2">Grupos de Vagas</h1>
-          <p className="text-white/70">Entre em nossos grupos exclusivos para receber vagas diariamente</p>
+          <p className="text-white/70 dark:text-slate-300">Entre em nossos grupos exclusivos para receber vagas diariamente</p>
         </div>
       </div>
 
       {/* Warning */}
       <div className="max-w-4xl mx-auto px-4 -mt-6 mb-6">
         <div>
-          <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-lg rounded-2xl">
+          <Card className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800/30 shadow-lg rounded-2xl transition-colors">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-amber-100 rounded-xl">
-                  <AlertCircle className="w-6 h-6 text-amber-600" />
+                <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl">
+                  <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-amber-800 mb-2">Atenção aos Limites dos Grupos</h3>
-                  <p className="text-amber-700 text-sm leading-relaxed">
+                  <h3 className="font-semibold text-amber-800 dark:text-amber-300 mb-2">Atenção aos Limites dos Grupos</h3>
+                  <p className="text-amber-700 dark:text-amber-200 text-sm leading-relaxed">
                     Cada grupo do WhatsApp possui uma capacidade máxima de <strong>1.025 membros</strong>. 
                     Caso não consiga entrar em um grupo por estar lotado, não se preocupe! 
                     Tente entrar no próximo grupo disponível. Todos os grupos recebem as mesmas vagas diariamente.
@@ -145,7 +145,7 @@ export default function Groups() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {GROUPS.map((group) => (
             <div key={group.id}>
-              <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group rounded-2xl">
+              <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group rounded-2xl dark:bg-slate-800 dark:border-slate-700">
                 <CardContent className="p-0">
                   <div className="flex items-stretch">
                     {/* Icon Side */}
@@ -157,10 +157,10 @@ export default function Groups() {
                     <div className="flex-1 p-5">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="font-semibold text-slate-800 group-hover:text-[#0A66C2] transition-colors">
+                          <h3 className="font-semibold text-slate-800 dark:text-white group-hover:text-[#0A66C2] dark:group-hover:text-blue-400 transition-colors">
                             {group.name}
                           </h3>
-                          <p className="text-sm text-slate-500 mt-1">{group.description}</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{group.description}</p>
                         </div>
                       </div>
                       

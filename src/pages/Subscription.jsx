@@ -65,9 +65,9 @@ export default function Subscription() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:bg-slate-900 transition-colors">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 pt-8 pb-20 px-4">
+      <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-8 pb-20 px-4 transition-colors">
         <div className="max-w-6xl mx-auto text-center">
           <Badge className="bg-white/20 text-white border-0 mb-3 px-3 py-1.5 text-sm">
             <Crown className="w-3.5 h-3.5 mr-1.5" />
@@ -76,7 +76,7 @@ export default function Subscription() {
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
             Escolha o plano ideal para você
           </h1>
-          <p className="text-white/90 text-sm md:text-base max-w-2xl mx-auto">
+          <p className="text-white/90 dark:text-slate-300 text-sm md:text-base max-w-2xl mx-auto">
             Tenha acesso às melhores oportunidades e ferramentas exclusivas para impulsionar sua carreira.
           </p>
         </div>
@@ -94,7 +94,7 @@ export default function Subscription() {
             return (
               <Card 
                 key={plan.id} 
-                className={`shadow-xl rounded-2xl overflow-hidden border-0 ${isBlack ? 'bg-gradient-to-br from-slate-900 to-black text-white' : 'bg-white'} hover:shadow-2xl transition-all ${plan.is_featured ? 'ring-2 ring-blue-400' : ''}`}
+                className={`shadow-xl rounded-2xl overflow-hidden border-0 ${isBlack ? 'bg-gradient-to-br from-slate-900 to-black text-white' : 'bg-white dark:bg-slate-800 dark:border-slate-700'} hover:shadow-2xl transition-all ${plan.is_featured ? 'ring-2 ring-blue-400 dark:ring-blue-500' : ''}`}
               >
                 <div 
                   className={`p-4 text-center relative ${!hasCustomGradient ? `bg-gradient-to-br ${plan.color}` : ''}`}
@@ -135,10 +135,10 @@ export default function Subscription() {
                   <div className="space-y-2 mb-4">
                     {plan.features?.slice(0, 5).map((feature, i) => (
                       <div key={i} className="flex items-start gap-2">
-                        <div className={`w-4 h-4 rounded-full ${isBlack ? 'bg-purple-500/20' : 'bg-blue-100'} flex items-center justify-center flex-shrink-0 mt-0.5`}>
-                          <Check className={`w-2.5 h-2.5 ${isBlack ? 'text-purple-400' : 'text-blue-600'}`} />
+                        <div className={`w-4 h-4 rounded-full ${isBlack ? 'bg-purple-500/20' : 'bg-blue-100 dark:bg-blue-900/30'} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                          <Check className={`w-2.5 h-2.5 ${isBlack ? 'text-purple-400' : 'text-blue-600 dark:text-blue-400'}`} />
                         </div>
-                        <span className={`text-xs ${isBlack ? 'text-slate-200' : 'text-slate-700'}`}>
+                        <span className={`text-xs ${isBlack ? 'text-slate-200' : 'text-slate-700 dark:text-slate-200'}`}>
                           {feature}
                         </span>
                       </div>
@@ -169,17 +169,17 @@ export default function Subscription() {
 
         {/* Trust Badges */}
         <div className="mt-8 text-center">
-          <div className="flex flex-wrap items-center justify-center gap-6 text-slate-600">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-slate-600 dark:text-slate-300">
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-green-600" />
+              <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
               <span className="text-xs font-medium">Pagamento Seguro</span>
             </div>
             <div className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-yellow-600" />
+              <Zap className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               <span className="text-xs font-medium">Ativação Imediata</span>
             </div>
             <div className="flex items-center gap-2">
-              <MessageCircle className="w-5 h-5 text-green-600" />
+              <MessageCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
               <span className="text-xs font-medium">Suporte via WhatsApp</span>
             </div>
           </div>

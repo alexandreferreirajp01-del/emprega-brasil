@@ -39,9 +39,9 @@ export default function Parcerias() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] pt-6 pb-16 px-4 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-6 pb-16 px-4 relative overflow-hidden transition-colors">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-60 h-60 bg-white rounded-full blur-3xl"></div>
@@ -62,7 +62,7 @@ export default function Parcerias() {
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
               Divulgue Sua Vaga
             </h1>
-            <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto">
+            <p className="text-white/90 dark:text-slate-300 text-base md:text-lg max-w-2xl mx-auto">
               Alcance milhares de candidatos qualificados na Paraíba
             </p>
           </div>
@@ -71,10 +71,10 @@ export default function Parcerias() {
 
       <div className="w-full max-w-5xl mx-auto px-3 sm:px-4 md:px-6 -mt-10">
         {/* Tabela de Preços */}
-        <Card className="mb-6 shadow-xl border-0 rounded-2xl overflow-hidden bg-white">
-          <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 md:p-6 border-b">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-800 text-center">Escolha seu Plano</h2>
-            <p className="text-slate-600 text-center text-sm md:text-base mt-1">Investimento direto em resultados</p>
+        <Card className="mb-6 shadow-xl border-0 rounded-2xl overflow-hidden bg-white dark:bg-slate-800 dark:border-slate-700 transition-colors">
+          <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-700 p-4 md:p-6 border-b dark:border-slate-600 transition-colors">
+            <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white text-center">Escolha seu Plano</h2>
+            <p className="text-slate-600 dark:text-slate-300 text-center text-sm md:text-base mt-1">Investimento direto em resultados</p>
           </div>
           
           <CardContent className="p-4 sm:p-5 md:p-8">
@@ -86,8 +86,8 @@ export default function Parcerias() {
                     key={i} 
                     className={`group border-2 rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 transition-all duration-300 relative ${
                       plano.popular
-                        ? 'border-[#0056ff] bg-gradient-to-r from-blue-50 to-blue-100 shadow-xl md:scale-[1.02]' 
-                        : 'border-slate-200 bg-white hover:border-[#0056ff]/30 hover:shadow-md'
+                        ? 'border-[#0056ff] bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 dark:border-blue-500 shadow-xl md:scale-[1.02]' 
+                        : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 hover:border-[#0056ff]/30 dark:hover:border-blue-500/50 hover:shadow-md'
                     }`}
                   >
                     {plano.popular && (
@@ -106,14 +106,14 @@ export default function Parcerias() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-base sm:text-lg md:text-xl font-bold text-slate-800">{plano.dias}</span>
+                          <span className="text-base sm:text-lg md:text-xl font-bold text-slate-800 dark:text-white">{plano.dias}</span>
                           {plano.popular && (
-                            <Badge variant="outline" className="border-[#0056ff] text-[#0056ff] text-[10px] sm:text-xs px-2 py-0">
+                            <Badge variant="outline" className="border-[#0056ff] dark:border-blue-400 text-[#0056ff] dark:text-blue-400 text-[10px] sm:text-xs px-2 py-0">
                               Destaque
                             </Badge>
                           )}
                         </div>
-                        <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${plano.popular ? 'text-[#0056ff]' : 'text-slate-800'}`}>
+                        <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${plano.popular ? 'text-[#0056ff] dark:text-blue-400' : 'text-slate-800 dark:text-white'}`}>
                           {plano.valor}
                         </div>
                       </div>
@@ -139,10 +139,10 @@ export default function Parcerias() {
         </Card>
 
         {/* Redes Sociais */}
-        <Card className="mb-6 shadow-xl border-0 rounded-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 border-b">
-            <h3 className="text-lg sm:text-xl font-bold text-slate-800 text-center flex items-center justify-center gap-2">
-              <Users className="w-5 h-5 text-[#0056ff]" />
+        <Card className="mb-6 shadow-xl border-0 rounded-2xl overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors">
+          <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-700 p-4 border-b dark:border-slate-600 transition-colors">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white text-center flex items-center justify-center gap-2">
+              <Users className="w-5 h-5 text-[#0056ff] dark:text-blue-400" />
               Nosso Alcance nas Redes
             </h3>
           </div>
@@ -187,21 +187,21 @@ export default function Parcerias() {
         </Card>
 
         {/* Métricas */}
-        <Card className="mb-6 shadow-xl border-0 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50">
+        <Card className="mb-6 shadow-xl border-0 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800/30 transition-colors">
           <CardContent className="p-6">
             <div className="text-center mb-6">
-              <Badge className="bg-green-600 text-white border-0 px-4 py-1.5 mb-3">
+              <Badge className="bg-green-600 dark:bg-green-700 text-white border-0 px-4 py-1.5 mb-3">
                 <CheckCircle className="w-4 h-4 mr-2" />
                 Benefícios da Parceria
               </Badge>
             </div>
             <div className="space-y-3">
               {metricas.map((metrica, i) => (
-                <div key={i} className="flex items-center gap-3 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
+                <div key={i} className="flex items-center gap-3 bg-white dark:bg-slate-700/50 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
                   </div>
-                  <span className="text-slate-800 font-medium text-sm md:text-base">{metrica}</span>
+                  <span className="text-slate-800 dark:text-white font-medium text-sm md:text-base">{metrica}</span>
                 </div>
               ))}
             </div>
@@ -209,35 +209,35 @@ export default function Parcerias() {
         </Card>
 
         {/* Formas de Pagamento */}
-        <Card className="shadow-xl border-0 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50">
-          <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 border-b">
-            <h3 className="text-xl font-bold text-slate-800 text-center flex items-center justify-center gap-2">
-              <CreditCard className="w-5 h-5 text-[#0056ff]" />
+        <Card className="shadow-xl border-0 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-blue-800/30 transition-colors">
+          <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-700 p-4 border-b dark:border-slate-600 transition-colors">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white text-center flex items-center justify-center gap-2">
+              <CreditCard className="w-5 h-5 text-[#0056ff] dark:text-blue-400" />
               Formas de Pagamento
             </h3>
           </div>
           <CardContent className="p-8">
             <div className="grid grid-cols-3 gap-6">
               <div className="flex flex-col items-center gap-3 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#0056ff] to-[#0044cc] rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#0056ff] to-[#0044cc] dark:from-blue-600 dark:to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <Smartphone className="w-8 h-8 text-white" />
                 </div>
-                <span className="text-slate-800 text-sm font-semibold">PIX</span>
+                <span className="text-slate-800 dark:text-white text-sm font-semibold">PIX</span>
               </div>
               <div className="flex flex-col items-center gap-3 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#0056ff] to-[#0044cc] rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#0056ff] to-[#0044cc] dark:from-blue-600 dark:to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <CreditCard className="w-8 h-8 text-white" />
                 </div>
-                <span className="text-slate-800 text-sm font-semibold">Cartão</span>
+                <span className="text-slate-800 dark:text-white text-sm font-semibold">Cartão</span>
               </div>
               <div className="flex flex-col items-center gap-3 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#0056ff] to-[#0044cc] rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#0056ff] to-[#0044cc] dark:from-blue-600 dark:to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <rect x="3" y="7" width="18" height="10" rx="2" strokeWidth="2"/>
                     <path d="M3 11h18M7 15h4" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 </div>
-                <span className="text-slate-800 text-sm font-semibold">Boleto</span>
+                <span className="text-slate-800 dark:text-white text-sm font-semibold">Boleto</span>
               </div>
             </div>
           </CardContent>
