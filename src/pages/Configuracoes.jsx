@@ -92,10 +92,10 @@ export default function Configuracoes() {
           return;
         }
         setUser(currentUser);
-        setLoading(false);
-      } catch (error) {
-        console.error('Erro de autenticação:', error);
+      } catch {
         window.location.href = createPageUrl('Splash');
+      } finally {
+        setLoading(false);
       }
     };
     checkAuth();
@@ -162,42 +162,41 @@ export default function Configuracoes() {
 
         <Card className="rounded-2xl overflow-hidden dark:bg-slate-800 transition-colors">
           <CardContent className="p-0">
-            {menuItems
-              .filter(item => {
-                // Filtrar por busca
-                if (!searchTerm) return true;
-                if (item.type === 'divider') return false;
-                const search = searchTerm.toLowerCase();
-                return item.name?.toLowerCase().includes(search) || 
-                       item.description?.toLowerCase().includes(search);
-              })
-              .map((item, index, filteredArray) => {
-                if (!user) return null;
-                
-                // Verificar permissão de acesso
-                const isDono = user.email === 'alexandreferreirajp01@gmail.com' || 
-                               user.subscription_type === 'dono';
-                const isAdmin = user.role === 'admin' || user.subscription_type === 'admin';
-                const isRecruiter = user.subscription_type === 'recruiter';
-                
-                // Verificar roles
-                if (item.roles && item.roles.length > 0) {
-                  const hasAccess = item.roles.some(role => {
-                    if (role === 'dono') return isDono;
-                    if (role === 'admin') return isAdmin;
-                    if (role === 'recruiter') return isRecruiter;
-                    return false;
-                  });
-                  if (!hasAccess) return null;
-                }
-                
-                // Dono e Admin têm acesso total, outros verificam permissões
-                if (!isDono && !isAdmin && item.permissionId) {
-                  const userPermissions = user.permissions || {};
+            {menuItems.filter(item => {
+              // Filtrar por busca
+              if (!searchTerm) return true;
+              if (item.type === 'divider') return false;
+              const search = searchTerm.toLowerCase();
+              return item.name?.toLowerCase().includes(search) || 
+                     item.description?.toLowerCase().includes(search);
+            }).map((item, index) => {
+              // Verificar permissão de acesso
+              const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || 
+                             user?.subscription_type === 'dono';
+              const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
+              const isRecruiter = user?.subscription_type === 'recruiter';
+              
+              // Dono e Admin têm acesso total
+              if (!isDono && !isAdmin) {
+                // Verificar permissões do usuário
+                if (item.permissionId) {
+                  const userPermissions = user?.permissions || {};
+                  // Se a permissão não está definida ou é false, esconder
                   if (userPermissions[item.permissionId] === false) {
                     return null;
                   }
                 }
+              }
+              
+              if (item.roles) {
+                const hasAccess = item.roles.some(role => {
+                  if (role === 'dono') return isDono;
+                  if (role === 'admin') return isAdmin;
+                  if (role === 'recruiter') return isRecruiter;
+                  return false;
+                });
+                if (!hasAccess) return null;
+              }
               
               if (item.type === 'divider') {
                 // Não renderizar dividers se houver busca ativa
@@ -210,7 +209,7 @@ export default function Configuracoes() {
               }
 
               const Icon = item.icon;
-              const isLast = index === filteredArray.length - 1;
+              const isLast = index === menuItems.length - 1;
 
               return (
                 <button
