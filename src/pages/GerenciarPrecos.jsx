@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ArrowLeft, Loader2, DollarSign, Plus, Edit, Trash2, Save, 
-  AlertCircle, Crown, Sparkles, Briefcase, Users, Star, Tag, BookOpen
+  AlertCircle, Crown, Sparkles, Briefcase, Users, Star, Tag, BookOpen, Palette
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -104,7 +104,11 @@ export default function GerenciarPrecos() {
     setEditingPlan(plan);
     setFormData({
       ...plan,
-      features: plan.features?.join('\n') || ''
+      features: plan.features?.join('\n') || '',
+      custom_gradient_start: plan.custom_gradient_start || '#2563eb',
+      custom_gradient_end: plan.custom_gradient_end || '#1d4ed8',
+      custom_badge_bg: plan.custom_badge_bg || '#fbbf24',
+      custom_badge_text: plan.custom_badge_text || '#78350f'
     });
     setEditDialog(true);
   };
