@@ -175,12 +175,18 @@ export default function GerenciarFuncoes() {
     setHasChanges(true);
   };
 
-  const handleEditSave = (key, isPage = false) => {
-    // Salvar no localStorage imediatamente
-    localStorage.setItem('app_features_v2', JSON.stringify(features));
-    localStorage.setItem('app_pages_v2', JSON.stringify(pages));
+  const handleEditSave = (key, newName, isPage = false) => {
+    let updatedState;
+    if (isPage) {
+      updatedState = { ...pages, [key]: { ...pages[key], name: newName } };
+      setPages(updatedState);
+      localStorage.setItem('app_pages_v2', JSON.stringify(updatedState));
+    } else {
+      updatedState = { ...features, [key]: { ...features[key], name: newName } };
+      setFeatures(updatedState);
+      localStorage.setItem('app_features_v2', JSON.stringify(updatedState));
+    }
     
-    // Disparar evento
     window.dispatchEvent(new Event('storage'));
     window.dispatchEvent(new Event('app_config_updated'));
     
@@ -493,12 +499,12 @@ export default function GerenciarFuncoes() {
                                 }));
                               }
                             }}
-                            onBlur={() => {
-                              handleEditSave(key, activeTab === 'pages');
+                            onBlur={(e) => {
+                              handleEditSave(key, e.target.value, activeTab === 'pages');
                             }}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
-                                handleEditSave(key, activeTab === 'pages');
+                                handleEditSave(key, e.target.value, activeTab === 'pages');
                               }
                             }}
                             className="h-8 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
