@@ -331,7 +331,7 @@ export default function Home() {
                     <div className="text-purple-200 text-xs mb-1 flex items-center justify-center gap-1">
                       <Sparkles className="w-2.5 h-2.5" /> Black
                     </div>
-                    <div className="text-white font-bold text-base">R$ 59</div>
+                    <div className="text-white font-bold text-base">R$ 29,90</div>
                   </div>
                 </div>
                 

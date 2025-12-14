@@ -34,7 +34,7 @@ export default function Subscription() {
   };
 
   const handlePremiumBlack = () => {
-    const message = 'Olá! Quero adquirir o Plano Premium Limited Black vitalício por R$59,00 no aplicativo Vagas Abertas Paraíba.';
+    const message = 'Olá! Quero adquirir o Plano Premium Limited Black vitalício por R$29,90 no aplicativo Vagas Abertas Paraíba.';
     window.open(`https://wa.me/5583991971320?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -206,7 +206,7 @@ export default function Subscription() {
             
             <CardContent className="p-4 bg-gradient-to-br from-slate-900 to-black">
               <div className="text-center mb-4">
-                <div className="text-3xl font-bold text-purple-400 mb-1">R$ 59,00</div>
+                <div className="text-3xl font-bold text-purple-400 mb-1">R$ 29,90</div>
                 <p className="text-purple-200 text-xs">pagamento único</p>
               </div>
 
