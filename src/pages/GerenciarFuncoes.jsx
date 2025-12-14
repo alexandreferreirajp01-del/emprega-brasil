@@ -240,44 +240,67 @@ export default function GerenciarFuncoes() {
   };
 
   const moveSettingItem = (index, direction) => {
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= config.settings.length) return;
-    
     const newSettings = [...config.settings];
     const item = newSettings[index];
     
     // Se for um divider, mover o grupo inteiro
     if (item.type === 'divider') {
-      // Encontrar o próximo divider
+      // Encontrar o fim do grupo atual
       let groupEnd = index + 1;
       while (groupEnd < newSettings.length && newSettings[groupEnd].type !== 'divider') {
         groupEnd++;
       }
       
-      // Extrair o grupo (divider + itens)
+      // Extrair o grupo (divider + seus itens)
       const group = newSettings.splice(index, groupEnd - index);
       
-      // Calcular nova posição
-      let targetIndex = direction === 'up' ? index - 1 : index + 1;
-      
-      // Se for para cima, encontrar o início do grupo anterior
-      if (direction === 'up' && targetIndex >= 0) {
-        while (targetIndex > 0 && newSettings[targetIndex - 1].type !== 'divider') {
+      if (direction === 'up') {
+        // Encontrar o início do grupo anterior
+        let targetIndex = index - 1;
+        if (targetIndex < 0) return; // Já está no topo
+        
+        // Voltar até encontrar o divider anterior
+        while (targetIndex > 0 && newSettings[targetIndex].type !== 'divider') {
           targetIndex--;
         }
-      }
-      
-      // Se for para baixo, pular o próximo grupo
-      if (direction === 'down' && targetIndex < newSettings.length) {
-        while (targetIndex < newSettings.length && newSettings[targetIndex].type !== 'divider') {
-          targetIndex++;
+        
+        // Se encontrou um divider, inserir antes dele
+        if (newSettings[targetIndex].type === 'divider') {
+          newSettings.splice(targetIndex, 0, ...group);
         }
+      } else {
+        // Mover para baixo - inserir depois do próximo grupo
+        let targetIndex = index; // index já ajustado após splice
+        
+        if (targetIndex >= newSettings.length) return; // Já está no fim
+        
+        // Pular o próximo grupo
+        if (newSettings[targetIndex].type === 'divider') {
+          targetIndex++;
+          while (targetIndex < newSettings.length && newSettings[targetIndex].type !== 'divider') {
+            targetIndex++;
+          }
+        }
+        
+        newSettings.splice(targetIndex, 0, ...group);
+      }
+    } else {
+      // Mover item individual dentro do grupo
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+      
+      // Não permitir sair do grupo
+      if (newIndex < 0 || newIndex >= newSettings.length) return;
+      if (newSettings[newIndex].type === 'divider') return; // Não pode pular divider
+      
+      // Verificar se não está tentando sair do grupo
+      let currentGroupStart = index - 1;
+      while (currentGroupStart >= 0 && newSettings[currentGroupStart].type !== 'divider') {
+        currentGroupStart--;
       }
       
-      // Inserir o grupo na nova posição
-      newSettings.splice(Math.max(0, Math.min(targetIndex, newSettings.length)), 0, ...group);
-    } else {
-      // Mover item individual normalmente
+      if (direction === 'up' && newIndex <= currentGroupStart) return;
+      
+      // Trocar posições
       [newSettings[index], newSettings[newIndex]] = [newSettings[newIndex], newSettings[index]];
     }
     
