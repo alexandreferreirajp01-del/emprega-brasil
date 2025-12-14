@@ -6,8 +6,7 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette,
-  ArrowUp, ArrowDown
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -115,23 +114,7 @@ export default function Configuracoes() {
     checkAuth();
   }, []);
 
-  const moveMenuItem = (index, direction) => {
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= items.length) return;
-    
-    const newItems = [...items];
-    [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
-    
-    setItems(newItems);
-    
-    // Salvar ordem e nomes
-    const simplified = newItems.map(item => ({
-      id: item.id,
-      name: item.name,
-      description: item.description
-    }));
-    localStorage.setItem('app_settings_v2', JSON.stringify(simplified));
-  };
+
 
   const handleItemClick = async (item) => {
     if (item.action === 'migrate') {
@@ -244,46 +227,27 @@ export default function Configuracoes() {
               const isLast = index === menuItems.length - 1;
 
               return (
-                <div key={item.id} className={`w-full flex items-center gap-2 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}>
-                  {!searchTerm && (
-                    <div className="flex flex-col gap-1 mr-1">
-                      <button
-                        onClick={() => moveMenuItem(index, 'up')}
-                        disabled={index === 0}
-                        className="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded disabled:opacity-30"
-                      >
-                        <ArrowUp className="w-3 h-3 text-slate-500" />
-                      </button>
-                      <button
-                        onClick={() => moveMenuItem(index, 'down')}
-                        disabled={index === items.length - 1}
-                        className="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded disabled:opacity-30"
-                      >
-                        <ArrowDown className="w-3 h-3 text-slate-500" />
-                      </button>
-                    </div>
+                <button
+                  key={item.id}
+                  onClick={() => handleItemClick(item)}
+                  disabled={migrating && item.action === 'migrate'}
+                  className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''} ${migrating && item.action === 'migrate' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
+                  </div>
+                  {migrating && item.action === 'migrate' ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-400 flex-shrink-0" />
+                  ) : item.external ? (
+                    <ExternalLink className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
                   )}
-                  <button
-                    onClick={() => handleItemClick(item)}
-                    disabled={migrating && item.action === 'migrate'}
-                    className={`flex-1 flex items-center gap-3 text-left ${migrating && item.action === 'migrate' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
-                    </div>
-                    {migrating && item.action === 'migrate' ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-slate-400 flex-shrink-0" />
-                    ) : item.external ? (
-                      <ExternalLink className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    ) : (
-                      <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                    )}
-                  </button>
-                </div>
+                </button>
               );
             })}
           </CardContent>

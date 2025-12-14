@@ -33,7 +33,9 @@ const DEFAULT_CONFIG = {
     biblioteca: { name: 'Biblioteca', enabled: true },
   },
   settings: [
+    { id: 'divider-sistema', type: 'divider', label: 'Sistema', locked: true },
     { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', description: 'Habilitar/desabilitar funções do app' },
+    { id: 'dividerInteracoes', type: 'divider', label: 'Interações', locked: true },
     { id: 'favoritas', name: 'Favoritas', description: 'Vagas salvas como favoritas' },
     { id: 'historico', name: 'Histórico', description: 'Vagas visualizadas recentemente' },
     { id: 'mensagens', name: 'Mensagens', description: 'Conversas diretas entre usuários' },
@@ -42,8 +44,10 @@ const DEFAULT_CONFIG = {
     { id: 'ocorrencias', name: 'Ocorrências', description: 'Gerenciar reports de vagas' },
     { id: 'curriculos', name: 'Ver Currículos', description: 'Visualizar currículos de candidatos' },
     { id: 'responder-chat', name: 'Responder Chat', description: 'Responder mensagens dos usuários' },
+    { id: 'dividerRecrutador', type: 'divider', label: 'Área do Recrutador', locked: true },
     { id: 'recruiter-area', name: 'Painel do Recrutador', description: 'Ferramentas exclusivas para recrutadores' },
     { id: 'solicitacoes', name: 'Solicitações', description: 'Aprovar conteúdos de recrutadores' },
+    { id: 'divider0', type: 'divider', label: 'Gerenciamento', locked: true },
     { id: 'permissoes', name: 'Permissões de Acesso', description: 'Controlar acesso às funções do app' },
     { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros' },
     { id: 'vagas', name: 'Gerenciar Vagas', description: 'Visualizar e excluir vagas' },
@@ -51,12 +55,14 @@ const DEFAULT_CONFIG = {
     { id: 'planos', name: 'Gerenciar Planos', description: 'Controle de assinaturas e cobranças' },
     { id: 'precos', name: 'Gerenciar Preços', description: 'Ajustar valores dos planos' },
     { id: 'cores', name: 'Gerenciar Cores', description: 'Personalizar cores da aplicação' },
+    { id: 'dividerProducao', type: 'divider', label: 'Ferramentas de Produção', locked: true },
     { id: 'postar-vaga', name: 'Postar Vagas', description: 'Criar novas vagas de emprego' },
     { id: 'posts-massa', name: 'Posts em Massa', description: 'Upload múltiplas imagens e extraia vagas com IA' },
     { id: 'vagas-ia', name: 'Vagas por IA', description: 'Gerar vagas com inteligência artificial' },
     { id: 'vagas-home', name: 'Vagas Home Office', description: 'Publicar vagas remotas' },
     { id: 'biblioteca', name: 'Biblioteca', description: 'Gerenciar materiais e recursos' },
     { id: 'noticias', name: 'Notícias', description: 'Criar, editar e gerenciar notícias' },
+    { id: 'divider1', type: 'divider', label: 'Ferramentas', locked: true },
     { id: 'fluxo-usuarios', name: 'Fluxo de Usuários', description: 'Monitoramento em tempo real' },
     { id: 'analytics-app', name: 'Analytics do App', description: 'Análises em tempo real' },
     { id: 'payments', name: 'Pagamentos', description: 'Gerenciar pagamentos' },
@@ -417,44 +423,57 @@ export default function GerenciarFuncoes() {
               <CardTitle className="text-lg dark:text-white">Itens das Configurações Gerais</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {config.settings.map((setting, index) => (
-                <div key={setting.id} className="flex items-start gap-2 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                  <div className="flex flex-col gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => moveSettingItem(index, 'up')}
-                      disabled={index === 0}
-                    >
-                      <ArrowUp className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => moveSettingItem(index, 'down')}
-                      disabled={index === config.settings.length - 1}
-                    >
-                      <ArrowDown className="w-3 h-3" />
-                    </Button>
+              {config.settings.map((setting, index) => {
+                if (setting.type === 'divider') {
+                  return (
+                    <div key={setting.id} className="px-3 py-2 bg-slate-100 dark:bg-slate-700/30 rounded-lg border-l-4 border-blue-500">
+                      <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                        <span>{setting.label}</span>
+                        <span className="text-[10px] text-slate-400 normal-case">• Bloqueado</span>
+                      </p>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div key={setting.id} className="flex items-start gap-2 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => moveSettingItem(index, 'up')}
+                        disabled={index === 0}
+                      >
+                        <ArrowUp className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => moveSettingItem(index, 'down')}
+                        disabled={index === config.settings.length - 1}
+                      >
+                        <ArrowDown className="w-3 h-3" />
+                      </Button>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <Input
+                        value={setting.name}
+                        onChange={(e) => updateSettingName(index, 'name', e.target.value)}
+                        className="dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        placeholder="Nome da configuração"
+                      />
+                      <Input
+                        value={setting.description}
+                        onChange={(e) => updateSettingName(index, 'description', e.target.value)}
+                        className="dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm"
+                        placeholder="Descrição"
+                      />
+                    </div>
                   </div>
-                  <div className="flex-1 space-y-2">
-                    <Input
-                      value={setting.name}
-                      onChange={(e) => updateSettingName(index, 'name', e.target.value)}
-                      className="dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                      placeholder="Nome da configuração"
-                    />
-                    <Input
-                      value={setting.description}
-                      onChange={(e) => updateSettingName(index, 'description', e.target.value)}
-                      className="dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm"
-                      placeholder="Descrição"
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
         )}
