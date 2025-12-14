@@ -152,15 +152,6 @@ export default function Home() {
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-slate-900' : 'bg-[#F3F2EF]'}`}>
       <VisitTracker pageName="Home" user={user} />
       
-      {/* Botão de Tema Fixo */}
-      <Button
-        onClick={toggleTheme}
-        className={`fixed bottom-24 right-4 z-50 w-14 h-14 rounded-full shadow-lg ${darkMode ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-slate-800 hover:bg-slate-900'}`}
-        size="icon"
-      >
-        {darkMode ? <Sun className="w-6 h-6 text-white" /> : <Moon className="w-6 h-6 text-white" />}
-      </Button>
-
       {/* Hero Section */}
       <div className={`bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden ${darkMode ? 'opacity-90' : ''}`}>
         <div className="absolute inset-0 opacity-10">
@@ -168,6 +159,17 @@ export default function Home() {
           <div className="absolute bottom-10 right-10 w-60 h-60 bg-white rounded-full blur-3xl"></div>
         </div>
         
+        {/* Botão de Tema - Topo Direito */}
+        <div className="absolute top-4 right-4 z-20">
+          <Button
+            onClick={toggleTheme}
+            size="sm"
+            className={`w-9 h-9 rounded-lg shadow-md ${darkMode ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-white/20 hover:bg-white/30'}`}
+          >
+            {darkMode ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-white" />}
+          </Button>
+        </div>
+
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-6 sm:mb-8 px-2">
                   <Badge className="bg-white/20 text-white border-0 mb-3 sm:mb-4 px-3 sm:px-4 py-1 text-xs sm:text-sm">
