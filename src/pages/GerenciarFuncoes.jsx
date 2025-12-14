@@ -21,6 +21,16 @@ const DEFAULT_CONFIG = {
     page_utilidades: { name: 'Utilidades', enabled: true },
     page_news: { name: 'Notícias', enabled: true },
     page_groups: { name: 'Grupos', enabled: true },
+  },
+  functions: {
+    dark_mode: { name: 'Modo Escuro', enabled: true },
+    push_notifications: { name: 'Notificações Push', enabled: true },
+    job_favorites: { name: 'Favoritar Vagas', enabled: true },
+    job_share: { name: 'Compartilhar Vagas', enabled: true },
+    feed_comments: { name: 'Comentários no Feed', enabled: true },
+    direct_messages: { name: 'Mensagens Diretas', enabled: true },
+    whatsapp_groups: { name: 'Grupos WhatsApp', enabled: true },
+    biblioteca: { name: 'Biblioteca', enabled: true },
   }
 };
 
@@ -28,7 +38,7 @@ export default function GerenciarFuncoes() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [config, setConfig] = useState(DEFAULT_CONFIG);
-  const [activeTab, setActiveTab] = useState('pages');
+  const [activeTab, setActiveTab] = useState('functions');
 
   useEffect(() => {
     const init = async () => {
@@ -46,10 +56,12 @@ export default function GerenciarFuncoes() {
         // Carregar config salva
         const savedAppConfig = localStorage.getItem('app_config_v2');
         const savedPages = localStorage.getItem('app_pages_v2');
+        const savedFunctions = localStorage.getItem('app_features_v2');
         
-        if (savedAppConfig || savedPages) {
+        if (savedAppConfig || savedPages || savedFunctions) {
           const appConfig = savedAppConfig ? JSON.parse(savedAppConfig) : {};
           const pagesConfig = savedPages ? JSON.parse(savedPages) : {};
+          const functionsConfig = savedFunctions ? JSON.parse(savedFunctions) : {};
           
           setConfig({
             appName: appConfig.appName || DEFAULT_CONFIG.appName,
@@ -60,6 +72,14 @@ export default function GerenciarFuncoes() {
               acc[key] = {
                 name: savedPage?.name || DEFAULT_CONFIG.pages[key].name,
                 enabled: savedPage?.enabled !== undefined ? savedPage.enabled : DEFAULT_CONFIG.pages[key].enabled
+              };
+              return acc;
+            }, {}),
+            functions: Object.keys(DEFAULT_CONFIG.functions).reduce((acc, key) => {
+              const savedFunc = functionsConfig[key];
+              acc[key] = {
+                name: savedFunc?.name || DEFAULT_CONFIG.functions[key].name,
+                enabled: savedFunc?.enabled !== undefined ? savedFunc.enabled : DEFAULT_CONFIG.functions[key].enabled
               };
               return acc;
             }, {})
@@ -97,6 +117,19 @@ export default function GerenciarFuncoes() {
     
     localStorage.setItem('app_pages_v2', JSON.stringify(pagesForStorage));
     
+    // Salvar functions config
+    const functionsForStorage = Object.keys(config.functions).reduce((acc, key) => {
+      acc[key] = {
+        name: config.functions[key].name,
+        enabled: config.functions[key].enabled,
+        category: 'Sistema',
+        type: 'function'
+      };
+      return acc;
+    }, {});
+    
+    localStorage.setItem('app_features_v2', JSON.stringify(functionsForStorage));
+    
     // Notificar outras partes do app
     window.dispatchEvent(new Event('storage'));
     window.dispatchEvent(new Event('app_config_updated'));
@@ -128,6 +161,26 @@ export default function GerenciarFuncoes() {
     }));
   };
 
+  const updateFunctionName = (key, newName) => {
+    setConfig(prev => ({
+      ...prev,
+      functions: {
+        ...prev.functions,
+        [key]: { ...prev.functions[key], name: newName }
+      }
+    }));
+  };
+
+  const toggleFunction = (key) => {
+    setConfig(prev => ({
+      ...prev,
+      functions: {
+        ...prev.functions,
+        [key]: { ...prev.functions[key], enabled: !prev.functions[key].enabled }
+      }
+    }));
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
@@ -154,7 +207,15 @@ export default function GerenciarFuncoes() {
 
       <div className="max-w-4xl mx-auto px-4 -mt-4">
         {/* Tabs */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <Button
+            onClick={() => setActiveTab('functions')}
+            variant={activeTab === 'functions' ? 'default' : 'outline'}
+            className={activeTab === 'functions' ? 'bg-blue-600' : 'dark:bg-slate-800 dark:border-slate-700'}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Funções
+          </Button>
           <Button
             onClick={() => setActiveTab('pages')}
             variant={activeTab === 'pages' ? 'default' : 'outline'}
@@ -172,6 +233,31 @@ export default function GerenciarFuncoes() {
             Identidade
           </Button>
         </div>
+
+        {/* Funções Tab */}
+        {activeTab === 'functions' && (
+          <Card className="dark:bg-slate-800 dark:border-slate-700 mb-4">
+            <CardHeader>
+              <CardTitle className="text-lg dark:text-white">Funcionalidades do App</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {Object.entries(config.functions).map(([key, func]) => (
+                <div key={key} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                  <Switch
+                    checked={func.enabled}
+                    onCheckedChange={() => toggleFunction(key)}
+                  />
+                  <Input
+                    value={func.name}
+                    onChange={(e) => updateFunctionName(key, e.target.value)}
+                    className="flex-1 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                    placeholder="Nome da função"
+                  />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Páginas Tab */}
         {activeTab === 'pages' && (
