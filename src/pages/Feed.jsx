@@ -161,17 +161,17 @@ export default function Feed() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F2EF] pb-20">
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-4 px-4">
+    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
+      <div className="bg-gradient-to-r from-[#1D2226] to-[#383E45] dark:from-slate-800 dark:to-slate-950 pt-6 pb-4 px-4 transition-colors">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold text-white">Feed</h1>
-          <p className="text-white/70 text-sm">Compartilhe e conecte-se</p>
+          <p className="text-white/70 dark:text-slate-300 text-sm">Compartilhe e conecte-se</p>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         {/* Criar Post */}
-        <Card className="rounded-xl">
+        <Card className="rounded-xl dark:bg-slate-800 transition-colors">
           <CardContent className="p-4">
             <div className="flex gap-3">
               <Avatar className="w-10 h-10">
@@ -185,7 +185,7 @@ export default function Feed() {
                   value={novoPost}
                   onChange={(e) => setNovoPost(e.target.value)}
                   placeholder="O que você está pensando?"
-                  className="rounded-lg resize-none min-h-[80px]"
+                  className="rounded-lg resize-none min-h-[80px] dark:bg-slate-700 dark:text-white dark:border-slate-600"
                 />
                 
                 {imagens.length > 0 && (

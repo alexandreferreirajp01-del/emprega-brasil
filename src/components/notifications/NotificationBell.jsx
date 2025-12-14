@@ -195,23 +195,23 @@ export default function NotificationBell({ user }) {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="relative rounded-full hover:bg-slate-100"
+          className="relative rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
         >
-          <Bell className="w-5 h-5 text-[#1D2226]" />
+          <Bell className="w-5 h-5 text-[#1D2226] dark:text-orange-500" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-red-500 dark:bg-orange-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-80 sm:w-96 p-0 max-h-[80vh] flex flex-col" 
+        className="w-80 sm:w-96 p-0 max-h-[80vh] flex flex-col dark:bg-slate-800 dark:border-slate-700" 
         align="end"
         sideOffset={8}
       >
-        <div className="p-3 border-b flex items-center justify-between bg-white sticky top-0 z-10">
-          <h3 className="font-semibold text-slate-800">Notificações</h3>
+        <div className="p-3 border-b dark:border-slate-700 flex items-center justify-between bg-white dark:bg-slate-800 sticky top-0 z-10">
+          <h3 className="font-semibold text-slate-800 dark:text-white">Notificações</h3>
           {unreadCount > 0 && (
             <Button 
               variant="ghost" 
@@ -227,12 +227,12 @@ export default function NotificationBell({ user }) {
 
         <ScrollArea className="flex-1 max-h-[400px] overflow-y-auto">
           {uniqueNotifications.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">
+            <div className="p-8 text-center text-slate-400 dark:text-slate-500">
               <Bell className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p className="text-sm">Nenhuma notificação</p>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y dark:divide-slate-700">
               {uniqueNotifications.slice(0, 30).map((notification) => {
                 const redirectUrl = getRedirectUrl(notification);
                 const isClickable = !!redirectUrl;
@@ -241,7 +241,7 @@ export default function NotificationBell({ user }) {
                   <button
                     key={notification.id}
                     onClick={() => isClickable && handleNotificationClick(notification)}
-                    className={`w-full p-3 transition-colors group text-left ${!notification.is_read ? 'bg-[#0A66C2]/5' : ''} ${isClickable ? 'hover:bg-slate-50 cursor-pointer' : ''}`}
+                    className={`w-full p-3 transition-colors group text-left ${!notification.is_read ? 'bg-[#0A66C2]/5 dark:bg-blue-500/10' : ''} ${isClickable ? 'hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer' : ''}`}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getIconStyle(notification.type)}`}>
@@ -252,13 +252,13 @@ export default function NotificationBell({ user }) {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm text-slate-800 line-clamp-1">
+                        <p className="font-medium text-sm text-slate-800 dark:text-white line-clamp-1">
                           {notification.title}
                         </p>
-                        <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                           {formatTimeAgo(notification.created_date)}
                         </p>
                       </div>
@@ -282,10 +282,10 @@ export default function NotificationBell({ user }) {
         </ScrollArea>
 
         {uniqueNotifications.length > 0 && (
-          <div className="p-2 border-t bg-white sticky bottom-0">
+          <div className="p-2 border-t dark:border-slate-700 bg-white dark:bg-slate-800 sticky bottom-0">
             <Button 
               variant="ghost" 
-              className="w-full text-[#0A66C2] text-sm"
+              className="w-full text-[#0A66C2] dark:text-blue-400 text-sm"
               onClick={() => {
                 navigate(createPageUrl('Notifications'));
                 setOpen(false);

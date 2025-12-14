@@ -67,17 +67,17 @@ export default function Utilidades() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F2EF] pb-20">
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-4 px-4">
+    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
+      <div className="bg-gradient-to-r from-[#1D2226] to-[#383E45] dark:from-slate-800 dark:to-slate-950 pt-6 pb-4 px-4 transition-colors">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold text-white">Utilidades</h1>
-          <p className="text-white/70 text-sm">Recursos profissionais para sua carreira</p>
+          <p className="text-white/70 dark:text-slate-300 text-sm">Recursos profissionais para sua carreira</p>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-4">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="w-full bg-white shadow rounded-xl p-1 grid grid-cols-2">
+          <TabsList className="w-full bg-white dark:bg-slate-800 shadow rounded-xl p-1 grid grid-cols-2 transition-colors">
             <TabsTrigger value="biblioteca" className="rounded-lg data-[state=active]:bg-[#0A66C2] data-[state=active]:text-white">
               <BookOpen className="w-4 h-4 mr-2" />
               Biblioteca

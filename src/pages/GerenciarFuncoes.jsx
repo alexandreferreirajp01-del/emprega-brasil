@@ -14,16 +14,42 @@ import { toast } from "sonner";
 const MASTER_PASSWORD = "Vagas2026#";
 
 const availableFunctions = [
-  { id: 'dark_mode', name: 'Modo Claro/Escuro', description: 'Permite alternar entre tema claro e escuro', icon: Moon },
-  { id: 'push_notifications', name: 'Notificações Push', description: 'Notificações no navegador', icon: '🔔' },
-  { id: 'whatsapp_groups', name: 'Grupos WhatsApp', description: 'Acesso aos grupos do WhatsApp', icon: '💬' },
-  { id: 'job_favorites', name: 'Vagas Favoritas', description: 'Salvar vagas como favoritas', icon: '❤️' },
-  { id: 'job_history', name: 'Histórico de Vagas', description: 'Visualizar vagas já vistas', icon: '📋' },
-  { id: 'feed', name: 'Feed Social', description: 'Posts e interações da comunidade', icon: '📱' },
-  { id: 'news', name: 'Notícias', description: 'Seção de notícias e artigos', icon: '📰' },
-  { id: 'biblioteca', name: 'Biblioteca', description: 'Materiais e recursos profissionais', icon: '📚' },
-  { id: 'chat_support', name: 'Chat de Suporte', description: 'Chat com administradores', icon: '💬' },
-  { id: 'premium_features', name: 'Recursos Premium', description: 'Acesso a vagas exclusivas Premium', icon: '👑' },
+  // Sistema
+  { id: 'dark_mode', name: 'Modo Claro/Escuro', description: 'Alternar tema', icon: Moon, category: 'Sistema' },
+  { id: 'push_notifications', name: 'Notificações Push', description: 'Notificações no navegador', icon: '🔔', category: 'Sistema' },
+  
+  // Conteúdo Principal
+  { id: 'job_search', name: 'Buscar Vagas', description: 'Página de busca de vagas', icon: '🔍', category: 'Vagas' },
+  { id: 'job_filters', name: 'Filtros de Vagas', description: 'Filtrar por cidade, categoria, tipo', icon: '🎯', category: 'Vagas' },
+  { id: 'job_favorites', name: 'Vagas Favoritas', description: 'Salvar vagas favoritas', icon: '❤️', category: 'Vagas' },
+  { id: 'job_history', name: 'Histórico de Vagas', description: 'Vagas visualizadas', icon: '📋', category: 'Vagas' },
+  { id: 'job_share', name: 'Compartilhar Vagas', description: 'Compartilhar por WhatsApp', icon: '📤', category: 'Vagas' },
+  
+  // Social
+  { id: 'feed', name: 'Feed Social', description: 'Posts da comunidade', icon: '📱', category: 'Social' },
+  { id: 'feed_comments', name: 'Comentários no Feed', description: 'Comentar em posts', icon: '💬', category: 'Social' },
+  { id: 'direct_messages', name: 'Mensagens Diretas', description: 'Chat entre usuários', icon: '✉️', category: 'Social' },
+  { id: 'whatsapp_groups', name: 'Grupos WhatsApp', description: 'Grupos de vagas', icon: '💚', category: 'Social' },
+  
+  // Conteúdo
+  { id: 'news', name: 'Notícias', description: 'Artigos e notícias', icon: '📰', category: 'Conteúdo' },
+  { id: 'biblioteca', name: 'Biblioteca', description: 'E-books e materiais', icon: '📚', category: 'Conteúdo' },
+  { id: 'utilidades_tools', name: 'Ferramentas Utilidades', description: 'Currículo, carta, simulador', icon: '🛠️', category: 'Conteúdo' },
+  
+  // Premium
+  { id: 'premium_jobs', name: 'Vagas Premium', description: 'Vagas exclusivas', icon: '👑', category: 'Premium' },
+  { id: 'premium_curriculum', name: 'Currículos Premium', description: 'Criar e gerenciar currículos', icon: '📝', category: 'Premium' },
+  { id: 'recruiter_area', name: 'Área do Recrutador', description: 'Painel para recrutadores', icon: '💼', category: 'Premium' },
+  
+  // Suporte
+  { id: 'chat_support', name: 'Chat de Suporte', description: 'Falar com admin', icon: '🆘', category: 'Suporte' },
+  { id: 'report_system', name: 'Sistema de Denúncias', description: 'Reportar conteúdo', icon: '🚫', category: 'Suporte' },
+  
+  // Admin
+  { id: 'analytics', name: 'Analytics', description: 'Estatísticas do app', icon: '📊', category: 'Admin' },
+  { id: 'user_management', name: 'Gerenciar Usuários', description: 'Aprovar e gerenciar', icon: '👥', category: 'Admin' },
+  { id: 'job_management', name: 'Gerenciar Vagas', description: 'Editar e excluir vagas', icon: '⚙️', category: 'Admin' },
+  { id: 'broadcast', name: 'Lista de Transmissão', description: 'Enviar mensagens em massa', icon: '📢', category: 'Admin' },
 ];
 
 export default function GerenciarFuncoes() {
@@ -197,36 +223,49 @@ export default function GerenciarFuncoes() {
 
             <Card className="rounded-2xl overflow-hidden dark:bg-slate-800 transition-colors">
               <CardContent className="p-0">
-                {availableFunctions.map((fn, index) => {
-                  const isLast = index === availableFunctions.length - 1;
-                  const Icon = fn.icon;
-                  
-                  return (
-                    <div
-                      key={fn.id}
-                      className={`flex items-center justify-between p-4 ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}
-                    >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        {typeof Icon === 'string' ? (
-                          <div className="text-2xl flex-shrink-0">{Icon}</div>
-                        ) : (
-                          <div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Icon className="w-5 h-5 text-slate-600 dark:text-slate-300" />
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-slate-800 dark:text-white text-sm">{fn.name}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{fn.description}</p>
+                {(() => {
+                  const categories = [...new Set(availableFunctions.map(f => f.category))];
+                  return categories.map((category) => {
+                    const funcsInCategory = availableFunctions.filter(f => f.category === category);
+                    return (
+                      <div key={category}>
+                        <div className="px-4 py-2 bg-slate-100 dark:bg-slate-700/50 border-b dark:border-slate-600">
+                          <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">{category}</p>
                         </div>
+                        {funcsInCategory.map((fn, index) => {
+                          const isLast = index === funcsInCategory.length - 1;
+                          const Icon = fn.icon;
+                  
+                          return (
+                            <div
+                              key={fn.id}
+                              className={`flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}
+                            >
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                {typeof Icon === 'string' ? (
+                                  <div className="text-2xl flex-shrink-0">{Icon}</div>
+                                ) : (
+                                  <div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <Icon className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-slate-800 dark:text-white text-sm">{fn.name}</p>
+                                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{fn.description}</p>
+                                </div>
+                              </div>
+                              <Switch
+                                checked={functions[fn.id] !== false}
+                                onCheckedChange={() => handleToggle(fn.id)}
+                                className="flex-shrink-0"
+                              />
+                            </div>
+                          );
+                        })}
                       </div>
-                      <Switch
-                        checked={functions[fn.id] !== false}
-                        onCheckedChange={() => handleToggle(fn.id)}
-                        className="flex-shrink-0"
-                      />
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </CardContent>
             </Card>
 
