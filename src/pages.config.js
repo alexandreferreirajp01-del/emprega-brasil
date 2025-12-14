@@ -57,6 +57,7 @@ import Notifications from './pages/Notifications';
 import Subscription from './pages/Subscription';
 import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPrecos from './pages/GerenciarPrecos';
+import GerenciarCores from './pages/GerenciarCores';
 import __Layout from './Layout.jsx';
 
 
@@ -120,6 +121,7 @@ export const PAGES = {
     "Subscription": Subscription,
     "GerenciarPlanos": GerenciarPlanos,
     "GerenciarPrecos": GerenciarPrecos,
+    "GerenciarCores": GerenciarCores,
 }
 
 export const pagesConfig = {
