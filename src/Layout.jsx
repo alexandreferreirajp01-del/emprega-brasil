@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
-        Home, Briefcase, User, Menu, X, 
-        LogOut, Newspaper, Users, MessageCircle, Moon, Sun
-      } from "lucide-react";
+          Home, Briefcase, User, Menu, X, 
+          LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings
+        } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -187,14 +187,31 @@ export default function Layout({ children, currentPageName }) {
   // Verificar se pode usar currículo (apenas Premium)
   const canUseResume = user?.subscription_type === 'premium';
 
-  // Menu principal limpo - apenas itens básicos
-      const navItems = [
-        { name: 'Início', icon: Home, page: 'Home' },
+  // Menu principal - buscar nomes customizados
+      const getNavItems = () => {
+        const defaultItems = [
+          { name: 'Início', icon: Home, page: 'Home' },
           { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-          { name: 'Utilidades', icon: Briefcase, page: 'Utilidades' },
+          { name: 'Utilidades', icon: Settings, page: 'Utilidades' },
           { name: 'Feed', icon: MessageCircle, page: 'Feed' },
           { name: 'Perfil', icon: User, page: 'Profile' },
-      ];
+        ];
+
+        try {
+          const pages = JSON.parse(localStorage.getItem('app_pages_v2') || '{}');
+          return defaultItems.map(item => {
+            const pageKey = `page_${item.page.toLowerCase()}`;
+            if (pages[pageKey] && pages[pageKey].name) {
+              return { ...item, name: pages[pageKey].name };
+            }
+            return item;
+          });
+        } catch (e) {
+          return defaultItems;
+        }
+      };
+
+      const navItems = getNavItems();
 
   const handleLogout = () => {
     localStorage.clear();
@@ -592,34 +609,20 @@ export default function Layout({ children, currentPageName }) {
       {/* Bottom Navigation (Mobile) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 shadow-lg z-40 safe-area-bottom transition-colors" translate="no">
         <div className="flex items-center justify-around h-16 pb-safe">
-          {navItems.slice(0, 5).map((item) => {
-            // Buscar nome customizado das páginas
-            let displayName = item.name;
-            try {
-              const pages = JSON.parse(localStorage.getItem('app_pages_v2') || '{}');
-              const pageKey = `page_${item.page.toLowerCase()}`;
-              if (pages[pageKey] && pages[pageKey].name) {
-                displayName = pages[pageKey].name;
-              }
-            } catch (e) {
-              // Usar nome padrão
-            }
-
-            return (
+          {navItems.slice(0, 5).map((item) => (
             <Link 
               key={item.page} 
               to={createPageUrl(item.page)}
               className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 transition-colors ${
                 currentPageName === item.page ? 'text-[#0A66C2] dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
               }`}
-              >
+            >
               <item.icon className="w-5 h-5 mb-0.5 flex-shrink-0" />
-              <span className="text-[10px] truncate max-w-full">{displayName}</span>
-              </Link>
-              );
-              })}
-              </div>
-              </nav>
+              <span className="text-[10px] truncate max-w-full">{item.name}</span>
+            </Link>
+          ))}
+        </div>
+      </nav>
 
       {/* Floating Buttons */}
       <FloatingButtons />
