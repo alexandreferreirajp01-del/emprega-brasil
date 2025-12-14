@@ -34,10 +34,51 @@ export default function Layout({ children, currentPageName }) {
     if (savedTheme === 'dark') {
       setDarkMode(true);
       document.documentElement.classList.add('dark');
+      // Mudar cor da barra de endereços para dark
+      updateThemeColor('#0f172a'); // slate-900
     } else {
       document.documentElement.classList.remove('dark');
+      // Mudar cor da barra de endereços para light
+      updateThemeColor('#FFFFFF');
     }
   }, []);
+
+  // Função para atualizar a cor da barra de endereços
+  const updateThemeColor = (color) => {
+    // Atualizar ou criar meta tag theme-color
+    let metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (!metaTheme) {
+      metaTheme = document.createElement('meta');
+      metaTheme.setAttribute('name', 'theme-color');
+      document.head.appendChild(metaTheme);
+    }
+    metaTheme.setAttribute('content', color);
+
+    // Atualizar meta tags para diferentes modos
+    let metaThemeLight = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]');
+    if (!metaThemeLight) {
+      metaThemeLight = document.createElement('meta');
+      metaThemeLight.setAttribute('name', 'theme-color');
+      metaThemeLight.setAttribute('media', '(prefers-color-scheme: light)');
+      document.head.appendChild(metaThemeLight);
+    }
+    
+    let metaThemeDark = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]');
+    if (!metaThemeDark) {
+      metaThemeDark = document.createElement('meta');
+      metaThemeDark.setAttribute('name', 'theme-color');
+      metaThemeDark.setAttribute('media', '(prefers-color-scheme: dark)');
+      document.head.appendChild(metaThemeDark);
+    }
+    
+    if (color === '#0f172a') {
+      metaThemeLight.setAttribute('content', '#FFFFFF');
+      metaThemeDark.setAttribute('content', '#0f172a');
+    } else {
+      metaThemeLight.setAttribute('content', '#FFFFFF');
+      metaThemeDark.setAttribute('content', '#0f172a');
+    }
+  };
 
   // Alternar tema
   const toggleTheme = () => {
@@ -46,9 +87,11 @@ export default function Layout({ children, currentPageName }) {
     if (newMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
+      updateThemeColor('#0f172a'); // slate-900
     } else {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
+      updateThemeColor('#FFFFFF');
     }
   };
 
