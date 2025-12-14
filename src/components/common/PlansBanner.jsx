@@ -42,16 +42,23 @@ export default function PlansBanner() {
         <div className={`grid ${plans.length === 3 ? 'grid-cols-3' : plans.length === 2 ? 'grid-cols-2' : 'grid-cols-1'} gap-2 mb-4`}>
           {plans.map((plan, idx) => {
             const isBlack = plan.color?.includes('slate-900') || plan.color?.includes('black');
+            const hasCustomGradient = plan.custom_gradient_start && plan.custom_gradient_end;
+            
             return (
               <div 
                 key={plan.id}
                 className={`${
-                  isBlack 
-                    ? 'bg-gradient-to-br from-purple-700 to-purple-900' 
-                    : idx === 1 
-                    ? 'bg-white/30 backdrop-blur-sm border-2 border-yellow-300' 
-                    : 'bg-white/20 backdrop-blur-sm'
+                  !hasCustomGradient ? (
+                    isBlack 
+                      ? 'bg-gradient-to-br from-purple-700 to-purple-900' 
+                      : idx === 1 
+                      ? 'bg-white/30 backdrop-blur-sm border-2 border-yellow-300' 
+                      : 'bg-white/20 backdrop-blur-sm'
+                  ) : ''
                 } rounded-lg p-3 text-center`}
+                style={hasCustomGradient ? {
+                  background: `linear-gradient(to bottom right, ${plan.custom_gradient_start}, ${plan.custom_gradient_end})`
+                } : {}}
               >
                 <div className={`${isBlack ? 'text-purple-200' : idx === 1 ? 'text-yellow-200' : 'text-white/90'} text-xs mb-1 flex items-center justify-center gap-1`}>
                   {plan.is_featured && <Star className="w-2.5 h-2.5" />}

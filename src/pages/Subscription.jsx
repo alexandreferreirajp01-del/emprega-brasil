@@ -88,15 +88,28 @@ export default function Subscription() {
           {plans.map((plan) => {
             const Icon = ICON_MAP[plan.icon] || Crown;
             const isBlack = plan.color?.includes('slate-900') || plan.color?.includes('black');
+            const hasCustomGradient = plan.custom_gradient_start && plan.custom_gradient_end;
+            const hasCustomBadge = plan.custom_badge_bg && plan.custom_badge_text;
             
             return (
               <Card 
                 key={plan.id} 
                 className={`shadow-xl rounded-2xl overflow-hidden border-0 ${isBlack ? 'bg-gradient-to-br from-slate-900 to-black text-white' : 'bg-white'} hover:shadow-2xl transition-all ${plan.is_featured ? 'ring-2 ring-blue-400' : ''}`}
               >
-                <div className={`bg-gradient-to-br ${plan.color} p-4 text-center relative`}>
+                <div 
+                  className={`p-4 text-center relative ${!hasCustomGradient ? `bg-gradient-to-br ${plan.color}` : ''}`}
+                  style={hasCustomGradient ? {
+                    background: `linear-gradient(to bottom right, ${plan.custom_gradient_start}, ${plan.custom_gradient_end})`
+                  } : {}}
+                >
                   {plan.badge_text && (
-                    <Badge className={`absolute top-2 right-2 ${plan.badge_color} border-0 text-xs font-bold px-2 py-0.5`}>
+                    <Badge 
+                      className={`absolute top-2 right-2 border-0 text-xs font-bold px-2 py-0.5 ${!hasCustomBadge ? plan.badge_color : ''}`}
+                      style={hasCustomBadge ? {
+                        backgroundColor: plan.custom_badge_bg,
+                        color: plan.custom_badge_text
+                      } : {}}
+                    >
                       {plan.badge_text}
                     </Badge>
                   )}
@@ -134,13 +147,16 @@ export default function Subscription() {
 
                   <button
                     onClick={() => handlePlanClick(plan)}
-                    className={`w-full h-10 ${
+                    className={`w-full h-10 text-white text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
                       isBlack 
                         ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800' 
                         : plan.billing_cycle === 'free'
                         ? 'bg-slate-600 hover:bg-slate-700'
-                        : `bg-gradient-to-r ${plan.color} hover:opacity-90`
-                    } text-white text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2`}
+                        : !hasCustomGradient ? `bg-gradient-to-r ${plan.color} hover:opacity-90` : ''
+                    }`}
+                    style={hasCustomGradient && !isBlack && plan.billing_cycle !== 'free' ? {
+                      background: `linear-gradient(to right, ${plan.custom_gradient_start}, ${plan.custom_gradient_end})`
+                    } : {}}
                   >
                     <MessageCircle className="w-4 h-4" />
                     {plan.billing_cycle === 'free' ? 'Usar Plano Gratuito' : `Quero ${plan.name.split(' ')[0]}`}

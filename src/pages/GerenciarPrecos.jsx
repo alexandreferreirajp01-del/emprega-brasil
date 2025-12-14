@@ -15,6 +15,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import PlanosManual from "@/components/admin/PlanosManual";
+import ColorPickerModal from "@/components/admin/ColorPickerModal";
 
 const ICON_OPTIONS = [
   { value: 'Crown', label: 'Coroa', component: Crown },
@@ -31,6 +32,7 @@ export default function GerenciarPrecos() {
   const [editingPlan, setEditingPlan] = useState(null);
   const [formData, setFormData] = useState({});
   const [showManual, setShowManual] = useState(false);
+  const [colorPickerMode, setColorPickerMode] = useState(null);
   const queryClient = useQueryClient();
 
   const showToast = (message, type = 'success') => {
@@ -118,6 +120,10 @@ export default function GerenciarPrecos() {
       features: '',
       icon: 'Crown',
       color: 'from-blue-600 to-blue-700',
+      custom_gradient_start: '#2563eb',
+      custom_gradient_end: '#1d4ed8',
+      custom_badge_bg: '#fbbf24',
+      custom_badge_text: '#78350f',
       whatsapp_message: '',
       is_active: true,
       is_featured: false,
@@ -126,6 +132,23 @@ export default function GerenciarPrecos() {
       badge_color: 'bg-yellow-400 text-yellow-900'
     });
     setEditDialog(true);
+  };
+
+  const handleColorSave = (colors) => {
+    if (colorPickerMode === 'gradient') {
+      setFormData({
+        ...formData,
+        custom_gradient_start: colors.gradientStart,
+        custom_gradient_end: colors.gradientEnd
+      });
+    } else if (colorPickerMode === 'badge') {
+      setFormData({
+        ...formData,
+        custom_badge_bg: colors.badgeBg,
+        custom_badge_text: colors.badgeText
+      });
+    }
+    setColorPickerMode(null);
   };
 
   const handleSave = () => {
@@ -232,11 +255,19 @@ export default function GerenciarPrecos() {
         ) : (
           plans.map((plan) => {
             const Icon = getIcon(plan.icon);
+            const hasCustomGradient = plan.custom_gradient_start && plan.custom_gradient_end;
+            const hasCustomBadge = plan.custom_badge_bg && plan.custom_badge_text;
+            
             return (
               <Card key={plan.id} className="rounded-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${plan.color} flex items-center justify-center flex-shrink-0`}>
+                    <div 
+                      className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${!hasCustomGradient ? `bg-gradient-to-br ${plan.color}` : ''}`}
+                      style={hasCustomGradient ? {
+                        background: `linear-gradient(to bottom right, ${plan.custom_gradient_start}, ${plan.custom_gradient_end})`
+                      } : {}}
+                    >
                       <Icon className="w-7 h-7 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -254,7 +285,14 @@ export default function GerenciarPrecos() {
                               </Badge>
                             )}
                             {plan.badge_text && (
-                              <Badge className={plan.badge_color}>
+                              <Badge 
+                                className={!hasCustomBadge ? plan.badge_color : ''}
+                                style={hasCustomBadge ? {
+                                  backgroundColor: plan.custom_badge_bg,
+                                  color: plan.custom_badge_text,
+                                  border: 'none'
+                                } : {}}
+                              >
                                 {plan.badge_text}
                               </Badge>
                             )}
@@ -380,7 +418,7 @@ export default function GerenciarPrecos() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Ícone</label>
                 <Select
@@ -397,14 +435,32 @@ export default function GerenciarPrecos() {
                   </SelectContent>
                 </Select>
               </div>
+
               <div>
-                <label className="text-sm font-medium mb-2 block">Cor (Gradiente)</label>
-                <Input
-                  value={formData.color || ''}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  placeholder="from-blue-600 to-blue-700"
-                  className="rounded-lg"
-                />
+                <label className="text-sm font-medium mb-2 block">Cor do Plano (Gradiente)</label>
+                <div className="space-y-2">
+                  <Button
+                    type="button"
+                    onClick={() => setColorPickerMode('gradient')}
+                    className="w-full h-20 rounded-xl text-white font-semibold shadow-lg hover:scale-105 transition-transform"
+                    style={{
+                      background: `linear-gradient(to right, ${formData.custom_gradient_start || '#2563eb'}, ${formData.custom_gradient_end || '#1d4ed8'})`
+                    }}
+                  >
+                    <Palette className="w-5 h-5 mr-2" />
+                    Escolher Cores do Gradiente
+                  </Button>
+                  <div className="flex gap-2 text-xs">
+                    <div className="flex-1 bg-slate-50 rounded p-2">
+                      <p className="text-slate-500 mb-1">Início</p>
+                      <p className="font-mono font-semibold text-slate-700">{formData.custom_gradient_start || '#2563eb'}</p>
+                    </div>
+                    <div className="flex-1 bg-slate-50 rounded p-2">
+                      <p className="text-slate-500 mb-1">Fim</p>
+                      <p className="font-mono font-semibold text-slate-700">{formData.custom_gradient_end || '#1d4ed8'}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -431,7 +487,7 @@ export default function GerenciarPrecos() {
               <p className="text-xs text-slate-500 mt-1">Use {'{'}nome{'}'} e {'{'}preco{'}'} para substituir dinamicamente</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Texto do Badge</label>
                 <Input
@@ -443,12 +499,30 @@ export default function GerenciarPrecos() {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Cor do Badge</label>
-                <Input
-                  value={formData.badge_color || ''}
-                  onChange={(e) => setFormData({ ...formData, badge_color: e.target.value })}
-                  placeholder="bg-yellow-400 text-yellow-900"
-                  className="rounded-lg"
-                />
+                <div className="space-y-2">
+                  <Button
+                    type="button"
+                    onClick={() => setColorPickerMode('badge')}
+                    className="w-full h-16 rounded-xl font-semibold shadow-lg hover:scale-105 transition-transform flex items-center justify-center gap-2"
+                    style={{
+                      backgroundColor: formData.custom_badge_bg || '#fbbf24',
+                      color: formData.custom_badge_text || '#78350f'
+                    }}
+                  >
+                    <Tag className="w-5 h-5" />
+                    Escolher Cores do Badge
+                  </Button>
+                  <div className="flex gap-2 text-xs">
+                    <div className="flex-1 bg-slate-50 rounded p-2">
+                      <p className="text-slate-500 mb-1">Fundo</p>
+                      <p className="font-mono font-semibold text-slate-700">{formData.custom_badge_bg || '#fbbf24'}</p>
+                    </div>
+                    <div className="flex-1 bg-slate-50 rounded p-2">
+                      <p className="text-slate-500 mb-1">Texto</p>
+                      <p className="font-mono font-semibold text-slate-700">{formData.custom_badge_text || '#78350f'}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -503,6 +577,20 @@ export default function GerenciarPrecos() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Color Picker Modal */}
+      <ColorPickerModal
+        isOpen={colorPickerMode !== null}
+        onClose={() => setColorPickerMode(null)}
+        mode={colorPickerMode}
+        onSave={handleColorSave}
+        initialColors={{
+          gradientStart: formData.custom_gradient_start,
+          gradientEnd: formData.custom_gradient_end,
+          badgeBg: formData.custom_badge_bg,
+          badgeText: formData.custom_badge_text
+        }}
+      />
     </div>
   );
 }
