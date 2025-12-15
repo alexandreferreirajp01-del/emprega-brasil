@@ -69,21 +69,24 @@ export default function VagasConverter() {
       // Montar prompt base
       let prompt = `Analise ${uploadedImage && pastedText ? 'esta imagem e o texto fornecido' : uploadedImage ? 'esta imagem' : 'o texto fornecido'} de vaga de emprego e extraia TODAS as informações.
         
-        
 ${pastedText ? `\n\nTEXTO DA VAGA:\n${pastedText}\n` : ''}
         
-        Retorne um JSON com:
-        - cargo: string (título da vaga, sempre em MAIÚSCULAS)
-        - empresa: string (nome da empresa se houver)
-        - local: string (cidade/local se houver)
-        - tipo: string (CLT, PJ, Home Office, etc se houver)
-        - salario: string (faixa salarial se houver)
-        - requisitos: array de strings (lista de requisitos)
-        - beneficios: array de strings (lista de benefícios)
-        - descricao: string (descrição geral se houver)
-        - contato: string (email, telefone, WhatsApp, etc)
-        
-        Seja preciso e capture TODOS os detalhes.`,
+Retorne um JSON com:
+- cargo: string (título da vaga, sempre em MAIÚSCULAS)
+- empresa: string (nome da empresa se houver)
+- local: string (cidade/local se houver)
+- tipo: string (CLT, PJ, Home Office, etc se houver)
+- salario: string (faixa salarial se houver)
+- requisitos: array de strings (lista de requisitos)
+- beneficios: array de strings (lista de benefícios)
+- descricao: string (descrição geral se houver)
+- contato: string (email, telefone, WhatsApp, etc)
+
+Seja preciso e capture TODOS os detalhes.`;
+
+      // Extrair dados com IA
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
         file_urls: file_url ? [file_url] : undefined,
         response_json_schema: {
           type: 'object',
