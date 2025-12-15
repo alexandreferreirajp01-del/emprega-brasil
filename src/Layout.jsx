@@ -11,6 +11,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingButtons from "@/components/common/FloatingButtons";
 import NativePermissionModal from "@/components/common/NativePermissionModal";
 import PushManager from "@/components/push/PushManager";
+import PopupManager from "@/components/common/PopupManager";
 import ServiceWorkerManager from "@/components/push/ServiceWorkerManager";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import ApplyBasicPermissions from "@/components/common/ApplyBasicPermissions";
@@ -382,38 +383,17 @@ export default function Layout({ children, currentPageName }) {
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
               <div className="w-12 h-12 flex items-center justify-center">
                 <img 
-                  src={(() => {
-                    try {
-                      const config = JSON.parse(localStorage.getItem('app_config_v2') || '{}');
-                      return config.logoUrl || 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg';
-                    } catch {
-                      return 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg';
-                    }
-                  })()} 
-                  alt="Logo" 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png" 
+                  alt="Emprega Brasil+" 
                   className="w-full h-full object-contain"
                 />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl md:text-2xl font-bold text-[#1D2226] dark:text-white leading-tight transition-colors">
-                  {(() => {
-                    try {
-                      const config = JSON.parse(localStorage.getItem('app_config_v2') || '{}');
-                      return config.appName || 'Vagas Abertas';
-                    } catch {
-                      return 'Vagas Abertas';
-                    }
-                  })()}
+                  Emprega Brasil+
                 </span>
                 <span className="text-sm text-[#0A66C2] dark:text-blue-400 font-medium transition-colors">
-                  {(() => {
-                    try {
-                      const config = JSON.parse(localStorage.getItem('app_config_v2') || '{}');
-                      return config.appSubtitle || 'Paraíba';
-                    } catch {
-                      return 'Paraíba';
-                    }
-                  })()}
+                  Oportunidades em Todo o Brasil
                 </span>
               </div>
             </Link>
@@ -622,9 +602,9 @@ export default function Layout({ children, currentPageName }) {
           {/* Bottom Bar */}
           <div className="border-t border-slate-700 pt-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
-              <p>© {new Date().getFullYear()} Vagas Abertas Paraíba. Todos os direitos reservados.</p>
+              <p>© {new Date().getFullYear()} Emprega Brasil+. Todos os direitos reservados.</p>
               <div className="flex items-center gap-4">
-                <span>Made with ❤️ in Paraíba</span>
+                <span>Made with ❤️ no Brasil</span>
               </div>
             </div>
           </div>
@@ -654,6 +634,9 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Cookie Consent */}
       <CookieConsent />
+
+      {/* Popup Manager */}
+      <PopupManager />
       </div>
       );
       }

@@ -158,16 +158,23 @@ export default function Splash() {
   // Tela de carregamento
   if (status === 'checking') {
     return (
-      <div className="min-h-screen bg-[#0A66C2] flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-white animate-spin mb-4" />
-        <p className="text-white/80 text-sm font-medium">Carregando...</p>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+        <div className="w-32 h-32 mb-6 animate-pulse">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png"
+            alt="Emprega Brasil+"
+            className="w-full h-full object-contain"
+          />
+        </div>
+        <Loader2 className="w-12 h-12 text-[#0A66C2] animate-spin mb-4" />
+        <p className="text-slate-600 text-sm font-medium">Carregando...</p>
       </div>
     );
   }
 
   // Tela de login
   return (
-    <div className="min-h-screen bg-[#0A66C2] dark:bg-slate-900 flex flex-col items-center justify-start pt-12 px-4 pb-8 transition-colors">
+    <div className="min-h-screen bg-white dark:bg-slate-900 flex flex-col items-center justify-start pt-12 px-4 pb-8 transition-colors">
       {/* Botão Voltar */}
       <div className="w-full max-w-md mb-4">
         <Button
@@ -176,25 +183,25 @@ export default function Splash() {
             sessionStorage.removeItem('needs_login');
             window.location.href = createPageUrl('Home');
           }}
-          className="text-white hover:bg-white/10 -ml-2"
+          className="text-slate-600 hover:bg-slate-100 -ml-2"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
           Voltar para Início
         </Button>
       </div>
-      
+
       {/* Logo e Nome */}
       <div className="text-center mb-8">
-        <div className="w-20 h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-4">
+        <div className="w-32 h-32 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-6 p-4">
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg" 
-            alt="Logo" 
-            className="w-16 h-16 object-contain rounded-xl"
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png" 
+            alt="Emprega Brasil+" 
+            className="w-full h-full object-contain"
           />
         </div>
-        <h1 className="text-3xl font-bold text-white mb-1">Vagas Abertas</h1>
-        <p className="text-white/80 text-lg">Paraíba</p>
-        <p className="text-white/60 text-sm mt-2">Encontre sua próxima oportunidade</p>
+        <h1 className="text-4xl font-bold text-[#0A66C2] mb-2">Emprega Brasil+</h1>
+        <p className="text-slate-600 text-lg">Oportunidades em Todo o Brasil</p>
+        <p className="text-slate-500 text-sm mt-2">Encontre sua próxima oportunidade</p>
         </div>
 
       {/* Card de Login */}
@@ -233,17 +240,17 @@ export default function Splash() {
             )}
 
             {/* Botão Entrar */}
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl text-base font-semibold"
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                'Entrar'
-              )}
-            </Button>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 bg-[#0A66C2] text-white hover:bg-[#004182] rounded-xl text-base font-semibold"
+              >
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  'Entrar'
+                )}
+              </Button>
           </form>
 
           {/* Divisor */}
@@ -285,7 +292,7 @@ export default function Splash() {
           <Link to={createPageUrl('Register')}>
             <Button
               type="button"
-              className="w-full h-12 rounded-xl bg-white text-[#0A66C2] hover:bg-white/90 text-base font-semibold"
+              className="w-full h-12 rounded-xl bg-slate-100 text-[#0A66C2] hover:bg-slate-200 text-base font-semibold"
             >
               Criar Cadastro
             </Button>
@@ -306,8 +313,8 @@ export default function Splash() {
       </Card>
 
       {/* Footer */}
-      <p className="text-white/70 text-xs mt-8 text-center">
-        © {new Date().getFullYear()} Vagas Abertas Paraíba
+      <p className="text-slate-500 text-xs mt-8 text-center">
+        © {new Date().getFullYear()} Emprega Brasil+
       </p>
     </div>
   );
