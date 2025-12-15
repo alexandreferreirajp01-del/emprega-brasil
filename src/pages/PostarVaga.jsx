@@ -90,9 +90,30 @@ export default function PostarVaga() {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setFormData(prev => ({ ...prev, image_url: file_url }));
       
+      // Primeiro: detectar e extrair QR Code
+      let qrCodeLink = null;
+      try {
+        const qrResult = await base44.integrations.Core.InvokeLLM({
+          prompt: `Esta imagem contém QR Code? Se sim, extraia o link/URL do QR Code. Se não, retorne null.`,
+          file_urls: [file_url],
+          response_json_schema: {
+            type: "object",
+            properties: {
+              has_qrcode: { type: "boolean" },
+              qrcode_link: { type: "string" }
+            }
+          }
+        });
+        if (qrResult.has_qrcode && qrResult.qrcode_link) {
+          qrCodeLink = qrResult.qrcode_link;
+        }
+      } catch (e) {
+        console.log('Sem QR Code detectado');
+      }
+      
       // Extrair dados com IA
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analise esta imagem de vaga e extraia: título, empresa, função, cidade (Paraíba), descrição, salário, telefone, email, site.`,
+        prompt: `Analise esta imagem de vaga e extraia: título, empresa, função, cidade, descrição, salário, telefone, email, site.${qrCodeLink ? ` (O QR Code aponta para: ${qrCodeLink})` : ''}`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
@@ -109,6 +130,11 @@ export default function PostarVaga() {
           }
         }
       });
+      
+      // Priorizar link do QR Code
+      if (qrCodeLink && !result.website) {
+        result.website = qrCodeLink;
+      }
       
       if (result) {
         // Classificar categoria automaticamente

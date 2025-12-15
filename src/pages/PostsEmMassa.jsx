@@ -63,8 +63,29 @@ export default function PostsEmMassa() {
       for (const img of images) {
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'processing' } : i));
         
+        // Detectar QR Code primeiro
+        let qrCodeLink = null;
+        try {
+          const qrResult = await base44.integrations.Core.InvokeLLM({
+            prompt: `Esta imagem contém QR Code? Se sim, extraia o link/URL. Se não, retorne null.`,
+            file_urls: [img.url],
+            response_json_schema: {
+              type: "object",
+              properties: {
+                has_qrcode: { type: "boolean" },
+                qrcode_link: { type: "string" }
+              }
+            }
+          });
+          if (qrResult.has_qrcode && qrResult.qrcode_link) {
+            qrCodeLink = qrResult.qrcode_link;
+          }
+        } catch (e) {
+          console.log('Sem QR Code');
+        }
+        
         const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `Extraia TODAS as vagas desta imagem: título, empresa, cidade, salário, telefone, link.`,
+          prompt: `Extraia TODAS as vagas desta imagem: título, empresa, cidade, salário, telefone, link.${qrCodeLink ? ` (QR Code aponta para: ${qrCodeLink})` : ''}`,
           file_urls: [img.url],
           response_json_schema: {
             type: "object",
@@ -85,6 +106,13 @@ export default function PostsEmMassa() {
                 }
               }
             }
+          }
+        });
+        
+        // Aplicar link do QR Code se não houver link nas vagas
+        (result.jobs || []).forEach(job => {
+          if (qrCodeLink && !job.application_link) {
+            job.application_link = qrCodeLink;
           }
         });
 
