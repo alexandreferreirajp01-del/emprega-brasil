@@ -204,10 +204,28 @@ export default function Jobs() {
     return () => window.removeEventListener('filters-updated', handleFilterUpdate);
   }, [refetchCategories]);
 
-  // Estados únicos
+  // Estados únicos ordenados por região
   const availableStates = React.useMemo(() => {
     const states = new Set(allCities.map(c => c.state));
-    return Array.from(states).sort();
+    const statesArray = Array.from(states);
+    
+    // Ordem por região: Nordeste (PB, PE, RN, AL, CE, SE, BA, PI, MA), depois resto alfabético
+    const regionalOrder = ['PB', 'PE', 'RN', 'AL', 'CE', 'SE', 'BA', 'PI', 'MA'];
+    const orderedStates = [];
+    
+    // Adicionar estados na ordem regional
+    regionalOrder.forEach(state => {
+      if (statesArray.includes(state)) {
+        orderedStates.push(state);
+      }
+    });
+    
+    // Adicionar estados restantes em ordem alfabética
+    statesArray.filter(s => !regionalOrder.includes(s)).sort().forEach(state => {
+      orderedStates.push(state);
+    });
+    
+    return orderedStates;
   }, [allCities]);
 
   // Cidades filtradas por estado
