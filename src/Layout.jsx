@@ -419,7 +419,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link key={item.page} to={createPageUrl(item.page)}>
                   <Button 
                     variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap transition-colors ${currentPageName === item.page ? 'bg-[#0A66C2]/10 text-[#0A66C2] dark:bg-blue-500/20 dark:text-blue-400' : 'text-[#1D2226] dark:text-slate-200'}`}
+                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap transition-colors ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'text-[#1D2226] dark:text-slate-200'}`}
                   >
                     <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
                     <span>{item.name}</span>
