@@ -74,6 +74,18 @@ Deno.serve(async (req) => {
         };
         break;
 
+      case 'pending_user':
+        notificationData = {
+          title: '👤 Usuário Pendente',
+          message: `${data.user_name || data.user_email} está aguardando aprovação`,
+          type: 'user',
+          reference_type: 'user',
+          reference_id: data.user_email,
+          redirect_page: 'GerenciarUsuarios',
+          icon_url: data.user_photo || null
+        };
+        break;
+
       case 'feed_post':
         notificationData = {
           title: '📝 Nova Postagem no Feed',

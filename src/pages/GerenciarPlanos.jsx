@@ -211,12 +211,12 @@ export default function GerenciarPlanos() {
           {stats.map((stat, i) => (
             <Card key={i}>
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-start justify-between">
                   <div>
                     <p className="text-sm text-slate-500 mb-1">{stat.label}</p>
                     <p className="text-3xl font-bold text-slate-800">{stat.value}</p>
                   </div>
-                  <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center`}>
+                  <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center flex-shrink-0`}>
                     <stat.icon className={`w-6 h-6 ${stat.color}`} />
                   </div>
                 </div>
@@ -358,10 +358,10 @@ export default function GerenciarPlanos() {
             ) : (
               <div className="space-y-3">
                 {filteredSubscriptions.map((sub) => (
-                  <div key={sub.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="flex items-center gap-2">
-                        {getPlanIcon(sub.plan_type)}
+                  <div key={sub.id} className="flex items-start justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                    <div className="flex items-start gap-4 flex-1">
+                      <div className="flex items-start gap-2">
+                        <div className="mt-1">{getPlanIcon(sub.plan_type)}</div>
                         <div>
                           <p className="font-medium text-slate-800">{sub.user_email}</p>
                           <p className="text-sm text-slate-500">{getPlanLabel(sub.plan_type)}</p>
