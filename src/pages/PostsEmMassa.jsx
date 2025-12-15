@@ -7,8 +7,10 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
+import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
 
 export default function PostsEmMassa() {
+  const { getStateFromCity } = useCityStateAutocomplete();
   const [step, setStep] = useState(1);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -87,8 +89,12 @@ export default function PostsEmMassa() {
         });
 
         (result.jobs || []).forEach(job => {
+          // Auto-completar estado baseado na cidade
+          const autoState = job.city ? getStateFromCity(job.city) : null;
+          
           allJobs.push({
             ...job,
+            state: autoState || '',
             image_url: img.url
           });
         });
