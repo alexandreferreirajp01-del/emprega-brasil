@@ -32,33 +32,43 @@ self.addEventListener('push', (event) => {
   let data = {
     title: 'Nova Notificação',
     body: 'Você tem uma atualização',
-    icon: '/icon-192.png',
-    badge: '/icon-72.png',
+    icon: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg',
+    badge: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg',
     tag: 'notification',
     data: { url: '/' }
   };
 
   if (event.data) {
     try {
-      data = event.data.json();
+      const parsed = event.data.json();
+      data = { ...data, ...parsed };
+      console.log('[SW] Dados parseados:', data);
     } catch (e) {
+      console.log('[SW] Erro ao parsear, usando texto:', e);
       data.body = event.data.text();
     }
   }
 
+  console.log('[SW] Mostrando notificação:', data.title);
+
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: data.icon || '/icon-192.png',
-      badge: data.badge || '/icon-72.png',
+      icon: data.icon,
+      badge: data.badge,
       image: data.image,
-      tag: data.tag || 'notification',
+      tag: data.tag || 'vagas-notification',
       renotify: true,
       requireInteraction: false,
       silent: false,
       vibrate: [200, 100, 200],
+      timestamp: Date.now(),
       data: data.data || { url: '/' },
       actions: data.actions || []
+    }).then(() => {
+      console.log('[SW] Notificação exibida com sucesso');
+    }).catch(err => {
+      console.error('[SW] Erro ao exibir notificação:', err);
     })
   );
 });

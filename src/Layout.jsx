@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingButtons from "@/components/common/FloatingButtons";
-import PermissionPrompt from "@/components/common/PermissionPrompt";
+import NativePermissionModal from "@/components/common/NativePermissionModal";
 import PushManager from "@/components/push/PushManager";
 import ServiceWorkerManager from "@/components/push/ServiceWorkerManager";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -284,8 +284,12 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Service Worker Manager - registra SW inline */}
       <ServiceWorkerManager />
-        {/* Aplicar permissões básicas automaticamente */}
-        <ApplyBasicPermissions user={user} />
+
+      {/* Modal Nativo de Permissões */}
+      <NativePermissionModal />
+
+      {/* Aplicar permissões básicas automaticamente */}
+      <ApplyBasicPermissions user={user} />
       {/* PWA/APK Meta Tags - Injeta no head */}
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
