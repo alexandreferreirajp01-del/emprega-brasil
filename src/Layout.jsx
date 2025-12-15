@@ -634,7 +634,7 @@ export default function Layout({ children, currentPageName }) {
               key={item.page} 
               to={createPageUrl(item.page)}
               className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 transition-colors ${
-                currentPageName === item.page ? 'text-[#0A66C2] dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
+                currentPageName === item.page ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'
               }`}
             >
               <item.icon className="w-5 h-5 mb-0.5 flex-shrink-0" />
