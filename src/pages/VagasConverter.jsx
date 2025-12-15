@@ -3,116 +3,81 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Upload, Loader2, Download, Sparkles, Zap, RefreshCw, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Upload, Loader2, Download, Sparkles, RefreshCw, ImageIcon } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import html2canvas from 'html2canvas';
 
 const TEMPLATES = [
-  { id: 'blue-gradient', name: 'Azul Profissional', primary: '#0A66C2', secondary: '#004182', accent: '#FFFFFF' },
-  { id: 'yellow-energy', name: 'Amarelo Energia', primary: '#FDB913', secondary: '#FF8C00', accent: '#1D2226' },
-  { id: 'purple-modern', name: 'Roxo Moderno', primary: '#8B5CF6', secondary: '#6D28D9', accent: '#FFFFFF' },
-  { id: 'green-fresh', name: 'Verde Fresco', primary: '#10B981', secondary: '#047857', accent: '#FFFFFF' },
-  { id: 'red-bold', name: 'Vermelho Forte', primary: '#DC2626', secondary: '#991B1B', accent: '#FFFFFF' },
-  { id: 'teal-calm', name: 'Turquesa Calmo', primary: '#14B8A6', secondary: '#0D9488', accent: '#FFFFFF' },
+  { id: 'blue', name: 'Azul Profissional', bg: '#0A66C2', text: '#FFFFFF' },
+  { id: 'green', name: 'Verde Moderno', bg: '#10B981', text: '#FFFFFF' },
+  { id: 'purple', name: 'Roxo Elegante', bg: '#8B5CF6', text: '#FFFFFF' },
+  { id: 'red', name: 'Vermelho Forte', bg: '#DC2626', text: '#FFFFFF' },
+  { id: 'orange', name: 'Laranja Vibrante', bg: '#F59E0B', text: '#1F2937' },
+  { id: 'teal', name: 'Azul Turquesa', bg: '#14B8A6', text: '#FFFFFF' },
 ];
 
 export default function VagasConverter() {
-  const [step, setStep] = useState('upload'); // upload, extracting, editing, generating, preview
-  const [uploadedImage, setUploadedImage] = useState(null);
-  const [pastedText, setPastedText] = useState('');
-  const [extractedData, setExtractedData] = useState(null);
-  const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[0]);
+  const [step, setStep] = useState('input'); // input, processing, editing, preview
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [textInput, setTextInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState(null);
+  const [jobData, setJobData] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[0]);
+  const [finalImage, setFinalImage] = useState(null);
   const canvasRef = useRef(null);
 
-  // Upload da imagem
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+  // Upload de imagem
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
+    setImageFile(file);
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setUploadedImage(e.target.result);
-    };
+    reader.onloadend = () => setImagePreview(reader.result);
     reader.readAsDataURL(file);
   };
 
-  // Processar extração (imagem e/ou texto)
-  const handleExtract = () => {
-    if (!uploadedImage && !pastedText.trim()) {
-      alert('Envie uma imagem ou cole o texto da vaga');
+  // Processar com IA
+  const handleProcess = async () => {
+    if (!imageFile && !textInput.trim()) {
+      alert('Adicione uma imagem ou texto');
       return;
     }
-    setStep('extracting');
-    extractJobData();
-  };
 
-  // Extrair dados com IA
-  const extractJobData = async () => {
     setLoading(true);
-    
+    setStep('processing');
+
     try {
-      let file_url = null;
-      
-      // Upload da imagem se houver
-      if (uploadedImage) {
-        try {
-          const blob = await fetch(uploadedImage).then(r => r.blob());
-          const file = new File([blob], 'job-image.jpg', { type: 'image/jpeg' });
-          const uploaded = await base44.integrations.Core.UploadFile({ file });
-          file_url = uploaded.file_url;
-        } catch (uploadError) {
-          console.error('Erro no upload:', uploadError);
-          alert('Erro ao fazer upload da imagem. Tente novamente.');
-          setStep('upload');
-          setLoading(false);
-          return;
-        }
+      let uploadedUrl = null;
+
+      // Upload da imagem se existir
+      if (imageFile) {
+        const uploadResult = await base44.integrations.Core.UploadFile({ file: imageFile });
+        uploadedUrl = uploadResult.file_url;
       }
 
-      // Validação mínima
-      if (!file_url && !pastedText.trim()) {
-        alert('Adicione uma imagem ou texto para continuar');
-        setStep('upload');
-        setLoading(false);
-        return;
+      // Preparar prompt
+      let prompt = `Extraia TODAS as informações desta vaga de emprego e retorne em JSON.`;
+      
+      if (textInput.trim()) {
+        prompt += `\n\nTEXTO:\n${textInput}`;
       }
 
-      // Montar prompt
-      const hasImage = !!file_url;
-      const hasText = !!pastedText.trim();
-      
-      let sourceDescription = 'o texto fornecido';
-      if (hasImage && hasText) {
-        sourceDescription = 'esta imagem e o texto fornecido';
-      } else if (hasImage) {
-        sourceDescription = 'esta imagem';
-      }
-
-      let prompt = `Analise ${sourceDescription} de vaga de emprego e extraia TODAS as informações disponíveis.`;
-      
-      if (hasText) {
-        prompt += `\n\nTEXTO DA VAGA:\n${pastedText}`;
-      }
-      
-      prompt += `\n\nRetorne um JSON com os seguintes campos (use string vazia se não encontrar):
-- cargo: título da vaga em MAIÚSCULAS
-- empresa: nome da empresa
-- local: cidade ou local
-- tipo: tipo de contrato (CLT, PJ, Home Office, etc)
+      prompt += `\n\nCampos obrigatórios:
+- cargo: título em MAIÚSCULAS
+- empresa: nome da empresa (vazio se não tiver)
+- local: cidade
+- tipo: CLT/PJ/etc
 - salario: faixa salarial
-- requisitos: lista de requisitos
-- beneficios: lista de benefícios
-- descricao: descrição geral
-- contato: informações de contato (WhatsApp, email, telefone)
-
-Seja preciso e capture todos os detalhes.`;
+- requisitos: array de strings
+- beneficios: array de strings
+- contato: WhatsApp/email/telefone`;
 
       // Chamar IA
-      const params = {
+      const aiParams = {
         prompt,
         response_json_schema: {
           type: 'object',
@@ -124,103 +89,96 @@ Seja preciso e capture todos os detalhes.`;
             salario: { type: 'string' },
             requisitos: { type: 'array', items: { type: 'string' } },
             beneficios: { type: 'array', items: { type: 'string' } },
-            descricao: { type: 'string' },
             contato: { type: 'string' }
           }
         }
       };
 
-      if (file_url) {
-        params.file_urls = [file_url];
+      if (uploadedUrl) {
+        aiParams.file_urls = [uploadedUrl];
       }
 
-      console.log('Chamando IA com params:', params);
-      const result = await base44.integrations.Core.InvokeLLM(params);
-      console.log('Resultado da IA:', result);
+      const result = await base44.integrations.Core.InvokeLLM(aiParams);
 
-      // Verificar se o resultado é válido
-      if (!result) {
-        throw new Error('IA não retornou dados');
-      }
-
-      // Garantir campos obrigatórios
-      const extractedInfo = {
-        cargo: result.cargo || 'VAGA',
-        empresa: result.empresa || '',
-        local: result.local || '',
-        tipo: result.tipo || '',
-        salario: result.salario || '',
-        requisitos: Array.isArray(result.requisitos) ? result.requisitos : [],
-        beneficios: Array.isArray(result.beneficios) ? result.beneficios : [],
-        descricao: result.descricao || '',
-        contato: result.contato || ''
+      // Normalizar resultado
+      const normalizedData = {
+        cargo: (result?.cargo || 'VAGA').toUpperCase(),
+        empresa: result?.empresa || '',
+        local: result?.local || '',
+        tipo: result?.tipo || '',
+        salario: result?.salario || '',
+        requisitos: Array.isArray(result?.requisitos) ? result.requisitos : [],
+        beneficios: Array.isArray(result?.beneficios) ? result.beneficios : [],
+        contato: result?.contato || ''
       };
 
-      console.log('Dados extraídos processados:', extractedInfo);
-      setExtractedData(extractedInfo);
+      setJobData(normalizedData);
       setStep('editing');
-      
     } catch (error) {
-      console.error('Erro na extração:', error);
-      const errorMsg = error.message || 'Erro desconhecido';
-      alert(`Erro ao processar: ${errorMsg}\n\nTente novamente com outra imagem/texto.`);
-      setStep('upload');
+      console.error('Erro:', error);
+      alert('Erro ao processar: ' + (error.message || 'Erro desconhecido'));
+      setStep('input');
     } finally {
       setLoading(false);
     }
   };
 
-  // Gerar imagem
-  const generateImage = async () => {
-    setStep('generating');
+  // Gerar imagem final
+  const handleGenerate = async () => {
+    if (!jobData?.cargo) {
+      alert('Preencha pelo menos o cargo');
+      return;
+    }
+
     setLoading(true);
+    setStep('preview');
 
     try {
-      // Aguardar renderização
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(r => setTimeout(r, 300));
 
       const canvas = await html2canvas(canvasRef.current, {
         scale: 2,
         backgroundColor: null,
         useCORS: true,
-        allowTaint: true,
         logging: false
       });
 
-      const imageUrl = canvas.toDataURL('image/png');
-      setGeneratedImageUrl(imageUrl);
-      setStep('preview');
+      const imageData = canvas.toDataURL('image/png');
+      setFinalImage(imageData);
     } catch (error) {
-      alert('Erro ao gerar imagem: ' + error.message);
+      alert('Erro ao gerar: ' + error.message);
+      setStep('editing');
     } finally {
       setLoading(false);
     }
   };
 
-  // Download da imagem
-  const downloadImage = () => {
+  // Download
+  const handleDownload = () => {
+    if (!finalImage) return;
     const link = document.createElement('a');
-    link.download = `vaga-${extractedData.cargo.toLowerCase().replace(/\s+/g, '-')}.png`;
-    link.href = generatedImageUrl;
+    link.download = `vaga-${jobData.cargo.toLowerCase().replace(/\s+/g, '-')}.png`;
+    link.href = finalImage;
     link.click();
   };
 
   // Reset
-  const startOver = () => {
-    setStep('upload');
-    setUploadedImage(null);
-    setPastedText('');
-    setExtractedData(null);
-    setGeneratedImageUrl(null);
+  const reset = () => {
+    setStep('input');
+    setImageFile(null);
+    setImagePreview(null);
+    setTextInput('');
+    setJobData(null);
+    setFinalImage(null);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+    <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-8 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to={createPageUrl('PostarVaga')}>
-            <Button variant="ghost" className="text-white hover:bg-white/20 mb-4 -ml-2">
+            <Button variant="ghost" className="text-white hover:bg-white/20 mb-4">
               <ArrowLeft className="w-5 h-5 mr-2" />
               Voltar
             </Button>
@@ -231,33 +189,27 @@ Seja preciso e capture todos os detalhes.`;
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-white">Vagas Converter</h1>
-              <p className="text-white/80 text-sm">Transforme qualquer imagem em post profissional</p>
+              <p className="text-white/80 text-sm">IA extrai e cria post profissional</p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Step: Upload */}
-        {step === 'upload' && (
+        {/* STEP 1: Input */}
+        {step === 'input' && (
           <Card className="rounded-2xl">
-            <CardContent className="p-8">
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-10 h-10 text-blue-600" />
-                </div>
-                <h2 className="text-xl font-bold mb-2">Envie Imagem e/ou Cole o Texto</h2>
-                <p className="text-slate-600">A IA vai extrair todas as informações automaticamente</p>
-              </div>
+            <CardContent className="p-6">
+              <h2 className="text-xl font-bold mb-4">Envie Imagem ou Cole Texto</h2>
 
-              {/* Upload de Imagem */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Imagem da Vaga (opcional)</label>
-                {uploadedImage ? (
+              {/* Upload */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Imagem (opcional)</label>
+                {imagePreview ? (
                   <div className="relative">
-                    <img src={uploadedImage} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
+                    <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
                     <Button
-                      onClick={() => setUploadedImage(null)}
+                      onClick={() => { setImageFile(null); setImagePreview(null); }}
                       variant="destructive"
                       size="sm"
                       className="absolute top-2 right-2"
@@ -266,235 +218,202 @@ Seja preciso e capture todos os detalhes.`;
                     </Button>
                   </div>
                 ) : (
-                  <label className="cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 hover:border-blue-500 transition-colors text-center">
+                  <label className="cursor-pointer block">
+                    <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 hover:border-blue-500 transition text-center">
                       <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                      <p className="text-sm text-slate-600">Clique para selecionar imagem</p>
+                      <p className="text-sm text-slate-600">Clique para upload</p>
                     </div>
                   </label>
                 )}
               </div>
 
-              {/* Texto da Vaga */}
+              {/* Texto */}
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Ou Cole o Texto da Vaga (opcional)</label>
+                <label className="block text-sm font-medium mb-2">Ou Cole o Texto (opcional)</label>
                 <Textarea
-                  value={pastedText}
-                  onChange={(e) => setPastedText(e.target.value)}
-                  placeholder="Cole aqui o texto da vaga com cargo, requisitos, salário, contato, etc..."
-                  rows={8}
-                  className="text-sm"
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  placeholder="Cole aqui o texto da vaga..."
+                  rows={6}
                 />
               </div>
 
-              <Button 
-                onClick={handleExtract}
-                disabled={!uploadedImage && !pastedText.trim()}
-                className="w-full bg-[#0A66C2] hover:bg-[#004182] h-12"
+              <Button
+                onClick={handleProcess}
+                disabled={!imageFile && !textInput.trim()}
+                className="w-full bg-[#0A66C2] h-12"
               >
                 <Sparkles className="w-5 h-5 mr-2" />
-                Extrair e Converter
+                Processar com IA
               </Button>
+            </CardContent>
+          </Card>
+        )}
 
-              <div className="mt-6 grid grid-cols-3 gap-3 text-xs text-slate-500">
-                <div className="bg-slate-50 rounded-lg p-3 text-center">
-                  <Zap className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-                  <p>Extração Automática</p>
+        {/* STEP 2: Processing */}
+        {step === 'processing' && (
+          <Card className="rounded-2xl">
+            <CardContent className="p-12 text-center">
+              <Loader2 className="w-16 h-16 animate-spin text-blue-600 mx-auto mb-4" />
+              <h2 className="text-xl font-bold mb-2">Processando...</h2>
+              <p className="text-slate-600">IA extraindo informações</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* STEP 3: Editing */}
+        {step === 'editing' && jobData && (
+          <Card className="rounded-2xl">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-bold mb-4">Edite os Dados Extraídos</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Cargo *</label>
+                  <Input
+                    value={jobData.cargo}
+                    onChange={(e) => setJobData({...jobData, cargo: e.target.value.toUpperCase()})}
+                    placeholder="VENDEDOR"
+                    className="font-bold"
+                  />
                 </div>
-                <div className="bg-slate-50 rounded-lg p-3 text-center">
-                  <ImageIcon className="w-5 h-5 text-green-600 mx-auto mb-1" />
-                  <p>Design Profissional</p>
+
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Empresa</label>
+                  <Input
+                    value={jobData.empresa}
+                    onChange={(e) => setJobData({...jobData, empresa: e.target.value})}
+                    placeholder="Nome da empresa"
+                  />
                 </div>
-                <div className="bg-slate-50 rounded-lg p-3 text-center">
-                  <Download className="w-5 h-5 text-purple-600 mx-auto mb-1" />
-                  <p>Pronto para Postar</p>
+
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Local</label>
+                  <Input
+                    value={jobData.local}
+                    onChange={(e) => setJobData({...jobData, local: e.target.value})}
+                    placeholder="Cidade"
+                  />
                 </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Tipo</label>
+                  <Input
+                    value={jobData.tipo}
+                    onChange={(e) => setJobData({...jobData, tipo: e.target.value})}
+                    placeholder="CLT, PJ, etc"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium mb-1 block">Salário</label>
+                  <Input
+                    value={jobData.salario}
+                    onChange={(e) => setJobData({...jobData, salario: e.target.value})}
+                    placeholder="R$ 2.000 - R$ 3.000"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="text-sm font-medium mb-1 block">Requisitos (1 por linha)</label>
+                <Textarea
+                  value={(jobData.requisitos || []).join('\n')}
+                  onChange={(e) => setJobData({...jobData, requisitos: e.target.value.split('\n').filter(Boolean)})}
+                  rows={4}
+                  placeholder="Ensino médio completo&#10;Experiência em vendas"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="text-sm font-medium mb-1 block">Benefícios (1 por linha)</label>
+                <Textarea
+                  value={(jobData.beneficios || []).join('\n')}
+                  onChange={(e) => setJobData({...jobData, beneficios: e.target.value.split('\n').filter(Boolean)})}
+                  rows={3}
+                  placeholder="Vale transporte&#10;Vale alimentação"
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="text-sm font-medium mb-1 block">Contato</label>
+                <Input
+                  value={jobData.contato}
+                  onChange={(e) => setJobData({...jobData, contato: e.target.value})}
+                  placeholder="(83) 99999-9999"
+                />
+              </div>
+
+              {/* Templates */}
+              <div className="mb-6">
+                <label className="text-sm font-medium mb-2 block">Escolha a Cor</label>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                  {TEMPLATES.map(t => (
+                    <button
+                      key={t.id}
+                      onClick={() => setSelectedTemplate(t)}
+                      className={`h-16 rounded-xl transition ${selectedTemplate.id === t.id ? 'ring-4 ring-blue-500 scale-105' : ''}`}
+                      style={{ backgroundColor: t.bg }}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-slate-500 mt-1">{selectedTemplate.name}</p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button onClick={reset} variant="outline" className="flex-1">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Recomeçar
+                </Button>
+                <Button onClick={handleGenerate} className="flex-1 bg-[#0A66C2]">
+                  <ImageIcon className="w-4 h-4 mr-2" />
+                  Gerar Imagem
+                </Button>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Step: Extracting */}
-        {step === 'extracting' && (
+        {/* STEP 4: Preview */}
+        {step === 'preview' && (
           <Card className="rounded-2xl">
-            <CardContent className="p-12 text-center">
-              <Loader2 className="w-16 h-16 animate-spin text-blue-600 mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">Extraindo Informações...</h2>
-              <p className="text-slate-600">A IA está analisando a imagem</p>
+            <CardContent className="p-6">
+              {loading ? (
+                <div className="text-center py-12">
+                  <Loader2 className="w-12 h-12 animate-spin text-green-600 mx-auto mb-4" />
+                  <p className="text-slate-600">Gerando imagem...</p>
+                </div>
+              ) : finalImage ? (
+                <>
+                  <h2 className="text-xl font-bold mb-4 text-center">✨ Imagem Pronta!</h2>
+                  <div className="bg-slate-100 rounded-xl p-4 mb-4">
+                    <img src={finalImage} alt="Final" className="w-full max-w-md mx-auto rounded-lg shadow-lg" />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button onClick={reset} variant="outline" className="flex-1">
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Nova Vaga
+                    </Button>
+                    <Button onClick={() => setStep('editing')} variant="outline" className="flex-1">
+                      Editar
+                    </Button>
+                    <Button onClick={handleDownload} className="flex-1 bg-green-600 hover:bg-green-700">
+                      <Download className="w-4 h-4 mr-2" />
+                      Baixar
+                    </Button>
+                  </div>
+                </>
+              ) : null}
             </CardContent>
           </Card>
         )}
 
-        {/* Step: Editing */}
-        {step === 'editing' && extractedData && (
-          <div className="space-y-4">
-            <Card className="rounded-2xl">
-              <CardContent className="p-6">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <Sparkles className="w-6 h-6 text-yellow-500" />
-                  Dados Extraídos - Revise e Edite
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Cargo *</label>
-                    <Input
-                      value={extractedData.cargo || ''}
-                      onChange={(e) => setExtractedData({...extractedData, cargo: e.target.value})}
-                      placeholder="Ex: VENDEDOR"
-                      className="text-lg font-bold uppercase"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Empresa</label>
-                    <Input
-                      value={extractedData.empresa || ''}
-                      onChange={(e) => setExtractedData({...extractedData, empresa: e.target.value})}
-                      placeholder="Nome da empresa"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Local</label>
-                    <Input
-                      value={extractedData.local || ''}
-                      onChange={(e) => setExtractedData({...extractedData, local: e.target.value})}
-                      placeholder="Cidade"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Tipo de Vaga</label>
-                    <Input
-                      value={extractedData.tipo || ''}
-                      onChange={(e) => setExtractedData({...extractedData, tipo: e.target.value})}
-                      placeholder="CLT, PJ, etc"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="text-sm font-medium mb-1 block">Salário</label>
-                    <Input
-                      value={extractedData.salario || ''}
-                      onChange={(e) => setExtractedData({...extractedData, salario: e.target.value})}
-                      placeholder="Faixa salarial"
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <label className="text-sm font-medium mb-1 block">Requisitos (um por linha)</label>
-                  <Textarea
-                    value={(extractedData.requisitos || []).join('\n')}
-                    onChange={(e) => setExtractedData({...extractedData, requisitos: e.target.value.split('\n').filter(Boolean)})}
-                    rows={4}
-                    placeholder="Digite cada requisito em uma linha"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="text-sm font-medium mb-1 block">Benefícios (um por linha)</label>
-                  <Textarea
-                    value={(extractedData.beneficios || []).join('\n')}
-                    onChange={(e) => setExtractedData({...extractedData, beneficios: e.target.value.split('\n').filter(Boolean)})}
-                    rows={3}
-                    placeholder="Digite cada benefício em uma linha"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="text-sm font-medium mb-1 block">Contato</label>
-                  <Input
-                    value={extractedData.contato || ''}
-                    onChange={(e) => setExtractedData({...extractedData, contato: e.target.value})}
-                    placeholder="WhatsApp, email, etc"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="text-sm font-medium mb-2 block">Escolha o Template</label>
-                  <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                    {TEMPLATES.map(template => (
-                      <button
-                        key={template.id}
-                        onClick={() => setSelectedTemplate(template)}
-                        className={`h-16 rounded-xl transition-all ${selectedTemplate.id === template.id ? 'ring-4 ring-blue-500 scale-105' : ''}`}
-                        style={{ background: `linear-gradient(135deg, ${template.primary}, ${template.secondary})` }}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-xs text-slate-500 mt-1">{selectedTemplate.name}</p>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button onClick={startOver} variant="outline" className="flex-1">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Recomeçar
-                  </Button>
-                  <Button onClick={generateImage} className="flex-1 bg-[#0A66C2]">
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Gerar Imagem
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Step: Generating */}
-        {step === 'generating' && (
-          <Card className="rounded-2xl">
-            <CardContent className="p-12 text-center">
-              <Loader2 className="w-16 h-16 animate-spin text-green-600 mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">Gerando Imagem...</h2>
-              <p className="text-slate-600">Criando seu design profissional</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Step: Preview */}
-        {step === 'preview' && generatedImageUrl && (
-          <div className="space-y-4">
-            <Card className="rounded-2xl">
-              <CardContent className="p-6">
-                <h2 className="text-xl font-bold mb-4 text-center">✨ Imagem Pronta!</h2>
-                <div className="bg-slate-100 rounded-xl p-4 mb-4">
-                  <img src={generatedImageUrl} alt="Preview" className="w-full max-w-md mx-auto rounded-lg shadow-lg" />
-                </div>
-
-                <div className="flex gap-3">
-                  <Button onClick={startOver} variant="outline" className="flex-1">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Nova Vaga
-                  </Button>
-                  <Button onClick={() => setStep('editing')} variant="outline" className="flex-1">
-                    Editar
-                  </Button>
-                  <Button onClick={downloadImage} className="flex-1 bg-green-600 hover:bg-green-700">
-                    <Download className="w-4 h-4 mr-2" />
-                    Baixar
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Canvas Oculto para Geração */}
-        {extractedData && (
+        {/* Canvas Oculto */}
+        {jobData && (
           <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-            <JobCanvas 
-              ref={canvasRef} 
-              data={extractedData} 
-              template={selectedTemplate}
-            />
+            <JobCanvas ref={canvasRef} data={jobData} template={selectedTemplate} />
           </div>
         )}
       </div>
@@ -502,132 +421,156 @@ Seja preciso e capture todos os detalhes.`;
   );
 }
 
-// Componente Canvas para renderizar o design
+// Canvas para renderização
 const JobCanvas = React.forwardRef(({ data, template }, ref) => {
-  const hasLongContent = (data.requisitos?.length || 0) + (data.beneficios?.length || 0) > 10;
-  const fontSize = hasLongContent ? 'text-xs' : 'text-sm';
-
   return (
-    <div 
+    <div
       ref={ref}
-      className="relative"
-      style={{ 
-        width: '1080px', 
+      style={{
+        width: '1080px',
         height: '1080px',
-        background: `linear-gradient(135deg, ${template.primary} 0%, ${template.secondary} 100%)`,
-        fontFamily: 'Inter, sans-serif'
+        backgroundColor: template.bg,
+        color: template.text,
+        padding: '60px',
+        fontFamily: 'Inter, sans-serif',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column'
       }}
     >
-      {/* Header com Logo */}
-      <div className="absolute top-0 left-0 right-0 p-8 flex items-center justify-between">
-        <img 
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '60px' }}>
+        <img
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg"
           alt="Logo"
-          className="h-16 object-contain"
-          style={{ filter: template.id === 'yellow-energy' ? 'none' : 'brightness(0) invert(1)' }}
+          style={{ height: '60px', filter: template.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'none' }}
         />
-        <div className="text-right" style={{ color: template.accent }}>
-          <div className="text-sm font-bold mb-1">Vagas Abertas</div>
-          <div className="text-xs opacity-90">Paraíba</div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: '18px', fontWeight: 'bold' }}>Vagas Abertas</div>
+          <div style={{ fontSize: '14px', opacity: 0.8 }}>Paraíba</div>
         </div>
       </div>
 
-      {/* Decoração de Fundo */}
-      <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10" 
-           style={{ background: template.accent, transform: 'translate(30%, -30%)' }} />
-      <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full opacity-10" 
-           style={{ background: template.accent, transform: 'translate(-40%, 40%)' }} />
-
-      {/* Conteúdo Principal */}
-      <div className="absolute inset-0 flex flex-col justify-center px-16 py-24">
-        {/* Badge "TEMOS VAGAS" */}
-        <div className="mb-6">
-          <div className="inline-block px-8 py-3 rounded-full text-white font-black text-2xl tracking-wider"
-               style={{ backgroundColor: template.accent === '#FFFFFF' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)' }}>
-            TEMOS VAGAS
-          </div>
+      {/* Badge */}
+      <div style={{ marginBottom: '30px' }}>
+        <div style={{
+          display: 'inline-block',
+          padding: '12px 32px',
+          borderRadius: '50px',
+          backgroundColor: 'rgba(255,255,255,0.2)',
+          fontSize: '24px',
+          fontWeight: 900,
+          letterSpacing: '2px'
+        }}>
+          TEMOS VAGAS
         </div>
-
-        {/* Cargo */}
-        <h1 className="text-7xl font-black mb-4 leading-tight uppercase" 
-            style={{ color: template.accent, textShadow: '2px 2px 8px rgba(0,0,0,0.2)' }}>
-          {data.cargo}
-        </h1>
-
-        {/* Empresa e Local */}
-        {(data.empresa || data.local) && (
-          <div className="mb-8 flex items-center gap-4 text-xl font-semibold" style={{ color: template.accent }}>
-            {data.empresa && <span>📍 {data.empresa}</span>}
-            {data.local && <span>• {data.local}</span>}
-          </div>
-        )}
-
-        {/* Tipo e Salário */}
-        {(data.tipo || data.salario) && (
-          <div className="mb-8 flex gap-4">
-            {data.tipo && (
-              <div className="px-6 py-2 rounded-full font-bold" 
-                   style={{ backgroundColor: template.accent === '#FFFFFF' ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)', color: template.accent }}>
-                {data.tipo}
-              </div>
-            )}
-            {data.salario && (
-              <div className="px-6 py-2 rounded-full font-bold" 
-                   style={{ backgroundColor: 'rgba(34,197,94,0.9)', color: '#FFFFFF' }}>
-                💰 {data.salario}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Requisitos */}
-        {data.requisitos && data.requisitos.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-2xl font-bold mb-3" style={{ color: template.accent }}>REQUISITOS:</h3>
-            <div className={`space-y-1 ${fontSize}`} style={{ color: template.accent }}>
-              {data.requisitos.slice(0, 6).map((req, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <span className="flex-shrink-0">✓</span>
-                  <span className="font-medium">{req}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Benefícios */}
-        {data.beneficios && data.beneficios.length > 0 && (
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold mb-3" style={{ color: template.accent }}>BENEFÍCIOS:</h3>
-            <div className={`space-y-1 ${fontSize}`} style={{ color: template.accent }}>
-              {data.beneficios.slice(0, 5).map((ben, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <span className="flex-shrink-0">★</span>
-                  <span className="font-medium">{ben}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Contato */}
-        {data.contato && (
-          <div className="mt-auto">
-            <div className="px-8 py-4 rounded-2xl font-bold text-xl inline-block"
-                 style={{ backgroundColor: template.accent === '#FFFFFF' ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)', color: template.accent }}>
-              📞 {data.contato}
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Footer com Instagram */}
-      <div className="absolute bottom-8 right-8 flex items-center gap-3 px-6 py-3 rounded-full"
-           style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}>
-        <svg className="w-6 h-6" fill="white" viewBox="0 0 24 24">
+      {/* Cargo */}
+      <h1 style={{
+        fontSize: '72px',
+        fontWeight: 900,
+        marginBottom: '20px',
+        lineHeight: '1.1',
+        textShadow: '2px 2px 8px rgba(0,0,0,0.2)'
+      }}>
+        {data.cargo}
+      </h1>
+
+      {/* Empresa/Local */}
+      {(data.empresa || data.local) && (
+        <div style={{ fontSize: '24px', marginBottom: '30px', fontWeight: 600 }}>
+          {data.empresa && `📍 ${data.empresa}`}
+          {data.empresa && data.local && ' • '}
+          {data.local}
+        </div>
+      )}
+
+      {/* Tipo/Salário */}
+      {(data.tipo || data.salario) && (
+        <div style={{ display: 'flex', gap: '15px', marginBottom: '30px' }}>
+          {data.tipo && (
+            <div style={{
+              padding: '10px 24px',
+              borderRadius: '50px',
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}>
+              {data.tipo}
+            </div>
+          )}
+          {data.salario && (
+            <div style={{
+              padding: '10px 24px',
+              borderRadius: '50px',
+              backgroundColor: 'rgba(34,197,94,0.9)',
+              color: '#FFFFFF',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}>
+              💰 {data.salario}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Requisitos */}
+      {data.requisitos?.length > 0 && (
+        <div style={{ marginBottom: '25px' }}>
+          <h3 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '12px' }}>REQUISITOS:</h3>
+          <div style={{ fontSize: '16px' }}>
+            {data.requisitos.slice(0, 6).map((req, i) => (
+              <div key={i} style={{ marginBottom: '6px' }}>✓ {req}</div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Benefícios */}
+      {data.beneficios?.length > 0 && (
+        <div style={{ marginBottom: '25px' }}>
+          <h3 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '12px' }}>BENEFÍCIOS:</h3>
+          <div style={{ fontSize: '16px' }}>
+            {data.beneficios.slice(0, 5).map((ben, i) => (
+              <div key={i} style={{ marginBottom: '6px' }}>★ {ben}</div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Contato */}
+      {data.contato && (
+        <div style={{ marginTop: 'auto' }}>
+          <div style={{
+            display: 'inline-block',
+            padding: '15px 30px',
+            borderRadius: '20px',
+            backgroundColor: 'rgba(0,0,0,0.2)',
+            fontSize: '20px',
+            fontWeight: 'bold'
+          }}>
+            📞 {data.contato}
+          </div>
+        </div>
+      )}
+
+      {/* Footer Instagram */}
+      <div style={{
+        position: 'absolute',
+        bottom: '30px',
+        right: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        padding: '12px 24px',
+        borderRadius: '50px',
+        backgroundColor: 'rgba(0,0,0,0.3)'
+      }}>
+        <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
           <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
         </svg>
-        <span className="text-white font-bold text-lg">@vagasabertaspb</span>
+        <span style={{ color: 'white', fontWeight: 'bold', fontSize: '18px' }}>@vagasabertaspb</span>
       </div>
     </div>
   );
