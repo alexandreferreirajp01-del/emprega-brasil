@@ -291,6 +291,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Aplicar permissões básicas automaticamente */}
       <ApplyBasicPermissions user={user} />
       {/* Google AdSense */}
+      <meta name="google-adsense-account" content="ca-pub-7840722837940648" />
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7840722837940648" crossOrigin="anonymous"></script>
 
       {/* PWA/APK Meta Tags - Injeta no head */}
