@@ -134,16 +134,30 @@ Seja preciso e capture todos os detalhes.`;
         params.file_urls = [file_url];
       }
 
+      console.log('Chamando IA com params:', params);
       const result = await base44.integrations.Core.InvokeLLM(params);
+      console.log('Resultado da IA:', result);
 
-      if (!result || !result.cargo) {
-        alert('Não foi possível extrair informações. Verifique a imagem/texto e tente novamente.');
-        setStep('upload');
-        setLoading(false);
-        return;
+      // Verificar se o resultado é válido
+      if (!result) {
+        throw new Error('IA não retornou dados');
       }
 
-      setExtractedData(result);
+      // Garantir campos obrigatórios
+      const extractedInfo = {
+        cargo: result.cargo || 'VAGA',
+        empresa: result.empresa || '',
+        local: result.local || '',
+        tipo: result.tipo || '',
+        salario: result.salario || '',
+        requisitos: Array.isArray(result.requisitos) ? result.requisitos : [],
+        beneficios: Array.isArray(result.beneficios) ? result.beneficios : [],
+        descricao: result.descricao || '',
+        contato: result.contato || ''
+      };
+
+      console.log('Dados extraídos processados:', extractedInfo);
+      setExtractedData(extractedInfo);
       setStep('editing');
       
     } catch (error) {
