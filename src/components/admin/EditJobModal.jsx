@@ -57,6 +57,13 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
     enabled: isOpen,
   });
 
+  // Buscar cidades do banco de dados
+  const { data: allCities = [] } = useQuery({
+    queryKey: ['cities'],
+    queryFn: () => base44.entities.City.list('name', 6000),
+    enabled: isOpen,
+  });
+
   // Extrair todas as funções únicas de todas as categorias
   const allJobFunctions = React.useMemo(() => {
     const functions = new Set();
@@ -66,11 +73,41 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
     return Array.from(functions).sort();
   }, [categories]);
 
+  // Estados únicos ordenados por região
+  const availableStates = React.useMemo(() => {
+    const states = new Set(allCities.map(c => c.state));
+    const statesArray = Array.from(states);
+    
+    const regionalOrder = ['PB', 'PE', 'RN', 'AL', 'CE', 'SE', 'BA', 'PI', 'MA'];
+    const orderedStates = [];
+    
+    regionalOrder.forEach(state => {
+      if (statesArray.includes(state)) {
+        orderedStates.push(state);
+      }
+    });
+    
+    statesArray.filter(s => !regionalOrder.includes(s)).sort().forEach(state => {
+      orderedStates.push(state);
+    });
+    
+    return orderedStates;
+  }, [allCities]);
+
+  // Cidades filtradas por estado
+  const availableCities = React.useMemo(() => {
+    if (!editedJob.state) {
+      return allCities.map(c => c.name).sort();
+    }
+    return allCities.filter(c => c.state === editedJob.state).map(c => c.name).sort();
+  }, [editedJob.state, allCities]);
+
   useEffect(() => {
     if (job) {
       setEditedJob({
         title: job.title || '',
         company: job.company || '',
+        state: job.state || '',
         city: job.city || '',
         salary_range: job.salary_range || '',
         job_type: job.job_type || '',
@@ -86,6 +123,16 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
       });
     }
   }, [job]);
+
+  // Resetar cidade ao mudar estado
+  useEffect(() => {
+    if (editedJob.state && editedJob.city) {
+      const cityExists = availableCities.includes(editedJob.city);
+      if (!cityExists) {
+        setEditedJob(prev => ({ ...prev, city: '' }));
+      }
+    }
+  }, [editedJob.state, availableCities, editedJob.city]);
 
   const updateJobMutation = useMutation({
     mutationFn: (updatedJobData) => base44.entities.Job.update(job.id, updatedJobData),
@@ -134,7 +181,7 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
 
   if (!job) return null;
 
-  const filteredCities = CIDADES_PB.filter(c => c.toLowerCase().includes(citySearch.toLowerCase()));
+  const filteredCities = availableCities.filter(c => c.toLowerCase().includes(citySearch.toLowerCase()));
   const filteredFunctions = allJobFunctions.filter(f => f.toLowerCase().includes(funcSearch.toLowerCase()));
   const filteredCategories = categories.filter(c => c.category_name.toLowerCase().includes(categorySearch.toLowerCase()));
 
@@ -198,6 +245,25 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
+                    <Label htmlFor="state">Estado (UF)</Label>
+                    <Select value={editedJob.state} onValueChange={(val) => {
+                      handleSelectChange('state', val);
+                      handleSelectChange('city', ''); // Resetar cidade
+                    }}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Selecione o estado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <ScrollArea className="h-[250px]">
+                          {availableStates.map(state => (
+                            <SelectItem key={state} value={state}>{state}</SelectItem>
+                          ))}
+                        </ScrollArea>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
                     <Label htmlFor="city">Cidade</Label>
                     <Select value={editedJob.city} onValueChange={(val) => handleSelectChange('city', val)}>
                       <SelectTrigger className="mt-1">
@@ -213,37 +279,43 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
                           />
                         </div>
                         <ScrollArea className="h-[200px]">
-                          {filteredCities.map(c => (
-                            <SelectItem key={c} value={c}>{c}</SelectItem>
-                          ))}
+                          {filteredCities.length > 0 ? (
+                            filteredCities.map(c => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))
+                          ) : (
+                            <div className="p-4 text-center text-slate-400 text-sm">
+                              {editedJob.state ? 'Nenhuma cidade encontrada' : 'Selecione um estado primeiro'}
+                            </div>
+                          )}
                         </ScrollArea>
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
 
-                  <div>
-                    <Label htmlFor="category">Categoria Profissional</Label>
-                    <Select value={editedJob.category} onValueChange={(val) => handleSelectChange('category', val)}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Selecione a categoria" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <div className="p-2 sticky top-0 bg-white border-b">
-                          <Input
-                            placeholder="Buscar categoria..."
-                            value={categorySearch}
-                            onChange={(e) => setCategorySearch(e.target.value)}
-                            className="h-9"
-                          />
-                        </div>
-                        <ScrollArea className="h-[200px]">
-                          {filteredCategories.map(c => (
-                            <SelectItem key={c.id} value={c.category_name}>{c.category_name}</SelectItem>
-                          ))}
-                        </ScrollArea>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div>
+                  <Label htmlFor="category">Categoria Profissional</Label>
+                  <Select value={editedJob.category} onValueChange={(val) => handleSelectChange('category', val)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Selecione a categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <div className="p-2 sticky top-0 bg-white border-b">
+                        <Input
+                          placeholder="Buscar categoria..."
+                          value={categorySearch}
+                          onChange={(e) => setCategorySearch(e.target.value)}
+                          className="h-9"
+                        />
+                      </div>
+                      <ScrollArea className="h-[200px]">
+                        {filteredCategories.map(c => (
+                          <SelectItem key={c.id} value={c.category_name}>{c.category_name}</SelectItem>
+                        ))}
+                      </ScrollArea>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
