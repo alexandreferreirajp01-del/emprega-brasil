@@ -21,6 +21,7 @@ const TEMPLATES = [
 export default function VagasConverter() {
   const [step, setStep] = useState('upload'); // upload, extracting, editing, generating, preview
   const [uploadedImage, setUploadedImage] = useState(null);
+  const [pastedText, setPastedText] = useState('');
   const [extractedData, setExtractedData] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[0]);
   const [loading, setLoading] = useState(false);
@@ -41,18 +42,35 @@ export default function VagasConverter() {
     reader.readAsDataURL(file);
   };
 
+  // Processar extração (imagem e/ou texto)
+  const handleExtract = () => {
+    if (!uploadedImage && !pastedText.trim()) {
+      alert('Envie uma imagem ou cole o texto da vaga');
+      return;
+    }
+    setStep('extracting');
+    extractJobData();
+  };
+
   // Extrair dados com IA
-  const extractJobData = async (imageUrl) => {
+  const extractJobData = async () => {
     setLoading(true);
     try {
-      // Upload da imagem primeiro
-      const blob = await fetch(imageUrl).then(r => r.blob());
-      const file = new File([blob], 'job-image.jpg', { type: 'image/jpeg' });
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      let file_url = null;
+      
+      // Upload da imagem se houver
+      if (uploadedImage) {
+        const blob = await fetch(uploadedImage).then(r => r.blob());
+        const file = new File([blob], 'job-image.jpg', { type: 'image/jpeg' });
+        const uploaded = await base44.integrations.Core.UploadFile({ file });
+        file_url = uploaded.file_url;
+      }
 
-      // Extrair dados com IA
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analise esta imagem de vaga de emprego e extraia TODAS as informações.
+      // Montar prompt base
+      let prompt = `Analise ${uploadedImage && pastedText ? 'esta imagem e o texto fornecido' : uploadedImage ? 'esta imagem' : 'o texto fornecido'} de vaga de emprego e extraia TODAS as informações.
+        
+        
+${pastedText ? `\n\nTEXTO DA VAGA:\n${pastedText}\n` : ''}
         
         Retorne um JSON com:
         - cargo: string (título da vaga, sempre em MAIÚSCULAS)
@@ -65,8 +83,8 @@ export default function VagasConverter() {
         - descricao: string (descrição geral se houver)
         - contato: string (email, telefone, WhatsApp, etc)
         
-        Seja preciso e capture TODOS os detalhes da imagem.`,
-        file_urls: [file_url],
+        Seja preciso e capture TODOS os detalhes.`,
+        file_urls: file_url ? [file_url] : undefined,
         response_json_schema: {
           type: 'object',
           properties: {
@@ -132,6 +150,7 @@ export default function VagasConverter() {
   const startOver = () => {
     setStep('upload');
     setUploadedImage(null);
+    setPastedText('');
     setExtractedData(null);
     setGeneratedImageUrl(null);
   };
@@ -163,36 +182,77 @@ export default function VagasConverter() {
         {/* Step: Upload */}
         {step === 'upload' && (
           <Card className="rounded-2xl">
-            <CardContent className="p-8 text-center">
-              <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Upload className="w-10 h-10 text-blue-600" />
+            <CardContent className="p-8">
+              <div className="text-center mb-6">
+                <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-10 h-10 text-blue-600" />
+                </div>
+                <h2 className="text-xl font-bold mb-2">Envie Imagem e/ou Cole o Texto</h2>
+                <p className="text-slate-600">A IA vai extrair todas as informações automaticamente</p>
               </div>
-              <h2 className="text-xl font-bold mb-2">Envie a Imagem da Vaga</h2>
-              <p className="text-slate-600 mb-6">A IA vai extrair todas as informações automaticamente</p>
-              
-              <label className="cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                <Button className="bg-[#0A66C2] hover:bg-[#004182] h-12 px-8">
-                  <Upload className="w-5 h-5 mr-2" />
-                  Selecionar Imagem
-                </Button>
-              </label>
 
-              <div className="mt-8 grid grid-cols-3 gap-3 text-xs text-slate-500">
-                <div className="bg-slate-50 rounded-lg p-3">
+              {/* Upload de Imagem */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">Imagem da Vaga (opcional)</label>
+                {uploadedImage ? (
+                  <div className="relative">
+                    <img src={uploadedImage} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
+                    <Button
+                      onClick={() => setUploadedImage(null)}
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                    >
+                      Remover
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 hover:border-blue-500 transition-colors text-center">
+                      <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                      <p className="text-sm text-slate-600">Clique para selecionar imagem</p>
+                    </div>
+                  </label>
+                )}
+              </div>
+
+              {/* Texto da Vaga */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">Ou Cole o Texto da Vaga (opcional)</label>
+                <Textarea
+                  value={pastedText}
+                  onChange={(e) => setPastedText(e.target.value)}
+                  placeholder="Cole aqui o texto da vaga com cargo, requisitos, salário, contato, etc..."
+                  rows={8}
+                  className="text-sm"
+                />
+              </div>
+
+              <Button 
+                onClick={handleExtract}
+                disabled={!uploadedImage && !pastedText.trim()}
+                className="w-full bg-[#0A66C2] hover:bg-[#004182] h-12"
+              >
+                <Sparkles className="w-5 h-5 mr-2" />
+                Extrair e Converter
+              </Button>
+
+              <div className="mt-6 grid grid-cols-3 gap-3 text-xs text-slate-500">
+                <div className="bg-slate-50 rounded-lg p-3 text-center">
                   <Zap className="w-5 h-5 text-blue-600 mx-auto mb-1" />
                   <p>Extração Automática</p>
                 </div>
-                <div className="bg-slate-50 rounded-lg p-3">
+                <div className="bg-slate-50 rounded-lg p-3 text-center">
                   <ImageIcon className="w-5 h-5 text-green-600 mx-auto mb-1" />
                   <p>Design Profissional</p>
                 </div>
-                <div className="bg-slate-50 rounded-lg p-3">
+                <div className="bg-slate-50 rounded-lg p-3 text-center">
                   <Download className="w-5 h-5 text-purple-600 mx-auto mb-1" />
                   <p>Pronto para Postar</p>
                 </div>
