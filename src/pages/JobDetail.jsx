@@ -240,7 +240,7 @@ export default function JobDetail() {
     
     setSendingReport(true);
     try {
-      await base44.entities.Occurrence.create({
+      const newOccurrence = await base44.entities.Occurrence.create({
         user_email: user?.email || 'visitante@email.com',
         user_name: user?.full_name || 'Visitante',
         job_id: jobId,
@@ -249,6 +249,20 @@ export default function JobDetail() {
         message: reportMessage.trim(),
         status: 'pending'
       });
+
+      // Notificar admins sobre nova ocorrência
+      try {
+        await base44.functions.invoke('notifyAdmins', {
+          event_type: 'occurrence',
+          data: {
+            occurrence_id: newOccurrence.id,
+            user_name: user?.full_name || 'Visitante',
+            subject: reportSubject.trim()
+          }
+        });
+      } catch (e) {
+        console.warn('Erro ao notificar admins:', e);
+      }
 
       setShowReportDialog(false);
       setReportSubject('');
