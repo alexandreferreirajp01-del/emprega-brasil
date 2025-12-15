@@ -60,7 +60,6 @@ import GerenciarPrecos from './pages/GerenciarPrecos';
 import GerenciarCores from './pages/GerenciarCores';
 import GerenciarFuncoes from './pages/GerenciarFuncoes';
 import NotificacoesAdmin from './pages/NotificacoesAdmin';
-import VagasConverter from './pages/VagasConverter';
 import __Layout from './Layout.jsx';
 
 
@@ -127,7 +126,6 @@ export const PAGES = {
     "GerenciarCores": GerenciarCores,
     "GerenciarFuncoes": GerenciarFuncoes,
     "NotificacoesAdmin": NotificacoesAdmin,
-    "VagasConverter": VagasConverter,
 }
 
 export const pagesConfig = {
