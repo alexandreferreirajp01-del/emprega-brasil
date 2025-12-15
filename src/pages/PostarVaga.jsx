@@ -12,11 +12,7 @@ import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
-
-const CIDADES_PB = [
-  "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
-  "Patos", "Guarabira", "Cajazeiras", "Sousa", "Pombal", "Conde"
-];
+import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
 
 export default function PostarVaga() {
   const [step, setStep] = useState(1);
@@ -29,6 +25,7 @@ export default function PostarVaga() {
     title: '',
     company: '',
     job_function: '',
+    state: '',
     city: '',
     description: '',
     salary_range: '',
@@ -40,6 +37,10 @@ export default function PostarVaga() {
 
   const [funcSearch, setFuncSearch] = useState('');
   const [citySearch, setCitySearch] = useState('');
+  const [stateSearch, setStateSearch] = useState('');
+
+  // Hook de auto-complete
+  const { availableStates, getCitiesForState, getStateFromCity } = useCityStateAutocomplete();
 
   // Buscar categorias profissionais
   const { data: categories = [] } = useQuery({
@@ -121,11 +122,15 @@ export default function PostarVaga() {
           console.error('Erro ao classificar categoria:', e);
         }
 
+        // Auto-completar estado baseado na cidade
+        const autoState = result.city ? getStateFromCity(result.city) : null;
+
         setFormData(prev => ({
           ...prev,
           title: result.title || prev.title,
           company: result.company || prev.company,
           job_function: result.job_function || prev.job_function,
+          state: autoState || prev.state,
           city: result.city || prev.city,
           description: result.description || prev.description,
           salary_range: result.salary_range || prev.salary_range,
@@ -357,26 +362,51 @@ export default function PostarVaga() {
                   </Select>
                 </div>
 
-                <div>
-                  <Label className="text-sm">Cidade</Label>
-                  <Select value={formData.city} onValueChange={(v) => setFormData(prev => ({ ...prev, city: v }))}>
-                    <SelectTrigger className="h-11"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      <div className="p-2 sticky top-0 bg-white">
-                        <Input
-                          placeholder="Buscar..."
-                          value={citySearch}
-                          onChange={(e) => setCitySearch(e.target.value)}
-                          className="h-9"
-                        />
-                      </div>
-                      <ScrollArea className="h-[200px]">
-                        {CIDADES_PB.filter(c => c.toLowerCase().includes(citySearch.toLowerCase())).map(c => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </ScrollArea>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-sm">Estado (UF)</Label>
+                    <Select value={formData.state} onValueChange={(v) => {
+                      setFormData(prev => ({ ...prev, state: v, city: '' }));
+                    }}>
+                      <SelectTrigger className="h-11"><SelectValue placeholder="UF" /></SelectTrigger>
+                      <SelectContent>
+                        <ScrollArea className="h-[200px]">
+                          {availableStates.map(s => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                          ))}
+                        </ScrollArea>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm">Cidade</Label>
+                    <Select value={formData.city} onValueChange={(v) => {
+                      const autoState = getStateFromCity(v);
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        city: v,
+                        state: autoState || prev.state 
+                      }));
+                    }}>
+                      <SelectTrigger className="h-11"><SelectValue placeholder="Cidade" /></SelectTrigger>
+                      <SelectContent>
+                        <div className="p-2 sticky top-0 bg-white">
+                          <Input
+                            placeholder="Buscar..."
+                            value={citySearch}
+                            onChange={(e) => setCitySearch(e.target.value)}
+                            className="h-9"
+                          />
+                        </div>
+                        <ScrollArea className="h-[200px]">
+                          {getCitiesForState(formData.state).filter(c => c.toLowerCase().includes(citySearch.toLowerCase())).map(c => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </ScrollArea>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div>

@@ -9,8 +9,10 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
+import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
 
 export default function VagasHomeOffice() {
+  const { getStateFromCity } = useCityStateAutocomplete();
   const [step, setStep] = useState(1);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -62,13 +64,21 @@ export default function VagasHomeOffice() {
         }
       });
       
-      const jobs = (result.vagas || []).map(v => ({
-        title: v.titulo,
-        description: v.descricao || `Vaga Home Office - ${v.titulo}`,
-        application_link: v.link,
-        job_type: 'Home Office',
-        city: 'Brasil'
-      }));
+      const jobs = (result.vagas || []).map(v => {
+        // Auto-completar estado se cidade for mencionada
+        const cityMatch = v.titulo?.match(/\b([A-ZÇÁÉÍÓÚÂÊÔÃÕ][a-zçáéíóúâêôãõ]+(?:\s+[A-ZÇÁÉÍÓÚÂÊÔÃÕ][a-zçáéíóúâêôãõ]+)*)\b/);
+        const city = cityMatch ? cityMatch[0] : 'Brasil';
+        const state = getStateFromCity(city) || '';
+        
+        return {
+          title: v.titulo,
+          description: v.descricao || `Vaga Home Office - ${v.titulo}`,
+          application_link: v.link,
+          job_type: 'Home Office',
+          state: state,
+          city: city
+        };
+      });
       
       setExtractedJobs(jobs);
       setStep(2);
