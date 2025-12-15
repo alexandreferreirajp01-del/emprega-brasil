@@ -90,17 +90,20 @@ export default function Splash() {
 
       if (data.success) {
         localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
-        
+
         // Verificar se havia redirecionamento pendente
         const redirectTo = sessionStorage.getItem('redirect_after_login');
         sessionStorage.removeItem('needs_login');
         sessionStorage.removeItem('redirect_after_login');
 
-        // Notificar admins sobre novo login
+        // Notificar admins sobre login
         try {
-          await base44.functions.invoke('notifyNewUser', {
-            user_email: email,
-            user_name: email
+          await base44.functions.invoke('notifyAdmins', {
+            event_type: 'user_login',
+            data: {
+              user_email: email,
+              user_name: email
+            }
           });
         } catch (e) {
           // Ignorar erro de notificação
@@ -129,17 +132,21 @@ export default function Splash() {
     sessionStorage.removeItem('redirect_after_login');
     
     // Tentar notificar admins (será executado após o login bem-sucedido)
-    try {
-      const user = await base44.auth.me();
-      if (user) {
-        await base44.functions.invoke('notifyNewUser', {
-          user_email: user.email,
-          user_name: user.custom_full_name || user.username || user.email
-        });
+      try {
+        const user = await base44.auth.me();
+        if (user) {
+          await base44.functions.invoke('notifyAdmins', {
+            event_type: 'user_login',
+            data: {
+              user_email: user.email,
+              user_name: user.full_name || user.email,
+              user_photo: user.profile_photo
+            }
+          });
+        }
+      } catch (e) {
+        // Ignorar - usuário ainda não autenticado
       }
-    } catch (e) {
-      // Ignorar - usuário ainda não autenticado
-    }
     
     // Redirecionar para página que tentou acessar ou Home
     const targetPage = redirectTo || 'Home';

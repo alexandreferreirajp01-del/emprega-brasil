@@ -77,20 +77,17 @@ export default function Feed() {
     mutationFn: async (data) => {
       const newPost = await base44.entities.FeedPost.create(data);
       
-      // Notificar admin/owner sobre novo post
+      // Notificar admins sobre novo post
       try {
-        const allUsers = await base44.entities.User.list();
-        const admins = allUsers.filter(u => u.role === 'admin' || u.subscription_type === 'admin');
-        
-        for (const admin of admins) {
-          await base44.entities.Notification.create({
-            user_email: admin.email,
-            title: '📝 Novo post no Feed',
-            message: `${data.autor_nome} publicou: "${data.conteudo?.substring(0, 50)}..."`,
-            type: 'system',
-            is_read: false
-          });
-        }
+        await base44.functions.invoke('notifyAdmins', {
+          event_type: 'feed_post',
+          data: {
+            post_id: newPost.id,
+            author_name: data.autor_nome,
+            author_photo: data.autor_foto,
+            content: data.conteudo || ''
+          }
+        });
       } catch (e) {
         console.warn('Erro ao notificar admins:', e);
       }
