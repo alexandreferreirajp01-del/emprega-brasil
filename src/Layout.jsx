@@ -17,6 +17,7 @@ import ApplyBasicPermissions from "@/components/common/ApplyBasicPermissions";
 import CookieConsent from "@/components/common/CookieConsent";
 import RouteGuard from "@/components/common/RouteGuard";
 import NavigationFallback from "@/components/common/NavigationFallback";
+import AdSenseHead from "@/components/common/AdSenseHead";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -279,6 +280,9 @@ export default function Layout({ children, currentPageName }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col notranslate transition-colors duration-300" translate="no" lang="pt-BR">
+      {/* Google AdSense Head Injection */}
+      <AdSenseHead />
+
       {/* Fallback de navegação anti-tela-branca */}
       <NavigationFallback />
 
@@ -290,9 +294,6 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Aplicar permissões básicas automaticamente */}
       <ApplyBasicPermissions user={user} />
-      {/* Google AdSense */}
-      <meta name="google-adsense-account" content="ca-pub-7840722837940648" />
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7840722837940648" crossOrigin="anonymous"></script>
 
       {/* PWA/APK Meta Tags - Injeta no head */}
       <meta name="mobile-web-app-capable" content="yes" />
