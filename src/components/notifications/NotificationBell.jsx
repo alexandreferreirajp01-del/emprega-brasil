@@ -206,7 +206,7 @@ export default function NotificationBell({ user }) {
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-80 sm:w-96 p-0 max-h-[80vh] flex flex-col dark:bg-slate-800 dark:border-slate-700" 
+        className="w-80 sm:w-96 p-0 max-h-[80vh] flex flex-col dark:bg-slate-800 dark:border-slate-700 rounded-2xl overflow-hidden" 
         align="end"
         sideOffset={8}
       >
