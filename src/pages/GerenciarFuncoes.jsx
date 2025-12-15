@@ -35,6 +35,7 @@ const DEFAULT_CONFIG = {
   settings: [
     { id: 'divider-sistema', type: 'divider', label: 'Sistema', locked: true },
     { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', description: 'Habilitar/desabilitar funções do app' },
+    { id: 'notificacoes-admin', name: 'Notificações de Admin', description: 'Habilitar/desabilitar notificações do sininho' },
     { id: 'dividerInteracoes', type: 'divider', label: 'Interações', locked: true },
     { id: 'favoritas', name: 'Favoritas', description: 'Vagas salvas como favoritas' },
     { id: 'historico', name: 'Histórico', description: 'Vagas visualizadas recentemente' },

@@ -33,6 +33,19 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, notified: 0, message: 'Nenhum admin encontrado' });
     }
 
+    // Verificar se o tipo de notificação está habilitado
+    // (isso será verificado no frontend antes de enviar, mas validamos aqui também)
+    const settingsKey = `admin_notifications_${event_type}`;
+    const isEnabled = Deno.env.get(settingsKey) !== 'false'; // Por padrão, está habilitado
+    
+    if (!isEnabled) {
+      return Response.json({ 
+        success: true, 
+        notified: 0, 
+        message: `Notificação ${event_type} desabilitada` 
+      });
+    }
+
     // Preparar notificação baseada no tipo de evento
     let notificationData = {};
     
