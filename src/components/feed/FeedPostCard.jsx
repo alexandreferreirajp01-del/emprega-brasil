@@ -52,11 +52,31 @@ export default function FeedPostCard({ post, user, isSalvo }) {
   });
 
   const comentarMutation = useMutation({
-    mutationFn: (data) => base44.entities.FeedComentario.create(data),
-    onSuccess: async () => {
+    mutationFn: async (data) => {
+      const newComment = await base44.entities.FeedComentario.create(data);
+      
       await base44.entities.FeedPost.update(post.id, {
         total_comentarios: (post.total_comentarios || 0) + 1
       });
+
+      // Notificar admins sobre novo comentário
+      try {
+        await base44.functions.invoke('notifyAdmins', {
+          event_type: 'feed_comment',
+          data: {
+            comment_id: newComment.id,
+            author_name: data.autor_nome,
+            author_photo: data.autor_foto,
+            comment: data.conteudo
+          }
+        });
+      } catch (e) {
+        console.warn('Erro ao notificar admins:', e);
+      }
+
+      return newComment;
+    },
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['comentarios', post.id] });
       queryClient.invalidateQueries({ queryKey: ['feed-posts'] });
       setNovoComentario('');
