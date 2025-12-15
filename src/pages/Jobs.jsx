@@ -131,6 +131,7 @@ function getTimeAgo(dateStr) {
 
 export default function Jobs() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedState, setSelectedState] = useState('all');
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -138,6 +139,7 @@ export default function Jobs() {
   const [citySearch, setCitySearch] = useState('');
   const [funcSearch, setFuncSearch] = useState('');
   const [cityOpen, setCityOpen] = useState(false);
+  const [stateOpen, setStateOpen] = useState(false);
   const [funcOpen, setFuncOpen] = useState(false);
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
   
@@ -171,6 +173,15 @@ export default function Jobs() {
     refetchOnWindowFocus: true,
   });
 
+  // Buscar cidades do banco de dados
+  const { data: allCities = [] } = useQuery({
+    queryKey: ['cities'],
+    queryFn: async () => {
+      return await safeFetch(() => base44.entities.City.list('name', 6000), []);
+    },
+    staleTime: 60000,
+  });
+
   // Buscar categorias profissionais
   const { data: categories = [], refetch: refetchCategories } = useQuery({
     queryKey: ['professional-categories'],
@@ -192,6 +203,30 @@ export default function Jobs() {
     window.addEventListener('filters-updated', handleFilterUpdate);
     return () => window.removeEventListener('filters-updated', handleFilterUpdate);
   }, [refetchCategories]);
+
+  // Estados únicos
+  const availableStates = React.useMemo(() => {
+    const states = new Set(allCities.map(c => c.state));
+    return Array.from(states).sort();
+  }, [allCities]);
+
+  // Cidades filtradas por estado
+  const availableCities = React.useMemo(() => {
+    if (selectedState === 'all') {
+      return allCities.map(c => c.name).sort();
+    }
+    return allCities.filter(c => c.state === selectedState).map(c => c.name).sort();
+  }, [selectedState, allCities]);
+
+  // Resetar cidade ao mudar estado
+  useEffect(() => {
+    if (selectedState !== 'all' && selectedCity !== 'all') {
+      const cityExists = availableCities.includes(selectedCity);
+      if (!cityExists) {
+        setSelectedCity('all');
+      }
+    }
+  }, [selectedState, availableCities, selectedCity]);
 
   // Extrair funções únicas baseadas na categoria selecionada
   const availableFunctions = React.useMemo(() => {
@@ -292,8 +327,10 @@ export default function Jobs() {
       job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.job_function?.toLowerCase().includes(searchTerm.toLowerCase());
     
+    const matchesState = selectedState === 'all' || job.state === selectedState;
     const matchesCity = selectedCity === 'all' || job.city === selectedCity;
     
     const matchesType = selectedType === 'all' || 
@@ -304,10 +341,10 @@ export default function Jobs() {
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     const matchesPremium = !showPremiumOnly || job.is_premium;
     
-    return matchesSearch && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium;
+    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium;
   });
 
-  const filteredCities = CIDADES_PB.filter(city =>
+  const filteredCities = availableCities.filter(city =>
     city.toLowerCase().includes(citySearch.toLowerCase())
   );
 
@@ -318,6 +355,7 @@ export default function Jobs() {
 
   const clearFilters = () => {
     setSearchTerm('');
+    setSelectedState('all');
     setSelectedCity('all');
     setSelectedType('all');
     setSelectedCategory('all');
@@ -326,7 +364,7 @@ export default function Jobs() {
     setFuncSearch('');
   };
 
-  const activeFiltersCount = [selectedCity, selectedType, selectedCategory, selectedFunction].filter(f => f !== 'all').length;
+  const activeFiltersCount = [selectedState, selectedCity, selectedType, selectedCategory, selectedFunction].filter(f => f !== 'all').length;
   const hasActiveFilters = searchTerm || activeFiltersCount > 0;
 
   // Handle favorite
@@ -445,26 +483,46 @@ export default function Jobs() {
                 </Button>
               )}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               
+              {/* State filter */}
+              <Select value={selectedState} onValueChange={(value) => {
+                setSelectedState(value);
+                if (value !== 'all') {
+                  setSelectedCity('all');
+                }
+              }}>
+                <SelectTrigger className="h-11 rounded-xl">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <ScrollArea className="h-[300px]">
+                    <SelectItem value="all">Todos Estados</SelectItem>
+                    {availableStates.map((state) => (
+                      <SelectItem key={state} value={state}>{state}</SelectItem>
+                    ))}
+                  </ScrollArea>
+                </SelectContent>
+              </Select>
+
               {/* City filter */}
               <Popover open={cityOpen} onOpenChange={setCityOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-[180px] h-10 rounded-lg justify-start">
+                  <Button variant="outline" className="w-full h-11 rounded-xl justify-start">
                     <MapPin className="w-4 h-4 text-slate-400 mr-2" />
                     <span className="truncate">
                       {selectedCity === 'all' ? 'Cidade' : selectedCity}
                     </span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[220px] p-0" align="start">
+                <PopoverContent className="w-[250px] p-0" align="start">
                   <Command>
                     <CommandInput 
                       placeholder="Buscar cidade..." 
                       value={citySearch}
                       onValueChange={setCitySearch}
                     />
-                    <CommandList className="max-h-[180px]">
+                    <CommandList className="max-h-[250px]">
                       <CommandEmpty>Nenhuma cidade encontrada</CommandEmpty>
                       <CommandGroup>
                         <CommandItem
@@ -566,6 +624,15 @@ export default function Jobs() {
             {/* Active Filters */}
             {activeFiltersCount > 0 && (
               <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t">
+                {selectedState !== 'all' && (
+                  <Badge variant="secondary" className="rounded-full">
+                    Estado: {selectedState}
+                    <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => {
+                      setSelectedState('all');
+                      setSelectedCity('all');
+                    }} />
+                  </Badge>
+                )}
                 {selectedCity !== 'all' && (
                   <Badge variant="secondary" className="rounded-full">
                     <MapPin className="w-3 h-3 mr-1" />
@@ -740,7 +807,13 @@ function JobCardContent({ job, viewCount }) {
         </p>
         
         <div className="flex flex-wrap gap-2">
-          {job.city && (
+          {job.state && job.city && (
+            <Badge variant="secondary" className="rounded-full text-xs">
+              <MapPin className="w-3 h-3 mr-1" />
+              {job.city} - {job.state}
+            </Badge>
+          )}
+          {!job.state && job.city && (
             <Badge variant="secondary" className="rounded-full text-xs">
               <MapPin className="w-3 h-3 mr-1" />
               {job.city}
