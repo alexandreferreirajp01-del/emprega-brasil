@@ -232,7 +232,7 @@ export default function NotificationBell({ user }) {
               <p className="text-sm">Nenhuma notificação</p>
             </div>
           ) : (
-            <div className="divide-y dark:divide-slate-700">
+            <div className="divide-y dark:divide-slate-700 p-2 space-y-2">
               {uniqueNotifications.slice(0, 30).map((notification) => {
                 const redirectUrl = getRedirectUrl(notification);
                 const isClickable = !!redirectUrl;
