@@ -381,7 +381,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-24">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
-              <div className="w-12 h-12 flex items-center justify-center">
+              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center flex-shrink-0">
                 <img 
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png" 
                   alt="Emprega Brasil+" 
@@ -389,10 +389,10 @@ export default function Layout({ children, currentPageName }) {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-bold text-[#1D2226] dark:text-white leading-tight transition-colors">
+                <span className="text-lg md:text-xl font-bold text-[#1D2226] dark:text-white leading-tight transition-colors">
                   Emprega Brasil+
                 </span>
-                <span className="text-sm text-[#0A66C2] dark:text-blue-400 font-medium transition-colors">
+                <span className="text-xs md:text-sm text-[#0A66C2] dark:text-blue-400 font-medium transition-colors">
                   Oportunidades em Todo o Brasil
                 </span>
               </div>
