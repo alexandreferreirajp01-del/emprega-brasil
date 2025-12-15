@@ -89,6 +89,19 @@ export default function Register() {
       const data = await response.json();
 
       if (data.success) {
+        // Notificar admins sobre novo usuário
+        try {
+          await base44.functions.invoke('notifyAdmins', {
+            event_type: 'new_user',
+            data: {
+              user_email: formData.email,
+              user_name: formData.full_name
+            }
+          });
+        } catch (e) {
+          console.warn('Erro ao notificar admins:', e);
+        }
+
         setSuccess(true);
         setTimeout(() => {
           window.location.href = createPageUrl('Splash');
