@@ -237,10 +237,10 @@ export default function GerenciarPlanos() {
             <CardContent>
               <div className="space-y-2">
                 {upcomingBilling.map(sub => (
-                  <div key={sub.id} className="flex items-center justify-between bg-white p-3 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        {getPlanIcon(sub.plan_type)}
+                  <div key={sub.id} className="flex items-start justify-between bg-white p-3 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-2">
+                        <div className="mt-1">{getPlanIcon(sub.plan_type)}</div>
                         <span className="font-medium text-slate-700">{sub.user_email}</span>
                       </div>
                       <Badge variant="outline">{getPlanLabel(sub.plan_type)}</Badge>
@@ -270,10 +270,10 @@ export default function GerenciarPlanos() {
             <CardContent>
               <div className="space-y-2">
                 {overdueSubscriptions.map(sub => (
-                  <div key={sub.id} className="flex items-center justify-between bg-white p-3 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        {getPlanIcon(sub.plan_type)}
+                  <div key={sub.id} className="flex items-start justify-between bg-white p-3 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-2">
+                        <div className="mt-1">{getPlanIcon(sub.plan_type)}</div>
                         <span className="font-medium text-slate-700">{sub.user_email}</span>
                       </div>
                       <Badge variant="outline">{getPlanLabel(sub.plan_type)}</Badge>
