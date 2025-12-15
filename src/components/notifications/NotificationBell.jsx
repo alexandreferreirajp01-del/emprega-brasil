@@ -210,7 +210,7 @@ export default function NotificationBell({ user }) {
         align="end"
         sideOffset={8}
       >
-        <div className="p-3 border-b dark:border-slate-700 flex items-center justify-between bg-white dark:bg-slate-800 sticky top-0 z-10">
+        <div className="p-3 border-b dark:border-slate-700 flex items-center justify-between bg-white dark:bg-slate-800 sticky top-0 z-10 rounded-t-2xl">
           <h3 className="font-semibold text-slate-800 dark:text-white">Notificações</h3>
           {unreadCount > 0 && (
             <Button 
