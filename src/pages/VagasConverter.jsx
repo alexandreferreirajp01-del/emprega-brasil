@@ -36,8 +36,6 @@ export default function VagasConverter() {
     const reader = new FileReader();
     reader.onload = (e) => {
       setUploadedImage(e.target.result);
-      setStep('extracting');
-      extractJobData(e.target.result);
     };
     reader.readAsDataURL(file);
   };
@@ -55,39 +53,67 @@ export default function VagasConverter() {
   // Extrair dados com IA
   const extractJobData = async () => {
     setLoading(true);
+    
     try {
       let file_url = null;
       
       // Upload da imagem se houver
       if (uploadedImage) {
-        const blob = await fetch(uploadedImage).then(r => r.blob());
-        const file = new File([blob], 'job-image.jpg', { type: 'image/jpeg' });
-        const uploaded = await base44.integrations.Core.UploadFile({ file });
-        file_url = uploaded.file_url;
+        try {
+          const blob = await fetch(uploadedImage).then(r => r.blob());
+          const file = new File([blob], 'job-image.jpg', { type: 'image/jpeg' });
+          const uploaded = await base44.integrations.Core.UploadFile({ file });
+          file_url = uploaded.file_url;
+        } catch (uploadError) {
+          console.error('Erro no upload:', uploadError);
+          alert('Erro ao fazer upload da imagem. Tente novamente.');
+          setStep('upload');
+          setLoading(false);
+          return;
+        }
       }
 
-      // Montar prompt base
-      let prompt = `Analise ${uploadedImage && pastedText ? 'esta imagem e o texto fornecido' : uploadedImage ? 'esta imagem' : 'o texto fornecido'} de vaga de emprego e extraia TODAS as informações.
-        
-${pastedText ? `\n\nTEXTO DA VAGA:\n${pastedText}\n` : ''}
-        
-Retorne um JSON com:
-- cargo: string (título da vaga, sempre em MAIÚSCULAS)
-- empresa: string (nome da empresa se houver)
-- local: string (cidade/local se houver)
-- tipo: string (CLT, PJ, Home Office, etc se houver)
-- salario: string (faixa salarial se houver)
-- requisitos: array de strings (lista de requisitos)
-- beneficios: array de strings (lista de benefícios)
-- descricao: string (descrição geral se houver)
-- contato: string (email, telefone, WhatsApp, etc)
+      // Validação mínima
+      if (!file_url && !pastedText.trim()) {
+        alert('Adicione uma imagem ou texto para continuar');
+        setStep('upload');
+        setLoading(false);
+        return;
+      }
 
-Seja preciso e capture TODOS os detalhes.`;
+      // Montar prompt
+      const hasImage = !!file_url;
+      const hasText = !!pastedText.trim();
+      
+      let sourceDescription = 'o texto fornecido';
+      if (hasImage && hasText) {
+        sourceDescription = 'esta imagem e o texto fornecido';
+      } else if (hasImage) {
+        sourceDescription = 'esta imagem';
+      }
 
-      // Extrair dados com IA
-      const result = await base44.integrations.Core.InvokeLLM({
+      let prompt = `Analise ${sourceDescription} de vaga de emprego e extraia TODAS as informações disponíveis.`;
+      
+      if (hasText) {
+        prompt += `\n\nTEXTO DA VAGA:\n${pastedText}`;
+      }
+      
+      prompt += `\n\nRetorne um JSON com os seguintes campos (use string vazia se não encontrar):
+- cargo: título da vaga em MAIÚSCULAS
+- empresa: nome da empresa
+- local: cidade ou local
+- tipo: tipo de contrato (CLT, PJ, Home Office, etc)
+- salario: faixa salarial
+- requisitos: lista de requisitos
+- beneficios: lista de benefícios
+- descricao: descrição geral
+- contato: informações de contato (WhatsApp, email, telefone)
+
+Seja preciso e capture todos os detalhes.`;
+
+      // Chamar IA
+      const params = {
         prompt,
-        file_urls: file_url ? [file_url] : undefined,
         response_json_schema: {
           type: 'object',
           properties: {
@@ -102,12 +128,28 @@ Seja preciso e capture TODOS os detalhes.`;
             contato: { type: 'string' }
           }
         }
-      });
+      };
+
+      if (file_url) {
+        params.file_urls = [file_url];
+      }
+
+      const result = await base44.integrations.Core.InvokeLLM(params);
+
+      if (!result || !result.cargo) {
+        alert('Não foi possível extrair informações. Verifique a imagem/texto e tente novamente.');
+        setStep('upload');
+        setLoading(false);
+        return;
+      }
 
       setExtractedData(result);
       setStep('editing');
+      
     } catch (error) {
-      alert('Erro ao extrair dados: ' + error.message);
+      console.error('Erro na extração:', error);
+      const errorMsg = error.message || 'Erro desconhecido';
+      alert(`Erro ao processar: ${errorMsg}\n\nTente novamente com outra imagem/texto.`);
       setStep('upload');
     } finally {
       setLoading(false);
