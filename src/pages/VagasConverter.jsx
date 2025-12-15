@@ -448,76 +448,79 @@ const JobCanvas = React.forwardRef(({ jobData }, ref) => {
   const hasRequisitos = jobData.requisitos && jobData.requisitos.length > 0;
   const hasBeneficios = jobData.beneficios && jobData.beneficios.length > 0;
   const totalItems = (jobData.requisitos?.length || 0) + (jobData.beneficios?.length || 0);
+  
+  // Ajustar tamanho da fonte baseado na quantidade de conteúdo
+  const fontSize = totalItems > 12 ? 'text-xs' : totalItems > 8 ? 'text-sm' : 'text-base';
 
   return (
     <div
       ref={ref}
-      className="relative w-full aspect-square bg-gradient-to-br from-[#0A66C2] to-[#004182] rounded-xl overflow-hidden"
-      style={{ maxWidth: '600px' }}
+      className="relative w-full aspect-square bg-gradient-to-br from-[#0A66C2] to-[#004182] rounded-2xl overflow-hidden"
+      style={{ width: '1080px', height: '1080px' }}
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 right-10 w-32 h-32 bg-white rounded-full blur-2xl"></div>
-        <div className="absolute bottom-10 left-10 w-48 h-48 bg-white rounded-full blur-2xl"></div>
+        <div className="absolute top-20 right-20 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 h-full flex flex-col p-6">
+      <div className="relative z-10 h-full flex flex-col p-16">
         {/* Header com Logo */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow">
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-lg">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg"
                 alt="Logo"
-                className="w-8 h-8 object-contain"
+                className="w-16 h-16 object-contain"
               />
             </div>
             <div>
-              <h3 className="text-white font-bold text-sm leading-tight">Vagas Abertas</h3>
-              <p className="text-white/80 text-xs">Paraíba</p>
+              <h3 className="text-white font-bold text-2xl leading-tight">Vagas Abertas</h3>
+              <p className="text-white/80 text-lg">Paraíba</p>
             </div>
           </div>
-          <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
-            <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+          <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full">
+            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
             </svg>
-            <span className="text-white font-semibold text-xs">@vagasabertaspb</span>
+            <span className="text-white font-semibold text-lg">@vagasabertaspb</span>
           </div>
         </div>
 
         {/* Badge "TEMOS VAGAS" */}
-        <div className="inline-flex bg-yellow-400 text-slate-900 font-black text-lg px-4 py-2 rounded-lg mb-4 shadow-lg self-start">
+        <div className="inline-flex bg-yellow-400 text-slate-900 font-black text-4xl px-8 py-4 rounded-2xl mb-8 shadow-xl self-start">
           TEMOS VAGAS!
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 bg-white rounded-xl p-4 shadow-xl overflow-hidden">
+        <div className="flex-1 bg-white rounded-3xl p-12 shadow-2xl overflow-hidden">
           <div className="h-full flex flex-col">
             {/* Título e Empresa */}
-            <div className="mb-3">
-              <h1 className="text-xl font-black text-slate-900 mb-2 leading-tight">
+            <div className="mb-8">
+              <h1 className="text-5xl font-black text-slate-900 mb-4 leading-tight">
                 {jobData.titulo || 'Título da Vaga'}
               </h1>
               {jobData.empresa && (
-                <div className="flex items-center gap-1 text-sm text-slate-700">
+                <div className="flex items-center gap-3 text-2xl text-slate-700">
                   <span className="font-bold">📍</span>
                   <span className="font-semibold">{jobData.empresa}</span>
                 </div>
               )}
-              <div className="flex flex-wrap gap-1.5 mt-2">
+              <div className="flex flex-wrap gap-4 mt-4">
                 {jobData.cidade && (
-                  <span className="bg-[#0A66C2]/10 text-[#0A66C2] px-2 py-1 rounded-full font-semibold text-xs">
+                  <span className="bg-[#0A66C2]/10 text-[#0A66C2] px-6 py-2 rounded-full font-semibold text-xl">
                     {jobData.cidade}{jobData.estado && ` - ${jobData.estado}`}
                   </span>
                 )}
                 {jobData.tipo_contrato && (
-                  <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold text-xs">
+                  <span className="bg-green-100 text-green-700 px-6 py-2 rounded-full font-semibold text-xl">
                     {jobData.tipo_contrato}
                   </span>
                 )}
                 {jobData.salario && (
-                  <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-semibold text-xs">
+                  <span className="bg-emerald-100 text-emerald-700 px-6 py-2 rounded-full font-semibold text-xl">
                     {jobData.salario}
                   </span>
                 )}
@@ -525,14 +528,14 @@ const JobCanvas = React.forwardRef(({ jobData }, ref) => {
             </div>
 
             {/* Requisitos e Benefícios */}
-            <div className="grid grid-cols-2 gap-3 flex-1 text-xs">
+            <div className="grid grid-cols-2 gap-8 flex-1">
               {hasRequisitos && (
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 mb-2">Requisitos:</h3>
-                  <ul className="space-y-1">
-                    {jobData.requisitos.slice(0, 6).map((req, i) => (
-                      <li key={i} className="flex items-start gap-1 text-slate-700">
-                        <span className="text-[#0A66C2] font-bold flex-shrink-0">✓</span>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-4">Requisitos:</h3>
+                  <ul className={`space-y-2 ${fontSize}`}>
+                    {jobData.requisitos.slice(0, 8).map((req, i) => (
+                      <li key={i} className="flex items-start gap-3 text-slate-700">
+                        <span className="text-[#0A66C2] font-bold text-xl flex-shrink-0">✓</span>
                         <span className="leading-tight">{req}</span>
                       </li>
                     ))}
@@ -542,11 +545,11 @@ const JobCanvas = React.forwardRef(({ jobData }, ref) => {
 
               {hasBeneficios && (
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 mb-2">Benefícios:</h3>
-                  <ul className="space-y-1">
-                    {jobData.beneficios.slice(0, 4).map((ben, i) => (
-                      <li key={i} className="flex items-start gap-1 text-slate-700">
-                        <span className="text-green-600 font-bold flex-shrink-0">✓</span>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-4">Benefícios:</h3>
+                  <ul className={`space-y-2 ${fontSize}`}>
+                    {jobData.beneficios.slice(0, 6).map((ben, i) => (
+                      <li key={i} className="flex items-start gap-3 text-slate-700">
+                        <span className="text-green-600 font-bold text-xl flex-shrink-0">✓</span>
                         <span className="leading-tight">{ben}</span>
                       </li>
                     ))}
@@ -557,8 +560,8 @@ const JobCanvas = React.forwardRef(({ jobData }, ref) => {
 
             {/* Candidatura */}
             {jobData.contato && (
-              <div className="mt-3 bg-[#0A66C2] text-white px-3 py-2 rounded-lg">
-                <p className="text-xs font-semibold text-center">
+              <div className="mt-8 bg-[#0A66C2] text-white px-8 py-6 rounded-2xl">
+                <p className="text-xl font-semibold text-center">
                   📩 {jobData.contato}
                 </p>
               </div>
