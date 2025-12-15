@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
 import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
+import { extractQRCodeLink } from "@/components/admin/QRCodeExtractor";
 
 export default function PostarVaga() {
   const [step, setStep] = useState(1);
@@ -90,26 +91,8 @@ export default function PostarVaga() {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setFormData(prev => ({ ...prev, image_url: file_url }));
       
-      // Primeiro: detectar e extrair QR Code
-      let qrCodeLink = null;
-      try {
-        const qrResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Esta imagem contém QR Code? Se sim, extraia o link/URL do QR Code. Se não, retorne null.`,
-          file_urls: [file_url],
-          response_json_schema: {
-            type: "object",
-            properties: {
-              has_qrcode: { type: "boolean" },
-              qrcode_link: { type: "string" }
-            }
-          }
-        });
-        if (qrResult.has_qrcode && qrResult.qrcode_link) {
-          qrCodeLink = qrResult.qrcode_link;
-        }
-      } catch (e) {
-        console.log('Sem QR Code detectado');
-      }
+      // Extrair QR Code com função poderosa
+      const qrCodeLink = await extractQRCodeLink(file_url);
       
       // Extrair dados com IA
       const result = await base44.integrations.Core.InvokeLLM({

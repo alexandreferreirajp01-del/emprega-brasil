@@ -3,15 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2, Sparkles, Wand2, Copy, ArrowRight } from "lucide-react";
+import { Loader2, Sparkles, Wand2, Copy, ArrowRight, Upload } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
 import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
+import { extractQRCodeLink } from "@/components/admin/QRCodeExtractor";
 
 export default function VagasPorIA() {
   const { getStateFromCity } = useCityStateAutocomplete();
+  const [imageFile, setImageFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
   const [step, setStep] = useState(1);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -43,8 +46,14 @@ export default function VagasPorIA() {
     if (!rawText.trim()) return;
     setExtracting(true);
     try {
+      // Extrair QR Code se houver imagem
+      let qrCodeLink = null;
+      if (imageUrl) {
+        qrCodeLink = await extractQRCodeLink(imageUrl);
+      }
+      
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extraia dados desta vaga: título, empresa, função, cidade, descrição, salário, telefone, link.\n\n${rawText}`,
+        prompt: `Extraia dados desta vaga: título, empresa, função, cidade, descrição, salário, telefone, link.${qrCodeLink ? ` (QR Code detectado: ${qrCodeLink})` : ''}\n\n${rawText}`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -64,6 +73,11 @@ export default function VagasPorIA() {
       if (result.city) {
         const autoState = getStateFromCity(result.city);
         result.state = autoState || '';
+      }
+      
+      // Priorizar link do QR Code
+      if (qrCodeLink && !result.application_link) {
+        result.application_link = qrCodeLink;
       }
       
       setExtractedData(result);
@@ -169,6 +183,37 @@ export default function VagasPorIA() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <Label className="text-sm text-slate-600 mb-2 block">Imagem da Vaga (opcional, para detectar QR Code)</Label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="ia-image"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setImageFile(file);
+                      try {
+                        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                        setImageUrl(file_url);
+                      } catch (err) {
+                        alert('Erro no upload');
+                      }
+                    }
+                  }}
+                />
+                <label htmlFor="ia-image">
+                  <Button type="button" variant="outline" className="w-full pointer-events-none">
+                    <Upload className="w-4 h-4 mr-2" />
+                    {imageFile ? imageFile.name : 'Carregar Imagem'}
+                  </Button>
+                </label>
+                {imageUrl && (
+                  <img src={imageUrl} alt="Preview" className="mt-2 w-full h-32 object-cover rounded-lg" />
+                )}
+              </div>
+
               <div>
                 <Label className="text-sm text-slate-600 mb-2 block">Cole o texto completo da vaga</Label>
                 <Textarea

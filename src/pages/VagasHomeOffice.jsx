@@ -4,15 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Home, Wand2, Copy, ExternalLink, X } from "lucide-react";
+import { Loader2, Home, Wand2, Copy, ExternalLink, X, Upload } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
 import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
+import { extractQRCodeLink } from "@/components/admin/QRCodeExtractor";
 
 export default function VagasHomeOffice() {
   const { getStateFromCity } = useCityStateAutocomplete();
+  const [imageFile, setImageFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
   const [step, setStep] = useState(1);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -44,8 +47,14 @@ export default function VagasHomeOffice() {
     if (!rawText.trim()) return;
     setExtracting(true);
     try {
+      // Extrair QR Code se houver imagem
+      let qrCodeLink = null;
+      if (imageUrl) {
+        qrCodeLink = await extractQRCodeLink(imageUrl);
+      }
+      
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extraia TODAS as vagas home office deste texto. Para cada uma: titulo, link, descricao.\n\n${rawText}`,
+        prompt: `Extraia TODAS as vagas home office deste texto. Para cada uma: titulo, link, descricao.${qrCodeLink ? ` (QR Code detectado: ${qrCodeLink})` : ''}\n\n${rawText}`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -70,10 +79,13 @@ export default function VagasHomeOffice() {
         const city = cityMatch ? cityMatch[0] : 'Brasil';
         const state = getStateFromCity(city) || '';
         
+        // Priorizar link do QR Code se não houver link na vaga
+        const finalLink = v.link || qrCodeLink || '';
+        
         return {
           title: v.titulo,
           description: v.descricao || `Vaga Home Office - ${v.titulo}`,
-          application_link: v.link,
+          application_link: finalLink,
           job_type: 'Home Office',
           state: state,
           city: city
@@ -198,6 +210,37 @@ export default function VagasHomeOffice() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <Label className="text-sm text-slate-600 mb-2 block">Imagem (opcional, para detectar QR Code)</Label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="ho-image"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setImageFile(file);
+                      try {
+                        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                        setImageUrl(file_url);
+                      } catch (err) {
+                        alert('Erro no upload');
+                      }
+                    }
+                  }}
+                />
+                <label htmlFor="ho-image">
+                  <Button type="button" variant="outline" className="w-full pointer-events-none">
+                    <Upload className="w-4 h-4 mr-2" />
+                    {imageFile ? imageFile.name : 'Carregar Imagem'}
+                  </Button>
+                </label>
+                {imageUrl && (
+                  <img src={imageUrl} alt="Preview" className="mt-2 w-full h-32 object-cover rounded-lg" />
+                )}
+              </div>
+
               <div>
                 <Label className="text-sm text-slate-600 mb-2 block">Cole o texto com as vagas home office</Label>
                 <Textarea
