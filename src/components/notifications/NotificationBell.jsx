@@ -241,7 +241,7 @@ export default function NotificationBell({ user }) {
                   <button
                     key={notification.id}
                     onClick={() => isClickable && handleNotificationClick(notification)}
-                    className={`w-full p-3 transition-colors group text-left ${!notification.is_read ? 'bg-blue-50 dark:bg-blue-500/10' : ''} ${isClickable ? 'hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer' : ''}`}
+                    className={`w-full p-3 transition-colors group text-left ${!notification.is_read ? 'bg-slate-100 dark:bg-slate-700/30' : ''} ${isClickable ? 'hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer' : ''}`}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getIconStyle(notification.type)}`}>
