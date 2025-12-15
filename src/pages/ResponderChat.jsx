@@ -260,7 +260,7 @@ export default function ResponderChat() {
   const showChatOnMobile = selectedChat && window.innerWidth < 768;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen bg-slate-50 pb-24 pt-4">
       {/* Toast */}
       {toast && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-xl shadow-lg ${
