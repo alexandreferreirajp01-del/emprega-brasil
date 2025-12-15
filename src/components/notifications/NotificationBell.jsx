@@ -282,7 +282,7 @@ export default function NotificationBell({ user }) {
         </ScrollArea>
 
         {uniqueNotifications.length > 0 && (
-          <div className="p-2 border-t dark:border-slate-700 bg-white dark:bg-slate-800 sticky bottom-0">
+          <div className="p-2 border-t dark:border-slate-700 bg-white dark:bg-slate-800 sticky bottom-0 rounded-b-2xl">
             <Button 
               variant="ghost" 
               className="w-full text-[#0A66C2] dark:text-blue-400 text-sm"
