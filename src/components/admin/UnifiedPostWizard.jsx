@@ -13,6 +13,7 @@ import {
   Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code
 } from "lucide-react";
 import BulkWhatsAppSender from "@/components/admin/BulkWhatsAppSender";
+import { hasValidContact, getContactValidationMessage } from "@/components/admin/JobContactValidator";
 import {
   Select,
   SelectContent,
@@ -121,6 +122,20 @@ export default function UnifiedPostWizard({
   const handlePublish = async () => {
     const brasiliaTime = getBrasiliaTime().toISOString();
     
+    // Validar contatos em todas as vagas
+    const jobsWithoutContact = jobsData.filter(job => !hasValidContact(job));
+    if (jobsWithoutContact.length > 0) {
+      alert(`${jobsWithoutContact.length} vaga(s) sem informações de contato foram ignoradas. ${getContactValidationMessage()}`);
+    }
+
+    // Filtrar apenas vagas com contato válido
+    const validJobs = jobsData.filter(job => hasValidContact(job));
+    
+    if (validJobs.length === 0) {
+      alert('Nenhuma vaga válida para publicar. Todas as vagas precisam ter pelo menos uma forma de contato (email, telefone, site ou link).');
+      return;
+    }
+
     const notificationData = sendNotification && notificationConfigured ? {
       title: customTitle || `${template.emoji} ${template.title}`,
       message: customMessage || template.msg,
@@ -136,7 +151,7 @@ export default function UnifiedPostWizard({
     } : null;
 
     // Preparar jobs em lote para acelerar
-    const jobsToPublish = jobsData.map((j, idx) => ({
+    const jobsToPublish = validJobs.map((j, idx) => ({
       ...j,
       contract_types: selectedContractTypes,
       is_premium: individualPremiumFlags[idx] !== undefined ? individualPremiumFlags[idx] : isPremium,
