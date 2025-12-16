@@ -62,7 +62,6 @@ import GerenciarFuncoes from './pages/GerenciarFuncoes';
 import NotificacoesAdmin from './pages/NotificacoesAdmin';
 import VagasConverter from './pages/VagasConverter';
 import GerenciarPopups from './pages/GerenciarPopups';
-import AdminUtilities from './pages/AdminUtilities';
 import __Layout from './Layout.jsx';
 
 
@@ -131,7 +130,6 @@ export const PAGES = {
     "NotificacoesAdmin": NotificacoesAdmin,
     "VagasConverter": VagasConverter,
     "GerenciarPopups": GerenciarPopups,
-    "AdminUtilities": AdminUtilities,
 }
 
 export const pagesConfig = {
