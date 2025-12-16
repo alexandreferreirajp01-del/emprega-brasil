@@ -86,7 +86,7 @@ export default function GerenciarVagas() {
         </div>
       )}
 
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 pt-6 pb-8 px-4">
+      <div className="bg-gradient-to-r from-slate-800 to-slate-900 pt-6 pb-8 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to={createPageUrl('Configuracoes')}>
             <Button variant="ghost" className="text-white hover:bg-white/20 mb-2 -ml-2">
@@ -146,7 +146,7 @@ export default function GerenciarVagas() {
                           setEditingJob(job);
                           setIsEditModalOpen(true);
                         }}
-                        className="rounded-lg text-blue-600 hover:bg-blue-50"
+                        className="rounded-lg text-slate-600 hover:bg-slate-50"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
