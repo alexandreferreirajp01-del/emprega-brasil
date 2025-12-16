@@ -6,6 +6,11 @@ const phoneRegex = /\(?[0-9]{2}\)?[\s-]?[0-9]{4,5}[\s-]?[0-9]{4}/;
 const urlRegex = /https?:\/\/[^\s]+|www\.[^\s]+/;
 
 export function hasValidContact(jobData) {
+  // Verificar se tem descrição
+  if (!jobData.description || jobData.description.trim().length < 10) {
+    return false;
+  }
+
   const fullText = `${jobData.description || ''} ${jobData.additional_info || ''} ${jobData.application_link || ''}`.toLowerCase();
   
   // Verificar application_link
@@ -20,5 +25,5 @@ export function hasValidContact(jobData) {
 }
 
 export function getContactValidationMessage() {
-  return 'Esta vaga não possui informações de contato válidas (email, telefone, site ou link). Adicione pelo menos uma forma de contato antes de publicar.';
+  return 'Esta vaga precisa ter uma descrição (mínimo 10 caracteres) e pelo menos uma forma de contato (email, telefone, site ou link).';
 }

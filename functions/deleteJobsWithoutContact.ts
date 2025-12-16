@@ -28,6 +28,11 @@ Deno.serve(async (req) => {
     const urlRegex = /https?:\/\/[^\s]+|www\.[^\s]+/;
     
     function hasContact(job) {
+      // Verificar se tem descrição mínima
+      if (!job.description || job.description.trim().length < 10) {
+        return false;
+      }
+
       const fullText = `${job.description || ''} ${job.additional_info || ''} ${job.application_link || ''}`.toLowerCase();
       
       // Verificar application_link
