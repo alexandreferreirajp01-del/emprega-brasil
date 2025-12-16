@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, MapPin, Calendar, Building2, Briefcase, 
-  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, AlertTriangle, Edit, Trash2
+  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, AlertTriangle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -19,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import PremiumModal from "@/components/subscription/PremiumModal";
-import EditJobModal from "@/components/admin/EditJobModal";
 
 // Função de fetch robusta
 async function safeFetch(fetchFn, fallback = null) {
@@ -84,8 +83,6 @@ export default function JobDetail() {
   const [reportMessage, setReportMessage] = useState('');
   const [sendingReport, setSendingReport] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   
   const urlParams = new URLSearchParams(window.location.search);
   const jobId = urlParams.get('id');
@@ -238,25 +235,6 @@ export default function JobDetail() {
 
   const handleRetry = () => setRefreshKey(k => k + 1);
 
-  const handleDeleteJob = async () => {
-    if (!confirm('Deseja deletar esta vaga?')) return;
-    
-    setDeleting(true);
-    try {
-      await base44.entities.Job.delete(jobId);
-      alert('Vaga deletada!');
-      window.location.href = createPageUrl('Jobs');
-    } catch (e) {
-      alert('Erro ao deletar vaga');
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  const isAdminOrOwner = user?.email === 'alexandreferreirajp01@gmail.com' || 
-                         user?.role === 'admin' || 
-                         user?.subscription_type === 'admin';
-
   const handleSendReport = async () => {
     if (!reportSubject.trim() || !reportMessage.trim()) return;
     
@@ -398,29 +376,6 @@ export default function JobDetail() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {isAdminOrOwner && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setShowEditModal(true)}
-                        className="rounded-full text-slate-600 hover:bg-slate-50"
-                        title="Editar Vaga"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleDeleteJob}
-                        disabled={deleting}
-                        className="rounded-full text-red-600 hover:bg-red-50 border-red-200"
-                        title="Deletar Vaga"
-                      >
-                        {deleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
-                      </Button>
-                    </>
-                  )}
                   {user && (
                     <Button
                       variant="outline"
@@ -584,17 +539,6 @@ export default function JobDetail() {
         user={user}
         onSuccess={() => {
           window.location.reload();
-        }}
-      />
-
-      {/* Edit Modal */}
-      <EditJobModal
-        job={job}
-        isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-        onUpdateSuccess={() => {
-          setShowEditModal(false);
-          setRefreshKey(k => k + 1);
         }}
       />
 

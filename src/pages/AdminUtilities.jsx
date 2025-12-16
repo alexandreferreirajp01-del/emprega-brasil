@@ -29,7 +29,7 @@ export default function AdminUtilities() {
   };
 
   const handleDeleteNoContact = async () => {
-    if (!confirm('ATENÇÃO: Isso vai deletar TODAS as vagas sem informações de contato (email, telefone, site ou link) OU sem descrição. Continuar?')) return;
+    if (!confirm('ATENÇÃO: Isso vai deletar TODAS as vagas sem informações de contato (email, telefone, site ou link). Continuar?')) return;
     
     setLoading(true);
     setResult(null);
@@ -37,27 +37,6 @@ export default function AdminUtilities() {
     
     try {
       const response = await base44.functions.invoke('deleteJobsWithoutContact');
-      setResult(response.data);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteAllJobs = async () => {
-    const firstConfirm = confirm('⚠️ ATENÇÃO: Isso vai deletar TODAS AS VAGAS do aplicativo. Esta ação é IRREVERSÍVEL. Deseja continuar?');
-    if (!firstConfirm) return;
-
-    const secondConfirm = confirm('⚠️ ÚLTIMA CONFIRMAÇÃO: Tem certeza ABSOLUTA que deseja deletar TODAS AS VAGAS?');
-    if (!secondConfirm) return;
-    
-    setLoading(true);
-    setResult(null);
-    setError(null);
-    
-    try {
-      const response = await base44.functions.invoke('deleteAllJobs');
       setResult(response.data);
     } catch (e) {
       setError(e.message);
@@ -116,7 +95,7 @@ export default function AdminUtilities() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-slate-600 mb-4">
-              <strong className="text-red-600">ATENÇÃO:</strong> Deleta todas as vagas que não possuem informações de contato (email, telefone, site ou link) OU que não possuem descrição. Esta ação é irreversível.
+              <strong className="text-red-600">ATENÇÃO:</strong> Deleta todas as vagas que não possuem informações de contato (email, telefone, site ou link). Esta ação é irreversível.
             </p>
             <Button 
               onClick={handleDeleteNoContact}
@@ -128,33 +107,7 @@ export default function AdminUtilities() {
               ) : (
                 <Trash2 className="w-4 h-4 mr-2" />
               )}
-              Deletar Vagas Sem Contato/Descrição
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="border-2 border-red-500">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-700">
-              <AlertCircle className="w-5 h-5" />
-              Deletar TODAS as Vagas
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-slate-600 mb-4">
-              <strong className="text-red-700">⚠️ PERIGO:</strong> Deleta TODAS as vagas do aplicativo. Esta ação é IRREVERSÍVEL e requer dupla confirmação.
-            </p>
-            <Button 
-              onClick={handleDeleteAllJobs}
-              disabled={loading}
-              className="w-full bg-red-700 hover:bg-red-800 text-white"
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <AlertCircle className="w-4 h-4 mr-2" />
-              )}
-              Deletar TODAS as Vagas
+              Deletar Vagas Sem Contato
             </Button>
           </CardContent>
         </Card>

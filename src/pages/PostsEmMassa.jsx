@@ -60,8 +60,6 @@ export default function PostsEmMassa() {
   const processImages = async () => {
     setProcessing(true);
     const allJobs = [];
-    const jobsByCompany = {}; // Agrupar por empresa
-    
     try {
       for (const img of images) {
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'processing' } : i));
@@ -70,15 +68,7 @@ export default function PostsEmMassa() {
         const qrCodeLink = await extractQRCodeLink(img.url);
         
         const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `ANÁLISE DE IMAGEM DE VAGAS:
-
-INSTRUÇÕES:
-1. Se a imagem contém VÁRIAS vagas da MESMA empresa, AGRUPE todas em um único registro
-2. Se a imagem tem vagas de empresas DIFERENTES, retorne uma vaga para cada empresa
-3. Para vagas agrupadas, liste todos os títulos em "description"
-4. Extraia: título(s), empresa, cidade, salário, telefone, link${qrCodeLink ? `\n5. QR Code detectado: ${qrCodeLink}` : ''}
-
-ATENÇÃO: Se múltiplas vagas da MESMA empresa, faça UM post só!`,
+          prompt: `Extraia TODAS as vagas desta imagem: título, empresa, cidade, salário, telefone, link.${qrCodeLink ? ` (QR Code aponta para: ${qrCodeLink})` : ''}`,
           file_urls: [img.url],
           response_json_schema: {
             type: "object",
@@ -88,13 +78,13 @@ ATENÇÃO: Se múltiplas vagas da MESMA empresa, faça UM post só!`,
                 items: {
                   type: "object",
                   properties: {
-                    title: { type: "string", description: "Se múltiplas vagas, use formato: 'Várias Vagas - [Nome Empresa]'" },
+                    title: { type: "string" },
                     company: { type: "string" },
                     city: { type: "string" },
                     salary_range: { type: "string" },
                     contact_phone: { type: "string" },
                     application_link: { type: "string" },
-                    description: { type: "string", description: "Se agrupadas, liste todos os cargos aqui" }
+                    description: { type: "string" }
                   }
                 }
               }
@@ -113,25 +103,11 @@ ATENÇÃO: Se múltiplas vagas da MESMA empresa, faça UM post só!`,
           // Auto-completar estado baseado na cidade
           const autoState = job.city ? getStateFromCity(job.city) : null;
           
-          const processedJob = {
+          allJobs.push({
             ...job,
             state: autoState || '',
             image_url: img.url
-          };
-          
-          // Agrupar por empresa para evitar duplicatas
-          const companyKey = (job.company || 'sem_empresa').toLowerCase().trim();
-          if (!jobsByCompany[companyKey]) {
-            jobsByCompany[companyKey] = processedJob;
-            allJobs.push(processedJob);
-          } else {
-            // Mesclar informações se mesma empresa
-            const existing = jobsByCompany[companyKey];
-            existing.description = `${existing.description || ''}\n\n${job.description || ''}`.trim();
-            if (!existing.application_link && job.application_link) {
-              existing.application_link = job.application_link;
-            }
-          }
+          });
         });
 
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'completed', count: result.jobs?.length || 0 } : i));
