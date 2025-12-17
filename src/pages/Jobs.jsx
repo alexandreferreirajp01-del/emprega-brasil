@@ -519,7 +519,7 @@ export default function Jobs() {
                     {availableStates.map((state) => (
                       <SelectItem key={state} value={state}>{state}</SelectItem>
                     ))}
-                  </SelectContent>
+                  </ScrollArea>
                 </SelectContent>
               </Select>
 
