@@ -9,7 +9,7 @@ export default function ShareJobDialog({ open, onOpenChange, job }) {
   if (!job) return null;
   
   const jobUrl = `${window.location.origin}/Jobs?id=${job.id}`;
-  const shareText = `🔥 Vaga: ${job.title}\n🏢 ${job.company || 'Empresa'}\n📍 ${job.city || 'Brasil'}\n\nConfira: ${jobUrl}\n\n_Via Emprega Brasil+_`;
+  const shareText = `🔥 Vaga: ${job.title}\n🏢 ${job.company || 'Empresa'}\n📍 ${job.city || 'Paraíba'}\n\nConfira: ${jobUrl}`;
   
   const shareWhatsApp = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
@@ -36,7 +36,7 @@ export default function ShareJobDialog({ open, onOpenChange, job }) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Share2 className="w-5 h-5 text-[#0A66C2]" />
+            <Share2 className="w-5 h-5 text-[#0056ff]" />
             Compartilhar Vaga
           </DialogTitle>
         </DialogHeader>

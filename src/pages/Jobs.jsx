@@ -289,9 +289,9 @@ export default function Jobs() {
       setIsLoading(true);
       
       const [jobsData, viewsData, favoritesData] = await Promise.all([
-        safeFetch(() => base44.entities.Job.list('-created_at', 500)),
-        safeFetch(() => base44.entities.JobView.list('-created_at', 2000)),
-        user ? safeFetch(() => base44.entities.FavoriteJob.list('-created_at', 500)) : Promise.resolve([])
+        safeFetch(() => base44.entities.Job.list('-created_date', 500)),
+        safeFetch(() => base44.entities.JobView.list('-created_date', 2000)),
+        user ? safeFetch(() => base44.entities.FavoriteJob.list('-created_date', 500)) : Promise.resolve([])
       ]);
 
       if (mounted) {
@@ -860,7 +860,7 @@ function JobCardContent({ job, viewCount }) {
       <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-1 text-right">
         <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
           <Calendar className="w-4 h-4" />
-          {getTimeAgo(job.created_at || job.created_date)}
+          {getTimeAgo(job.created_date)}
         </p>
         <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
           <Eye className="w-3 h-3" />

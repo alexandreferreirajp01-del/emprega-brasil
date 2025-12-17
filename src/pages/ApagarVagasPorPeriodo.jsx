@@ -78,7 +78,7 @@ export default function ApagarVagasPorPeriodo() {
     try {
       setLoading(true);
       const jobs = await base44.entities.Job.filter({
-        created_at: {
+        created_date: {
           $gte: start.toISOString(),
           $lte: end.toISOString()
         }
@@ -296,7 +296,7 @@ export default function ApagarVagasPorPeriodo() {
                             </Badge>
                           )}
                           <Badge variant="outline" className="text-xs">
-                            📅 {new Date(job.created_at).toLocaleDateString('pt-BR')}
+                            📅 {new Date(job.created_date).toLocaleDateString('pt-BR')}
                           </Badge>
                         </div>
                       </div>
