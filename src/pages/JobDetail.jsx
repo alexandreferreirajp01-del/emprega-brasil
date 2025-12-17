@@ -454,7 +454,7 @@ export default function JobDetail() {
               )}
               <Badge variant="outline" className="px-4 py-2 text-sm rounded-full">
                 <Calendar className="w-4 h-4 mr-2" />
-                {formatDate(job.created_date)}
+                Publicado em: {formatDate(job.published_at || job.created_date)}
               </Badge>
               <Badge className="bg-amber-100 text-amber-700 border-0 px-4 py-2 text-sm rounded-full">
                 <Eye className="w-4 h-4 mr-2" />
