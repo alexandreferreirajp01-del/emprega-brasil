@@ -29,7 +29,7 @@ const CONTRACT_TYPES = [
   { id: 'Temporário', label: 'Temporário', icon: Clock3 },
   { id: 'Freelancer', label: 'Freelancer', icon: Code },
   { id: 'Trainee', label: 'Trainee', icon: GraduationCap },
-  { id: 'Banco de Talentos', label: 'Banco de Talentos', icon: Users },
+  { id: 'Banco de Talentos', label: 'Banco de Talentos', icon: Briefcase },
 ];
 
 const NOTIFICATION_TEMPLATES = [
@@ -103,18 +103,14 @@ export default function UnifiedPostWizard({
     };
   };
 
-  const handleSaveNotificationConfig = () => {
-    setNotificationConfigured(true);
-    setShowNotifDialog(false);
-    setStep(4);
-  };
+
 
   const handlePublish = async () => {
     const brasiliaTime = getBrasiliaTime().toISOString();
 
-    const notificationData = sendNotification && notificationConfigured ? {
-      title: customTitle || `${template.emoji} ${template.title}`,
-      message: customMessage || template.msg,
+    const notificationData = sendNotification ? {
+      title: customTitle || `${template?.emoji} ${template?.title}`,
+      message: customMessage || template?.msg,
       channels: notifChannels
     } : null;
 
@@ -527,7 +523,7 @@ export default function UnifiedPostWizard({
                 <p>• Tipos: {selectedContractTypes.join(', ')}</p>
                 <p>• Premium: {Object.values(individualPremiumFlags).filter(Boolean).length} de {jobCount}</p>
                 {isFeatured && <p>• ⭐ Em destaque</p>}
-                <p>• Notificações: {sendNotification && notificationConfigured ? '✅ Configuradas' : '❌ Desativadas'}</p>
+                <p>• Notificações: {sendNotification ? '✅ Ativadas' : '❌ Desativadas'}</p>
                 <p>• Modo: {publishMode === 'now' ? '⚡ Imediato' : '🕐 Agendado'}</p>
               </div>
             </div>
