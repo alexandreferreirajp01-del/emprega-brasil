@@ -48,7 +48,7 @@ export default function GerenciarVagas() {
 
   const { data: jobs = [] } = useQuery({
     queryKey: ['admin-jobs'],
-    queryFn: () => base44.entities.Job.list('-created_date', 500),
+    queryFn: () => base44.entities.Job.list('-created_at', 500),
     staleTime: 60000,
   });
 
@@ -70,7 +70,7 @@ export default function GerenciarVagas() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
       </div>
     );
   }
@@ -86,7 +86,7 @@ export default function GerenciarVagas() {
         </div>
       )}
 
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 pt-6 pb-8 px-4">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-8 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to={createPageUrl('Configuracoes')}>
             <Button variant="ghost" className="text-white hover:bg-white/20 mb-2 -ml-2">
@@ -146,7 +146,7 @@ export default function GerenciarVagas() {
                           setEditingJob(job);
                           setIsEditModalOpen(true);
                         }}
-                        className="rounded-lg text-blue-600 hover:bg-blue-50"
+                        className="rounded-lg hover:bg-slate-100"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
