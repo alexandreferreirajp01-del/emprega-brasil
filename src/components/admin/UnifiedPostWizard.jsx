@@ -8,11 +8,10 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
-  ChevronRight, ChevronLeft, Crown, Star, Users, Bell, Send, 
-  Calendar, Check, Loader2, Eye, Globe, Clock, Zap, Edit, Mail,
+  ChevronRight, ChevronLeft, Crown, Star, Bell, Send, 
+  Calendar, Check, Loader2, Clock, Zap, Mail,
   Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code
 } from "lucide-react";
-import BulkWhatsAppSender from "@/components/admin/BulkWhatsAppSender";
 import {
   Select,
   SelectContent,
@@ -20,12 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 const CONTRACT_TYPES = [
   { id: 'CLT', label: 'CLT', icon: Briefcase },
