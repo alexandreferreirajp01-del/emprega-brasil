@@ -26,7 +26,7 @@ export default function BulkWhatsAppSender({ title, message, isOpen, onClose }) 
   const windowRef = useRef(null);
   const timerRef = useRef(null);
 
-  const formattedMessage = `📢 *${title}*\n\n${message}\n\n🔗 Acesse: https://vagasabertasparaiba.info/home`;
+  const formattedMessage = `📢 *${title}*\n\n${message}\n\n🔗 Acesse: https://empregabrasil.site\n\n_Via Emprega Brasil+_`;
   const progress = (Object.values(groupStatus).filter(s => s === 'sent').length / WHATSAPP_GROUPS.length) * 100;
 
   useEffect(() => {
