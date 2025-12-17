@@ -126,8 +126,7 @@ export default function UnifiedPostWizard({
       contract_types: selectedContractTypes,
       is_premium: individualPremiumFlags[idx] || false,
       is_featured: isFeatured,
-      published_at: brasiliaTime,
-      created_at: brasiliaTime
+      published_at: brasiliaTime
     }));
 
     const finalData = {
