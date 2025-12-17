@@ -266,7 +266,7 @@ export default function Home() {
                           <div className="flex items-center gap-3 text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 transition-colors">
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
-                              <TimeAgo date={job.created_date} />
+                              <TimeAgo date={job.created_at || job.created_date} />
                             </span>
                             <span className="flex items-center gap-1">
                               <Eye className="w-3 h-3" />
