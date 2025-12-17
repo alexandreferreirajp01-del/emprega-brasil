@@ -65,6 +65,7 @@ const menuItems = [
   // Manutenção
   { id: 'divider-manutencao', type: 'divider', label: 'Manutenção', roles: ['admin', 'dono'] },
   { id: 'update-jobs-location', name: 'Atualizar Localização de Vagas', icon: MapPin, color: 'blue', action: 'updateJobs', description: 'Atualizar cidade/UF de vagas antigas', roles: ['admin', 'dono'] },
+  { id: 'fix-job-dates', name: 'Corrigir Datas das Vagas', icon: Calendar, color: 'green', action: 'fixDates', description: 'Garantir que todas as vagas tenham created_at válido', roles: ['admin', 'dono'] },
   { id: 'migrate-notifications', name: 'Migrar Notificações', icon: Database, color: 'amber', action: 'migrate', description: 'Atualizar notificações antigas (executar 1x)', roles: ['admin', 'dono'] },
   
   // Painel Base44
@@ -151,6 +152,18 @@ export default function Configuracoes() {
       try {
         const response = await base44.functions.invoke('updateJobsLocation');
         alert(response.data.message || 'Atualização concluída!');
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      } finally {
+        setMigrating(false);
+      }
+    } else if (item.action === 'fixDates') {
+      if (!confirm('Corrigir created_at de todas as vagas? Isso garante que os filtros por período funcionem corretamente.')) return;
+      
+      setMigrating(true);
+      try {
+        const response = await base44.functions.invoke('fixJobCreatedAt');
+        alert(response.data.message || 'Correção concluída!');
       } catch (error) {
         alert('Erro: ' + error.message);
       } finally {
