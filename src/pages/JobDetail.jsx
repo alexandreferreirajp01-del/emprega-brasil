@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, MapPin, Calendar, Building2, Briefcase, 
-  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, AlertTriangle
+  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, AlertTriangle, Edit
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import PremiumModal from "@/components/subscription/PremiumModal";
+import EditJobModal from "@/components/admin/EditJobModal";
 
 // Função de fetch robusta
 async function safeFetch(fetchFn, fallback = null) {
@@ -83,6 +84,7 @@ export default function JobDetail() {
   const [reportMessage, setReportMessage] = useState('');
   const [sendingReport, setSendingReport] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showEditModal, setShowEditModal] = useState(false);
   
   const urlParams = new URLSearchParams(window.location.search);
   const jobId = urlParams.get('id');
@@ -346,6 +348,11 @@ export default function JobDetail() {
   const contacts = extractContacts(job);
   const hasContact = contacts.whatsapp || contacts.email || contacts.site;
   const viewCount = views.length;
+  
+  // Verificar se é admin ou dono
+  const isAdmin = user?.role === 'admin' || 
+    user?.subscription_type === 'admin' || 
+    user?.email === 'alexandreferreirajp01@gmail.com';
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
@@ -376,6 +383,17 @@ export default function JobDetail() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {isAdmin && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setShowEditModal(true)}
+                      className="rounded-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                      title="Editar Vaga"
+                    >
+                      <Edit className="w-5 h-5" />
+                    </Button>
+                  )}
                   {user && (
                     <Button
                       variant="outline"
@@ -599,6 +617,19 @@ export default function JobDetail() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Modal - Admin/Dono apenas */}
+      {isAdmin && (
+        <EditJobModal
+          job={job}
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={() => {
+            setShowEditModal(false);
+            setRefreshKey(k => k + 1);
+          }}
+        />
+      )}
     </div>
   );
 }
