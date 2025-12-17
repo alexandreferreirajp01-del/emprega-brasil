@@ -48,7 +48,7 @@ export default function GerenciarVagas() {
 
   const { data: jobs = [] } = useQuery({
     queryKey: ['admin-jobs'],
-    queryFn: () => base44.entities.Job.list('-created_date', 500),
+    queryFn: () => base44.entities.Job.list('-created_at', 500),
     staleTime: 60000,
   });
 
