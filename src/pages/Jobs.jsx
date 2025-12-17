@@ -533,7 +533,7 @@ export default function Jobs() {
                   >
                     <MapPin className="w-4 h-4 text-slate-400 mr-2" />
                     <span className="truncate">
-                      {selectedCity === 'all' ? 'Todas' : selectedCity}
+                      {selectedCity === 'all' ? 'Cidade' : selectedCity}
                     </span>
                   </Button>
                 </PopoverTrigger>
@@ -579,10 +579,7 @@ export default function Jobs() {
               {/* Type filter */}
               <Select value={selectedType} onValueChange={setSelectedType}>
                 <SelectTrigger className="h-11 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-slate-400" />
-                    <SelectValue placeholder="Tipo" />
-                  </div>
+                  <SelectValue placeholder="Tipo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>

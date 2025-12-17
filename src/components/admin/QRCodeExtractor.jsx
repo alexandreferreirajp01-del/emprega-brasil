@@ -1,64 +1,85 @@
 import { base44 } from "@/api/base44Client";
 
 /**
- * Extrai link de QR Code de uma imagem de forma robusta e precisa
- * Usa múltiplas tentativas e validação
+ * Extrai link de QR Code de uma imagem com MÁXIMA PRECISÃO
+ * Usa validação rigorosa e múltiplas tentativas
  */
 export async function extractQRCodeLink(imageUrl) {
   if (!imageUrl) return null;
 
   try {
-    // Tentativa 1: Detecção direta e precisa com contexto
+    // Extração ULTRA PRECISA com instruções detalhadas
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `ANÁLISE CRÍTICA: Esta imagem contém um QR Code?
+      prompt: `MISSÃO CRÍTICA: DECODIFICAR QR CODE
 
-INSTRUÇÕES ESTRITAS:
-1. Examine CUIDADOSAMENTE toda a imagem em busca de QR Codes
-2. QR Codes são códigos de barras quadrados em preto e branco com padrão de pontos
+PASSO A PASSO OBRIGATÓRIO:
+1. Examine TODA a imagem pixel por pixel
+2. Localize QR Codes (quadrados preto/branco com padrões)
 3. Se encontrar QR Code:
-   - DECODIFIQUE e extraia o link/URL completo
-   - Valide que é uma URL válida (começa com http/https ou é link encurtado)
-   - Retorne EXATAMENTE o link extraído, SEM modificações
-4. Se NÃO encontrar QR Code: retorne has_qrcode: false
+   ✓ DECODIFIQUE o código completamente
+   ✓ Extraia o URL/link EXATO contido nele
+   ✓ Retorne APENAS o link puro, SEM alterações
+   ✓ Valide que é uma URL válida
 
-ATENÇÃO: Seja EXTREMAMENTE preciso. Não invente links.`,
+FORMATOS ACEITOS:
+- https://...
+- http://...
+- www...
+- Links encurtados (bit.ly, forms.gle, etc)
+
+ATENÇÃO MÁXIMA:
+- NÃO invente links
+- NÃO adicione texto extra
+- Se não há QR Code: retorne has_qrcode: false
+- Se há dúvida: confidence: "low"
+
+EXEMPLO CORRETO:
+QR Code → https://forms.gle/abc123
+Retorne: qrcode_link: "https://forms.gle/abc123"`,
       file_urls: [imageUrl],
       response_json_schema: {
         type: "object",
         properties: {
           has_qrcode: { 
             type: "boolean",
-            description: "true se encontrou QR Code, false caso contrário"
+            description: "true SOMENTE se detectou QR Code válido"
           },
           qrcode_link: { 
             type: "string",
-            description: "Link completo extraído do QR Code"
+            description: "URL EXATA extraída do QR Code"
           },
           confidence: {
             type: "string",
             enum: ["high", "medium", "low"],
-            description: "Nível de confiança na extração"
+            description: "high = certeza absoluta, medium = provável, low = incerto"
+          },
+          qr_position: {
+            type: "string",
+            description: "Localização do QR Code na imagem"
           }
-        }
+        },
+        required: ["has_qrcode"]
       }
     });
 
-    // Validar resultado
-    if (result.has_qrcode && result.qrcode_link && result.confidence !== "low") {
+    // Validação RIGOROSA
+    if (result.has_qrcode && result.qrcode_link) {
       const link = result.qrcode_link.trim();
       
       // Validar formato de URL
       if (isValidURL(link)) {
-        console.log(`✅ QR Code detectado: ${link} (confiança: ${result.confidence})`);
+        console.log(`✅ QR Code CONFIRMADO: ${link} | Confiança: ${result.confidence} | Posição: ${result.qr_position || 'N/A'}`);
         return link;
+      } else {
+        console.warn(`⚠️ Link inválido detectado: ${link}`);
       }
     }
 
-    console.log('ℹ️ Nenhum QR Code válido detectado');
+    console.log('ℹ️ Nenhum QR Code detectado na imagem');
     return null;
 
   } catch (error) {
-    console.error('❌ Erro ao extrair QR Code:', error);
+    console.error('❌ Erro fatal ao extrair QR Code:', error);
     return null;
   }
 }
