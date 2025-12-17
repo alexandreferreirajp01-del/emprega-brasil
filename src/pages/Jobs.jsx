@@ -858,10 +858,17 @@ function JobCardContent({ job, viewCount }) {
       </div>
       
       <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-1 text-right">
-        <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
-          <Calendar className="w-4 h-4" />
-          {getTimeAgo(job.created_date)}
-        </p>
+        <div className="flex flex-col items-end gap-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            <Calendar className="w-4 h-4" />
+            {getTimeAgo(job.published_at || job.created_date)}
+          </p>
+          {job.published_at && (
+            <p className="text-xs text-slate-400 dark:text-slate-500">
+              {new Date(job.published_at).toLocaleDateString('pt-BR')}
+            </p>
+          )}
+        </div>
         <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
           <Eye className="w-3 h-3" />
           {viewCount} views
