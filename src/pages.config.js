@@ -62,6 +62,7 @@ import GerenciarFuncoes from './pages/GerenciarFuncoes';
 import NotificacoesAdmin from './pages/NotificacoesAdmin';
 import VagasConverter from './pages/VagasConverter';
 import GerenciarPopups from './pages/GerenciarPopups';
+import ApagarVagasPorPeriodo from './pages/ApagarVagasPorPeriodo';
 import __Layout from './Layout.jsx';
 
 
@@ -130,6 +131,7 @@ export const PAGES = {
     "NotificacoesAdmin": NotificacoesAdmin,
     "VagasConverter": VagasConverter,
     "GerenciarPopups": GerenciarPopups,
+    "ApagarVagasPorPeriodo": ApagarVagasPorPeriodo,
 }
 
 export const pagesConfig = {
