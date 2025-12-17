@@ -190,7 +190,7 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
       <DialogContent className="sm:max-w-2xl max-h-[90vh] p-0 gap-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <Edit className="w-5 h-5 text-blue-600" />
+            <Edit className="w-5 h-5 text-[#0A66C2]" />
             Editar Vaga
           </DialogTitle>
           <p className="text-sm text-slate-500">{job.title}</p>
@@ -363,7 +363,7 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
                       type="button"
                       variant={isSelected ? "default" : "outline"}
                       onClick={() => toggleContractType(type.id)}
-                      className={`justify-start gap-2 h-auto py-2 ${isSelected ? "bg-blue-600 hover:bg-blue-700 text-white" : ""}`}
+                      className={`justify-start gap-2 h-auto py-2 ${isSelected ? "bg-[#0A66C2] hover:bg-[#004182] text-white" : ""}`}
                     >
                       <Icon className="w-4 h-4" />
                       <span className="text-sm">{type.label}</span>
@@ -472,7 +472,7 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
           <Button 
             onClick={handleSave} 
             disabled={updateJobMutation.isPending}
-            className="bg-blue-600 hover:bg-blue-700 rounded-xl"
+            className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
           >
             {updateJobMutation.isPending ? (
               <>
