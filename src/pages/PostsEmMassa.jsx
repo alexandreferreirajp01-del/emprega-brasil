@@ -68,7 +68,21 @@ export default function PostsEmMassa() {
         const qrCodeLink = await extractQRCodeLink(img.url);
         
         const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `Extraia TODAS as vagas desta imagem: título, empresa, cidade, salário, telefone, link.${qrCodeLink ? ` (QR Code aponta para: ${qrCodeLink})` : ''}`,
+          prompt: `EXTRAIA TODAS AS VAGAS desta imagem com MÁXIMA PRECISÃO:
+
+REGRAS CRÍTICAS para CADA vaga:
+1. CIDADE e UF: SEMPRE identifique ambos
+   - Recife → city: "Recife", state: "PE"
+   - João Pessoa → city: "João Pessoa", state: "PB"
+   - São Paulo → city: "São Paulo", state: "SP"
+   
+2. SALÁRIO: extraia SOMENTE valores numéricos/monetários
+   - Correto: "R$ 1.500", "2.000 a 3.000"
+   - Deixe VAZIO se não houver valor numérico
+   
+3. Se vaga for remota: city: "Remoto", state: ""
+${qrCodeLink ? `
+4. QR CODE LINK DETECTADO: ${qrCodeLink}` : ''}`,
           file_urls: [img.url],
           response_json_schema: {
             type: "object",
@@ -78,10 +92,11 @@ export default function PostsEmMassa() {
                 items: {
                   type: "object",
                   properties: {
-                    title: { type: "string" },
-                    company: { type: "string" },
-                    city: { type: "string" },
-                    salary_range: { type: "string" },
+                    title: { type: "string", description: "Cargo da vaga" },
+                    company: { type: "string", description: "Nome da empresa" },
+                    city: { type: "string", description: "Cidade (ou 'Remoto')" },
+                    state: { type: "string", description: "UF de 2 letras" },
+                    salary_range: { type: "string", description: "APENAS valor monetário" },
                     contact_phone: { type: "string" },
                     application_link: { type: "string" },
                     description: { type: "string" }
@@ -100,12 +115,12 @@ export default function PostsEmMassa() {
         });
 
         (result.jobs || []).forEach(job => {
-          // Auto-completar estado baseado na cidade
-          const autoState = job.city ? getStateFromCity(job.city) : null;
+          // Fallback: auto-completar estado se não veio da IA
+          const autoState = (job.city && !job.state) ? getStateFromCity(job.city) : null;
           
           allJobs.push({
             ...job,
-            state: autoState || '',
+            state: job.state || autoState || '',
             image_url: img.url
           });
         });

@@ -53,24 +53,41 @@ export default function VagasPorIA() {
       }
       
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extraia dados desta vaga: título, empresa, função, cidade, descrição, salário, telefone, link.${qrCodeLink ? ` (QR Code detectado: ${qrCodeLink})` : ''}\n\n${rawText}`,
+        prompt: `EXTRAIA COM PRECISÃO os dados desta vaga:
+
+REGRAS OBRIGATÓRIAS:
+1. CIDADE e UF: identifique SEMPRE a cidade e o estado (UF com 2 letras)
+   - Ex: João Pessoa → city: "João Pessoa", state: "PB"
+   - Ex: Recife → city: "Recife", state: "PE"
+   
+2. FAIXA SALARIAL: extraia APENAS valores monetários
+   - Válido: "R$ 1.500", "2.000 a 3.000"
+   - Se não houver valor numérico, deixe VAZIO
+   
+3. Se a vaga for 100% remota, defina city: "Remoto" e state: ""
+
+TEXTO DA VAGA:${qrCodeLink ? `
+QR CODE LINK: ${qrCodeLink}` : ''}
+
+${rawText}`,
         response_json_schema: {
           type: "object",
           properties: {
-            title: { type: "string" },
-            company: { type: "string" },
-            job_function: { type: "string" },
-            city: { type: "string" },
-            description: { type: "string" },
-            salary_range: { type: "string" },
-            contact_phone: { type: "string" },
-            application_link: { type: "string" }
+            title: { type: "string", description: "Título do cargo" },
+            company: { type: "string", description: "Nome da empresa" },
+            job_function: { type: "string", description: "Função específica" },
+            city: { type: "string", description: "Nome da cidade (ou 'Remoto')" },
+            state: { type: "string", description: "UF de 2 letras maiúsculas" },
+            description: { type: "string", description: "Descrição completa" },
+            salary_range: { type: "string", description: "APENAS valor monetário" },
+            contact_phone: { type: "string", description: "Telefone de contato" },
+            application_link: { type: "string", description: "Link de inscrição" }
           }
         }
       });
       
-      // Auto-completar estado baseado na cidade
-      if (result.city) {
+      // Fallback: auto-completar estado se não veio da IA
+      if (result.city && !result.state) {
         const autoState = getStateFromCity(result.city);
         result.state = autoState || '';
       }

@@ -6,7 +6,7 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette, MapPin
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -63,6 +63,7 @@ const menuItems = [
   
   // Manutenção
   { id: 'divider-manutencao', type: 'divider', label: 'Manutenção', roles: ['admin', 'dono'] },
+  { id: 'update-jobs-location', name: 'Atualizar Localização de Vagas', icon: MapPin, color: 'blue', action: 'updateJobs', description: 'Atualizar cidade/UF de vagas antigas', roles: ['admin', 'dono'] },
   { id: 'migrate-notifications', name: 'Migrar Notificações', icon: Database, color: 'amber', action: 'migrate', description: 'Atualizar notificações antigas (executar 1x)', roles: ['admin', 'dono'] },
   
   // Painel Base44
@@ -142,7 +143,19 @@ export default function Configuracoes() {
 
 
   const handleItemClick = async (item) => {
-    if (item.action === 'migrate') {
+    if (item.action === 'updateJobs') {
+      if (!confirm('Atualizar cidade/UF de todas as vagas antigas? Pode levar alguns minutos.')) return;
+      
+      setMigrating(true);
+      try {
+        const response = await base44.functions.invoke('updateJobsLocation');
+        alert(response.data.message || 'Atualização concluída!');
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      } finally {
+        setMigrating(false);
+      }
+    } else if (item.action === 'migrate') {
       if (!confirm('Deseja migrar todas as notificações antigas? Isso pode levar alguns segundos.')) return;
       
       setMigrating(true);

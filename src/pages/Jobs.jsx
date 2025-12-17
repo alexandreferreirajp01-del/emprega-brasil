@@ -515,21 +515,25 @@ export default function Jobs() {
                 </SelectTrigger>
                 <SelectContent>
                   <ScrollArea className="h-[300px]">
-                    <SelectItem value="all">Todos Estados</SelectItem>
+                    <SelectItem value="all">Todos</SelectItem>
                     {availableStates.map((state) => (
                       <SelectItem key={state} value={state}>{state}</SelectItem>
                     ))}
-                  </ScrollArea>
+                  </SelectContent>
                 </SelectContent>
               </Select>
 
-              {/* City filter */}
+              {/* City filter - só ativo se estado selecionado */}
               <Popover open={cityOpen} onOpenChange={setCityOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full h-11 rounded-xl justify-start">
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-11 rounded-xl justify-start"
+                    disabled={selectedState === 'all'}
+                  >
                     <MapPin className="w-4 h-4 text-slate-400 mr-2" />
                     <span className="truncate">
-                      {selectedCity === 'all' ? 'Cidade' : selectedCity}
+                      {selectedCity === 'all' ? 'Todas' : selectedCity}
                     </span>
                   </Button>
                 </PopoverTrigger>
@@ -551,7 +555,7 @@ export default function Jobs() {
                             setCitySearch('');
                           }}
                         >
-                          Todas as cidades
+                          Todas
                         </CommandItem>
                         {filteredCities.map((city) => (
                           <CommandItem
@@ -577,7 +581,7 @@ export default function Jobs() {
                 <SelectTrigger className="h-11 rounded-xl">
                   <div className="flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-slate-400" />
-                    <SelectValue placeholder="Todos" />
+                    <SelectValue placeholder="Tipo" />
                   </div>
                 </SelectTrigger>
                 <SelectContent>
@@ -603,7 +607,7 @@ export default function Jobs() {
                 </SelectTrigger>
                 <SelectContent>
                   <ScrollArea className="h-[250px]">
-                    <SelectItem value="all">Todas categorias</SelectItem>
+                    <SelectItem value="all">Todas</SelectItem>
                     {categories.map(cat => (
                       <SelectItem key={cat.id} value={cat.category_name}>
                         {cat.category_name}
@@ -628,7 +632,7 @@ export default function Jobs() {
                     />
                   </div>
                   <ScrollArea className="h-[200px]">
-                    <SelectItem value="all">Todas funções</SelectItem>
+                    <SelectItem value="all">Todas</SelectItem>
                     {availableFunctions.filter(f => 
                       f.toLowerCase().includes(funcSearch.toLowerCase())
                     ).map((func) => (

@@ -54,7 +54,26 @@ export default function VagasHomeOffice() {
       }
       
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extraia TODAS as vagas home office deste texto. Para cada uma: titulo, link, descricao.${qrCodeLink ? ` (QR Code detectado: ${qrCodeLink})` : ''}\n\n${rawText}`,
+        prompt: `EXTRAIA TODAS as vagas HOME OFFICE deste texto:
+
+INSTRUÇÕES:
+1. Para cada vaga identifique:
+   - Título/cargo
+   - Link de inscrição
+   - Descrição completa
+   - Se mencionar cidade específica: extraia cidade e UF
+   
+2. IMPORTANTE: se a vaga for 100% remota SEM cidade específica:
+   - city: "Home Office"
+   - state: ""
+   
+3. Se mencionar cidade: identifique UF correspondente
+   - Ex: "Home Office com suporte em Recife" → city: "Recife", state: "PE"
+${qrCodeLink ? `
+QR CODE LINK: ${qrCodeLink}` : ''}
+
+TEXTO:
+${rawText}`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -64,6 +83,8 @@ export default function VagasHomeOffice() {
                 type: "object",
                 properties: {
                   titulo: { type: "string" },
+                  city: { type: "string", description: "Cidade ou 'Home Office'" },
+                  state: { type: "string", description: "UF de 2 letras" },
                   link: { type: "string" },
                   descricao: { type: "string" }
                 }
@@ -74,10 +95,22 @@ export default function VagasHomeOffice() {
       });
       
       const jobs = (result.vagas || []).map(v => {
-        // Auto-completar estado se cidade for mencionada
-        const cityMatch = v.titulo?.match(/\b([A-ZÇÁÉÍÓÚÂÊÔÃÕ][a-zçáéíóúâêôãõ]+(?:\s+[A-ZÇÁÉÍÓÚÂÊÔÃÕ][a-zçáéíóúâêôãõ]+)*)\b/);
-        const city = cityMatch ? cityMatch[0] : 'Brasil';
-        const state = getStateFromCity(city) || '';
+        // Priorizar dados da IA, fallback para "Home Office"
+        let finalCity = v.city || 'Home Office';
+        let finalState = v.state || '';
+        
+        // Fallback: tentar extrair cidade do título se IA não pegou
+        if (!v.city || v.city === 'Home Office') {
+          const cityMatch = v.titulo?.match(/\b([A-ZÇÁÉÍÓÚÂÊÔÃÕ][a-zçáéíóúâêôãõ]+(?:\s+[A-ZÇÁÉÍÓÚÂÊÔÃÕ][a-zçáéíóúâêôãõ]+)*)\b/);
+          if (cityMatch) {
+            const detectedCity = cityMatch[0];
+            const detectedState = getStateFromCity(detectedCity);
+            if (detectedState) {
+              finalCity = detectedCity;
+              finalState = detectedState;
+            }
+          }
+        }
         
         // Priorizar link do QR Code se não houver link na vaga
         const finalLink = v.link || qrCodeLink || '';
@@ -87,8 +120,8 @@ export default function VagasHomeOffice() {
           description: v.descricao || `Vaga Home Office - ${v.titulo}`,
           application_link: finalLink,
           job_type: 'Home Office',
-          state: state,
-          city: city
+          state: finalState,
+          city: finalCity
         };
       });
       

@@ -96,20 +96,42 @@ export default function PostarVaga() {
       
       // Extrair dados com IA
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analise esta imagem de vaga e extraia: título, empresa, função, cidade, descrição, salário, telefone, email, site.${qrCodeLink ? ` (O QR Code aponta para: ${qrCodeLink})` : ''}`,
+        prompt: `EXTRAIA COM PRECISÃO MÁXIMA os dados desta vaga de emprego:
+
+REGRAS CRÍTICAS:
+1. CIDADE e UF: SEMPRE identifique a cidade completa e a UF correspondente
+   - Recife → PE
+   - João Pessoa → PB
+   - Campina Grande → PB
+   - São Paulo → SP
+   - Se houver múltiplas cidades, use a primeira/principal
+   
+2. FAIXA SALARIAL: extraia APENAS valores monetários
+   - Válido: "R$ 1.500", "2.000", "1.500 a 2.500"
+   - INVÁLIDO: benefícios, horários, descrições
+   - Se não houver salário numérico, deixe VAZIO
+
+3. DADOS DE CONTATO:
+   - Telefone (formato: 83999999999)
+   - Email
+   - Website/Link${qrCodeLink ? `
+   - QR CODE DETECTADO: ${qrCodeLink}` : ''}
+
+EXTRAIA:`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
           properties: {
-            title: { type: "string" },
-            company: { type: "string" },
-            job_function: { type: "string" },
-            city: { type: "string" },
-            description: { type: "string" },
-            salary_range: { type: "string" },
-            contact_phone: { type: "string" },
-            contact_email: { type: "string" },
-            website: { type: "string" }
+            title: { type: "string", description: "Título/cargo da vaga" },
+            company: { type: "string", description: "Nome da empresa" },
+            job_function: { type: "string", description: "Função/cargo específico" },
+            city: { type: "string", description: "Nome completo da cidade" },
+            state: { type: "string", description: "UF do estado (2 letras maiúsculas)" },
+            description: { type: "string", description: "Descrição completa, requisitos, benefícios" },
+            salary_range: { type: "string", description: "APENAS valor monetário ou faixa salarial" },
+            contact_phone: { type: "string", description: "Telefone para contato" },
+            contact_email: { type: "string", description: "Email para contato" },
+            website: { type: "string", description: "Link de inscrição ou site" }
           }
         }
       });
@@ -131,15 +153,15 @@ export default function PostarVaga() {
           console.error('Erro ao classificar categoria:', e);
         }
 
-        // Auto-completar estado baseado na cidade
-        const autoState = result.city ? getStateFromCity(result.city) : null;
+        // Priorizar estado extraído, senão auto-completar
+        const finalState = result.state || (result.city ? getStateFromCity(result.city) : '');
 
         setFormData(prev => ({
           ...prev,
           title: result.title || prev.title,
           company: result.company || prev.company,
           job_function: result.job_function || prev.job_function,
-          state: autoState || prev.state,
+          state: finalState || prev.state,
           city: result.city || prev.city,
           description: result.description || prev.description,
           salary_range: result.salary_range || prev.salary_range,
