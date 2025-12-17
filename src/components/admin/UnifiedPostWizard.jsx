@@ -46,6 +46,14 @@ const NOTIFICATION_TEMPLATES = [
   { id: 'perfeita', emoji: '🎯', title: 'VAGA PERFEITA!', msg: 'Essa vaga combina com você!' },
   { id: 'salario', emoji: '💰', title: 'SALÁRIO ATRATIVO!', msg: 'Vaga com ótima remuneração!' },
   { id: 'empresa', emoji: '🏢', title: 'EMPRESA TOP!', msg: 'Grande empresa está contratando!' },
+  { id: 'exclusiva', emoji: '👑', title: 'VAGA EXCLUSIVA!', msg: 'Oportunidade única no mercado!' },
+  { id: 'homeoffice', emoji: '🏠', title: 'HOME OFFICE!', msg: 'Trabalhe de onde quiser!' },
+  { id: 'beneficios', emoji: '🎁', title: 'ÓTIMOS BENEFÍCIOS!', msg: 'Pacote de benefícios atrativo!' },
+  { id: 'crescimento', emoji: '📈', title: 'OPORTUNIDADE DE CRESCIMENTO!', msg: 'Desenvolva sua carreira conosco!' },
+  { id: 'imediato', emoji: '⚡', title: 'CONTRATAÇÃO IMEDIATA!', msg: 'Processo seletivo rápido!' },
+  { id: 'junior', emoji: '🌱', title: 'PRIMEIRA OPORTUNIDADE!', msg: 'Vaga para iniciar carreira!' },
+  { id: 'senior', emoji: '💼', title: 'VAGA SÊNIOR!', msg: 'Oportunidade para profissionais experientes!' },
+  { id: 'destaque', emoji: '🌟', title: 'EM DESTAQUE!', msg: 'Não perca essa chance!' },
 ];
 
 function getBrasiliaTime() {
@@ -60,36 +68,26 @@ export default function UnifiedPostWizard({
   isLoading = false,
   toolType = 'job'
 }) {
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(1);
   
-  // Etapa 2 - Tipos de Contratação + Revisão
+  // Etapa 1 - Revisão + Tipos de Contratação + Premium Individual
   const [selectedContractTypes, setSelectedContractTypes] = useState([]);
-  
-  // Etapa 3 - Visibilidade
-  const [isPremium, setIsPremium] = useState(false);
-  const [isFeatured, setIsFeatured] = useState(false);
   const [individualPremiumFlags, setIndividualPremiumFlags] = useState({});
+  const [isFeatured, setIsFeatured] = useState(false);
   
-  // Etapa 4 - Notificações (Dialog)
-  const [showNotifDialog, setShowNotifDialog] = useState(false);
+  // Etapa 2 - Notificações
   const [sendNotification, setSendNotification] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState('urgente');
   const [customTitle, setCustomTitle] = useState('');
   const [customMessage, setCustomMessage] = useState('');
-  const [notificationIcon, setNotificationIcon] = useState('💼');
   const [notifChannels, setNotifChannels] = useState({
     email: false,
     push: false,
-    bell: true,
-    whatsapp: false
+    bell: true
   });
-  const [premiumOnlyNotif, setPremiumOnlyNotif] = useState(false);
   const [notificationConfigured, setNotificationConfigured] = useState(false);
   
-  // WhatsApp Helper
-  const [showWhatsAppHelper, setShowWhatsAppHelper] = useState(false);
-  
-  // Etapa 5 - Publicação
+  // Etapa 3 - Publicação
   const [publishMode, setPublishMode] = useState('now');
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
@@ -120,13 +118,11 @@ export default function UnifiedPostWizard({
 
   const handlePublish = async () => {
     const brasiliaTime = getBrasiliaTime().toISOString();
-    
+
     const notificationData = sendNotification && notificationConfigured ? {
       title: customTitle || `${template.emoji} ${template.title}`,
       message: customMessage || template.msg,
-      icon: notificationIcon,
-      channels: notifChannels,
-      premiumOnly: premiumOnlyNotif
+      channels: notifChannels
     } : null;
 
     const scheduleData = publishMode === 'schedule' ? {
@@ -139,7 +135,7 @@ export default function UnifiedPostWizard({
     const jobsToPublish = jobsData.map((j, idx) => ({
       ...j,
       contract_types: selectedContractTypes,
-      is_premium: individualPremiumFlags[idx] !== undefined ? individualPremiumFlags[idx] : isPremium,
+      is_premium: individualPremiumFlags[idx] || false,
       is_featured: isFeatured,
       published_at: brasiliaTime
     }));
@@ -155,11 +151,6 @@ export default function UnifiedPostWizard({
     } else {
       await onPublish?.(finalData);
     }
-    
-    // Mostrar helper do WhatsApp se marcado (não bloquear)
-    if (notificationData?.channels?.whatsapp) {
-      setTimeout(() => setShowWhatsAppHelper(true), 100);
-    }
   };
 
   return (
@@ -168,10 +159,10 @@ export default function UnifiedPostWizard({
       <div className="bg-white p-4 rounded-xl shadow-sm">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold text-slate-600">Progresso</span>
-          <span className="text-xs text-slate-500">Etapa {step - 1} de 4</span>
+          <span className="text-xs text-slate-500">Etapa {step} de 3</span>
         </div>
         <div className="flex gap-2">
-          {[2, 3, 4, 5].map((s) => (
+          {[1, 2, 3].map((s) => (
             <div key={s} className={`h-2 flex-1 rounded-full transition-all ${
               step >= s ? 'bg-[#0A66C2]' : 'bg-slate-200'
             }`} />
@@ -179,14 +170,13 @@ export default function UnifiedPostWizard({
         </div>
         <div className="flex justify-between mt-2 text-[10px] text-slate-400">
           <span>Revisão</span>
-          <span>Visibilidade</span>
           <span>Notificação</span>
           <span>Publicar</span>
         </div>
       </div>
 
-      {/* ETAPA 2 - Tipos de Contratação + Revisão */}
-      {step === 2 && (
+      {/* ETAPA 1 - Revisão + Tipos de Contratação + Premium Individual */}
+      {step === 1 && (
         <Card className="rounded-xl">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center gap-2 mb-4">
@@ -239,7 +229,14 @@ export default function UnifiedPostWizard({
             )}
 
             <div className="pt-4 border-t">
-              <p className="text-xs font-semibold text-slate-700 mb-2">Vagas para Publicar:</p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-semibold text-slate-700">Vagas para Publicar:</p>
+                <div className="flex items-center gap-2 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <Star className="w-4 h-4 text-yellow-600" />
+                  <span className="text-xs font-medium text-yellow-800">Destaque</span>
+                  <Switch checked={isFeatured} onCheckedChange={setIsFeatured} className="scale-75" />
+                </div>
+              </div>
               <div className="space-y-2 max-h-[300px] overflow-y-auto">
                 {jobsData.map((job, i) => (
                   <div key={i} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
@@ -255,7 +252,7 @@ export default function UnifiedPostWizard({
                         <div className="flex items-center gap-1.5 bg-purple-50 px-2 py-1.5 rounded-lg border border-purple-200">
                           <Crown className="w-3.5 h-3.5 text-purple-600" />
                           <Switch
-                            checked={individualPremiumFlags[i] !== undefined ? individualPremiumFlags[i] : isPremium}
+                            checked={individualPremiumFlags[i] || false}
                             onCheckedChange={(checked) => {
                               setIndividualPremiumFlags(prev => ({ ...prev, [i]: checked }));
                             }}
@@ -271,90 +268,171 @@ export default function UnifiedPostWizard({
             </div>
 
             <Button
-              onClick={() => setStep(3)}
+              onClick={() => setStep(2)}
               disabled={selectedContractTypes.length === 0}
               className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
             >
-              Configurar Visibilidade
+              Configurar Notificações
               <ChevronRight className="w-5 h-5 ml-2" />
             </Button>
           </CardContent>
         </Card>
       )}
 
-      {/* ETAPA 3 - Visibilidade */}
-      {step === 3 && (
+      {/* ETAPA 2 - Notificações */}
+      {step === 2 && (
         <Card className="rounded-xl">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Eye className="w-5 h-5 text-purple-600" />
+              <div className="w-8 h-8 bg-[#0A66C2]/10 rounded-lg flex items-center justify-center">
+                <Bell className="w-5 h-5 text-[#0A66C2]" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-800">Visibilidade</h3>
-                <p className="text-xs text-slate-500">Defina quem pode ver</p>
+                <h3 className="font-semibold text-slate-800">Configurar Notificações</h3>
+                <p className="text-xs text-slate-500">Avisar usuários sobre as novas vagas</p>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <button
-                onClick={() => setIsPremium(false)}
-                className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
-                  !isPremium ? 'border-[#0A66C2] bg-[#0A66C2]/5' : 'border-slate-200'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Globe className="w-5 h-5 text-[#0A66C2]" />
-                  <div className="flex-1">
-                    <p className="font-medium text-slate-800">Público</p>
-                    <p className="text-xs text-slate-500">Todos podem visualizar</p>
-                  </div>
-                  {!isPremium && <Check className="w-5 h-5 text-[#0A66C2]" />}
-                </div>
-              </button>
-
-              <button
-                onClick={() => setIsPremium(true)}
-                className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
-                  isPremium ? 'border-purple-600 bg-purple-50' : 'border-slate-200'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Crown className="w-5 h-5 text-purple-600" />
-                  <div className="flex-1">
-                    <p className="font-medium text-slate-800">Apenas Premium</p>
-                    <p className="text-xs text-slate-500">Exclusivo para assinantes</p>
-                  </div>
-                  {isPremium && <Check className="w-5 h-5 text-purple-600" />}
-                </div>
-              </button>
+            {/* Toggle Sim/Não */}
+            <div className="p-4 bg-yellow-50 rounded-xl border-2 border-yellow-200">
+              <p className="text-sm font-semibold text-slate-800 mb-3">Enviar notificações?</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setSendNotification(false)}
+                  className={`p-3 rounded-lg border-2 transition-all ${
+                    sendNotification === false ? 'border-slate-600 bg-slate-100' : 'border-slate-200'
+                  }`}
+                >
+                  <p className="font-medium text-sm">Não</p>
+                </button>
+                <button
+                  onClick={() => setSendNotification(true)}
+                  className={`p-3 rounded-lg border-2 transition-all ${
+                    sendNotification === true ? 'border-green-600 bg-green-50' : 'border-slate-200'
+                  }`}
+                >
+                  <p className="font-medium text-sm">Sim</p>
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-600" />
+            {sendNotification === true && (
+              <div className="space-y-4">
+                {/* Canais de Notificação (SEM WhatsApp) */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-slate-700 block">Enviar para:</Label>
+                  
+                  <div className="flex items-center justify-between p-2.5 bg-[#0A66C2]/5 rounded-lg border border-[#0A66C2]/20">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-[#0A66C2]" />
+                      <span className="text-xs font-medium">Email</span>
+                    </div>
+                    <Checkbox 
+                      checked={notifChannels.email} 
+                      onCheckedChange={(c) => setNotifChannels(prev => ({ ...prev, email: c }))}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 bg-purple-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-purple-600" />
+                      <span className="text-xs font-medium">Push App</span>
+                    </div>
+                    <Checkbox 
+                      checked={notifChannels.push} 
+                      onCheckedChange={(c) => setNotifChannels(prev => ({ ...prev, push: c }))}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-4 h-4 text-green-600" />
+                      <span className="text-xs font-medium">Sininho Interno</span>
+                    </div>
+                    <Checkbox 
+                      checked={notifChannels.bell} 
+                      onCheckedChange={(c) => setNotifChannels(prev => ({ ...prev, bell: c }))}
+                    />
+                  </div>
+                </div>
+
+                {/* Template */}
                 <div>
-                  <p className="font-medium text-sm">Vaga em Destaque</p>
-                  <p className="text-xs text-slate-500">Aparece no topo</p>
+                  <Label className="text-xs font-semibold text-slate-700 mb-2 block">Template</Label>
+                  <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {NOTIFICATION_TEMPLATES.map(t => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.emoji} {t.title}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="custom">✍️ Personalizar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedTemplate === 'custom' && (
+                  <div className="space-y-2">
+                    <div>
+                      <Label className="text-xs text-slate-600 mb-1 block">Título</Label>
+                      <Input
+                        value={customTitle}
+                        onChange={(e) => setCustomTitle(e.target.value)}
+                        placeholder="Ex: 🔥 VAGA IMPERDÍVEL!"
+                        className="h-10"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-slate-600 mb-1 block">Mensagem</Label>
+                      <Textarea
+                        value={customMessage}
+                        onChange={(e) => setCustomMessage(e.target.value)}
+                        placeholder="Ex: Nova oportunidade incrível!"
+                        className="min-h-[60px] text-sm"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Preview */}
+                <div className="p-3 bg-white rounded-lg border border-slate-200">
+                  <p className="text-xs font-semibold text-slate-600 mb-2">Preview:</p>
+                  <div className="flex items-start gap-2">
+                    <span className="text-lg">{template.emoji}</span>
+                    <div>
+                      <p className="font-semibold text-sm text-slate-800">
+                        {customTitle || `${template.emoji} ${template.title}`}
+                      </p>
+                      <p className="text-xs text-slate-600 mt-0.5">
+                        {customMessage || template.msg}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <Switch checked={isFeatured} onCheckedChange={setIsFeatured} />
-            </div>
+            )}
 
             <div className="flex gap-3 pt-4">
               <Button
                 variant="outline"
-                onClick={() => setStep(2)}
+                onClick={() => setStep(1)}
                 className="flex-1 h-11 rounded-xl"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
                 Voltar
               </Button>
               <Button
-                onClick={() => setShowNotifDialog(true)}
+                onClick={() => {
+                  setNotificationConfigured(true);
+                  setStep(3);
+                }}
+                disabled={sendNotification === null}
                 className="flex-1 h-11 bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
               >
-                Notificações
+                Publicar
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
@@ -362,8 +440,8 @@ export default function UnifiedPostWizard({
         </Card>
       )}
 
-      {/* ETAPA 4 - Publicação */}
-      {step === 4 && (
+      {/* ETAPA 3 - Publicação */}
+      {step === 3 && (
         <Card className="rounded-xl">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center gap-2 mb-4">
@@ -454,7 +532,7 @@ export default function UnifiedPostWizard({
               <div className="space-y-1 text-xs text-slate-600">
                 <p>• {jobCount} vaga{jobCount > 1 ? 's' : ''}</p>
                 <p>• Tipos: {selectedContractTypes.join(', ')}</p>
-                <p>• Visibilidade: {isPremium ? '👑 Premium' : '🌍 Público'}</p>
+                <p>• Premium: {Object.values(individualPremiumFlags).filter(Boolean).length} de {jobCount}</p>
                 {isFeatured && <p>• ⭐ Em destaque</p>}
                 <p>• Notificações: {sendNotification && notificationConfigured ? '✅ Configuradas' : '❌ Desativadas'}</p>
                 <p>• Modo: {publishMode === 'now' ? '⚡ Imediato' : '🕐 Agendado'}</p>
@@ -464,7 +542,7 @@ export default function UnifiedPostWizard({
             <div className="flex gap-3 pt-4">
               <Button
                 variant="outline"
-                onClick={() => setStep(3)}
+                onClick={() => setStep(2)}
                 disabled={isLoading}
                 className="flex-1 h-12 rounded-xl"
               >
@@ -489,207 +567,7 @@ export default function UnifiedPostWizard({
         </Card>
       )}
 
-      {/* DIALOG DE NOTIFICAÇÕES */}
-      <Dialog open={showNotifDialog} onOpenChange={setShowNotifDialog}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-[#0A66C2]" />
-              Configurar Notificações
-            </DialogTitle>
-          </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            {/* Toggle Sim/Não */}
-            <div className="p-4 bg-yellow-50 rounded-xl border-2 border-yellow-200">
-              <p className="text-sm font-semibold text-slate-800 mb-3">Enviar notificações?</p>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setSendNotification(false)}
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    sendNotification === false ? 'border-slate-600 bg-slate-100' : 'border-slate-200'
-                  }`}
-                >
-                  <p className="font-medium text-sm">Não</p>
-                </button>
-                <button
-                  onClick={() => setSendNotification(true)}
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    sendNotification === true ? 'border-green-600 bg-green-50' : 'border-slate-200'
-                  }`}
-                >
-                  <p className="font-medium text-sm">Sim</p>
-                </button>
-              </div>
-            </div>
-
-            {sendNotification === true && (
-              <div className="space-y-4">
-                {/* Canais de Notificação */}
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-700 block">Enviar para:</Label>
-                  
-                  <div className="flex items-center justify-between p-2.5 bg-[#0A66C2]/5 rounded-lg border border-[#0A66C2]/20">
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-[#0A66C2]" />
-                      <span className="text-xs font-medium">Email</span>
-                    </div>
-                    <Checkbox 
-                      checked={notifChannels.email} 
-                      onCheckedChange={(c) => setNotifChannels(prev => ({ ...prev, email: c }))}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between p-2.5 bg-purple-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-purple-600" />
-                      <span className="text-xs font-medium">Push App</span>
-                    </div>
-                    <Checkbox 
-                      checked={notifChannels.push} 
-                      onCheckedChange={(c) => setNotifChannels(prev => ({ ...prev, push: c }))}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Bell className="w-4 h-4 text-green-600" />
-                      <span className="text-xs font-medium">Sininho Interno</span>
-                    </div>
-                    <Checkbox 
-                      checked={notifChannels.bell} 
-                      onCheckedChange={(c) => setNotifChannels(prev => ({ ...prev, bell: c }))}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg border border-green-200">
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                      </svg>
-                      <span className="text-xs font-medium">WhatsApp</span>
-                    </div>
-                    <Checkbox 
-                      checked={notifChannels.whatsapp} 
-                      onCheckedChange={(c) => setNotifChannels(prev => ({ ...prev, whatsapp: c }))}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs font-semibold text-slate-700 mb-2 block">Template</Label>
-                  <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                    <SelectTrigger className="h-10">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {NOTIFICATION_TEMPLATES.map(t => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.emoji} {t.title}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="custom">✍️ Personalizar</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedTemplate === 'custom' && (
-                  <div className="space-y-2">
-                    <div>
-                      <Label className="text-xs text-slate-600 mb-1 block">Título</Label>
-                      <Input
-                        value={customTitle}
-                        onChange={(e) => setCustomTitle(e.target.value)}
-                        placeholder="Ex: 🔥 VAGA IMPERDÍVEL!"
-                        className="h-10"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs text-slate-600 mb-1 block">Mensagem</Label>
-                      <Textarea
-                        value={customMessage}
-                        onChange={(e) => setCustomMessage(e.target.value)}
-                        placeholder="Ex: Nova oportunidade incrível!"
-                        className="min-h-[60px] text-sm"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <Label className="text-xs font-semibold text-slate-700 mb-2 block">Ícone</Label>
-                  <div className="flex gap-2 flex-wrap">
-                    {['💼', '🚨', '⭐', '✨', '🎯', '💰', '🏢', '🚀'].map(emoji => (
-                      <button
-                        key={emoji}
-                        onClick={() => setNotificationIcon(emoji)}
-                        className={`w-11 h-11 rounded-lg border-2 text-xl transition-all ${
-                          notificationIcon === emoji ? 'border-[#0A66C2] bg-[#0A66C2]/5' : 'border-slate-200'
-                        }`}
-                      >
-                        {emoji}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-2.5 bg-purple-50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Crown className="w-4 h-4 text-purple-600" />
-                    <span className="text-xs font-medium">Apenas Premium</span>
-                  </div>
-                  <Switch checked={premiumOnlyNotif} onCheckedChange={setPremiumOnlyNotif} />
-                </div>
-
-                {/* Preview */}
-                <div className="p-3 bg-white rounded-lg border border-slate-200">
-                  <p className="text-xs font-semibold text-slate-600 mb-2">Preview:</p>
-                  <div className="flex items-start gap-2">
-                    <span className="text-lg">{notificationIcon}</span>
-                    <div>
-                      <p className="font-semibold text-sm text-slate-800">
-                        {customTitle || `${template.emoji} ${template.title}`}
-                      </p>
-                      <p className="text-xs text-slate-600 mt-0.5">
-                        {customMessage || template.msg}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-3 pt-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowNotifDialog(false);
-                  setStep(3);
-                }}
-                className="flex-1 h-11 rounded-xl"
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleSaveNotificationConfig}
-                disabled={sendNotification === null}
-                className="flex-1 h-11 bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
-              >
-                <Check className="w-4 h-4 mr-2" />
-                Salvar
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Bulk WhatsApp Sender */}
-      <BulkWhatsAppSender
-        title={customTitle || `${template.emoji} ${template.title}`}
-        message={customMessage || template.msg}
-        isOpen={showWhatsAppHelper}
-        onClose={() => setShowWhatsAppHelper(false)}
-      />
     </div>
   );
 }
