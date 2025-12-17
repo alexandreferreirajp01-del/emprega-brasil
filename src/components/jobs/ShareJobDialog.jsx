@@ -36,7 +36,7 @@ export default function ShareJobDialog({ open, onOpenChange, job }) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Share2 className="w-5 h-5 text-[#0056ff]" />
+            <Share2 className="w-5 h-5 text-[#0A66C2]" />
             Compartilhar Vaga
           </DialogTitle>
         </DialogHeader>
