@@ -20,6 +20,7 @@ import GerenciadorFiltros from './pages/GerenciadorFiltros';
 import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarCores from './pages/GerenciarCores';
 import GerenciarFuncoes from './pages/GerenciarFuncoes';
+import GerenciarNoticias from './pages/GerenciarNoticias';
 import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPopups from './pages/GerenciarPopups';
 import GerenciarPrecos from './pages/GerenciarPrecos';
@@ -62,7 +63,6 @@ import Utilidades from './pages/Utilidades';
 import VagasConverter from './pages/VagasConverter';
 import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPorIA from './pages/VagasPorIA';
-import GerenciarNoticias from './pages/GerenciarNoticias';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +89,7 @@ export const PAGES = {
     "GerenciarComunidade": GerenciarComunidade,
     "GerenciarCores": GerenciarCores,
     "GerenciarFuncoes": GerenciarFuncoes,
+    "GerenciarNoticias": GerenciarNoticias,
     "GerenciarPlanos": GerenciarPlanos,
     "GerenciarPopups": GerenciarPopups,
     "GerenciarPrecos": GerenciarPrecos,
@@ -131,7 +132,6 @@ export const PAGES = {
     "VagasConverter": VagasConverter,
     "VagasHomeOffice": VagasHomeOffice,
     "VagasPorIA": VagasPorIA,
-    "GerenciarNoticias": GerenciarNoticias,
 }
 
 export const pagesConfig = {

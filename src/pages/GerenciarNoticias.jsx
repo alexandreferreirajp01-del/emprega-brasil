@@ -451,19 +451,22 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
                     <FileText className="w-4 h-4 mr-2" />
                     Texto
                   </Button>
-                  <label>
+                  <label className="cursor-pointer">
                     <Button 
                       type="button" 
                       variant="outline" 
                       disabled={uploadingMedia}
-                      className="rounded-xl h-9"
+                      className="rounded-xl h-9 pointer-events-none"
+                      asChild
                     >
-                      {uploadingMedia ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <Film className="w-4 h-4 mr-2" />
-                      )}
-                      Mídia
+                      <span>
+                        {uploadingMedia ? (
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        ) : (
+                          <Film className="w-4 h-4 mr-2" />
+                        )}
+                        Mídia
+                      </span>
                     </Button>
                     <input 
                       type="file" 
@@ -471,6 +474,7 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
                       className="hidden" 
                       onChange={handleMediaUpload}
                       disabled={uploadingMedia}
+                      key={formData.blocks.length}
                     />
                   </label>
                 </div>
