@@ -350,25 +350,30 @@ export default function GerenciarNoticias() {
                     {formData.blocks.map((block, index) => (
                       <div key={index} className="border rounded-xl p-3 sm:p-4 space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs sm:text-sm font-medium text-slate-600">
-                            {block.type === 'image' ? '🖼️ Imagem' : '📝 Texto'}
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveBlock(index)}
-                            className="text-red-600 h-8 text-xs sm:text-sm"
-                          >
-                            Remover
-                          </Button>
+                         <span className="text-xs sm:text-sm font-medium text-slate-600">
+                           {block.type === 'image' ? (
+                             block.image_url?.includes('.mp4') || block.image_url?.includes('.webm') || 
+                             block.image_url?.includes('.mov') || block.image_url?.includes('.avi') 
+                             ? '🎥 Vídeo' : '🖼️ Imagem'
+                           ) : '📝 Texto'}
+                         </span>
+                         <Button
+                           type="button"
+                           variant="ghost"
+                           size="sm"
+                           onClick={() => handleRemoveBlock(index)}
+                           className="text-red-600 h-8 text-xs sm:text-sm"
+                         >
+                           Remover
+                         </Button>
                         </div>
                         {block.type === 'image' ? (
-                          block.image_url?.endsWith('.mp4') || block.image_url?.endsWith('.webm') ? (
-                            <video src={block.image_url} controls className="w-full h-32 sm:h-48 object-cover rounded-lg" />
-                          ) : (
-                            <img src={block.image_url} alt="" className="w-full h-32 sm:h-48 object-cover rounded-lg" />
-                          )
+                         block.image_url?.includes('.mp4') || block.image_url?.includes('.webm') || 
+                         block.image_url?.includes('.mov') || block.image_url?.includes('.avi') ? (
+                           <video src={block.image_url} controls className="w-full h-32 sm:h-48 rounded-lg" />
+                         ) : (
+                           <img src={block.image_url} alt="" className="w-full h-32 sm:h-48 object-cover rounded-lg" />
+                         )
                         ) : (
                           <Textarea
                             value={block.content}
@@ -455,8 +460,9 @@ export default function GerenciarNoticias() {
                   <div key={index} className="border rounded-lg p-3">
                     {block.type === 'image' ? (
                       <div>
-                        {block.image_url?.endsWith('.mp4') || block.image_url?.endsWith('.webm') ? (
-                          <video src={block.image_url} controls className="w-full h-32 object-cover rounded mb-2" />
+                        {block.image_url?.includes('.mp4') || block.image_url?.includes('.webm') || 
+                         block.image_url?.includes('.mov') || block.image_url?.includes('.avi') ? (
+                          <video src={block.image_url} controls className="w-full h-32 rounded mb-2" />
                         ) : (
                           <img src={block.image_url} alt="" className="w-full h-32 object-cover rounded mb-2" />
                         )}

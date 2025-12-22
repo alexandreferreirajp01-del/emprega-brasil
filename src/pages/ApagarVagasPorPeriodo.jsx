@@ -77,11 +77,14 @@ export default function ApagarVagasPorPeriodo() {
 
     try {
       setLoading(true);
-      const jobs = await base44.entities.Job.filter({
-        published_at: {
-          $gte: start.toISOString(),
-          $lte: end.toISOString()
-        }
+      
+      // Buscar TODAS as vagas e filtrar localmente
+      const allJobs = await base44.entities.Job.list('-created_date', 10000);
+      
+      // Filtrar vagas pelo período (usando published_at ou created_date)
+      const jobs = allJobs.filter(job => {
+        const jobDate = new Date(job.published_at || job.created_date);
+        return jobDate >= start && jobDate <= end;
       });
 
       setPreviewJobs(jobs);
@@ -89,9 +92,11 @@ export default function ApagarVagasPorPeriodo() {
       
       if (jobs.length === 0) {
         toast.info('Nenhuma vaga encontrada para o período selecionado');
+      } else {
+        toast.success(`✅ Encontradas ${jobs.length} vaga${jobs.length > 1 ? 's' : ''} no período`);
       }
     } catch (error) {
-      toast.error('Erro ao buscar vagas');
+      toast.error('❌ Erro ao buscar vagas: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -106,51 +111,68 @@ export default function ApagarVagasPorPeriodo() {
       const jobIds = previewJobs.map(j => j.id);
       const total = jobIds.length;
       
-      // Processar em lotes de 20
-      const batchSize = 20;
       let deleted = 0;
 
-      for (let i = 0; i < jobIds.length; i += batchSize) {
-        const batch = jobIds.slice(i, i + batchSize);
-        
-        // Apagar vagas
-        for (const jobId of batch) {
+      // Apagar TODOS os dados relacionados ANTES de apagar as vagas
+      for (const jobId of jobIds) {
+        try {
+          // Apagar favoritos
+          const favorites = await base44.entities.FavoriteJob.filter({ job_id: jobId });
+          for (const fav of favorites) {
+            await base44.entities.FavoriteJob.delete(fav.id);
+          }
+        } catch (e) {
+          console.warn('Erro ao apagar favoritos:', e);
+        }
+
+        try {
+          // Apagar views
+          const views = await base44.entities.JobView.filter({ job_id: jobId });
+          for (const view of views) {
+            await base44.entities.JobView.delete(view.id);
+          }
+        } catch (e) {
+          console.warn('Erro ao apagar views:', e);
+        }
+
+        try {
+          // Apagar do histórico
+          const history = await base44.entities.ViewHistory.filter({ job_id: jobId });
+          for (const h of history) {
+            await base44.entities.ViewHistory.delete(h.id);
+          }
+        } catch (e) {
+          console.warn('Erro ao apagar histórico:', e);
+        }
+
+        // Finalmente apagar a vaga
+        try {
           await base44.entities.Job.delete(jobId);
-          
-          // Apagar dados relacionados
-          try {
-            const favorites = await base44.entities.FavoriteJob.filter({ job_id: jobId });
-            for (const fav of favorites) {
-              await base44.entities.FavoriteJob.delete(fav.id);
-            }
-          } catch (e) {}
-
-          try {
-            const views = await base44.entities.JobView.filter({ job_id: jobId });
-            for (const view of views) {
-              await base44.entities.JobView.delete(view.id);
-            }
-          } catch (e) {}
-
           deleted++;
           setDeleteProgress(Math.floor((deleted / total) * 100));
+        } catch (e) {
+          console.error('Erro ao apagar vaga:', jobId, e);
         }
       }
 
       // Criar log de segurança
-      await base44.functions.invoke('createSecurityLog', {
-        admin_email: user.email,
-        admin_name: user.full_name || user.email,
-        action_type: 'delete_jobs_by_period',
-        description: `Apagou ${total} vagas do período ${new Date(startDate).toLocaleDateString('pt-BR')} até ${new Date(endDate).toLocaleDateString('pt-BR')}`,
-        metadata: {
-          start_date: startDate,
-          end_date: endDate,
-          jobs_deleted: total
-        }
-      });
+      try {
+        await base44.functions.invoke('createSecurityLog', {
+          admin_email: user.email,
+          admin_name: user.full_name || user.email,
+          action_type: 'delete_jobs_by_period',
+          description: `Apagou ${deleted} vagas do período ${new Date(startDate).toLocaleDateString('pt-BR')} até ${new Date(endDate).toLocaleDateString('pt-BR')}`,
+          metadata: {
+            start_date: startDate,
+            end_date: endDate,
+            jobs_deleted: deleted
+          }
+        });
+      } catch (e) {
+        console.warn('Erro ao criar log:', e);
+      }
 
-      toast.success(`${total} vaga${total > 1 ? 's' : ''} apagada${total > 1 ? 's' : ''} com sucesso!`);
+      toast.success(`✅ ${deleted} vaga${deleted > 1 ? 's' : ''} apagada${deleted > 1 ? 's' : ''} com sucesso!`);
       
       // Resetar estados
       setPreviewJobs([]);
@@ -159,7 +181,7 @@ export default function ApagarVagasPorPeriodo() {
       setEndDate('');
       
     } catch (error) {
-      toast.error('Erro ao apagar vagas: ' + error.message);
+      toast.error('❌ Erro ao apagar vagas: ' + error.message);
     } finally {
       setIsDeleting(false);
       setDeleteProgress(0);
