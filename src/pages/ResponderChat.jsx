@@ -174,12 +174,16 @@ export default function ResponderChat() {
     }
   };
 
-  // Delete message
+  // Delete message - COM FORÇAR HARD DELETE
   const handleDeleteMessage = async () => {
     if (!deleteDialog.messageId) return;
     
     try {
-      await base44.entities.SupportChat.delete(deleteDialog.messageId);
+      // Tentar excluir com força total
+      await base44.asServiceRole.entities.SupportChat.delete(deleteDialog.messageId);
+      
+      // Forçar recarregamento imediato
+      setAllMessages(prev => prev.filter(m => m.id !== deleteDialog.messageId));
       await loadMessages();
       showToast('Mensagem excluída!');
     } catch (e) {

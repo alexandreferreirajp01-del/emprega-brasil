@@ -340,9 +340,9 @@ export default function GerenciarNoticias() {
                         </Button>
                         <label className="flex-1 sm:flex-initial">
                           <Button type="button" variant="outline" disabled={uploadingImage} className="rounded-xl w-full text-xs sm:text-sm h-9">
-                            {uploadingImage ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : '🖼️ Imagem'}
+                            {uploadingImage ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : '🖼️ Mídia'}
                           </Button>
-                          <input type="file" accept="image/*" className="hidden" onChange={handleImageUploadCreate} />
+                          <input type="file" accept="image/*,video/*" className="hidden" onChange={handleImageUploadCreate} />
                         </label>
                       </div>
                     </div>
@@ -364,7 +364,11 @@ export default function GerenciarNoticias() {
                           </Button>
                         </div>
                         {block.type === 'image' ? (
-                          <img src={block.image_url} alt="" className="w-full h-32 sm:h-48 object-cover rounded-lg" />
+                          block.image_url?.endsWith('.mp4') || block.image_url?.endsWith('.webm') ? (
+                            <video src={block.image_url} controls className="w-full h-32 sm:h-48 object-cover rounded-lg" />
+                          ) : (
+                            <img src={block.image_url} alt="" className="w-full h-32 sm:h-48 object-cover rounded-lg" />
+                          )
                         ) : (
                           <Textarea
                             value={block.content}
@@ -444,21 +448,25 @@ export default function GerenciarNoticias() {
                     <Button type="button" size="sm" variant="outline" disabled={uploadingImage} className="h-8 sm:h-9 text-xs sm:text-sm">
                       {uploadingImage ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4" />}
                     </Button>
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e)} />
+                    <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => handleImageUpload(e)} />
                   </label>
                 </div>
                 {(editingNews.blocks || []).map((block, index) => (
                   <div key={index} className="border rounded-lg p-3">
                     {block.type === 'image' ? (
                       <div>
-                        <img src={block.image_url} alt="" className="w-full h-32 object-cover rounded mb-2" />
+                        {block.image_url?.endsWith('.mp4') || block.image_url?.endsWith('.webm') ? (
+                          <video src={block.image_url} controls className="w-full h-32 object-cover rounded mb-2" />
+                        ) : (
+                          <img src={block.image_url} alt="" className="w-full h-32 object-cover rounded mb-2" />
+                        )}
                         <label>
                           <Button type="button" size="sm" variant="outline" className="w-full text-xs sm:text-sm h-8 sm:h-9">
-                            Alterar Imagem
+                            Alterar Mídia
                           </Button>
                           <input
                             type="file"
-                            accept="image/*"
+                            accept="image/*,video/*"
                             className="hidden"
                             onChange={(e) => handleImageUpload(e, index)}
                           />

@@ -1,137 +1,137 @@
-import Splash from './pages/Splash';
-import Home from './pages/Home';
-import Jobs from './pages/Jobs';
-import JobDetail from './pages/JobDetail';
-import Groups from './pages/Groups';
-import Profile from './pages/Profile';
-import PendingAccess from './pages/PendingAccess';
-import News from './pages/News';
-import NewsDetail from './pages/NewsDetail';
-import Privacy from './pages/Privacy';
-import Terms from './pages/Terms';
 import About from './pages/About';
-import Payment from './pages/Payment';
-import Parcerias from './pages/Parcerias';
-import PostarVaga from './pages/PostarVaga';
-import VagasPorIA from './pages/VagasPorIA';
-import VagasHomeOffice from './pages/VagasHomeOffice';
-import Favoritos from './pages/Favoritos';
-import Historico from './pages/Historico';
 import ActivateBasic from './pages/ActivateBasic';
-import ProfessionalResume from './pages/ProfessionalResume';
-import RecruiterArea from './pages/RecruiterArea';
-import Utilidades from './pages/Utilidades';
-import Feed from './pages/Feed';
-import Mensagens from './pages/Mensagens';
-import Configuracoes from './pages/Configuracoes';
-import BibliotecaAdmin from './pages/BibliotecaAdmin';
-import AnalyticsPage from './pages/AnalyticsPage';
-import PaymentsPage from './pages/PaymentsPage';
-import GerenciarVagas from './pages/GerenciarVagas';
-import GerenciarUsuarios from './pages/GerenciarUsuarios';
-import GerenciarComunidade from './pages/GerenciarComunidade';
-import GerenciarNoticias from './pages/GerenciarNoticias';
-import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
-import ListaTransmissao from './pages/ListaTransmissao';
-import ResponderChat from './pages/ResponderChat';
-import PostsEmMassa from './pages/PostsEmMassa';
-import BibliotecaProfissional from './pages/BibliotecaProfissional';
-import Permissoes from './pages/Permissoes';
-import GerenciadorFiltros from './pages/GerenciadorFiltros';
-import Cookies from './pages/Cookies';
-import Security from './pages/Security';
-import LGPD from './pages/LGPD';
-import FAQ from './pages/FAQ';
-import Advertise from './pages/Advertise';
-import Careers from './pages/Careers';
-import Contact from './pages/Contact';
-import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import ChangePassword from './pages/ChangePassword';
 import ActivatePremiumManual from './pages/ActivatePremiumManual';
-import PostarNoticia from './pages/PostarNoticia';
-import Ocorrencias from './pages/Ocorrencias';
+import Advertise from './pages/Advertise';
+import AnalyticsPage from './pages/AnalyticsPage';
+import ApagarVagasPorPeriodo from './pages/ApagarVagasPorPeriodo';
+import BibliotecaAdmin from './pages/BibliotecaAdmin';
+import BibliotecaProfissional from './pages/BibliotecaProfissional';
+import Careers from './pages/Careers';
+import ChangePassword from './pages/ChangePassword';
+import Configuracoes from './pages/Configuracoes';
+import Contact from './pages/Contact';
+import Cookies from './pages/Cookies';
+import FAQ from './pages/FAQ';
+import Favoritos from './pages/Favoritos';
+import Feed from './pages/Feed';
 import FluxoUsuarios from './pages/FluxoUsuarios';
-import Notifications from './pages/Notifications';
-import Subscription from './pages/Subscription';
-import GerenciarPlanos from './pages/GerenciarPlanos';
-import GerenciarPrecos from './pages/GerenciarPrecos';
+import ForgotPassword from './pages/ForgotPassword';
+import GerenciadorFiltros from './pages/GerenciadorFiltros';
+import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarCores from './pages/GerenciarCores';
 import GerenciarFuncoes from './pages/GerenciarFuncoes';
-import NotificacoesAdmin from './pages/NotificacoesAdmin';
-import VagasConverter from './pages/VagasConverter';
+import GerenciarNoticias from './pages/GerenciarNoticias';
+import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPopups from './pages/GerenciarPopups';
-import ApagarVagasPorPeriodo from './pages/ApagarVagasPorPeriodo';
+import GerenciarPrecos from './pages/GerenciarPrecos';
+import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
+import GerenciarUsuarios from './pages/GerenciarUsuarios';
+import GerenciarVagas from './pages/GerenciarVagas';
+import Groups from './pages/Groups';
+import Historico from './pages/Historico';
+import Home from './pages/Home';
+import JobDetail from './pages/JobDetail';
+import Jobs from './pages/Jobs';
+import LGPD from './pages/LGPD';
+import ListaTransmissao from './pages/ListaTransmissao';
+import Mensagens from './pages/Mensagens';
+import News from './pages/News';
+import NewsDetail from './pages/NewsDetail';
+import NotificacoesAdmin from './pages/NotificacoesAdmin';
+import Notifications from './pages/Notifications';
+import Ocorrencias from './pages/Ocorrencias';
+import Parcerias from './pages/Parcerias';
+import Payment from './pages/Payment';
+import PaymentsPage from './pages/PaymentsPage';
+import PendingAccess from './pages/PendingAccess';
+import Permissoes from './pages/Permissoes';
+import PostarNoticia from './pages/PostarNoticia';
+import PostarVaga from './pages/PostarVaga';
+import PostsEmMassa from './pages/PostsEmMassa';
+import Privacy from './pages/Privacy';
+import ProfessionalResume from './pages/ProfessionalResume';
+import Profile from './pages/Profile';
+import RecruiterArea from './pages/RecruiterArea';
+import Register from './pages/Register';
+import ResetPassword from './pages/ResetPassword';
+import ResponderChat from './pages/ResponderChat';
+import Security from './pages/Security';
+import Splash from './pages/Splash';
+import Subscription from './pages/Subscription';
+import Terms from './pages/Terms';
+import Utilidades from './pages/Utilidades';
+import VagasConverter from './pages/VagasConverter';
+import VagasHomeOffice from './pages/VagasHomeOffice';
+import VagasPorIA from './pages/VagasPorIA';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Splash": Splash,
-    "Home": Home,
-    "Jobs": Jobs,
-    "JobDetail": JobDetail,
-    "Groups": Groups,
-    "Profile": Profile,
-    "PendingAccess": PendingAccess,
-    "News": News,
-    "NewsDetail": NewsDetail,
-    "Privacy": Privacy,
-    "Terms": Terms,
     "About": About,
-    "Payment": Payment,
-    "Parcerias": Parcerias,
-    "PostarVaga": PostarVaga,
-    "VagasPorIA": VagasPorIA,
-    "VagasHomeOffice": VagasHomeOffice,
-    "Favoritos": Favoritos,
-    "Historico": Historico,
     "ActivateBasic": ActivateBasic,
-    "ProfessionalResume": ProfessionalResume,
-    "RecruiterArea": RecruiterArea,
-    "Utilidades": Utilidades,
-    "Feed": Feed,
-    "Mensagens": Mensagens,
-    "Configuracoes": Configuracoes,
-    "BibliotecaAdmin": BibliotecaAdmin,
-    "AnalyticsPage": AnalyticsPage,
-    "PaymentsPage": PaymentsPage,
-    "GerenciarVagas": GerenciarVagas,
-    "GerenciarUsuarios": GerenciarUsuarios,
-    "GerenciarComunidade": GerenciarComunidade,
-    "GerenciarNoticias": GerenciarNoticias,
-    "GerenciarSolicitacoes": GerenciarSolicitacoes,
-    "ListaTransmissao": ListaTransmissao,
-    "ResponderChat": ResponderChat,
-    "PostsEmMassa": PostsEmMassa,
-    "BibliotecaProfissional": BibliotecaProfissional,
-    "Permissoes": Permissoes,
-    "GerenciadorFiltros": GerenciadorFiltros,
-    "Cookies": Cookies,
-    "Security": Security,
-    "LGPD": LGPD,
-    "FAQ": FAQ,
-    "Advertise": Advertise,
-    "Careers": Careers,
-    "Contact": Contact,
-    "Register": Register,
-    "ForgotPassword": ForgotPassword,
-    "ResetPassword": ResetPassword,
-    "ChangePassword": ChangePassword,
     "ActivatePremiumManual": ActivatePremiumManual,
-    "PostarNoticia": PostarNoticia,
-    "Ocorrencias": Ocorrencias,
+    "Advertise": Advertise,
+    "AnalyticsPage": AnalyticsPage,
+    "ApagarVagasPorPeriodo": ApagarVagasPorPeriodo,
+    "BibliotecaAdmin": BibliotecaAdmin,
+    "BibliotecaProfissional": BibliotecaProfissional,
+    "Careers": Careers,
+    "ChangePassword": ChangePassword,
+    "Configuracoes": Configuracoes,
+    "Contact": Contact,
+    "Cookies": Cookies,
+    "FAQ": FAQ,
+    "Favoritos": Favoritos,
+    "Feed": Feed,
     "FluxoUsuarios": FluxoUsuarios,
-    "Notifications": Notifications,
-    "Subscription": Subscription,
-    "GerenciarPlanos": GerenciarPlanos,
-    "GerenciarPrecos": GerenciarPrecos,
+    "ForgotPassword": ForgotPassword,
+    "GerenciadorFiltros": GerenciadorFiltros,
+    "GerenciarComunidade": GerenciarComunidade,
     "GerenciarCores": GerenciarCores,
     "GerenciarFuncoes": GerenciarFuncoes,
-    "NotificacoesAdmin": NotificacoesAdmin,
-    "VagasConverter": VagasConverter,
+    "GerenciarNoticias": GerenciarNoticias,
+    "GerenciarPlanos": GerenciarPlanos,
     "GerenciarPopups": GerenciarPopups,
-    "ApagarVagasPorPeriodo": ApagarVagasPorPeriodo,
+    "GerenciarPrecos": GerenciarPrecos,
+    "GerenciarSolicitacoes": GerenciarSolicitacoes,
+    "GerenciarUsuarios": GerenciarUsuarios,
+    "GerenciarVagas": GerenciarVagas,
+    "Groups": Groups,
+    "Historico": Historico,
+    "Home": Home,
+    "JobDetail": JobDetail,
+    "Jobs": Jobs,
+    "LGPD": LGPD,
+    "ListaTransmissao": ListaTransmissao,
+    "Mensagens": Mensagens,
+    "News": News,
+    "NewsDetail": NewsDetail,
+    "NotificacoesAdmin": NotificacoesAdmin,
+    "Notifications": Notifications,
+    "Ocorrencias": Ocorrencias,
+    "Parcerias": Parcerias,
+    "Payment": Payment,
+    "PaymentsPage": PaymentsPage,
+    "PendingAccess": PendingAccess,
+    "Permissoes": Permissoes,
+    "PostarNoticia": PostarNoticia,
+    "PostarVaga": PostarVaga,
+    "PostsEmMassa": PostsEmMassa,
+    "Privacy": Privacy,
+    "ProfessionalResume": ProfessionalResume,
+    "Profile": Profile,
+    "RecruiterArea": RecruiterArea,
+    "Register": Register,
+    "ResetPassword": ResetPassword,
+    "ResponderChat": ResponderChat,
+    "Security": Security,
+    "Splash": Splash,
+    "Subscription": Subscription,
+    "Terms": Terms,
+    "Utilidades": Utilidades,
+    "VagasConverter": VagasConverter,
+    "VagasHomeOffice": VagasHomeOffice,
+    "VagasPorIA": VagasPorIA,
 }
 
 export const pagesConfig = {

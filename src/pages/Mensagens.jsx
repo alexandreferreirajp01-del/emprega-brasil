@@ -10,6 +10,7 @@ import { base44 } from "@/api/base44Client";
 import TimeAgo from "@/components/common/TimeAgo";
 import { createPageUrl } from "@/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 export default function Mensagens() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -150,10 +151,37 @@ export default function Mensagens() {
 
 
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full rounded-2xl">
+          <CardContent className="p-8 text-center">
+            <MessageCircle className="w-16 h-16 mx-auto mb-4 text-slate-300" />
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Login Necessário</h2>
+            <p className="text-slate-600 mb-6">Faça login para acessar suas mensagens</p>
+            <Button 
+              onClick={() => window.location.href = createPageUrl('Splash')}
+              className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
+            >
+              Fazer Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <RequireAuth>
     <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-4 px-4">
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-4 px-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             {conversaAtiva && (
@@ -198,10 +226,10 @@ export default function Mensagens() {
                     <div className="space-y-2">
                       {loadingUsuarios ? (
                         <div className="flex justify-center py-8">
-                          <Loader2 className="w-6 h-6 animate-spin text-[#0056ff]" />
+                          <Loader2 className="w-6 h-6 animate-spin text-[#0A66C2]" />
                         </div>
-                      ) : usuariosFiltrados.length > 0 ? (
-                        usuariosFiltrados.map((u) => (
+                      ) : (
+                        usuariosFiltrados.slice(0, 50).map((u) => (
                           <div
                             key={u.id}
                             onClick={() => iniciarConversa(u)}
@@ -219,8 +247,6 @@ export default function Mensagens() {
                             </div>
                           </div>
                         ))
-                      ) : (
-                        <p className="text-center text-slate-500 py-4">Nenhum usuário encontrado</p>
                       )}
                     </div>
                   </ScrollArea>
@@ -239,7 +265,7 @@ export default function Mensagens() {
                 <MessageCircle className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                 <p className="font-medium">Nenhuma conversa ainda</p>
                 <p className="text-sm mb-4">Clique no + para iniciar uma nova conversa</p>
-                <Button onClick={() => setShowNovaConversa(true)} className="bg-[#0056ff] hover:bg-[#0044cc] rounded-xl">
+                <Button onClick={() => setShowNovaConversa(true)} className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl">
                   <Plus className="w-4 h-4 mr-2" />
                   Nova Mensagem
                 </Button>
@@ -287,7 +313,7 @@ export default function Mensagens() {
                       <div
                         className={`max-w-[80%] p-3 rounded-2xl ${
                           msg.remetente_email === user.email
-                            ? 'bg-[#0056ff] text-white rounded-br-md'
+                            ? 'bg-[#0A66C2] text-white rounded-br-md'
                             : 'bg-slate-100 text-slate-800 rounded-bl-md'
                         }`}
                       >
@@ -313,7 +339,7 @@ export default function Mensagens() {
               <Button
                 onClick={handleEnviar}
                 disabled={!novaMensagem.trim() || enviarMutation.isPending}
-                className="bg-[#0056ff] hover:bg-[#0044cc] rounded-full"
+                className="bg-[#0A66C2] hover:bg-[#004182] rounded-full"
               >
                 {enviarMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
@@ -322,6 +348,5 @@ export default function Mensagens() {
         )}
       </div>
     </div>
-    </RequireAuth>
   );
 }

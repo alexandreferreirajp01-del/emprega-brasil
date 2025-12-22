@@ -106,11 +106,7 @@ export default function Home() {
 
 
 
-  const stats = [
-    { label: 'Vagas Ativas', value: jobs.length, icon: Briefcase, color: 'text-[#0A66C2]' },
-    { label: 'Notícias', value: news.length, icon: Newspaper, color: 'text-[#057642]' },
-    { label: 'Posts', value: posts.length, icon: MessageCircle, color: 'text-[#0A66C2]' },
-  ];
+
 
   const quickActions = [
     { label: 'Buscar Vagas', icon: Search, page: 'Jobs', color: 'bg-white', iconColor: 'text-[#0A66C2]', desc: 'Encontre oportunidades' },
@@ -170,16 +166,7 @@ export default function Home() {
                   </div>
                 </div>
 
-          {/* Stats */}
-                  <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-md mx-auto px-2">
-                    {stats.map((stat, i) => (
-                      <div key={i} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center">
-                        <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white mx-auto mb-1 sm:mb-2" />
-                        <div className="text-xl sm:text-2xl font-bold text-white">{stat.value}</div>
-                        <div className="text-[10px] sm:text-xs text-white/70 leading-tight">{stat.label}</div>
-                      </div>
-                    ))}
-                  </div>
+
                 </div>
               </div>
 
