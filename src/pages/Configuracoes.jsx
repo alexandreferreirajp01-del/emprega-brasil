@@ -40,6 +40,10 @@ const menuItems = [
 
   { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
   { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'teal', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
+
+  // Automação
+  { id: 'dividerAutomacao', type: 'divider', label: 'Automação', roles: ['admin', 'dono'] },
+  { id: 'vagas-pendentes-ia', name: 'Vagas Pendentes da IA', icon: MessageCircle, color: 'cyan', page: 'VagasPendentesIA', description: 'Revisar vagas recebidas via Auto post N8N', roles: ['admin', 'dono'], permissionId: 'vagas_pendentes_ia' },
   
   // Área do Recrutador
   { id: 'dividerRecrutador', type: 'divider', label: 'Área do Recrutador', roles: ['recruiter', 'admin', 'dono'] },
