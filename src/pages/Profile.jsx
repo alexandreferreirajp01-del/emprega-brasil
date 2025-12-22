@@ -503,9 +503,7 @@ export default function Profile() {
               </div>
             )}
 
-            {(isDono || isAdmin) && (
-              <OnlineUsersCounter />
-            )}
+
 
             {(isDono || isAdmin || isRecruiter) && (
               <Link to={createPageUrl('Configuracoes')} className="block mb-4">
