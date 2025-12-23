@@ -2,89 +2,116 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
     try {
-        console.log('🚀 WEBHOOK Z-API CHAMADO');
-
         const base44 = createClientFromRequest(req);
 
         // ===============================
-        // 🔐 Token (opcional, compatível Z-API)
+        // 🔐 Validação inteligente (Base44 x Z-API)
         // ===============================
         const expectedToken = Deno.env.get('ZAPI_API_KEY');
 
         const authHeader =
             req.headers.get('authorization') ||
-            req.headers.get('Authorization') ||
+            req.headers.get('Authorization');
+
+        const apiKeyHeader =
             req.headers.get('x-api-key') ||
             req.headers.get('apikey');
 
-        if (expectedToken && authHeader && !authHeader.includes(expectedToken)) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        // Se NÃO for chamada interna da Base44, exige token Z-API
+        const isInternalBase44Call = !!apiKeyHeader;
+
+        if (!isInternalBase44Call) {
+            if (!authHeader || !authHeader.includes(expectedToken)) {
+                return Response.json({ error: 'Unauthorized' }, { status: 401 });
+            }
         }
 
         // ===============================
-        // 📦 Parse body
+        // 📦 Parse do body
         // ===============================
         const body = await req.json();
-        console.log('📦 Payload recebido:', JSON.stringify(body));
 
         // ===============================
-        // 🛑 Validar grupo
+        // 🛑 Validar grupo autorizado
         // ===============================
-        const groupName =
-            body.groupName ||
-            body.chatName ||
-            body.message?.groupName ||
-            body.chat?.name;
-
-        const isGroup =
-            body.isGroup === true ||
-            body.chat?.isGroup === true ||
-            body.from?.endsWith('@g.us');
-
-        if (!isGroup || groupName !== 'Emprega Brasil+ Automação') {
-            console.log('⛔ Grupo ignorado:', groupName);
-            return Response.json({ ignored: true });
+        if (!body.isGroup || body.groupName !== 'Emprega Brasil+ Automação') {
+            return Response.json({
+                success: false,
+                ignored: true,
+                reason: 'Grupo não autorizado'
+            });
         }
 
         // ===============================
-        // 📩 Texto da mensagem (compatível Z-API)
+        // 📩 Normalizar mensagem
         // ===============================
+        const message = body.message || body;
+
         const messageText =
-            body.message?.text ||
-            body.text ||
-            body.message ||
-            body.body ||
+            message.text ||
+            message.message ||
             '';
 
         const imageUrl =
-            body.image?.imageUrl ||
-            body.message?.image?.imageUrl ||
-            body.imageUrl ||
+            (message.image && message.image.imageUrl) ||
+            message.imageUrl ||
             null;
 
         if (!messageText && !imageUrl) {
-            console.log('⚠️ Mensagem sem conteúdo válido');
-            return Response.json({ ignored: true });
+            return Response.json({
+                success: false,
+                error: 'Nenhum conteúdo válido encontrado'
+            }, { status: 400 });
         }
 
         let fullText = messageText;
+        const imageUrls = [];
+
+        if (imageUrl) imageUrls.push(imageUrl);
 
         // ===============================
-        // 🧹 Limpeza
+        // 🧠 OCR em imagens (se houver)
         // ===============================
-        fullText = cleanText(fullText);
+        if (imageUrls.length > 0) {
+            for (const imgUrl of imageUrls) {
+                try {
+                    const extractResult =
+                        await base44.asServiceRole.integrations.Core.InvokeLLM({
+                            prompt: 'Extraia TODO o texto visível desta imagem. Retorne apenas o texto.',
+                            file_urls: [imgUrl]
+                        });
 
-        if (fullText.length < 10) {
-            return Response.json({ ignored: true });
+                    if (extractResult && extractResult.trim()) {
+                        fullText += '\n\n' + extractResult;
+                    }
+                } catch (e) {
+                    console.error('Erro OCR:', e.message);
+                }
+            }
         }
 
         // ===============================
-        // 🤖 Extrair vagas com IA
+        // 🧹 Limpeza do texto
+        // ===============================
+        fullText = cleanText(fullText);
+
+        if (!fullText || fullText.length < 20) {
+            return Response.json({
+                success: false,
+                error: 'Texto insuficiente para análise'
+            }, { status: 400 });
+        }
+
+        // ===============================
+        // 🤖 Extração das vagas com IA
         // ===============================
         const vacancies = await extractVacancies(base44, fullText);
 
         if (!vacancies.length) {
-            return Response.json({ ignored: true });
+            return Response.json({
+                success: false,
+                error: 'Nenhuma vaga identificada'
+            }, { status: 400 });
         }
 
         // ===============================
@@ -93,7 +120,7 @@ Deno.serve(async (req) => {
         const createdJobs = [];
 
         for (const vacancy of vacancies) {
-            const job = await base44.asServiceRole.entities.Job.create({
+            const jobData = {
                 title: vacancy.title || 'Vaga sem título',
                 company: vacancy.company || 'Empresa não informada',
                 city: vacancy.city || null,
@@ -106,26 +133,31 @@ Deno.serve(async (req) => {
                 description: vacancy.description || fullText,
                 additional_info: vacancy.additional_info || null,
                 application_link: vacancy.application_link || null,
-                image_url: imageUrl,
+                image_url: imageUrls[0] || null,
                 status: 'pending_ai',
                 is_premium: false,
                 is_featured: false,
                 published_at: null
-            });
+            };
 
-            createdJobs.push(job.id);
+            const created =
+                await base44.asServiceRole.entities.Job.create(jobData);
+
+            createdJobs.push(created);
         }
-
-        console.log('✅ Vagas criadas:', createdJobs.length);
 
         return Response.json({
             success: true,
-            jobs_created: createdJobs.length
+            jobs_created: createdJobs.length,
+            jobs: createdJobs.map(j => ({ id: j.id, title: j.title }))
         });
 
     } catch (error) {
-        console.error('🔥 ERRO NO WEBHOOK:', error);
-        return Response.json({ error: error.message }, { status: 500 });
+        console.error('Erro autoPostZAPI:', error);
+        return Response.json({
+            success: false,
+            error: error.message
+        }, { status: 500 });
     }
 });
 
@@ -134,13 +166,14 @@ Deno.serve(async (req) => {
 // ===============================
 function cleanText(text) {
     return text
+        .replace(/📢|🔔|⚠️|❗|✅|🎯|💼|🏢|📍|💰|📝|👉|🔗|📲|📞|☎️|📧|✉️|🌐|⭐/g, '')
+        .replace(/URGENTE|ATENÇÃO|IMPORTANTE|COMPARTILHE|DIVULGUE/gi, '')
         .replace(/\s+/g, ' ')
-        .replace(/📢|🔔|⚠️|❗|🎯|💼|🏢|📍|💰|👉|🔗|📲/g, '')
         .trim();
 }
 
 // ===============================
-// 🤖 Extração com IA
+// 🤖 Extração de vagas com IA
 // ===============================
 async function extractVacancies(base44, text) {
     const schema = {
@@ -155,7 +188,13 @@ async function extractVacancies(base44, text) {
                         company: { type: "string" },
                         city: { type: "string" },
                         state: { type: "string" },
+                        salary_range: { type: "string" },
+                        job_type: { type: "string" },
+                        contract_types: { type: "array", items: { type: "string" } },
+                        category: { type: "string" },
+                        job_function: { type: "string" },
                         description: { type: "string" },
+                        additional_info: { type: "string" },
                         application_link: { type: "string" }
                     },
                     required: ["title"]
@@ -165,10 +204,19 @@ async function extractVacancies(base44, text) {
         required: ["vacancies"]
     };
 
-    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: `Extraia TODAS as vagas de emprego do texto abaixo:\n\n${text}`,
-        response_json_schema: schema
-    });
+    const prompt = `
+Extraia TODAS as vagas de emprego do texto abaixo.
+Separe corretamente cada vaga.
+
+Texto:
+${text}
+`;
+
+    const result =
+        await base44.asServiceRole.integrations.Core.InvokeLLM({
+            prompt,
+            response_json_schema: schema
+        });
 
     return result?.vacancies || [];
 }
