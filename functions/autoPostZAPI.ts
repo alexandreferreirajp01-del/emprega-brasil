@@ -5,26 +5,20 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     // ===============================
-    // 🔐 Segurança (Z-API)
-    // ===============================
-    const expectedToken = Deno.env.get('ZAPI_API_KEY');
-    const authHeader =
-      req.headers.get('authorization') ||
-      req.headers.get('Authorization');
-
-    if (!authHeader || !authHeader.includes(expectedToken)) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // ===============================
     // 📦 Body
     // ===============================
     const body = await req.json();
 
     // ===============================
-    // 🛑 Validação do grupo
+    // 🛑 Validação do grupo (Z-API envia em campos diferentes)
     // ===============================
-    if (!body.isGroup || body.groupName !== 'Emprega Brasil+ Automação') {
+    const groupName =
+      body.groupName ||
+      body.chatName ||
+      body.chat?.name ||
+      body.chat?.subject;
+
+    if (!body.isGroup || groupName !== 'Emprega Brasil+ Automação') {
       return Response.json({
         success: false,
         ignored: true,
@@ -47,6 +41,7 @@ Deno.serve(async (req) => {
       text = message.message;
     }
 
+    // caption de imagem
     if (!text && message.image?.caption) {
       text = message.image.caption;
     }
@@ -90,7 +85,7 @@ Deno.serve(async (req) => {
       return Response.json({
         success: false,
         error: 'Texto insuficiente'
-      });
+      }, { status: 400 });
     }
 
     // ===============================
@@ -102,7 +97,7 @@ Deno.serve(async (req) => {
       return Response.json({
         success: false,
         error: 'Nenhuma vaga encontrada'
-      });
+      }, { status: 400 });
     }
 
     // ===============================
@@ -142,6 +137,8 @@ Deno.serve(async (req) => {
 });
 
 // ===============================
+// 🧹 Limpeza de texto
+// ===============================
 function cleanText(text) {
   return text
     .replace(/📢|🚀|🔥|⚠️|❗|👉|🔗/g, '')
@@ -149,6 +146,8 @@ function cleanText(text) {
     .trim();
 }
 
+// ===============================
+// 🤖 Extração de vagas com IA
 // ===============================
 async function extractVacancies(base44, text) {
   const schema = {
