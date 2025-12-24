@@ -146,15 +146,19 @@ export default function GerenciarVagas() {
                           setEditingJob(job);
                           setIsEditModalOpen(true);
                         }}
-                        className="rounded-lg text-blue-600 hover:bg-blue-50"
+                        className="rounded-lg text-blue-600 hover:bg-blue-50 border-blue-300 hover:border-blue-400"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        onClick={() => deleteJobMutation.mutate(job.id)}
-                        className="rounded-lg text-red-600 hover:bg-red-50"
+                        onClick={() => {
+                          if (confirm(`Tem certeza que deseja excluir a vaga "${job.title}"?\n\nEsta ação não pode ser desfeita.`)) {
+                            deleteJobMutation.mutate(job.id);
+                          }
+                        }}
+                        className="rounded-lg text-red-600 hover:bg-red-50 border-red-300 hover:border-red-400 font-medium"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

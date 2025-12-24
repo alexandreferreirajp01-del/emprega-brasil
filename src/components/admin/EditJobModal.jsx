@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Edit, Save, Loader2, CheckCircle2, Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Users } from 'lucide-react';
+import { Edit, Save, Loader2, CheckCircle2, Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Users, Trash2 } from 'lucide-react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
@@ -48,6 +48,7 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
   const [citySearch, setCitySearch] = useState('');
   const [funcSearch, setFuncSearch] = useState('');
   const [categorySearch, setCategorySearch] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const queryClient = useQueryClient();
 
   // Buscar categorias profissionais
@@ -148,6 +149,20 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
     },
   });
 
+  const deleteJobMutation = useMutation({
+    mutationFn: () => base44.entities.Job.delete(job.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      alert('Vaga excluída com sucesso!');
+      onClose();
+    },
+    onError: (error) => {
+      console.error("Erro ao excluir vaga:", error);
+      alert('Erro ao excluir vaga: ' + error.message);
+    },
+  });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditedJob(prev => ({ ...prev, [name]: value }));
@@ -177,6 +192,15 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
       return;
     }
     updateJobMutation.mutate(editedJob);
+  };
+
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    deleteJobMutation.mutate();
+    setShowDeleteConfirm(false);
   };
 
   if (!job) return null;
@@ -460,33 +484,94 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-6 py-4 border-t bg-slate-50">
+        <DialogFooter className="px-6 py-4 border-t bg-slate-50 flex justify-between">
           <Button 
             variant="outline" 
-            onClick={onClose} 
-            disabled={updateJobMutation.isPending}
-            className="rounded-xl"
+            onClick={handleDelete} 
+            disabled={updateJobMutation.isPending || deleteJobMutation.isPending}
+            className="rounded-xl text-red-600 hover:bg-red-50 border-red-300 hover:border-red-400 font-medium"
           >
-            Cancelar
+            <Trash2 className="mr-2 h-4 w-4" />
+            Excluir Vaga
           </Button>
-          <Button 
-            onClick={handleSave} 
-            disabled={updateJobMutation.isPending}
-            className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
-          >
-            {updateJobMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Atualizar e Salvar
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={onClose} 
+              disabled={updateJobMutation.isPending || deleteJobMutation.isPending}
+              className="rounded-xl"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={updateJobMutation.isPending || deleteJobMutation.isPending}
+              className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
+            >
+              {updateJobMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Atualizar e Salvar
+                </>
+              )}
+            </Button>
+          </div>
         </DialogFooter>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-red-600">
+                <Trash2 className="w-5 h-5" />
+                Confirmar Exclusão
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-slate-700 mb-2">
+                Tem certeza que deseja excluir esta vaga?
+              </p>
+              <p className="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
+                <strong>Vaga:</strong> {job?.title}
+              </p>
+              <p className="text-sm text-red-600 mt-4 font-medium">
+                Esta ação não pode ser desfeita.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleteJobMutation.isPending}
+                className="rounded-xl"
+              >
+                Cancelar
+              </Button>
+              <Button 
+                onClick={confirmDelete}
+                disabled={deleteJobMutation.isPending}
+                className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
+              >
+                {deleteJobMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Excluindo...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Sim, Excluir
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </DialogContent>
     </Dialog>
   );

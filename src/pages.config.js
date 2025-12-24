@@ -62,8 +62,8 @@ import Terms from './pages/Terms';
 import Utilidades from './pages/Utilidades';
 import VagasConverter from './pages/VagasConverter';
 import VagasHomeOffice from './pages/VagasHomeOffice';
-import VagasPorIA from './pages/VagasPorIA';
 import VagasPendentesIA from './pages/VagasPendentesIA';
+import VagasPorIA from './pages/VagasPorIA';
 import __Layout from './Layout.jsx';
 
 
@@ -132,8 +132,8 @@ export const PAGES = {
     "Utilidades": Utilidades,
     "VagasConverter": VagasConverter,
     "VagasHomeOffice": VagasHomeOffice,
-    "VagasPorIA": VagasPorIA,
     "VagasPendentesIA": VagasPendentesIA,
+    "VagasPorIA": VagasPorIA,
 }
 
 export const pagesConfig = {
