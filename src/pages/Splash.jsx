@@ -200,7 +200,7 @@ export default function Splash() {
           />
         </div>
         <h1 className="text-4xl font-bold text-[#0A66C2] mb-2">Emprega Brasil+</h1>
-        <p className="text-slate-600 text-lg">Oportunidades em Todo o Brasil</p>
+        <p className="text-slate-600 text-lg">Oportunidades em Todo o País</p>
         <p className="text-slate-500 text-sm mt-2">Encontre sua próxima oportunidade</p>
         </div>
 

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, MapPin, Calendar, Building2, Briefcase, 
-  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, AlertTriangle, Edit
+  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, Edit
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -15,9 +15,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import EditJobModal from "@/components/admin/EditJobModal";
 
@@ -79,10 +76,6 @@ export default function JobDetail() {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [showReportDialog, setShowReportDialog] = useState(false);
-  const [reportSubject, setReportSubject] = useState('');
-  const [reportMessage, setReportMessage] = useState('');
-  const [sendingReport, setSendingReport] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
   
@@ -237,45 +230,6 @@ export default function JobDetail() {
 
   const handleRetry = () => setRefreshKey(k => k + 1);
 
-  const handleSendReport = async () => {
-    if (!reportSubject.trim() || !reportMessage.trim()) return;
-    
-    setSendingReport(true);
-    try {
-      const newOccurrence = await base44.entities.Occurrence.create({
-        user_email: user?.email || 'visitante@email.com',
-        user_name: user?.full_name || 'Visitante',
-        job_id: jobId,
-        job_title: job?.title || '',
-        subject: reportSubject.trim(),
-        message: reportMessage.trim(),
-        status: 'pending'
-      });
-
-      // Notificar admins sobre nova ocorrência
-      try {
-        await base44.functions.invoke('notifyAdmins', {
-          event_type: 'occurrence',
-          data: {
-            occurrence_id: newOccurrence.id,
-            user_name: user?.full_name || 'Visitante',
-            subject: reportSubject.trim()
-          }
-        });
-      } catch (e) {
-        console.warn('Erro ao notificar admins:', e);
-      }
-
-      setShowReportDialog(false);
-      setReportSubject('');
-      setReportMessage('');
-    } catch (error) {
-      console.error('Erro ao reportar:', error);
-    } finally {
-      setSendingReport(false);
-    }
-  };
-
   // Loading state
   if (isLoading) {
     return (
@@ -411,15 +365,6 @@ export default function JobDetail() {
                     className="rounded-full"
                   >
                     <Share2 className="w-5 h-5" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setShowReportDialog(true)}
-                    className="rounded-full text-orange-600 hover:text-orange-700 hover:bg-orange-50 border-orange-200"
-                    title="Reportar Vaga"
-                  >
-                    <AlertTriangle className="w-5 h-5" />
                   </Button>
                 </div>
               </div>
@@ -559,64 +504,6 @@ export default function JobDetail() {
           window.location.reload();
         }}
       />
-
-      {/* Report Dialog */}
-      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-orange-500" />
-              Reportar Problema
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div>
-              <Label htmlFor="report-subject">Assunto *</Label>
-              <Input
-                id="report-subject"
-                value={reportSubject}
-                onChange={(e) => setReportSubject(e.target.value)}
-                placeholder="Ex: Vaga falsa, dados incorretos..."
-                className="mt-1 rounded-xl"
-                maxLength={100}
-              />
-            </div>
-            <div>
-              <Label htmlFor="report-message">Mensagem * (máx. 1000 caracteres)</Label>
-              <Textarea
-                id="report-message"
-                value={reportMessage}
-                onChange={(e) => setReportMessage(e.target.value.slice(0, 1000))}
-                placeholder="Descreva o problema..."
-                className="mt-1 min-h-[120px] rounded-xl"
-                maxLength={1000}
-              />
-              <p className="text-xs text-slate-500 mt-1">{reportMessage.length}/1000</p>
-            </div>
-            <div className="flex gap-3 pt-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowReportDialog(false);
-                  setReportSubject('');
-                  setReportMessage('');
-                }}
-                disabled={sendingReport}
-                className="flex-1 rounded-xl"
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleSendReport}
-                disabled={!reportSubject.trim() || !reportMessage.trim() || sendingReport}
-                className="flex-1 rounded-xl bg-orange-600 hover:bg-orange-700"
-              >
-                {sendingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Enviar'}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Edit Modal - Admin/Dono apenas */}
       {isAdmin && (

@@ -142,7 +142,7 @@ export default function Home() {
                     Encontre Sua Próxima<br />Oportunidade
                   </h1>
                   <p className="text-white/80 text-sm sm:text-lg max-w-2xl mx-auto mb-5 sm:mb-8 px-2">
-                    A maior plataforma de empregos do Brasil.
+                    A maior plataforma de empregos do País.
                   </p>
 
                   <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">

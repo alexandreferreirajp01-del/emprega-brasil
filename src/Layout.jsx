@@ -393,7 +393,7 @@ export default function Layout({ children, currentPageName }) {
                   Emprega Brasil+
                 </span>
                 <span className="text-xs md:text-sm text-[#0A66C2] dark:text-blue-400 font-medium transition-colors">
-                  Oportunidades em Todo o Brasil
+                  Oportunidades em Todo o País
                 </span>
               </div>
             </Link>

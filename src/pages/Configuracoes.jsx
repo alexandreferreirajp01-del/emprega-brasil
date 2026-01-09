@@ -41,9 +41,7 @@ const menuItems = [
   { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
   { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'teal', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
 
-  // Automação
-  { id: 'dividerAutomacao', type: 'divider', label: 'Automação', roles: ['admin', 'dono'] },
-  { id: 'vagas-pendentes-ia', name: 'Vagas Pendentes da IA', icon: MessageCircle, color: 'cyan', page: 'VagasPendentesIA', description: 'Revisar vagas recebidas via Auto post N8N', roles: ['admin', 'dono'], permissionId: 'vagas_pendentes_ia' },
+
   
   // Área do Recrutador
   { id: 'dividerRecrutador', type: 'divider', label: 'Área do Recrutador', roles: ['recruiter', 'admin', 'dono'] },
@@ -54,11 +52,7 @@ const menuItems = [
   { id: 'dividerInteracoes', type: 'divider', label: 'Interações' },
   { id: 'favoritas', name: 'Favoritas', icon: Heart, color: 'rose', page: 'Favoritos', description: 'Vagas salvas como favoritas', permissionId: 'favoritas' },
   { id: 'historico', name: 'Histórico', icon: History, color: 'violet', page: 'Historico', description: 'Vagas visualizadas recentemente', permissionId: 'historico' },
-  { id: 'mensagens', name: 'Mensagens', icon: MessageCircle, color: 'emerald', page: 'Mensagens', description: 'Conversas diretas entre usuários', permissionId: 'mensagens' },
-  { id: 'transmissao', name: 'Lista de Transmissão', icon: MessageSquare, color: 'lime', page: 'ListaTransmissao', description: 'Enviar mensagens em massa', permissionId: 'lista_transmissao' },
   { id: 'curriculos', name: 'Ver Currículos', icon: FileText, color: 'teal', page: 'ProfessionalResume', description: 'Visualizar currículos de candidatos', permissionId: 'curriculos' },
-  { id: 'responder-chat', name: 'Responder Chat', icon: MessageSquare, color: 'cyan', page: 'ResponderChat', description: 'Responder mensagens dos usuários', permissionId: 'responder_chat' },
-  { id: 'ocorrencias', name: 'Ocorrências', icon: AlertCircle, color: 'red', page: 'Ocorrencias', description: 'Gerenciar reports de vagas', roles: ['admin', 'dono'], permissionId: 'ocorrencias' },
   
   // Analytics e Monitoramento
   { id: 'divider1', type: 'divider', label: 'Analytics e Monitoramento' },
