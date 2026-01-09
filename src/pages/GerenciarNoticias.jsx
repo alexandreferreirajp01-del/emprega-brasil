@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { 
   ArrowLeft, Search, Edit, Trash2, Eye, Loader2, 
-  Image as ImageIcon, Plus, CheckCircle, X, FileText, Film 
+  Image as ImageIcon, Plus, CheckCircle, FileText
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -21,12 +22,9 @@ export default function GerenciarNoticias() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingNews, setEditingNews] = useState(null);
-  const [uploadingMedia, setUploadingMedia] = useState(false);
   const queryClient = useQueryClient();
 
-  // Auth check
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -34,12 +32,10 @@ export default function GerenciarNoticias() {
         const hasAccess = currentUser?.email === 'alexandreferreirajp01@gmail.com' || 
                          currentUser?.role === 'admin' || 
                          currentUser?.subscription_type === 'admin';
-        
         if (!hasAccess) {
           window.location.href = createPageUrl('Home');
           return;
         }
-        
         setUser(currentUser);
       } catch {
         window.location.href = createPageUrl('Splash');
@@ -50,29 +46,27 @@ export default function GerenciarNoticias() {
     checkAuth();
   }, []);
 
-  // Fetch news
   const { data: allNews = [], isLoading: loadingNews } = useQuery({
     queryKey: ['admin-news'],
     queryFn: () => base44.entities.News.list('-created_date', 500),
     enabled: !!user
   });
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (newsId) => {
       await base44.entities.News.delete(newsId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-news'] });
-      toast.success('✅ Notícia excluída com sucesso!');
+      toast.success('Notícia excluída!');
     },
     onError: (error) => {
-      toast.error('❌ Erro ao excluir: ' + error.message);
+      toast.error('Erro ao excluir: ' + error.message);
     }
   });
 
   const handleDelete = (news) => {
-    if (confirm(`Deseja realmente excluir "${news.title}"?`)) {
+    if (confirm(`Excluir "${news.title}"?`)) {
       deleteMutation.mutate(news.id);
     }
   };
@@ -105,7 +99,7 @@ export default function GerenciarNoticias() {
               <p className="text-white/80 text-sm">Criar e gerenciar notícias</p>
             </div>
             <Button 
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => setEditingNews({})}
               className="bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl"
             >
               <Plus className="w-4 h-4 mr-2" />Nova Notícia
@@ -115,7 +109,6 @@ export default function GerenciarNoticias() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 -mt-4">
-        {/* Search */}
         <Card className="shadow-lg mb-6 rounded-2xl">
           <CardContent className="p-4">
             <div className="relative">
@@ -130,7 +123,6 @@ export default function GerenciarNoticias() {
           </CardContent>
         </Card>
 
-        {/* News List */}
         {loadingNews ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
@@ -144,9 +136,9 @@ export default function GerenciarNoticias() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <h3 className="text-lg font-semibold text-slate-800">{news.title}</h3>
-                        <Badge className="bg-[#0A66C2] text-white">
-                          {news.status === 'published' ? 'Publicada' : 'Rascunho'}
-                        </Badge>
+                        {news.is_featured && (
+                          <Badge className="bg-yellow-500 text-white">Destaque</Badge>
+                        )}
                       </div>
                       {news.subtitle && (
                         <p className="text-sm text-slate-600 mb-2">{news.subtitle}</p>
@@ -193,51 +185,44 @@ export default function GerenciarNoticias() {
         )}
       </div>
 
-      {/* Create/Edit Modal */}
-      <NewsEditorModal
-        news={showCreateModal ? null : editingNews}
-        isOpen={showCreateModal || !!editingNews}
-        onClose={() => {
-          setShowCreateModal(false);
-          setEditingNews(null);
-        }}
-        onSuccess={() => {
-          queryClient.invalidateQueries({ queryKey: ['admin-news'] });
-          setShowCreateModal(false);
-          setEditingNews(null);
-        }}
-        user={user}
-      />
+      {editingNews && (
+        <NewsEditorModal
+          news={editingNews.id ? editingNews : null}
+          isOpen={!!editingNews}
+          onClose={() => setEditingNews(null)}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['admin-news'] });
+            setEditingNews(null);
+          }}
+          user={user}
+        />
+      )}
     </div>
   );
 }
 
-// News Editor Modal Component
 function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
     category: 'Geral',
-    author_name: '',
-    external_link: '',
-    blocks: [],
-    status: 'published',
+    author_name: user?.full_name || '',
+    image_url: '',
+    content: '',
     is_featured: false
   });
-  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Load news data when editing
   useEffect(() => {
     if (news) {
       setFormData({
         title: news.title || '',
         subtitle: news.subtitle || '',
         category: news.category || 'Geral',
-        author_name: news.author_name || '',
-        external_link: news.external_link || '',
-        blocks: news.blocks || [],
-        status: news.status || 'published',
+        author_name: news.author_name || user?.full_name || '',
+        image_url: news.image_url || '',
+        content: news.content || '',
         is_featured: news.is_featured || false
       });
     } else {
@@ -246,81 +231,42 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
         subtitle: '',
         category: 'Geral',
         author_name: user?.full_name || '',
-        external_link: '',
-        blocks: [],
-        status: 'published',
+        image_url: '',
+        content: '',
         is_featured: false
       });
     }
   }, [news, user, isOpen]);
 
-  const handleMediaUpload = async (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validar tamanho (max 50MB)
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error('Arquivo muito grande. Máximo: 50MB');
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Imagem muito grande. Máximo: 10MB');
       return;
     }
 
-    setUploadingMedia(true);
+    setUploading(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      
-      setFormData(prev => ({
-        ...prev,
-        blocks: [...prev.blocks, { 
-          type: 'image', 
-          image_url: file_url, 
-          order: prev.blocks.length 
-        }]
-      }));
-      
-      toast.success('✅ Mídia enviada com sucesso!');
+      setFormData(prev => ({ ...prev, image_url: file_url }));
+      toast.success('Imagem enviada!');
     } catch (error) {
-      toast.error('❌ Erro ao enviar mídia');
-      console.error(error);
+      toast.error('Erro ao enviar imagem');
     } finally {
-      setUploadingMedia(false);
+      setUploading(false);
     }
-  };
-
-  const handleAddTextBlock = () => {
-    setFormData(prev => ({
-      ...prev,
-      blocks: [...prev.blocks, { 
-        type: 'content', 
-        content: '', 
-        order: prev.blocks.length 
-      }]
-    }));
-  };
-
-  const handleBlockChange = (index, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      blocks: prev.blocks.map((block, i) => 
-        i === index ? { ...block, [field]: value } : block
-      )
-    }));
-  };
-
-  const handleRemoveBlock = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      blocks: prev.blocks.filter((_, i) => i !== index)
-    }));
   };
 
   const handleSave = async () => {
     if (!formData.title?.trim()) {
-      toast.error('O título é obrigatório');
+      toast.error('Título é obrigatório');
       return;
     }
 
     if (!formData.author_name?.trim()) {
-      toast.error('O nome do autor é obrigatório');
+      toast.error('Nome do autor é obrigatório');
       return;
     }
 
@@ -331,33 +277,27 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
         subtitle: formData.subtitle?.trim() || '',
         category: formData.category,
         author_name: formData.author_name.trim(),
-        external_link: formData.external_link?.trim() || '',
-        blocks: formData.blocks,
-        status: formData.status,
+        image_url: formData.image_url?.trim() || '',
+        content: formData.content?.trim() || '',
         is_featured: formData.is_featured,
+        status: 'published',
         views_count: news?.views_count || 0
       };
 
       if (news) {
         await base44.entities.News.update(news.id, newsData);
-        toast.success('✅ Notícia atualizada!');
+        toast.success('Notícia atualizada!');
       } else {
         await base44.entities.News.create(newsData);
-        toast.success('✅ Notícia publicada!');
+        toast.success('Notícia publicada!');
       }
 
       onSuccess();
     } catch (error) {
-      toast.error('❌ Erro ao salvar: ' + error.message);
+      toast.error('Erro: ' + error.message);
     } finally {
       setSaving(false);
     }
-  };
-
-  const isVideo = (url) => {
-    if (!url) return false;
-    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.m4v'];
-    return videoExtensions.some(ext => url.toLowerCase().includes(ext));
   };
 
   return (
@@ -369,9 +309,8 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-180px)] px-6">
-          <div className="space-y-5 py-4">
-            {/* Título */}
+        <div className="overflow-y-auto max-h-[calc(90vh-180px)] px-6 py-4">
+          <div className="space-y-5">
             <div className="space-y-2">
               <Label>Título *</Label>
               <Input
@@ -382,7 +321,6 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
               />
             </div>
 
-            {/* Subtítulo */}
             <div className="space-y-2">
               <Label>Subtítulo</Label>
               <Input
@@ -393,7 +331,6 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
               />
             </div>
 
-            {/* Categoria e Autor */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Categoria</Label>
@@ -416,7 +353,7 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
               </div>
 
               <div className="space-y-2">
-                <Label>Nome do Autor *</Label>
+                <Label>Autor *</Label>
                 <Input
                   value={formData.author_name}
                   onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
@@ -426,127 +363,53 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
               </div>
             </div>
 
-            {/* Link Externo */}
             <div className="space-y-2">
-              <Label>Link Externo (opcional)</Label>
+              <Label>Imagem de Capa</Label>
               <Input
-                value={formData.external_link}
-                onChange={(e) => setFormData({ ...formData, external_link: e.target.value })}
-                placeholder="https://exemplo.com"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploading}
                 className="h-11 rounded-xl"
+              />
+              {uploading && (
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Enviando...
+                </div>
+              )}
+              {formData.image_url && (
+                <img 
+                  src={formData.image_url} 
+                  alt="Preview" 
+                  className="w-full h-48 object-cover rounded-xl"
+                />
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Conteúdo</Label>
+              <Textarea
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                placeholder="Escreva o conteúdo da notícia..."
+                className="min-h-[300px] rounded-xl resize-none"
               />
             </div>
 
-            {/* Blocos de Conteúdo */}
-            <div className="space-y-3 border-t pt-4">
-              <div className="flex items-center justify-between">
-                <Label>Blocos de Conteúdo</Label>
-                <div className="flex gap-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleAddTextBlock}
-                    className="rounded-xl h-9"
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Texto
-                  </Button>
-                  <label className="cursor-pointer">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      disabled={uploadingMedia}
-                      className="rounded-xl h-9 pointer-events-none"
-                      asChild
-                    >
-                      <span>
-                        {uploadingMedia ? (
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                        ) : (
-                          <Film className="w-4 h-4 mr-2" />
-                        )}
-                        Mídia
-                      </span>
-                    </Button>
-                    <input 
-                      type="file" 
-                      accept="image/*,video/*" 
-                      className="hidden" 
-                      onChange={handleMediaUpload}
-                      disabled={uploadingMedia}
-                      key={formData.blocks.length}
-                    />
-                  </label>
-                </div>
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+              <div>
+                <Label className="font-medium">Notícia em Destaque</Label>
+                <p className="text-xs text-slate-500">Aparece no topo da página</p>
               </div>
-
-              {/* Blocos */}
-              <div className="space-y-3">
-                {formData.blocks.map((block, index) => (
-                  <Card key={index} className="border-2 border-slate-200 rounded-xl overflow-hidden">
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-slate-700">
-                          {block.type === 'image' ? (
-                            isVideo(block.image_url) ? (
-                              <>🎥 Vídeo</>
-                            ) : (
-                              <>🖼️ Imagem</>
-                            )
-                          ) : (
-                            <>📝 Texto</>
-                          )}
-                        </span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveBlock(index)}
-                          className="text-red-600 hover:bg-red-50 h-8"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-
-                      {block.type === 'image' ? (
-                        <div className="space-y-2">
-                          {isVideo(block.image_url) ? (
-                            <video 
-                              src={block.image_url} 
-                              controls 
-                              className="w-full rounded-lg max-h-64"
-                            />
-                          ) : (
-                            <img 
-                              src={block.image_url} 
-                              alt="" 
-                              className="w-full h-48 object-cover rounded-lg"
-                            />
-                          )}
-                        </div>
-                      ) : (
-                        <Textarea
-                          value={block.content || ''}
-                          onChange={(e) => handleBlockChange(index, 'content', e.target.value)}
-                          placeholder="Digite o conteúdo..."
-                          className="min-h-[120px] rounded-xl resize-none"
-                        />
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-
-                {formData.blocks.length === 0 && (
-                  <div className="text-center py-8 text-slate-400 border-2 border-dashed rounded-xl">
-                    <p className="text-sm">Adicione blocos de texto ou mídia</p>
-                  </div>
-                )}
-              </div>
+              <Switch
+                checked={formData.is_featured}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+              />
             </div>
           </div>
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 border-t bg-slate-50 flex gap-3">
           <Button 
             variant="outline" 

@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { 
-  Search, Calendar, Eye, ChevronRight, Clock, 
-  Newspaper, TrendingUp, User, PlayCircle
-} from "lucide-react";
+import { Search, Eye, Clock, Newspaper, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import TimeAgo from "@/components/common/TimeAgo";
@@ -25,307 +21,184 @@ export default function News() {
       return result || [];
     },
     staleTime: 60000,
-    gcTime: 300000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    retry: 3,
-    retryDelay: 1000,
   });
 
   const categories = ['Mercado de Trabalho', 'Dicas de Emprego', 'Economia', 'Cursos', 'Eventos', 'Geral'];
 
   const featuredNews = news.filter(n => n.is_featured).slice(0, 1)[0];
-  const recentNews = news.filter(n => !n.is_featured).slice(0, 5);
   
   const filteredNews = news.filter(n => {
     const matchesSearch = !searchTerm || 
       n.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       n.content?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || n.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && n.id !== featuredNews?.id;
   });
-
-
 
   return (
     <div className="min-h-screen bg-[#F3F2EF] pb-20">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] py-3 px-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Newspaper className="w-6 h-6 text-white" />
-            <h1 className="text-xl font-bold text-white">Notícias</h1>
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] py-6 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-3 mb-4">
+            <Newspaper className="w-8 h-8 text-white" />
+            <h1 className="text-3xl font-bold text-white">Notícias</h1>
           </div>
-          <div className="text-white/80 text-xs hidden sm:block">
-            Vagas Abertas Paraíba
-          </div>
+          <p className="text-white/80">Fique atualizado com as últimas novidades</p>
         </div>
       </div>
       
-      {/* Search Bar */}
-      <div className="bg-white py-4 px-4 border-b">
-        <div className="max-w-6xl mx-auto">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <Input
-              placeholder="Buscar notícias..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-10 pl-10 rounded-lg border-slate-200 bg-white"
-            />
-          </div>
-        </div>
-      </div>
+      <div className="max-w-6xl mx-auto px-4 -mt-4">
+        <Card className="shadow-lg mb-6 rounded-2xl">
+          <CardContent className="p-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Input
+                placeholder="Buscar notícias..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-12 pl-10 rounded-xl border-slate-200"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Categories */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex overflow-x-auto py-3 gap-1 hide-scrollbar">
+        <div className="flex overflow-x-auto gap-2 mb-6 pb-2">
+          <Button
+            variant={selectedCategory === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedCategory('all')}
+            className={`rounded-full ${selectedCategory === 'all' ? 'bg-[#0A66C2]' : ''}`}
+          >
+            Todas
+          </Button>
+          {categories.map(cat => (
             <Button
-              variant={selectedCategory === 'all' ? 'default' : 'ghost'}
+              key={cat}
+              variant={selectedCategory === cat ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setSelectedCategory('all')}
-              className={`rounded-none border-b-2 ${selectedCategory === 'all' ? 'border-[#0A66C2] text-[#0A66C2] bg-transparent hover:bg-transparent' : 'border-transparent'}`}
+              onClick={() => setSelectedCategory(cat)}
+              className={`rounded-full whitespace-nowrap ${selectedCategory === cat ? 'bg-[#0A66C2]' : ''}`}
             >
-              Todas
+              {cat}
             </Button>
-            {categories.map(cat => (
-              <Button
-                key={cat}
-                variant={selectedCategory === cat ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setSelectedCategory(cat)}
-                className={`rounded-none border-b-2 whitespace-nowrap ${selectedCategory === cat ? 'border-[#0A66C2] text-[#0A66C2] bg-transparent hover:bg-transparent' : 'border-transparent'}`}
-              >
-                {cat}
-              </Button>
+          ))}
+        </div>
+
+        {featuredNews && selectedCategory === 'all' && !searchTerm && (
+          <Link to={createPageUrl('NewsDetail') + `?id=${featuredNews.id}`}>
+            <Card className="mb-6 shadow-xl rounded-2xl overflow-hidden hover:shadow-2xl transition-shadow">
+              <div className="relative">
+                {featuredNews.image_url ? (
+                  <div className="relative h-64 md:h-96">
+                    <img 
+                      src={featuredNews.image_url} 
+                      alt={featuredNews.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                    <div className="absolute bottom-0 p-6 text-white">
+                      <Badge className="bg-yellow-500 text-white mb-3">Destaque</Badge>
+                      <h2 className="text-2xl md:text-4xl font-bold mb-2">{featuredNews.title}</h2>
+                      {featuredNews.subtitle && (
+                        <p className="text-white/90 text-lg mb-3">{featuredNews.subtitle}</p>
+                      )}
+                      <div className="flex items-center gap-4 text-white/70 text-sm">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <TimeAgo date={featuredNews.created_date} />
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-4 h-4" />
+                          {featuredNews.views_count || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-6 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white">
+                    <Badge className="bg-white/20 mb-3">Destaque</Badge>
+                    <h2 className="text-2xl md:text-3xl font-bold mb-2">{featuredNews.title}</h2>
+                    {featuredNews.subtitle && <p className="text-white/80">{featuredNews.subtitle}</p>}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </Link>
+        )}
+
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1,2,3,4].map(i => (
+              <Card key={i} className="animate-pulse rounded-2xl">
+                <CardContent className="p-6 flex gap-4">
+                  <div className="w-32 h-24 bg-slate-200 rounded" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-5 bg-slate-200 rounded w-3/4" />
+                    <div className="h-4 bg-slate-200 rounded w-1/2" />
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Featured News - Estilo G1 */}
-            {featuredNews && selectedCategory === 'all' && !searchTerm && (
-              <div>
-                <Link to={createPageUrl('NewsDetail') + `?id=${featuredNews.id}`}>
-                  <div className="relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer group">
-                    {featuredNews.image_url && (
-                      <div className="relative h-72 md:h-96 overflow-hidden">
-                        <img 
-                          src={featuredNews.image_url} 
-                          alt={featuredNews.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                        <div className="absolute top-4 left-4">
-                          <Badge className="bg-[#0A66C2] text-white border-0 rounded-sm px-3 py-1 text-xs uppercase font-bold">
-                            Destaque
+        ) : (
+          <div className="space-y-4">
+            {filteredNews.map((item) => (
+              <Link key={item.id} to={createPageUrl('NewsDetail') + `?id=${item.id}`}>
+                <Card className="hover:shadow-lg transition-shadow rounded-2xl overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="flex flex-col sm:flex-row gap-4 p-4">
+                      {item.image_url && (
+                        <div className="w-full sm:w-40 h-32 flex-shrink-0">
+                          <img 
+                            src={item.image_url} 
+                            alt={item.title}
+                            className="w-full h-full object-cover rounded-xl"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          <Badge className="bg-[#0A66C2] text-white text-xs">
+                            {item.category}
                           </Badge>
+                          <span className="text-xs text-slate-400">
+                            <TimeAgo date={item.created_date} />
+                          </span>
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 p-6">
-                          <h2 className="text-2xl md:text-4xl font-bold text-white mb-3 leading-tight">
-                            {featuredNews.title}
-                          </h2>
-                          {featuredNews.subtitle && (
-                            <p className="text-white/90 text-lg line-clamp-2 mb-4">{featuredNews.subtitle}</p>
-                          )}
-                          <div className="flex items-center gap-4 text-white/70 text-sm">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              <TimeAgo date={featuredNews.created_date} />
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Eye className="w-4 h-4" />
-                              {featuredNews.views_count || 0} visualizações
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    {!featuredNews.image_url && (
-                      <div className="p-6 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white rounded-lg">
-                        <Badge className="bg-white/20 text-white border-0 rounded-sm mb-3">
-                          Destaque
-                        </Badge>
-                        <h2 className="text-2xl md:text-3xl font-bold mb-2">{featuredNews.title}</h2>
-                        {featuredNews.subtitle && (
-                          <p className="text-white/80">{featuredNews.subtitle}</p>
+                        <h3 className="font-bold text-slate-900 text-lg mb-2 line-clamp-2">
+                          {item.title}
+                        </h3>
+                        {item.subtitle && (
+                          <p className="text-sm text-slate-600 line-clamp-2 mb-2">{item.subtitle}</p>
                         )}
+                        <div className="flex items-center gap-3 text-xs text-slate-400">
+                          {item.author_name && (
+                            <span className="flex items-center gap-1">
+                              <User className="w-3 h-3" />
+                              {item.author_name}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-3 h-3" />
+                            {item.views_count || 0}
+                          </span>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+
+            {filteredNews.length === 0 && (
+              <div className="py-16 text-center">
+                <Newspaper className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                <h3 className="font-semibold text-slate-600 mb-2">Nenhuma notícia encontrada</h3>
+                <p className="text-slate-500">Tente ajustar sua busca</p>
               </div>
             )}
-
-            {/* News List - Estilo G1 */}
-            <div className="space-y-1 divide-y divide-slate-100">
-              {isLoading ? (
-                <>
-                  {[1,2,3,4].map(i => (
-                    <div key={i} className="animate-pulse py-4 flex gap-4">
-                      <div className="w-32 h-24 bg-slate-200 rounded" />
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-slate-200 rounded w-1/4" />
-                        <div className="h-5 bg-slate-200 rounded w-3/4" />
-                        <div className="h-4 bg-slate-200 rounded w-1/2" />
-                      </div>
-                    </div>
-                  ))}
-                </>
-              ) : (
-                filteredNews.filter(n => n.id !== featuredNews?.id).map((item) => {
-                  // Buscar primeira imagem dos blocos se não tiver image_url principal
-                  const imageUrl = item.image_url || 
-                    (item.blocks?.find(b => b.type === 'image' && b.image_url)?.image_url) || 
-                    null;
-                  
-                  return (
-                    <div key={item.id}>
-                      <Link to={createPageUrl('NewsDetail') + `?id=${item.id}`}>
-                        <article className="py-4 hover:bg-slate-50 transition-colors cursor-pointer group flex flex-row gap-4">
-                          {/* Imagem - sempre mostrar área, com placeholder se não tiver */}
-                          <div className="relative w-32 sm:w-40 h-24 flex-shrink-0 overflow-hidden rounded bg-slate-100">
-                            {imageUrl ? (
-                              <img 
-                                src={imageUrl} 
-                                alt={item.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Newspaper className="w-8 h-8 text-slate-300" />
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* Conteúdo */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              {item.is_featured && (
-                                <Badge className="bg-yellow-500 text-white border-0 text-xs rounded-sm px-2 py-0.5">
-                                  Destaque
-                                </Badge>
-                              )}
-                              <Badge className="bg-[#0A66C2]/10 text-[#0A66C2] border-0 text-xs rounded-sm px-2 py-0.5">
-                                {item.category || 'Geral'}
-                              </Badge>
-                              <span className="text-xs text-slate-400">
-                                <TimeAgo date={item.created_date} />
-                              </span>
-                            </div>
-                            <h3 className="font-bold text-slate-900 group-hover:text-[#0A66C2] transition-colors line-clamp-2 text-base sm:text-lg leading-snug mb-1">
-                              {item.title}
-                            </h3>
-                            {item.subtitle && (
-                              <p className="text-sm text-slate-600 line-clamp-2 hidden sm:block">{item.subtitle}</p>
-                            )}
-                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
-                              {item.author_name && (
-                                <span className="flex items-center gap-1">
-                                  <User className="w-3 h-3" />
-                                  {item.author_name}
-                                </span>
-                              )}
-                              <span className="flex items-center gap-1">
-                                <Eye className="w-3 h-3" />
-                                {item.views_count || 0}
-                              </span>
-                            </div>
-                          </div>
-                        </article>
-                      </Link>
-                    </div>
-                  );
-                })
-              )}
-
-              {filteredNews.length === 0 && !isLoading && (
-                <div className="py-16 text-center">
-                  <Newspaper className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                  <h3 className="font-semibold text-slate-600 mb-2">Nenhuma notícia encontrada</h3>
-                  <p className="text-slate-500">Tente ajustar os filtros de busca</p>
-                </div>
-              )}
-            </div>
           </div>
-
-          {/* Sidebar - Estilo G1 */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Recent News */}
-            <Card className="rounded-lg border-0 shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] px-4 py-3">
-                <h3 className="font-bold text-white text-sm uppercase tracking-wide flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Mais Lidas
-                </h3>
-              </div>
-              <CardContent className="p-0 divide-y">
-                {recentNews.slice(0, 5).map((item, index) => (
-                  <Link 
-                    key={item.id} 
-                    to={createPageUrl('NewsDetail') + `?id=${item.id}`}
-                    className="flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors group"
-                  >
-                    <span className="text-3xl font-bold text-[#0A66C2] leading-none">{index + 1}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-800 group-hover:text-[#0A66C2] transition-colors line-clamp-3">
-                        {item.title}
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1"><TimeAgo date={item.created_date} /></p>
-                    </div>
-                  </Link>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Categories Widget */}
-            <Card className="rounded-lg border-0 shadow-sm overflow-hidden">
-              <div className="bg-slate-800 px-4 py-3">
-                <h3 className="font-bold text-white text-sm uppercase tracking-wide">Categorias</h3>
-              </div>
-              <CardContent className="p-0 divide-y">
-                {categories.map(cat => {
-                  const count = news.filter(n => n.category === cat).length;
-                  return (
-                    <button
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`w-full flex items-center justify-between p-3 hover:bg-slate-50 transition-colors ${
-                        selectedCategory === cat ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : 'text-slate-700'
-                      }`}
-                    >
-                      <span className="text-sm font-medium">{cat}</span>
-                      <Badge className={`text-xs ${selectedCategory === cat ? 'bg-[#0A66C2] text-white' : 'bg-slate-100 text-slate-600'}`}>
-                        {count}
-                      </Badge>
-                    </button>
-                  );
-                })}
-              </CardContent>
-            </Card>
-
-            {/* CTA */}
-            <Card className="rounded-lg bg-gradient-to-br from-[#0A66C2] to-[#004182] text-white border-0">
-              <CardContent className="p-6 text-center">
-                <h3 className="font-bold text-lg mb-2">Quer mais oportunidades?</h3>
-                <p className="text-white/80 text-sm mb-4">
-                  Acesse todas as vagas exclusivas
-                </p>
-                <Link to={createPageUrl('Jobs')}>
-                  <Button className="bg-white text-[#0A66C2] hover:bg-white/90 rounded-lg w-full">
-                    Ver Vagas
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
