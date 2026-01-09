@@ -342,7 +342,7 @@ export default function JobDetail() {
                       variant="outline"
                       size="icon"
                       onClick={() => setShowEditModal(true)}
-                      className="rounded-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                      className="rounded-full"
                       title="Editar Vaga"
                     >
                       <Edit className="w-5 h-5" />
