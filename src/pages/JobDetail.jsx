@@ -570,7 +570,7 @@ function ContactDialog({ job, contacts, open, onClose }) {
     if (contacts.whatsapp) {
       const phone = contacts.whatsapp.length === 10 ? `55${contacts.whatsapp}` : 
                    contacts.whatsapp.length === 11 ? `55${contacts.whatsapp}` : contacts.whatsapp;
-      const message = `Olá! Vi a vaga de ${job.title} no Vagas Abertas Paraíba e gostaria de me candidatar.`;
+      const message = `Olá! Vi a vaga de ${job.title} no Emprega Brasil+ e gostaria de me candidatar.`;
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
     }
   };
@@ -578,7 +578,7 @@ function ContactDialog({ job, contacts, open, onClose }) {
   const handleEmail = () => {
     if (contacts.email) {
       const subject = `Candidatura - ${job.title}`;
-      const body = `Olá!\n\nVi a vaga de ${job.title} no Vagas Abertas Paraíba e gostaria de me candidatar.\n\nAtenciosamente`;
+      const body = `Olá!\n\nVi a vaga de ${job.title} no Emprega Brasil+ e gostaria de me candidatar.\n\nAtenciosamente`;
       window.open(`mailto:${contacts.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
     }
   };
