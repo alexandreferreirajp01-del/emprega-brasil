@@ -181,11 +181,10 @@ export default function GerenciarAnuncios() {
     setSaving(true);
     try {
       localStorage.setItem('adsterra_config', JSON.stringify(config));
-      window.dispatchEvent(new Event('adsterra_config_updated'));
-      toast.success('Configurações salvas com sucesso!');
+      // Recarregar página para aplicar novo config
+      setTimeout(() => window.location.reload(), 500);
     } catch (e) {
       toast.error('Erro ao salvar configurações');
-    } finally {
       setSaving(false);
     }
   };
@@ -206,6 +205,9 @@ export default function GerenciarAnuncios() {
       });
     });
     setConfig(newConfig);
+    localStorage.setItem('adsterra_config', JSON.stringify(newConfig));
+    toast.success('Todos os anúncios ativados! Recarregando...');
+    setTimeout(() => window.location.reload(), 500);
   };
 
   const handleDisableAll = () => {
