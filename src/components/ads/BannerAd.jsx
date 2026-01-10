@@ -1,7 +1,7 @@
 import React from 'react';
 import AdContainer from './AdContainer';
 
-export default function BannerAd({ size, pageName, location, className = '' }) {
+export default function BannerAd({ size = '300x250', className = '' }) {
   const adTypeMap = {
     '728x90': 'banner_728x90',
     '320x50': 'banner_320x50',
@@ -12,13 +12,5 @@ export default function BannerAd({ size, pageName, location, className = '' }) {
   };
 
   const adType = adTypeMap[size] || 'banner_300x250';
-
-  return (
-    <AdContainer 
-      adType={adType}
-      pageName={pageName}
-      location={location}
-      className={className}
-    />
-  );
+  return <AdContainer adType={adType} className={className} />;
 }
