@@ -19,6 +19,7 @@ import Feed from './pages/Feed';
 import FluxoUsuarios from './pages/FluxoUsuarios';
 import ForgotPassword from './pages/ForgotPassword';
 import GerenciadorFiltros from './pages/GerenciadorFiltros';
+import GerenciarAnuncios from './pages/GerenciarAnuncios';
 import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarCores from './pages/GerenciarCores';
 import GerenciarFuncoes from './pages/GerenciarFuncoes';
@@ -67,7 +68,6 @@ import VagasConverter from './pages/VagasConverter';
 import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
-import GerenciarAnuncios from './pages/GerenciarAnuncios';
 import __Layout from './Layout.jsx';
 
 
@@ -93,6 +93,7 @@ export const PAGES = {
     "FluxoUsuarios": FluxoUsuarios,
     "ForgotPassword": ForgotPassword,
     "GerenciadorFiltros": GerenciadorFiltros,
+    "GerenciarAnuncios": GerenciarAnuncios,
     "GerenciarComunidade": GerenciarComunidade,
     "GerenciarCores": GerenciarCores,
     "GerenciarFuncoes": GerenciarFuncoes,
@@ -141,7 +142,6 @@ export const PAGES = {
     "VagasHomeOffice": VagasHomeOffice,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
-    "GerenciarAnuncios": GerenciarAnuncios,
 }
 
 export const pagesConfig = {
