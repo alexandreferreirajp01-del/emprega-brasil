@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { 
   ArrowLeft, Plus, Edit2, Trash2, Search, Loader2, 
-  Image, Eye, X, Save
+  Image, Eye, X, Save, ChevronUp, ChevronDown, FileText, Film, Link as LinkIcon
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -220,8 +220,7 @@ function NewsModal({ news, onClose, onSuccess, user }) {
     subtitle: '',
     category: 'Geral',
     author_name: user?.full_name || '',
-    image_url: '',
-    content: '',
+    blocks: [],
     is_featured: false
   });
   const [uploading, setUploading] = useState(false);
@@ -234,29 +233,64 @@ function NewsModal({ news, onClose, onSuccess, user }) {
         subtitle: news.subtitle || '',
         category: news.category || 'Geral',
         author_name: news.author_name || '',
-        image_url: news.image_url || '',
-        content: news.content || '',
+        blocks: news.blocks || [],
         is_featured: news.is_featured || false
       });
     }
   }, [news]);
 
-  const handleImageUpload = async (e) => {
+  const addBlock = (type) => {
+    const newBlock = {
+      id: Date.now(),
+      type,
+      content: '',
+      order: form.blocks.length
+    };
+    setForm(prev => ({ ...prev, blocks: [...prev.blocks, newBlock] }));
+  };
+
+  const updateBlock = (id, field, value) => {
+    setForm(prev => ({
+      ...prev,
+      blocks: prev.blocks.map(b => b.id === id ? { ...b, [field]: value } : b)
+    }));
+  };
+
+  const removeBlock = (id) => {
+    setForm(prev => ({
+      ...prev,
+      blocks: prev.blocks.filter(b => b.id !== id)
+    }));
+  };
+
+  const moveBlock = (id, direction) => {
+    const blocks = [...form.blocks];
+    const index = blocks.findIndex(b => b.id === id);
+    if (direction === 'up' && index > 0) {
+      [blocks[index], blocks[index - 1]] = [blocks[index - 1], blocks[index]];
+    } else if (direction === 'down' && index < blocks.length - 1) {
+      [blocks[index], blocks[index + 1]] = [blocks[index + 1], blocks[index]];
+    }
+    blocks.forEach((b, i) => b.order = i);
+    setForm(prev => ({ ...prev, blocks }));
+  };
+
+  const handleImageUpload = async (blockId, e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('Imagem muito grande. Máximo: 10MB');
+      toast.error('Arquivo muito grande. Máximo: 10MB');
       return;
     }
 
     setUploading(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setForm(prev => ({ ...prev, image_url: file_url }));
-      toast.success('Imagem enviada!');
+      updateBlock(blockId, 'content', file_url);
+      toast.success('Arquivo enviado!');
     } catch (error) {
-      toast.error('Erro ao enviar imagem');
+      toast.error('Erro ao enviar');
     } finally {
       setUploading(false);
     }
@@ -275,8 +309,7 @@ function NewsModal({ news, onClose, onSuccess, user }) {
         subtitle: form.subtitle?.trim() || '',
         category: form.category,
         author_name: form.author_name.trim(),
-        image_url: form.image_url?.trim() || '',
-        content: form.content?.trim() || '',
+        blocks: form.blocks,
         is_featured: form.is_featured,
         status: 'published',
         views_count: news?.views_count || 0
@@ -300,7 +333,7 @@ function NewsModal({ news, onClose, onSuccess, user }) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
           <DialogTitle>{news ? 'Editar Notícia' : 'Nova Notícia'}</DialogTitle>
         </DialogHeader>
@@ -355,48 +388,162 @@ function NewsModal({ news, onClose, onSuccess, user }) {
             </div>
           </div>
 
-          <div>
-            <Label>Imagem de Capa</Label>
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              disabled={uploading}
-              className="mt-1 h-11 rounded-xl"
-            />
-            {uploading && (
-              <div className="flex items-center gap-2 mt-2 text-sm text-slate-500">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Enviando...
-              </div>
-            )}
-            {form.image_url && (
-              <div className="mt-3 relative">
-                <img 
-                  src={form.image_url} 
-                  alt="Preview" 
-                  className="w-full h-48 object-cover rounded-xl"
-                />
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between mb-4">
+              <Label className="text-base font-semibold">Blocos de Conteúdo</Label>
+              <div className="flex gap-2">
                 <Button
-                  variant="ghost"
+                  type="button"
+                  variant="outline"
                   size="sm"
-                  onClick={() => setForm({ ...form, image_url: '' })}
-                  className="absolute top-2 right-2 bg-white/90 hover:bg-white"
+                  onClick={() => addBlock('text')}
+                  className="rounded-lg"
                 >
-                  <X className="w-4 h-4" />
+                  <FileText className="w-4 h-4 mr-2" />
+                  Texto
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addBlock('image')}
+                  className="rounded-lg"
+                >
+                  <Image className="w-4 h-4 mr-2" />
+                  Imagem
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addBlock('video')}
+                  className="rounded-lg"
+                >
+                  <Film className="w-4 h-4 mr-2" />
+                  Vídeo
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addBlock('link')}
+                  className="rounded-lg"
+                >
+                  <LinkIcon className="w-4 h-4 mr-2" />
+                  Link
                 </Button>
               </div>
-            )}
-          </div>
+            </div>
 
-          <div>
-            <Label>Conteúdo</Label>
-            <Textarea
-              value={form.content}
-              onChange={(e) => setForm({ ...form, content: e.target.value })}
-              placeholder="Escreva o conteúdo da notícia..."
-              className="mt-1 min-h-[300px] rounded-xl resize-none"
-            />
+            <div className="space-y-3">
+              {form.blocks.map((block, index) => (
+                <Card key={block.id} className="border-2 border-slate-200 rounded-xl">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-slate-700">
+                        {block.type === 'text' && '📝 Texto'}
+                        {block.type === 'image' && '🖼️ Imagem'}
+                        {block.type === 'video' && '🎥 Vídeo'}
+                        {block.type === 'link' && '🔗 Link'}
+                      </span>
+                      <div className="flex gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveBlock(block.id, 'up')}
+                          disabled={index === 0}
+                          className="h-8 w-8 p-0"
+                        >
+                          <ChevronUp className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveBlock(block.id, 'down')}
+                          disabled={index === form.blocks.length - 1}
+                          className="h-8 w-8 p-0"
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeBlock(block.id)}
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {block.type === 'text' && (
+                      <Textarea
+                        value={block.content}
+                        onChange={(e) => updateBlock(block.id, 'content', e.target.value)}
+                        placeholder="Digite o texto..."
+                        className="min-h-[120px] rounded-xl resize-none"
+                      />
+                    )}
+
+                    {block.type === 'image' && (
+                      <div>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(block.id, e)}
+                          disabled={uploading}
+                          className="rounded-xl"
+                        />
+                        {block.content && (
+                          <img 
+                            src={block.content} 
+                            alt="Preview" 
+                            className="mt-3 w-full h-48 object-cover rounded-xl"
+                          />
+                        )}
+                      </div>
+                    )}
+
+                    {block.type === 'video' && (
+                      <div>
+                        <Input
+                          type="file"
+                          accept="video/*"
+                          onChange={(e) => handleImageUpload(block.id, e)}
+                          disabled={uploading}
+                          className="rounded-xl"
+                        />
+                        {block.content && (
+                          <video 
+                            src={block.content} 
+                            controls 
+                            className="mt-3 w-full rounded-xl"
+                          />
+                        )}
+                      </div>
+                    )}
+
+                    {block.type === 'link' && (
+                      <Input
+                        value={block.content}
+                        onChange={(e) => updateBlock(block.id, 'content', e.target.value)}
+                        placeholder="https://exemplo.com"
+                        className="rounded-xl"
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+
+              {form.blocks.length === 0 && (
+                <div className="text-center py-8 text-slate-400 border-2 border-dashed rounded-xl">
+                  <p className="text-sm">Adicione blocos de conteúdo</p>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
