@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import AdScript from './AdScript';
 
 export default function AdContainer({ 
@@ -7,44 +7,21 @@ export default function AdContainer({
   location,
   className = ''
 }) {
-  const [shouldShow, setShouldShow] = useState(true);
-
   useEffect(() => {
+    // Sempre carregar anúncios - config apenas bloqueia se explicitamente desativado
     try {
       const config = localStorage.getItem('adsterra_config');
-      if (!config) {
-        setShouldShow(true); // Mostrar por padrão
-        return;
-      }
-
+      if (!config) return; // Sem config = sempre mostrar
+      
       const parsed = JSON.parse(config);
       const adConfig = parsed[adType];
       
-      // Se o anúncio não está configurado ou está desativado
-      if (!adConfig || !adConfig.enabled) {
-        setShouldShow(false);
-        return;
-      }
-
-      // Verificar se a página está ativa
-      if (pageName && adConfig.pages && !adConfig.pages[pageName]) {
-        setShouldShow(false);
-        return;
-      }
-
-      // Verificar se a localização está ativa
-      if (location && adConfig.locations && !adConfig.locations[location]) {
-        setShouldShow(false);
-        return;
-      }
-
-      setShouldShow(true);
+      // Apenas bloquear se explicitamente disabled
+      if (adConfig?.enabled === false) return;
     } catch (e) {
-      setShouldShow(true); // Mostrar por padrão em caso de erro
+      // Em caso de erro, sempre carregar
     }
   }, [adType, pageName, location]);
-
-  if (!shouldShow) return null;
 
   return (
     <div className={className}>
