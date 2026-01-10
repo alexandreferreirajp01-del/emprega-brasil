@@ -12,9 +12,6 @@ export default function AdScript({ adType, className = '' }) {
     // Limpar container
     containerRef.current.innerHTML = '';
 
-    // Logs para debug
-    console.log('AdScript loading:', adType);
-
     // Scripts padrão do AdsTerra
     const scripts = {
       popunder: `<script src="https://pl28444602.effectivegatecpm.com/72/ee/cd/72eecd4d68c9f39c279778e483c3f902.js"><\/script>`,
@@ -37,12 +34,7 @@ export default function AdScript({ adType, className = '' }) {
     };
 
     const scriptContent = scripts[adType];
-    if (!scriptContent) {
-      console.warn('No script found for adType:', adType);
-      return;
-    }
-
-    console.log('Loading ad script for:', adType);
+    if (!scriptContent) return;
 
     // Criar um container temporário para parsear o HTML
     const temp = document.createElement('div');

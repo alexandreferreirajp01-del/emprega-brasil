@@ -19,7 +19,6 @@ export default function AdContainer({
       try {
         const config = localStorage.getItem('adsterra_config');
         if (!config) {
-          console.log(`AdContainer: No config found for ${adType}`);
           setShouldShow(false);
           return;
         }
@@ -28,24 +27,20 @@ export default function AdContainer({
         const adConfig = parsed[adType];
         
         if (!adConfig || !adConfig.enabled) {
-          console.log(`AdContainer: ${adType} is not enabled`);
           setShouldShow(false);
           return;
         }
 
         if (pageName && !adConfig.pages?.[pageName]) {
-          console.log(`AdContainer: ${adType} not enabled for page ${pageName}`);
           setShouldShow(false);
           return;
         }
 
         if (location && !adConfig.locations?.[location]) {
-          console.log(`AdContainer: ${adType} not enabled for location ${location}`);
           setShouldShow(false);
           return;
         }
 
-        console.log(`AdContainer: Showing ${adType} on ${pageName} at ${location}`);
         setShouldShow(true);
       } catch (e) {
         console.error('Erro ao verificar config de anúncio:', e);

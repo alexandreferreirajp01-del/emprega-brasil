@@ -639,10 +639,8 @@ export default function Layout({ children, currentPageName }) {
       </nav>
 
       {/* AdsTerra Banner 320x50 - Mobile Footer */}
-      <div className="md:hidden fixed bottom-16 left-0 right-0 z-30 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-1 pb-safe">
-        <div className="flex justify-center items-center">
-          <BannerAd size="320x50" pageName={currentPageName} location="footer" />
-        </div>
+      <div className="md:hidden fixed bottom-16 left-0 right-0 z-30 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-1 safe-area-bottom">
+        <BannerAd size="320x50" pageName={currentPageName} location="footer" className="mx-auto" />
       </div>
 
       {/* Floating Buttons */}
