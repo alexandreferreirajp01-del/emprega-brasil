@@ -284,9 +284,9 @@ export default function Layout({ children, currentPageName }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col notranslate transition-colors duration-300" translate="no" lang="pt-BR">
-      {/* AdsTerra Ads */}
-      <PopunderAd pageName={currentPageName} />
-      <SocialBarAd pageName={currentPageName} />
+      {/* AdsTerra Ads - Globais */}
+      <PopunderAd />
+      <SocialBarAd />
 
       {/* Fallback de navegação anti-tela-branca */}
       <NavigationFallback />
@@ -419,7 +419,7 @@ export default function Layout({ children, currentPageName }) {
 
                   {/* AdsTerra Banner 728x90 - Desktop Header */}
                   <div className="hidden lg:block">
-                    <BannerAd size="728x90" pageName={currentPageName} location="header" />
+                    <BannerAd size="728x90" />
                   </div>
 
                   {/* User Actions */}
@@ -640,7 +640,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* AdsTerra Banner 320x50 - Mobile Footer */}
       <div className="md:hidden fixed bottom-16 left-0 right-0 z-30 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-1 safe-area-bottom">
-        <BannerAd size="320x50" pageName={currentPageName} location="footer" className="mx-auto" />
+        <BannerAd size="320x50" className="mx-auto" />
       </div>
 
       {/* Floating Buttons */}
