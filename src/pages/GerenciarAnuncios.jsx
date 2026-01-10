@@ -181,33 +181,35 @@ export default function GerenciarAnuncios() {
     setSaving(true);
     try {
       localStorage.setItem('adsterra_config', JSON.stringify(config));
-      // Recarregar página para aplicar novo config
-      setTimeout(() => window.location.reload(), 500);
+      toast.success('✅ Configurações salvas! Recarregando...');
+      setTimeout(() => window.location.reload(), 800);
     } catch (e) {
-      toast.error('Erro ao salvar configurações');
+      toast.error('❌ Erro ao salvar');
       setSaving(false);
     }
   };
 
   const handleEnableAll = () => {
-    const newConfig = { ...config };
+    const newConfig = {};
     AD_TYPES.forEach(ad => {
-      newConfig[ad.id] = {
-        enabled: true,
-        pages: {},
-        locations: {}
-      };
+      const pages = {};
+      const locations = {};
       PAGES.forEach(page => {
-        newConfig[ad.id].pages[page.id] = true;
+        pages[page.id] = true;
       });
       LOCATIONS.forEach(loc => {
-        newConfig[ad.id].locations[loc.id] = true;
+        locations[loc.id] = true;
       });
+      newConfig[ad.id] = {
+        enabled: true,
+        pages,
+        locations
+      };
     });
     setConfig(newConfig);
     localStorage.setItem('adsterra_config', JSON.stringify(newConfig));
-    toast.success('Todos os anúncios ativados! Recarregando...');
-    setTimeout(() => window.location.reload(), 500);
+    toast.success('✅ Anúncios ativados! Recarregando...');
+    setTimeout(() => window.location.reload(), 800);
   };
 
   const handleDisableAll = () => {
