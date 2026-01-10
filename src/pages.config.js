@@ -4,6 +4,7 @@ import ActivatePremiumManual from './pages/ActivatePremiumManual';
 import Advertise from './pages/Advertise';
 import AnalyticsPage from './pages/AnalyticsPage';
 import ApagarVagasPorPeriodo from './pages/ApagarVagasPorPeriodo';
+import BancoDadosAssistente from './pages/BancoDadosAssistente';
 import BibliotecaAdmin from './pages/BibliotecaAdmin';
 import BibliotecaProfissional from './pages/BibliotecaProfissional';
 import Careers from './pages/Careers';
@@ -65,7 +66,7 @@ import VagasConverter from './pages/VagasConverter';
 import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
-import BancoDadosAssistente from './pages/BancoDadosAssistente';
+import PostsEmMassaTXT from './pages/PostsEmMassaTXT';
 import __Layout from './Layout.jsx';
 
 
@@ -76,6 +77,7 @@ export const PAGES = {
     "Advertise": Advertise,
     "AnalyticsPage": AnalyticsPage,
     "ApagarVagasPorPeriodo": ApagarVagasPorPeriodo,
+    "BancoDadosAssistente": BancoDadosAssistente,
     "BibliotecaAdmin": BibliotecaAdmin,
     "BibliotecaProfissional": BibliotecaProfissional,
     "Careers": Careers,
@@ -137,7 +139,7 @@ export const PAGES = {
     "VagasHomeOffice": VagasHomeOffice,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
-    "BancoDadosAssistente": BancoDadosAssistente,
+    "PostsEmMassaTXT": PostsEmMassaTXT,
 }
 
 export const pagesConfig = {
