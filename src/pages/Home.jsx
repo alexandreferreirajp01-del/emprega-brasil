@@ -128,7 +128,7 @@ export default function Home() {
       <VisitTracker pageName="Home" user={user} />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 pt-6 sm:pt-8 pb-12 sm:pb-8 px-3 sm:px-4 relative overflow-hidden transition-colors duration-300">
+      <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 pt-6 sm:pt-8 pb-2 px-3 sm:px-4 relative overflow-hidden transition-colors duration-300">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-40 h-40 bg-white dark:bg-slate-600 rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-60 h-60 bg-white dark:bg-slate-600 rounded-full blur-3xl"></div>
