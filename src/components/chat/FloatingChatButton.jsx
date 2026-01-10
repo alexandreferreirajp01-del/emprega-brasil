@@ -14,6 +14,7 @@ export default function FloatingChatButton() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -61,8 +62,28 @@ export default function FloatingChatButton() {
   useEffect(() => {
     if (!conversationId) return;
 
+    let lastMessageCount = messages.length;
+
     const unsubscribe = base44.agents.subscribeToConversation(conversationId, (data) => {
-      setMessages(data.messages || []);
+      const newMessages = data.messages || [];
+      
+      // Se tem nova mensagem do assistente, simula digitação
+      if (newMessages.length > lastMessageCount) {
+        const lastMsg = newMessages[newMessages.length - 1];
+        if (lastMsg.role === 'assistant') {
+          setIsTyping(true);
+          const randomDelay = Math.floor(Math.random() * 3000) + 2000; // 2-5 segundos
+          setTimeout(() => {
+            setMessages(newMessages);
+            setIsTyping(false);
+          }, randomDelay);
+          lastMessageCount = newMessages.length;
+          return;
+        }
+      }
+      
+      setMessages(newMessages);
+      lastMessageCount = newMessages.length;
     });
 
     return () => unsubscribe();
@@ -160,6 +181,16 @@ export default function FloatingChatButton() {
                           li: ({ children }) => <li className="leading-relaxed">{children}</li>,
                           strong: ({ children }) => <strong className="font-semibold text-[#0A66C2] dark:text-blue-400">{children}</strong>,
                           code: ({ children }) => <code className="bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded text-xs">{children}</code>,
+                          a: ({ href, children }) => (
+                            <a 
+                              href={href} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-[#0A66C2] dark:text-blue-400 underline hover:text-[#004182] dark:hover:text-blue-300 font-medium transition-colors"
+                            >
+                              {children}
+                            </a>
+                          ),
                         }}
                       >
                         {msg.content}
@@ -171,10 +202,15 @@ export default function FloatingChatButton() {
                 </div>
               ))}
               
-              {loading && (
+              {(loading || isTyping) && (
                 <div className="flex justify-start">
-                  <div className="bg-white dark:bg-slate-700 rounded-2xl rounded-bl-sm px-3 py-2 shadow-sm">
-                    <Loader2 className="w-4 h-4 animate-spin text-[#0A66C2] dark:text-blue-400" />
+                  <div className="bg-white dark:bg-slate-700 rounded-2xl rounded-bl-sm px-4 py-2 shadow-sm flex items-center gap-2">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-[#0A66C2] dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-[#0A66C2] dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-[#0A66C2] dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">digitando...</span>
                   </div>
                 </div>
               )}
