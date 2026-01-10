@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Send, Users, AlertCircle, ExternalLink } from "lucide-react";
+import BannerAd from "@/components/ads/BannerAd";
 
 
 const GROUPS = [
@@ -140,9 +141,12 @@ export default function Groups() {
         </div>
       </div>
 
-      {/* Groups Grid */}
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Groups Grid with Sidebar */}
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Main Groups - Col 1 e 2 */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {GROUPS.map((group) => (
             <div key={group.id}>
               <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group rounded-2xl dark:bg-slate-800 dark:border-slate-700">
@@ -187,6 +191,23 @@ export default function Groups() {
               </Card>
             </div>
           ))}
+            </div>
+          </div>
+
+          {/* Sidebar - Col 3 */}
+          <div className="hidden lg:flex lg:flex-col gap-4">
+            <div className="sticky top-24 space-y-4">
+              <Card className="rounded-xl dark:bg-slate-800 dark:border-slate-700 overflow-hidden p-3 transition-colors">
+                <BannerAd size="300x250" className="w-full" />
+              </Card>
+              <Card className="rounded-xl dark:bg-slate-800 dark:border-slate-700 overflow-hidden p-3 transition-colors">
+                <BannerAd size="300x250" className="w-full" />
+              </Card>
+              <Card className="rounded-xl dark:bg-slate-800 dark:border-slate-700 overflow-hidden p-3 transition-colors">
+                <BannerAd size="300x250" className="w-full" />
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>
