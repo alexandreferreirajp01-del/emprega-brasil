@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 const menuItems = [
   // Sistema
   { id: 'divider-sistema', type: 'divider', label: 'Sistema', roles: ['admin', 'dono'] },
+  { id: 'assistente-ia', name: 'Assistente de IA', icon: Bot, color: 'blue', external: true, externalUrl: 'https://app.base44.com/agents', description: 'Chat com IA para gerenciar o app', roles: ['admin', 'dono'] },
   { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', icon: Settings, color: 'purple', page: 'GerenciarFuncoes', description: 'Habilitar/desabilitar funções do app', roles: ['admin', 'dono'] },
   { id: 'popups', name: 'Gerenciar Popups', icon: AlertCircle, color: 'indigo', page: 'GerenciarPopups', description: 'Avisos e mensagens no app', roles: ['admin', 'dono'] },
   { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'purple', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'], permissionId: 'permissoes' },
@@ -170,7 +171,7 @@ export default function Configuracoes() {
     } else if (item.page) {
       window.location.href = createPageUrl(item.page);
     } else if (item.external) {
-      window.open('https://app.base44.com', '_blank');
+      window.open(item.externalUrl || 'https://app.base44.com', '_blank');
     }
   };
 
