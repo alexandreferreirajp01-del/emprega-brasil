@@ -4,11 +4,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, MapPin, Calendar, Building2, Briefcase, 
-  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, Edit
+  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, Edit, Trash2
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -308,6 +309,20 @@ export default function JobDetail() {
     user?.subscription_type === 'admin' || 
     user?.email === 'alexandreferreirajp01@gmail.com';
 
+  const handleDelete = async () => {
+    if (!confirm(`Tem certeza que deseja excluir a vaga "${job.title}"?`)) {
+      return;
+    }
+
+    try {
+      await base44.entities.Job.delete(jobId);
+      toast.success('Vaga excluída com sucesso!');
+      window.location.href = createPageUrl('Home');
+    } catch (error) {
+      toast.error('Erro ao excluir vaga');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
@@ -338,15 +353,26 @@ export default function JobDetail() {
                 </div>
                 <div className="flex items-center gap-2">
                   {isAdmin && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setShowEditModal(true)}
-                      className="rounded-full"
-                      title="Editar Vaga"
-                    >
-                      <Edit className="w-5 h-5" />
-                    </Button>
+                    <>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setShowEditModal(true)}
+                        className="rounded-full"
+                        title="Editar Vaga"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleDelete}
+                        className="rounded-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                        title="Excluir Vaga"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </Button>
+                    </>
                   )}
                   {user && (
                     <Button
