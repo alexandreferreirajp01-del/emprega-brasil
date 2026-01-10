@@ -324,8 +324,8 @@ export default function GerenciarAnuncios() {
                       </div>
                       <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">{adType.description}</p>
                       {adType.details && (
-                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                          <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                        <div className="mt-2 p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                             ℹ️ {adType.details}
                           </p>
                         </div>
@@ -355,7 +355,7 @@ export default function GerenciarAnuncios() {
                               onClick={() => handleTogglePage(adType.id, page.id)}
                               className={`p-2.5 sm:p-3 rounded-lg border-2 cursor-pointer transition-all ${
                                 pageEnabled
-                                  ? 'border-[#0A66C2] bg-[#0A66C2]/5 dark:bg-[#0A66C2]/10'
+                                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
                                   : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
                               }`}
                             >
@@ -364,7 +364,7 @@ export default function GerenciarAnuncios() {
                                   {page.name}
                                 </span>
                                 {pageEnabled && (
-                                  <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0A66C2] flex-shrink-0" />
+                                  <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
                                 )}
                               </div>
                             </div>
