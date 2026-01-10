@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart
+  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -32,76 +32,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import PremiumModal from "@/components/subscription/PremiumModal";
+import TimeAgo from "@/components/common/TimeAgo";
 
-const CIDADES_PB = [
-  "João Pessoa", "Campina Grande", "Bayeux", "Cabedelo", "Santa Rita",
-  "Água Branca", "Aguiar", "Alagoa Grande", "Alagoa Nova", "Alagoinha", "Alcantil",
-  "Algodão de Jandaíra", "Alhandra", "Amparo", "Aparecida", "Araçagi", "Arara",
-  "Araruna", "Areia", "Areia de Baraúnas", "Areial", "Aroeiras", "Assunção",
-  "Baía da Traição", "Bananeiras", "Baraúna", "Barra de Santa Rosa", "Barra de Santana",
-  "Barra de São Miguel", "Belém", "Belém do Brejo do Cruz", "Bernardino Batista",
-  "Boa Ventura", "Boa Vista", "Bom Jesus", "Bom Sucesso", "Bonito de Santa Fé",
-  "Boqueirão", "Borborema", "Brejo do Cruz", "Brejo dos Santos", "Caaporã",
-  "Cabaceiras", "Cachoeira dos Índios", "Cacimba de Areia", "Cacimba de Dentro",
-  "Cacimbas", "Caiçara", "Caldas Brandão", "Camalaú", "Capim", "Caraúbas",
-  "Carrapateira", "Casserengue", "Catingueira", "Catolé do Rocha", "Caturité",
-  "Conceição", "Condado", "Conde", "Congo", "Coremas", "Coxixola",
-  "Cruz do Espírito Santo", "Cubati", "Cuité", "Cuité de Mamanguape", "Cuitegi",
-  "Curral de Cima", "Curral Velho", "Damião", "Desterro", "Diamante", "Dona Inês",
-  "Duas Estradas", "Emas", "Esperança", "Fagundes", "Frei Martinho", "Gado Bravo",
-  "Guarabira", "Gurinhém", "Gurjão", "Ibiara", "Igaracy", "Imaculada", "Ingá",
-  "Itabaiana", "Itaporanga", "Itapororoca", "Itatuba", "Jacaraú", "Jericó",
-  "Joca Claudino", "Juarez Távora", "Juazeirinho", "Junco do Seridó", "Juripiranga",
-  "Juru", "Lagoa", "Lagoa de Dentro", "Lagoa Seca", "Lastro", "Livramento",
-  "Logradouro", "Lucena", "Mãe d'Água", "Malta", "Mamanguape", "Manaíra",
-  "Marcação", "Mari", "Marizópolis", "Massaranduba", "Mataraca", "Matinhas",
-  "Mato Grosso", "Maturéia", "Mogeiro", "Montadas", "Monte Horebe", "Monteiro",
-  "Mulungu", "Natuba", "Nazarezinho", "Nova Floresta", "Nova Olinda", "Nova Palmeira",
-  "Olho d'Água", "Olivedos", "Ouro Velho", "Parari", "Passagem", "Patos", "Paulista",
-  "Pedra Branca", "Pedra Lavrada", "Pedras de Fogo", "Pedro Régis", "Piancó", "Picuí",
-  "Pilar", "Pilões", "Pilõezinhos", "Pirpirituba", "Pitimbu", "Pocinhos",
-  "Poço Dantas", "Poço de José de Moura", "Pombal", "Prata", "Princesa Isabel",
-  "Puxinanã", "Queimadas", "Quixaba", "Remígio", "Riachão", "Riachão do Bacamarte",
-  "Riachão do Poço", "Riacho de Santo Antônio", "Riacho dos Cavalos", "Rio Tinto",
-  "Salgadinho", "Salgado de São Félix", "Santa Cecília", "Santa Cruz", "Santa Helena",
-  "Santa Inês", "Santa Luzia", "Santa Teresinha", "Santana de Mangueira",
-  "Santana dos Garrotes", "Santarém", "Santo André", "São Bentinho", "São Bento",
-  "São Domingos", "São Domingos do Cariri", "São Francisco", "São João do Cariri",
-  "São João do Rio do Peixe", "São João do Tigre", "São José da Lagoa Tapada",
-  "São José de Caiana", "São José de Espinharas", "São José de Piranhas",
-  "São José de Princesa", "São José do Bonfim", "São José do Brejo do Cruz",
-  "São José do Sabugi", "São José dos Cordeiros", "São José dos Ramos", "São Mamede",
-  "São Miguel de Taipu", "São Sebastião de Lagoa de Roça", "São Sebastião do Umbuzeiro",
-  "Sapé", "Serra Branca", "Serra da Raiz", "Serra Grande", "Serra Redonda", "Serraria",
-  "Sertãozinho", "Sobrado", "Solânea", "Soledade", "Sossego", "Sousa", "Sumé",
-  "Tacima", "Taperoá", "Tavares", "Teixeira", "Tenório", "Triunfo", "Uiraúna",
-  "Umbuzeiro", "Várzea", "Vieirópolis", "Vista Serrana", "Zabelê"
-];
-
-const JOB_FUNCTIONS = [
-  "Auxiliar de cozinha", "ASG", "Auxiliar administrativo", "Analista administrativo",
-  "Analista de compras", "Analista de logística", "Analista de marketing",
-  "Analista de recursos humanos", "Analista de sistemas", "Atendente de balcão",
-  "Atendente de call center", "Auxiliar de limpeza", "Auxiliar de manutenção",
-  "Auxiliar de mecânico", "Auxiliar de produção", "Bibliotecário", "Biomédico",
-  "Bombeiro", "Cabeleireiro", "Caixa de supermercado", "Carpinteiro",
-  "Consultor de vendas", "Coordenador administrativo", "Coordenador de produção",
-  "Coordenador de recursos humanos", "Cozinheiro", "Designer gráfico",
-  "Desenvolvedor de software", "Digitador", "Eletricista", "Engenheiro civil",
-  "Engenheiro de produção", "Engenheiro eletricista", "Engenheiro mecânico",
-  "Farmacêutico", "Fisioterapeuta", "Garçom", "Jardineiro", "Jornalista",
-  "Motorista", "Nutricionista", "Operador de caixa", "Operador de máquinas",
-  "Pedreiro", "Pintor", "Professor", "Psicólogo", "Porteiro", "Recepcionista",
-  "Técnico de enfermagem", "Técnico em informática", "Técnico em manutenção",
-  "Vendedor", "Zelador", "Mecânico", "Balconista", "Copeiro", "Babá",
-  "Lavador de Carros", "Faturista", "Departamento Pessoal", "Repositor",
-  "Manobrista", "Tec Enfermagem", "Enfermeira", "Médica", "Gestor Comercial",
-  "Gerente", "Coordenador", "Assistente Fiscal", "Assistente contábil",
-  "Tec Segurança do trabalho", "Controladoria", "Compras", "Promotor de vendas",
-  "Carregador", "Estoquista", "Logística", "Panfletista", "Outros"
-];
-
-// Função de fetch robusta
 async function safeFetch(fetchFn, fallback = []) {
   for (let i = 0; i < 3; i++) {
     try {
@@ -115,20 +47,6 @@ async function safeFetch(fetchFn, fallback = []) {
   return fallback;
 }
 
-// Formatar tempo
-function getTimeAgo(dateStr) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Agora';
-  if (mins < 60) return `${mins} min`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString('pt-BR');
-}
-
 export default function Jobs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedState, setSelectedState] = useState('all');
@@ -139,7 +57,6 @@ export default function Jobs() {
   const [citySearch, setCitySearch] = useState('');
   const [funcSearch, setFuncSearch] = useState('');
   const [cityOpen, setCityOpen] = useState(false);
-  const [stateOpen, setStateOpen] = useState(false);
   const [funcOpen, setFuncOpen] = useState(false);
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
   
@@ -153,7 +70,6 @@ export default function Jobs() {
   const [shareJob, setShareJob] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
-  // URL params
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const typeParam = urlParams.get('type');
@@ -162,7 +78,6 @@ export default function Jobs() {
     if (searchParam) setSearchTerm(searchParam);
   }, []);
 
-  // Buscar filtros do FilterMaster com sincronização automática
   const { data: filterData } = useQuery({
     queryKey: ['filter-master'],
     queryFn: async () => {
@@ -173,7 +88,6 @@ export default function Jobs() {
     refetchOnWindowFocus: true,
   });
 
-  // Buscar cidades do banco de dados
   const { data: allCities = [] } = useQuery({
     queryKey: ['cities'],
     queryFn: async () => {
@@ -182,7 +96,6 @@ export default function Jobs() {
     staleTime: 60000,
   });
 
-  // Buscar categorias profissionais
   const { data: categories = [], refetch: refetchCategories } = useQuery({
     queryKey: ['professional-categories'],
     queryFn: async () => {
@@ -192,10 +105,8 @@ export default function Jobs() {
     staleTime: 3000,
   });
 
-  // Auto-reload ao detectar mudanças no Gerenciador (sincronização em tempo real)
   useEffect(() => {
     const handleFilterUpdate = (event) => {
-      console.log('🔄 Filtros atualizados detectado, recarregando...', event.detail);
       refetchCategories();
       setRefreshKey(k => k + 1);
     };
@@ -204,23 +115,18 @@ export default function Jobs() {
     return () => window.removeEventListener('filters-updated', handleFilterUpdate);
   }, [refetchCategories]);
 
-  // Estados únicos ordenados por região
   const availableStates = React.useMemo(() => {
     const states = new Set(allCities.map(c => c.state));
     const statesArray = Array.from(states);
-    
-    // Ordem por região: Nordeste (PB, PE, RN, AL, CE, SE, BA, PI, MA), depois resto alfabético
     const regionalOrder = ['PB', 'PE', 'RN', 'AL', 'CE', 'SE', 'BA', 'PI', 'MA'];
     const orderedStates = [];
     
-    // Adicionar estados na ordem regional
     regionalOrder.forEach(state => {
       if (statesArray.includes(state)) {
         orderedStates.push(state);
       }
     });
     
-    // Adicionar estados restantes em ordem alfabética
     statesArray.filter(s => !regionalOrder.includes(s)).sort().forEach(state => {
       orderedStates.push(state);
     });
@@ -228,7 +134,6 @@ export default function Jobs() {
     return orderedStates;
   }, [allCities]);
 
-  // Cidades filtradas por estado
   const availableCities = React.useMemo(() => {
     if (selectedState === 'all') {
       return allCities.map(c => c.name).sort();
@@ -236,7 +141,6 @@ export default function Jobs() {
     return allCities.filter(c => c.state === selectedState).map(c => c.name).sort();
   }, [selectedState, allCities]);
 
-  // Resetar cidade ao mudar estado
   useEffect(() => {
     if (selectedState !== 'all' && selectedCity !== 'all') {
       const cityExists = availableCities.includes(selectedCity);
@@ -246,7 +150,6 @@ export default function Jobs() {
     }
   }, [selectedState, availableCities, selectedCity]);
 
-  // Extrair funções únicas baseadas na categoria selecionada
   const availableFunctions = React.useMemo(() => {
     if (selectedCategory === 'all') {
       const allFuncs = new Set();
@@ -281,7 +184,6 @@ export default function Jobs() {
     checkAuth();
   }, []);
 
-  // Load data
   useEffect(() => {
     let mounted = true;
 
@@ -308,7 +210,6 @@ export default function Jobs() {
 
   const handleRefresh = () => setRefreshKey(k => k + 1);
 
-  // Premium check
   const userIsPremium = user?.subscription_type === 'premium' || 
     user?.subscription_type === 'admin' || 
     user?.role === 'admin';
@@ -322,23 +223,19 @@ export default function Jobs() {
     e.preventDefault();
     e.stopPropagation();
     
-    // Se a vaga é premium e o usuário não tem acesso, abrir modal
     if (job.is_premium && !userIsPremium) {
       setShowPremiumModal(true);
       return;
     }
     
-    // Caso contrário, navegar para detalhes
     window.location.href = createPageUrl('JobDetail') + `?id=${job.id}`;
   };
 
-  // Views count map
   const viewsCountMap = {};
   views.forEach(v => {
     viewsCountMap[v.job_id] = (viewsCountMap[v.job_id] || 0) + 1;
   });
 
-  // Filter jobs
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = !searchTerm || 
       job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -385,7 +282,6 @@ export default function Jobs() {
   const activeFiltersCount = [selectedState, selectedCity, selectedType, selectedCategory, selectedFunction].filter(f => f !== 'all').length;
   const hasActiveFilters = searchTerm || activeFiltersCount > 0;
 
-  // Handle favorite
   const handleFavorite = async (job, e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -410,513 +306,314 @@ export default function Jobs() {
     }
   };
 
+  const featuredJobs = filteredJobs.filter(j => j.is_featured).slice(0, 3);
+  const regularJobs = filteredJobs.filter(j => !j.is_featured);
+
   return (
-    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-6 pb-8 px-4 transition-colors">
+    <div className="min-h-screen bg-white pb-20">
+      {/* Header - Estilo G1 */}
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] py-3 px-4 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <h1 className="text-xl font-bold text-white">Vagas</h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            className="text-white hover:bg-white/20 h-8"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Search Bar - Estilo G1 */}
+      <div className="bg-white border-b py-3 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-white">Vagas de Emprego</h1>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
-              className="text-white hover:bg-white/20"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
-            </Button>
-          </div>
-          
-          {/* Search */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-3 shadow-lg transition-colors">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
-              <Input
-                type="text"
-                placeholder="Pesquisar por cargo, empresa, cidade..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-12 pl-12 pr-4 rounded-lg border-0 bg-slate-50 dark:bg-slate-700 dark:text-white text-base w-full transition-colors"
-              />
-              {searchTerm && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 rounded-full"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Input
+              type="text"
+              placeholder="Buscar vagas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-10 pl-10 pr-10 rounded-lg border-slate-200 bg-white"
+            />
+            {searchTerm && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="max-w-6xl mx-auto px-4 -mt-4 mb-6">
-        <Card className="shadow-lg rounded-xl border-0 dark:bg-slate-800 dark:border-slate-700 transition-colors">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Filtrar:</span>
-                {activeFiltersCount > 0 && (
-                  <Badge className="bg-[#0A66C2]/10 text-[#0A66C2] border-0 text-xs">
-                    {activeFiltersCount}
-                  </Badge>
-                )}
-                {/* Toggle Premium */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowPremiumOnly(!showPremiumOnly)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      showPremiumOnly ? 'bg-purple-600' : 'bg-slate-200 dark:bg-slate-600'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        showPremiumOnly ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-                  <span className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1">
-                    <Lock className="w-3 h-3" />
-                    Premium
-                  </span>
-                </div>
-              </div>
-              {hasActiveFilters && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={clearFilters} 
-                  className="text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white h-8"
-                >
-                  <X className="w-4 h-4 mr-1" /> Limpar
-                </Button>
-              )}
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-              
-              {/* State filter */}
-              <Select value={selectedState} onValueChange={(value) => {
-                setSelectedState(value);
-                if (value !== 'all') {
-                  setSelectedCity('all');
-                }
-              }}>
-                <SelectTrigger className="h-11 rounded-xl">
-                  <SelectValue placeholder="Estado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <ScrollArea className="h-[300px]">
-                    <SelectItem value="all">Todos</SelectItem>
-                    {availableStates.map((state) => (
-                      <SelectItem key={state} value={state}>{state}</SelectItem>
-                    ))}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
+      {/* Filters - Horizontal Scroll - Estilo G1 */}
+      <div className="bg-slate-50 border-b sticky top-[52px] z-10">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex overflow-x-auto gap-2 py-3 hide-scrollbar">
+            <Select value={selectedState} onValueChange={setSelectedState}>
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <ScrollArea className="h-[200px]">
+                  <SelectItem value="all">Todos</SelectItem>
+                  {availableStates.map((state) => (
+                    <SelectItem key={state} value={state}>{state}</SelectItem>
+                  ))}
+                </ScrollArea>
+              </SelectContent>
+            </Select>
 
-              {/* City filter - só ativo se estado selecionado */}
-              <Popover open={cityOpen} onOpenChange={setCityOpen}>
-                <PopoverTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-11 rounded-xl justify-start"
-                    disabled={selectedState === 'all'}
-                  >
-                    <MapPin className="w-4 h-4 text-slate-400 mr-2" />
-                    <span className="truncate">
-                      {selectedCity === 'all' ? 'Cidade' : selectedCity}
-                    </span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[250px] p-0" align="start">
-                  <Command>
-                    <CommandInput 
-                      placeholder="Buscar cidade..." 
-                      value={citySearch}
-                      onValueChange={setCitySearch}
-                    />
-                    <CommandList className="max-h-[250px]">
-                      <CommandEmpty>Nenhuma cidade encontrada</CommandEmpty>
-                      <CommandGroup>
+            <Popover open={cityOpen} onOpenChange={setCityOpen}>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="h-9 rounded-full text-xs whitespace-nowrap"
+                  disabled={selectedState === 'all'}
+                >
+                  {selectedCity === 'all' ? 'Cidade' : selectedCity}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0" align="start">
+                <Command>
+                  <CommandInput 
+                    placeholder="Buscar..." 
+                    value={citySearch}
+                    onValueChange={setCitySearch}
+                  />
+                  <CommandList className="max-h-[200px]">
+                    <CommandEmpty>Nada encontrado</CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem
+                        value="all"
+                        onSelect={() => {
+                          setSelectedCity('all');
+                          setCityOpen(false);
+                        }}
+                      >
+                        Todas
+                      </CommandItem>
+                      {filteredCities.map((city) => (
                         <CommandItem
-                          value="all"
+                          key={city}
+                          value={city}
                           onSelect={() => {
-                            setSelectedCity('all');
+                            setSelectedCity(city);
                             setCityOpen(false);
-                            setCitySearch('');
                           }}
                         >
-                          Todas
+                          {city}
                         </CommandItem>
-                        {filteredCities.map((city) => (
-                          <CommandItem
-                            key={city}
-                            value={city}
-                            onSelect={() => {
-                              setSelectedCity(city);
-                              setCityOpen(false);
-                              setCitySearch('');
-                            }}
-                          >
-                            {city}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
 
-              {/* Type filter */}
-              <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="h-11 rounded-xl">
-                  <SelectValue placeholder="Tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="CLT">CLT</SelectItem>
-                  <SelectItem value="PJ">PJ</SelectItem>
-                  <SelectItem value="Autônomo">Autônomo</SelectItem>
-                  <SelectItem value="Estágio">Estágio</SelectItem>
-                  <SelectItem value="Jovem Aprendiz">Jovem Aprendiz</SelectItem>
-                  <SelectItem value="Temporário">Temporário</SelectItem>
-                  <SelectItem value="Freelancer">Freelancer</SelectItem>
-                  <SelectItem value="Trainee">Trainee</SelectItem>
-                  <SelectItem value="Banco de Talentos">Banco de Talentos</SelectItem>
-                  <SelectItem value="Home Office">Home Office</SelectItem>
-                  <SelectItem value="PCD">PCD</SelectItem>
-                </SelectContent>
-              </Select>
+            <Select value={selectedType} onValueChange={setSelectedType}>
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="CLT">CLT</SelectItem>
+                <SelectItem value="PJ">PJ</SelectItem>
+                <SelectItem value="Estágio">Estágio</SelectItem>
+                <SelectItem value="Home Office">Home Office</SelectItem>
+              </SelectContent>
+            </Select>
 
-              {/* Category filter */}
-              <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                <SelectTrigger className="h-11 rounded-xl">
-                  <SelectValue placeholder="Categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  <ScrollArea className="h-[250px]">
-                    <SelectItem value="all">Todas</SelectItem>
-                    {categories.map(cat => (
-                      <SelectItem key={cat.id} value={cat.category_name}>
-                        {cat.category_name}
-                      </SelectItem>
-                    ))}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
+            <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+                <SelectValue placeholder="Categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <ScrollArea className="h-[200px]">
+                  <SelectItem value="all">Todas</SelectItem>
+                  {categories.map(cat => (
+                    <SelectItem key={cat.id} value={cat.category_name}>
+                      {cat.category_name}
+                    </SelectItem>
+                  ))}
+                </ScrollArea>
+              </SelectContent>
+            </Select>
 
-              {/* Function filter */}
-              <Select value={selectedFunction} onValueChange={setSelectedFunction}>
-                <SelectTrigger className="h-11 rounded-xl">
-                  <SelectValue placeholder="Função" />
-                </SelectTrigger>
-                <SelectContent>
-                  <div className="p-2 sticky top-0 bg-white border-b">
-                    <Input
-                      placeholder="Buscar função..."
-                      value={funcSearch}
-                      onChange={(e) => setFuncSearch(e.target.value)}
-                      className="h-9"
-                    />
-                  </div>
-                  <ScrollArea className="h-[200px]">
-                    <SelectItem value="all">Todas</SelectItem>
-                    {availableFunctions.filter(f => 
-                      f.toLowerCase().includes(funcSearch.toLowerCase())
-                    ).map((func) => (
-                      <SelectItem key={func} value={func}>{func}</SelectItem>
-                    ))}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {/* Active Filters */}
-            {activeFiltersCount > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t">
-                {selectedState !== 'all' && (
-                  <Badge variant="secondary" className="rounded-full">
-                    Estado: {selectedState}
-                    <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => {
-                      setSelectedState('all');
-                      setSelectedCity('all');
-                    }} />
-                  </Badge>
-                )}
-                {selectedCity !== 'all' && (
-                  <Badge variant="secondary" className="rounded-full">
-                    <MapPin className="w-3 h-3 mr-1" />
-                    {selectedCity}
-                    <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setSelectedCity('all')} />
-                  </Badge>
-                )}
-                {selectedType !== 'all' && (
-                  <Badge variant="secondary" className="rounded-full">
-                    <Briefcase className="w-3 h-3 mr-1" />
-                    {selectedType}
-                    <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setSelectedType('all')} />
-                  </Badge>
-                )}
-                {selectedCategory !== 'all' && (
-                  <Badge variant="secondary" className="rounded-full">
-                    {selectedCategory}
-                    <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setSelectedCategory('all')} />
-                  </Badge>
-                )}
-                {selectedFunction !== 'all' && (
-                  <Badge variant="secondary" className="rounded-full">
-                    {selectedFunction}
-                    <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setSelectedFunction('all')} />
-                  </Badge>
-                )}
-              </div>
+            {hasActiveFilters && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={clearFilters} 
+                className="h-9 rounded-full text-xs whitespace-nowrap"
+              >
+                Limpar
+              </Button>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Results */}
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-          {filteredJobs.length} vaga{filteredJobs.length !== 1 ? 's' : ''} encontrada{filteredJobs.length !== 1 ? 's' : ''}
-        </p>
+        {/* Featured Jobs - Estilo G1 */}
+        {featuredJobs.length > 0 && !searchTerm && (
+          <div className="mb-6">
+            <h2 className="text-sm font-bold text-[#0A66C2] uppercase tracking-wide mb-3 border-l-4 border-[#0A66C2] pl-2">
+              Destaques
+            </h2>
+            <div className="space-y-3">
+              {featuredJobs.map((job) => {
+                const canView = canViewJob(job);
+                const viewCount = viewsCountMap[job.id] || 0;
 
-        {isLoading ? (
-          <div className="space-y-4">
-            {[1,2,3,4,5].map(i => (
-              <Card key={i} className="animate-pulse">
-                <CardContent className="p-6">
-                  <div className="h-5 bg-slate-200 rounded w-1/2 mb-3" />
-                  <div className="h-4 bg-slate-200 rounded w-1/3 mb-2" />
-                  <div className="h-4 bg-slate-200 rounded w-1/4" />
-                </CardContent>
-              </Card>
-            ))}
+                return (
+                  <div 
+                    key={job.id}
+                    onClick={(e) => canView ? null : handleJobClick(job, e)}
+                    className={`border-b border-slate-100 pb-3 ${!canView ? 'cursor-pointer' : ''}`}
+                  >
+                    <Link to={canView ? createPageUrl('JobDetail') + `?id=${job.id}` : '#'}>
+                      <div className="group flex gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-slate-900 group-hover:text-[#0A66C2] transition-colors text-base line-clamp-2 mb-1">
+                            {job.title}
+                          </h3>
+                          <p className="text-sm text-slate-600 mb-2">{job.company}</p>
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                            {job.city && job.state && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {job.city} - {job.state}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              <TimeAgo date={job.created_date} />
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Eye className="w-3 h-3" />
+                              {viewCount}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredJobs.map((job) => {
+        )}
+
+        {/* Regular Jobs List - Estilo G1 */}
+        <div className="space-y-1 divide-y divide-slate-100">
+          {isLoading ? (
+            <>
+              {[1,2,3,4,5].map(i => (
+                <div key={i} className="animate-pulse py-4">
+                  <div className="h-4 bg-slate-200 rounded w-1/4 mb-2" />
+                  <div className="h-5 bg-slate-200 rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-slate-200 rounded w-1/2" />
+                </div>
+              ))}
+            </>
+          ) : (
+            regularJobs.map((job) => {
               const canView = canViewJob(job);
               const isFavorite = favorites.some(f => f.job_id === job.id);
               const viewCount = viewsCountMap[job.id] || 0;
 
-              if (!canView) {
-                return (
-                  <Card 
-                    key={job.id} 
-                    className="overflow-hidden relative cursor-pointer hover:shadow-lg transition-all"
-                    onClick={(e) => handleJobClick(job, e)}
-                  >
-                    <CardContent className="p-6">
-                      <JobCardContent job={job} viewCount={viewCount} />
-                    </CardContent>
-                    <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-purple-600 text-white px-2 py-1 rounded-md text-xs">
-                      <Lock className="w-3 h-3" />
-                    </div>
-                    <div className="absolute bottom-3 right-3 bg-purple-600 text-white px-2 py-1 rounded-md text-xs font-medium">
-                      Vaga Premium
-                    </div>
-                  </Card>
-                );
-              }
-
               return (
-                <Card key={job.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-[#0A66C2] dark:bg-slate-800 dark:border-slate-700 dark:hover:border-l-blue-400">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <Link to={createPageUrl('JobDetail') + `?id=${job.id}`} className="flex-1">
-                        <JobCardContent job={job} viewCount={viewCount} />
-                      </Link>
-                      <div className="flex flex-col gap-1 ml-3">
-                        {user && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={(e) => handleFavorite(job, e)}
-                            className={`h-8 w-8 rounded-full ${isFavorite ? 'text-red-500' : 'text-slate-400 hover:text-red-500'}`}
-                          >
-                            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
-                          </Button>
-                        )}
+                <div 
+                  key={job.id}
+                  onClick={(e) => canView ? null : handleJobClick(job, e)}
+                  className={`py-4 hover:bg-slate-50 transition-colors ${!canView ? 'cursor-pointer relative' : ''}`}
+                >
+                  <Link to={canView ? createPageUrl('JobDetail') + `?id=${job.id}` : '#'} className="block">
+                    <div className="group flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          {job.is_premium && (
+                            <Badge className="bg-purple-100 text-purple-700 border-0 text-xs rounded-sm px-2 py-0.5">
+                              Premium
+                            </Badge>
+                          )}
+                          {job.category && (
+                            <Badge className="bg-[#0A66C2]/10 text-[#0A66C2] border-0 text-xs rounded-sm px-2 py-0.5">
+                              {job.category}
+                            </Badge>
+                          )}
+                          <span className="text-xs text-slate-400">
+                            <TimeAgo date={job.created_date} />
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-slate-900 group-hover:text-[#0A66C2] transition-colors text-base sm:text-lg line-clamp-2 mb-1">
+                          {job.title}
+                        </h3>
+                        <p className="text-sm text-slate-600 mb-2 line-clamp-1">{job.company}</p>
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                          {job.city && job.state && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {job.city} - {job.state}
+                            </span>
+                          )}
+                          {job.job_type && (
+                            <span>{job.job_type}</span>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-3 h-3" />
+                            {viewCount}
+                          </span>
+                        </div>
+                      </div>
+                      {user && canView && (
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setShareJob(job);
-                          }}
-                          className="h-8 w-8 rounded-full text-slate-400 hover:text-[#0A66C2]"
+                          onClick={(e) => handleFavorite(job, e)}
+                          className={`h-8 w-8 rounded-full ${isFavorite ? 'text-red-500' : 'text-slate-400'}`}
                         >
-                          <Share2 className="w-4 h-4" />
+                          <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                         </Button>
-                      </div>
+                      )}
+                      {!canView && (
+                        <Lock className="w-5 h-5 text-purple-600 flex-shrink-0 mt-1" />
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
+                  </Link>
+                </div>
               );
-            })}
-          </div>
-        )}
+            })
+          )}
+        </div>
 
         {filteredJobs.length === 0 && !isLoading && (
           <div className="text-center py-16">
-            <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
-              <Briefcase className="w-10 h-10 text-slate-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">Nenhuma vaga encontrada</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-4">Não encontramos vagas com os filtros selecionados</p>
-            {hasActiveFilters && (
-              <Button onClick={clearFilters} variant="outline" className="rounded-xl">
-                <X className="w-4 h-4 mr-2" />
-                Limpar filtros
-              </Button>
-            )}
+            <Briefcase className="w-12 h-12 text-slate-200 mx-auto mb-3" />
+            <h3 className="font-semibold text-slate-600 mb-2">Nenhuma vaga encontrada</h3>
+            <p className="text-slate-500 text-sm">Tente ajustar os filtros</p>
           </div>
         )}
       </div>
 
-      {/* Share Dialog */}
-      <ShareDialog job={shareJob} open={!!shareJob} onClose={() => setShareJob(null)} />
-
-      {/* Premium Modal */}
       <PremiumModal
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
         user={user}
-        onSuccess={() => {
-          window.location.reload();
-        }}
+        onSuccess={() => window.location.reload()}
       />
     </div>
-  );
-}
-
-function JobCardContent({ job, viewCount }) {
-  return (
-    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <h3 className="font-semibold text-lg text-slate-800 dark:text-white group-hover:text-[#0A66C2] dark:group-hover:text-blue-400 transition-colors">
-            {job.title || 'Vaga não informada'}
-          </h3>
-          {job.is_featured && (
-            <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs">
-              <Star className="w-3 h-3 mr-1" /> Destaque
-            </Badge>
-          )}
-          {job.is_premium && (
-            <Badge className="bg-purple-100 text-purple-700 border-0 text-xs">
-              Premium
-            </Badge>
-          )}
-        </div>
-        
-        <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-3">
-          <Building2 className="w-4 h-4 flex-shrink-0" />
-          <span className="truncate">{job.company || 'Empresa confidencial'}</span>
-        </p>
-        
-        <div className="flex flex-wrap gap-2">
-          {job.state && job.city && (
-            <Badge variant="secondary" className="rounded-full text-xs">
-              <MapPin className="w-3 h-3 mr-1" />
-              {job.city} - {job.state}
-            </Badge>
-          )}
-          {!job.state && job.city && (
-            <Badge variant="secondary" className="rounded-full text-xs">
-              <MapPin className="w-3 h-3 mr-1" />
-              {job.city}
-            </Badge>
-          )}
-          {job.contract_types && job.contract_types.length > 0 ? (
-            job.contract_types.map((type, i) => (
-              <Badge key={i} variant="secondary" className="rounded-full text-xs">
-                {type}
-              </Badge>
-            ))
-          ) : job.job_type ? (
-            <Badge variant="secondary" className="rounded-full text-xs">
-              {job.job_type}
-            </Badge>
-          ) : null}
-          {job.job_function && (
-            <Badge variant="outline" className="rounded-full text-xs">
-              {job.job_function}
-            </Badge>
-          )}
-        </div>
-      </div>
-      
-      <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-1 text-right">
-        <div className="flex flex-col items-end gap-1">
-          <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
-            <Calendar className="w-4 h-4" />
-            {getTimeAgo(job.published_at || job.created_date)}
-          </p>
-          {job.published_at && (
-            <p className="text-xs text-slate-400 dark:text-slate-500">
-              {new Date(job.published_at).toLocaleDateString('pt-BR')}
-            </p>
-          )}
-        </div>
-        <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
-          <Eye className="w-3 h-3" />
-          {viewCount} views
-        </p>
-        {job.salary_range && (
-          <p className="font-semibold text-green-600 text-sm">{job.salary_range}</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ShareDialog({ job, open, onClose }) {
-  const [copied, setCopied] = useState(false);
-
-  if (!job) return null;
-
-  const shareUrl = `${window.location.origin}${createPageUrl('JobDetail')}?id=${job.id}`;
-  const shareText = `Vaga: ${job.title} - ${job.company}\n${shareUrl}`;
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Compartilhar Vaga</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <p className="text-sm text-slate-600">{job.title} - {job.company}</p>
-          <div className="flex gap-2">
-            <Button onClick={handleWhatsApp} className="flex-1 bg-green-600 hover:bg-green-700">
-              WhatsApp
-            </Button>
-            <Button onClick={handleCopy} variant="outline" className="flex-1">
-              {copied ? 'Copiado!' : 'Copiar Link'}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 }
