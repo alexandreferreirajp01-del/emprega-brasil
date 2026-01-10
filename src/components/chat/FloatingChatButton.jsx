@@ -62,32 +62,42 @@ export default function FloatingChatButton() {
   useEffect(() => {
     if (!conversationId) return;
 
-    let lastMessageCount = messages.length;
+    let isFirstAssistantMessage = true;
+    let typingTimeout = null;
 
     const unsubscribe = base44.agents.subscribeToConversation(conversationId, (data) => {
       const newMessages = data.messages || [];
       
-      // Se tem nova mensagem do assistente, simula digitação
-      if (newMessages.length > lastMessageCount) {
-        const lastMsg = newMessages[newMessages.length - 1];
-        if (lastMsg.role === 'assistant') {
-          setIsTyping(true);
-          const randomDelay = Math.floor(Math.random() * 3000) + 2000; // 2-5 segundos
-          setTimeout(() => {
-            setMessages(newMessages);
-            setIsTyping(false);
-          }, randomDelay);
-          lastMessageCount = newMessages.length;
-          return;
-        }
-      }
+      // Detecta se a última mensagem é nova e do assistente
+      const lastMsg = newMessages[newMessages.length - 1];
+      const isNewAssistantMsg = lastMsg?.role === 'assistant' && 
+                                 !messages.find(m => m.id === lastMsg.id);
       
-      setMessages(newMessages);
-      lastMessageCount = newMessages.length;
+      if (isNewAssistantMsg && isFirstAssistantMessage) {
+        // Simula digitação apenas para a primeira resposta
+        isFirstAssistantMessage = false;
+        setIsTyping(true);
+        
+        // Cancela timeout anterior se existir
+        if (typingTimeout) clearTimeout(typingTimeout);
+        
+        const randomDelay = Math.floor(Math.random() * 3000) + 2000; // 2-5 segundos
+        typingTimeout = setTimeout(() => {
+          setIsTyping(false);
+          setMessages(newMessages);
+        }, randomDelay);
+      } else {
+        // Atualiza mensagens normalmente
+        setIsTyping(false);
+        setMessages(newMessages);
+      }
     });
 
-    return () => unsubscribe();
-  }, [conversationId]);
+    return () => {
+      unsubscribe();
+      if (typingTimeout) clearTimeout(typingTimeout);
+    };
+  }, [conversationId, messages]);
 
   const handleSend = async () => {
     if (!input.trim() || !conversationId || loading) return;
