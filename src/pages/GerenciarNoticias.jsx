@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { 
-  ArrowLeft, Search, Edit, Trash2, Eye, Loader2, 
-  Image as ImageIcon, Plus, CheckCircle, FileText
+  ArrowLeft, Plus, Edit2, Trash2, Search, Loader2, 
+  Image, Eye, X, Save
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -22,6 +21,7 @@ export default function GerenciarNoticias() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showModal, setShowModal] = useState(false);
   const [editingNews, setEditingNews] = useState(null);
   const queryClient = useQueryClient();
 
@@ -29,10 +29,10 @@ export default function GerenciarNoticias() {
     const checkAuth = async () => {
       try {
         const currentUser = await base44.auth.me();
-        const hasAccess = currentUser?.email === 'alexandreferreirajp01@gmail.com' || 
-                         currentUser?.role === 'admin' || 
-                         currentUser?.subscription_type === 'admin';
-        if (!hasAccess) {
+        const isAdmin = currentUser?.email === 'alexandreferreirajp01@gmail.com' || 
+                       currentUser?.role === 'admin' || 
+                       currentUser?.subscription_type === 'admin';
+        if (!isAdmin) {
           window.location.href = createPageUrl('Home');
           return;
         }
@@ -46,24 +46,29 @@ export default function GerenciarNoticias() {
     checkAuth();
   }, []);
 
-  const { data: allNews = [], isLoading: loadingNews } = useQuery({
-    queryKey: ['admin-news'],
+  const { data: newsList = [], isLoading: loadingNews } = useQuery({
+    queryKey: ['news-list'],
     queryFn: () => base44.entities.News.list('-created_date', 500),
     enabled: !!user
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (newsId) => {
-      await base44.entities.News.delete(newsId);
-    },
+    mutationFn: (id) => base44.entities.News.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-news'] });
+      queryClient.invalidateQueries(['news-list']);
       toast.success('Notícia excluída!');
-    },
-    onError: (error) => {
-      toast.error('Erro ao excluir: ' + error.message);
     }
   });
+
+  const handleEdit = (news) => {
+    setEditingNews(news);
+    setShowModal(true);
+  };
+
+  const handleNew = () => {
+    setEditingNews(null);
+    setShowModal(true);
+  };
 
   const handleDelete = (news) => {
     if (confirm(`Excluir "${news.title}"?`)) {
@@ -71,9 +76,8 @@ export default function GerenciarNoticias() {
     }
   };
 
-  const filteredNews = allNews.filter(news =>
-    news.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    news.category?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredNews = newsList.filter(n =>
+    n.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
@@ -85,7 +89,7 @@ export default function GerenciarNoticias() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20">
+    <div className="min-h-screen bg-[#F3F2EF] pb-20">
       <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-8 px-4">
         <div className="max-w-6xl mx-auto">
           <Link to={createPageUrl('Configuracoes')}>
@@ -93,13 +97,13 @@ export default function GerenciarNoticias() {
               <ArrowLeft className="w-5 h-5 mr-2" />Voltar
             </Button>
           </Link>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-white">Notícias</h1>
               <p className="text-white/80 text-sm">Criar e gerenciar notícias</p>
             </div>
             <Button 
-              onClick={() => setEditingNews({})}
+              onClick={handleNew}
               className="bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl"
             >
               <Plus className="w-4 h-4 mr-2" />Nova Notícia
@@ -124,60 +128,66 @@ export default function GerenciarNoticias() {
         </Card>
 
         {loadingNews ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid gap-4">
             {filteredNews.map((news) => (
-              <Card key={news.id} className="shadow hover:shadow-lg transition-shadow rounded-2xl">
+              <Card key={news.id} className="rounded-2xl shadow hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    {news.image_url && (
+                      <img 
+                        src={news.image_url} 
+                        alt={news.title}
+                        className="w-full sm:w-32 h-32 object-cover rounded-xl"
+                      />
+                    )}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <h3 className="text-lg font-semibold text-slate-800">{news.title}</h3>
-                        {news.is_featured && (
-                          <Badge className="bg-yellow-500 text-white">Destaque</Badge>
-                        )}
+                      <div className="flex items-start justify-between gap-4 mb-2">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-slate-800 mb-1">{news.title}</h3>
+                          {news.subtitle && (
+                            <p className="text-sm text-slate-600 mb-2">{news.subtitle}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(news)}
+                            className="rounded-lg"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(news)}
+                            className="rounded-lg text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
-                      {news.subtitle && (
-                        <p className="text-sm text-slate-600 mb-2">{news.subtitle}</p>
-                      )}
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
+                      <div className="flex flex-wrap gap-3 text-xs text-slate-500">
                         <span>📂 {news.category}</span>
                         <span>✍️ {news.author_name}</span>
                         <span className="flex items-center gap-1">
                           <Eye className="w-3 h-3" />
-                          {news.views_count || 0} views
+                          {news.views_count || 0}
                         </span>
                         <span>📅 {new Date(news.created_date).toLocaleDateString('pt-BR')}</span>
+                        {news.is_featured && <span className="text-yellow-600 font-medium">⭐ Destaque</span>}
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setEditingNews(news)}
-                        className="rounded-lg"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(news)}
-                        className="rounded-lg text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
             {filteredNews.length === 0 && (
-              <div className="text-center py-12 text-slate-500">
-                <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <div className="text-center py-12 text-slate-400">
                 <p>Nenhuma notícia encontrada</p>
               </div>
             )}
@@ -185,13 +195,16 @@ export default function GerenciarNoticias() {
         )}
       </div>
 
-      {editingNews && (
-        <NewsEditorModal
-          news={editingNews.id ? editingNews : null}
-          isOpen={!!editingNews}
-          onClose={() => setEditingNews(null)}
+      {showModal && (
+        <NewsModal
+          news={editingNews}
+          onClose={() => {
+            setShowModal(false);
+            setEditingNews(null);
+          }}
           onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ['admin-news'] });
+            queryClient.invalidateQueries(['news-list']);
+            setShowModal(false);
             setEditingNews(null);
           }}
           user={user}
@@ -201,8 +214,8 @@ export default function GerenciarNoticias() {
   );
 }
 
-function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
-  const [formData, setFormData] = useState({
+function NewsModal({ news, onClose, onSuccess, user }) {
+  const [form, setForm] = useState({
     title: '',
     subtitle: '',
     category: 'Geral',
@@ -216,27 +229,17 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
 
   useEffect(() => {
     if (news) {
-      setFormData({
+      setForm({
         title: news.title || '',
         subtitle: news.subtitle || '',
         category: news.category || 'Geral',
-        author_name: news.author_name || user?.full_name || '',
+        author_name: news.author_name || '',
         image_url: news.image_url || '',
         content: news.content || '',
         is_featured: news.is_featured || false
       });
-    } else {
-      setFormData({
-        title: '',
-        subtitle: '',
-        category: 'Geral',
-        author_name: user?.full_name || '',
-        image_url: '',
-        content: '',
-        is_featured: false
-      });
     }
-  }, [news, user, isOpen]);
+  }, [news]);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -250,7 +253,7 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
     setUploading(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setFormData(prev => ({ ...prev, image_url: file_url }));
+      setForm(prev => ({ ...prev, image_url: file_url }));
       toast.success('Imagem enviada!');
     } catch (error) {
       toast.error('Erro ao enviar imagem');
@@ -260,35 +263,30 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
   };
 
   const handleSave = async () => {
-    if (!formData.title?.trim()) {
-      toast.error('Título é obrigatório');
-      return;
-    }
-
-    if (!formData.author_name?.trim()) {
-      toast.error('Nome do autor é obrigatório');
+    if (!form.title?.trim()) {
+      toast.error('Título obrigatório');
       return;
     }
 
     setSaving(true);
     try {
-      const newsData = {
-        title: formData.title.trim(),
-        subtitle: formData.subtitle?.trim() || '',
-        category: formData.category,
-        author_name: formData.author_name.trim(),
-        image_url: formData.image_url?.trim() || '',
-        content: formData.content?.trim() || '',
-        is_featured: formData.is_featured,
+      const data = {
+        title: form.title.trim(),
+        subtitle: form.subtitle?.trim() || '',
+        category: form.category,
+        author_name: form.author_name.trim(),
+        image_url: form.image_url?.trim() || '',
+        content: form.content?.trim() || '',
+        is_featured: form.is_featured,
         status: 'published',
         views_count: news?.views_count || 0
       };
 
       if (news) {
-        await base44.entities.News.update(news.id, newsData);
+        await base44.entities.News.update(news.id, data);
         toast.success('Notícia atualizada!');
       } else {
-        await base44.entities.News.create(newsData);
+        await base44.entities.News.create(data);
         toast.success('Notícia publicada!');
       }
 
@@ -301,112 +299,115 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="text-xl font-bold">
-            {news ? 'Editar Notícia' : 'Nova Notícia'}
-          </DialogTitle>
+          <DialogTitle>{news ? 'Editar Notícia' : 'Nova Notícia'}</DialogTitle>
         </DialogHeader>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-180px)] px-6 py-4">
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <Label>Título *</Label>
-              <Input
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Título da notícia"
-                className="h-11 rounded-xl"
-              />
+        <div className="overflow-y-auto px-6 py-4 space-y-4" style={{ maxHeight: 'calc(90vh - 180px)' }}>
+          <div>
+            <Label>Título *</Label>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="Título da notícia"
+              className="mt-1 h-11 rounded-xl"
+            />
+          </div>
+
+          <div>
+            <Label>Subtítulo</Label>
+            <Input
+              value={form.subtitle}
+              onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
+              placeholder="Subtítulo (opcional)"
+              className="mt-1 h-11 rounded-xl"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Categoria</Label>
+              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
+                <SelectTrigger className="mt-1 h-11 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Mercado de Trabalho">Mercado de Trabalho</SelectItem>
+                  <SelectItem value="Dicas de Emprego">Dicas de Emprego</SelectItem>
+                  <SelectItem value="Economia">Economia</SelectItem>
+                  <SelectItem value="Cursos">Cursos</SelectItem>
+                  <SelectItem value="Eventos">Eventos</SelectItem>
+                  <SelectItem value="Geral">Geral</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label>Subtítulo</Label>
+            <div>
+              <Label>Autor *</Label>
               <Input
-                value={formData.subtitle}
-                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                placeholder="Subtítulo (opcional)"
-                className="h-11 rounded-xl"
+                value={form.author_name}
+                onChange={(e) => setForm({ ...form, author_name: e.target.value })}
+                placeholder="Nome do autor"
+                className="mt-1 h-11 rounded-xl"
               />
             </div>
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Categoria</Label>
-                <Select 
-                  value={formData.category} 
-                  onValueChange={(v) => setFormData({ ...formData, category: v })}
-                >
-                  <SelectTrigger className="h-11 rounded-xl">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Mercado de Trabalho">Mercado de Trabalho</SelectItem>
-                    <SelectItem value="Dicas de Emprego">Dicas de Emprego</SelectItem>
-                    <SelectItem value="Economia">Economia</SelectItem>
-                    <SelectItem value="Cursos">Cursos</SelectItem>
-                    <SelectItem value="Eventos">Eventos</SelectItem>
-                    <SelectItem value="Geral">Geral</SelectItem>
-                  </SelectContent>
-                </Select>
+          <div>
+            <Label>Imagem de Capa</Label>
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              disabled={uploading}
+              className="mt-1 h-11 rounded-xl"
+            />
+            {uploading && (
+              <div className="flex items-center gap-2 mt-2 text-sm text-slate-500">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Enviando...
               </div>
-
-              <div className="space-y-2">
-                <Label>Autor *</Label>
-                <Input
-                  value={formData.author_name}
-                  onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
-                  placeholder="Seu nome"
-                  className="h-11 rounded-xl"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Imagem de Capa</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                disabled={uploading}
-                className="h-11 rounded-xl"
-              />
-              {uploading && (
-                <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Enviando...
-                </div>
-              )}
-              {formData.image_url && (
+            )}
+            {form.image_url && (
+              <div className="mt-3 relative">
                 <img 
-                  src={formData.image_url} 
+                  src={form.image_url} 
                   alt="Preview" 
                   className="w-full h-48 object-cover rounded-xl"
                 />
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Conteúdo</Label>
-              <Textarea
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="Escreva o conteúdo da notícia..."
-                className="min-h-[300px] rounded-xl resize-none"
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-              <div>
-                <Label className="font-medium">Notícia em Destaque</Label>
-                <p className="text-xs text-slate-500">Aparece no topo da página</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setForm({ ...form, image_url: '' })}
+                  className="absolute top-2 right-2 bg-white/90 hover:bg-white"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
               </div>
-              <Switch
-                checked={formData.is_featured}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
-              />
+            )}
+          </div>
+
+          <div>
+            <Label>Conteúdo</Label>
+            <Textarea
+              value={form.content}
+              onChange={(e) => setForm({ ...form, content: e.target.value })}
+              placeholder="Escreva o conteúdo da notícia..."
+              className="mt-1 min-h-[300px] rounded-xl resize-none"
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+            <div>
+              <Label className="font-medium">Destaque</Label>
+              <p className="text-xs text-slate-500">Aparece no topo</p>
             </div>
+            <Switch
+              checked={form.is_featured}
+              onCheckedChange={(checked) => setForm({ ...form, is_featured: checked })}
+            />
           </div>
         </div>
 
@@ -427,7 +428,7 @@ function NewsEditorModal({ news, isOpen, onClose, onSuccess, user }) {
             {saving ? (
               <><Loader2 className="w-4 h-4 animate-spin mr-2" />Salvando...</>
             ) : (
-              <><CheckCircle className="w-4 h-4 mr-2" />{news ? 'Atualizar' : 'Publicar'}</>
+              <><Save className="w-4 h-4 mr-2" />{news ? 'Atualizar' : 'Publicar'}</>
             )}
           </Button>
         </div>
