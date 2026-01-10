@@ -10,15 +10,60 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 
 const AD_TYPES = [
-  { id: 'popunder', name: 'Popunder', description: 'Anúncio que abre em nova aba' },
-  { id: 'native_banner', name: 'Native Banner', description: 'Banner integrado ao conteúdo' },
-  { id: 'social_bar', name: 'Social Bar', description: 'Barra lateral social' },
-  { id: 'banner_160x300', name: 'Banner 160x300', description: 'Banner vertical pequeno' },
-  { id: 'banner_460x60', name: 'Banner 460x60', description: 'Banner horizontal médio' },
-  { id: 'banner_300x250', name: 'Banner 300x250', description: 'Banner médio quadrado' },
-  { id: 'banner_160x600', name: 'Banner 160x600', description: 'Banner vertical grande' },
-  { id: 'banner_320x50', name: 'Banner 320x50', description: 'Banner mobile footer' },
-  { id: 'banner_728x90', name: 'Banner 728x90', description: 'Banner desktop header' },
+  { 
+    id: 'popunder', 
+    name: 'Popunder', 
+    description: 'Anúncio que abre em nova aba/janela',
+    details: 'Exibido no cabeçalho de todas as páginas. Abre automaticamente em segundo plano quando o usuário interage com o site. Não é intrusivo e gera alta receita.'
+  },
+  { 
+    id: 'native_banner', 
+    name: 'Native Banner', 
+    description: 'Banner integrado ao conteúdo',
+    details: 'Aparece no meio do conteúdo das páginas (Jobs após 3 vagas, JobDetail na descrição). Integrado ao design, mais discreto e com boa taxa de clique.'
+  },
+  { 
+    id: 'social_bar', 
+    name: 'Social Bar', 
+    description: 'Barra lateral flutuante',
+    details: 'Barra lateral que fica visível durante a navegação. Exibida em todas as páginas na barra lateral. Segue o usuário ao rolar a página.'
+  },
+  { 
+    id: 'banner_160x300', 
+    name: 'Banner 160x300', 
+    description: 'Banner vertical pequeno',
+    details: 'Banner vertical ideal para barra lateral. Tamanho: 160x300 pixels. Visível em desktop e tablets na lateral do conteúdo.'
+  },
+  { 
+    id: 'banner_460x60', 
+    name: 'Banner 460x60', 
+    description: 'Banner horizontal médio',
+    details: 'Banner horizontal para conteúdo. Tamanho: 460x60 pixels. Exibido no meio do conteúdo em desktop e tablets.'
+  },
+  { 
+    id: 'banner_300x250', 
+    name: 'Banner 300x250', 
+    description: 'Banner médio quadrado (mais comum)',
+    details: 'Banner retangular padrão. Tamanho: 300x250 pixels. Formato mais popular e com melhor desempenho. Visível em todas as telas.'
+  },
+  { 
+    id: 'banner_160x600', 
+    name: 'Banner 160x600', 
+    description: 'Banner vertical grande (Skyscraper)',
+    details: 'Banner vertical alto para barra lateral. Tamanho: 160x600 pixels. Ideal para desktop com muito espaço lateral. Alta visibilidade.'
+  },
+  { 
+    id: 'banner_320x50', 
+    name: 'Banner 320x50', 
+    description: 'Banner mobile footer',
+    details: 'Banner fixo no rodapé mobile. Tamanho: 320x50 pixels. Aparece APENAS em celulares, fixo acima da navegação inferior. Não atrapalha a experiência.'
+  },
+  { 
+    id: 'banner_728x90', 
+    name: 'Banner 728x90', 
+    description: 'Banner desktop header (Leaderboard)',
+    details: 'Banner horizontal no topo. Tamanho: 728x90 pixels. Aparece APENAS em desktop, no cabeçalho ao lado do menu. Alta visibilidade.'
+  },
 ];
 
 const PAGES = [
@@ -278,6 +323,13 @@ export default function GerenciarAnuncios() {
                         </Badge>
                       </div>
                       <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">{adType.description}</p>
+                      {adType.details && (
+                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                            ℹ️ {adType.details}
+                          </p>
+                        </div>
+                      )}
                     </div>
                     <Switch
                       checked={isEnabled}
