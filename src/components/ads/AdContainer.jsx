@@ -6,7 +6,8 @@ import React, { useState, useEffect } from 'react';
  */
 export default function AdContainer({ 
   adType, 
-  pageName, 
+  pageName,
+  location,
   children,
   fallback = null,
   className = ''
@@ -35,6 +36,11 @@ export default function AdContainer({
           return;
         }
 
+        if (location && !adConfig.locations?.[location]) {
+          setShouldShow(false);
+          return;
+        }
+
         setShouldShow(true);
       } catch (e) {
         console.error('Erro ao verificar config de anúncio:', e);
@@ -56,7 +62,7 @@ export default function AdContainer({
       window.removeEventListener('adsterra_config_updated', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
     };
-  }, [adType, pageName]);
+  }, [adType, pageName, location]);
 
   if (!shouldShow) {
     return fallback;

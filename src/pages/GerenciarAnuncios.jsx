@@ -31,6 +31,13 @@ const PAGES = [
   { id: 'Profile', name: 'Perfil' },
 ];
 
+const LOCATIONS = [
+  { id: 'header', name: 'Cabeçalho' },
+  { id: 'content', name: 'Conteúdo' },
+  { id: 'sidebar', name: 'Barra Lateral' },
+  { id: 'footer', name: 'Rodapé' },
+];
+
 export default function GerenciarAnuncios() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -72,10 +79,14 @@ export default function GerenciarAnuncios() {
         AD_TYPES.forEach(ad => {
           defaultConfig[ad.id] = {
             enabled: false,
-            pages: {}
+            pages: {},
+            locations: {}
           };
           PAGES.forEach(page => {
             defaultConfig[ad.id].pages[page.id] = false;
+          });
+          LOCATIONS.forEach(loc => {
+            defaultConfig[ad.id].locations[loc.id] = false;
           });
         });
         setConfig(defaultConfig);
@@ -108,6 +119,19 @@ export default function GerenciarAnuncios() {
     }));
   };
 
+  const handleToggleLocation = (adTypeId, locationId) => {
+    setConfig(prev => ({
+      ...prev,
+      [adTypeId]: {
+        ...prev[adTypeId],
+        locations: {
+          ...prev[adTypeId]?.locations,
+          [locationId]: !prev[adTypeId]?.locations?.[locationId]
+        }
+      }
+    }));
+  };
+
   const handleSave = () => {
     setSaving(true);
     try {
@@ -126,10 +150,14 @@ export default function GerenciarAnuncios() {
     AD_TYPES.forEach(ad => {
       newConfig[ad.id] = {
         enabled: true,
-        pages: {}
+        pages: {},
+        locations: {}
       };
       PAGES.forEach(page => {
         newConfig[ad.id].pages[page.id] = true;
+      });
+      LOCATIONS.forEach(loc => {
+        newConfig[ad.id].locations[loc.id] = true;
       });
     });
     setConfig(newConfig);
@@ -140,10 +168,14 @@ export default function GerenciarAnuncios() {
     AD_TYPES.forEach(ad => {
       newConfig[ad.id] = {
         enabled: false,
-        pages: {}
+        pages: {},
+        locations: {}
       };
       PAGES.forEach(page => {
         newConfig[ad.id].pages[page.id] = false;
+      });
+      LOCATIONS.forEach(loc => {
+        newConfig[ad.id].locations[loc.id] = false;
       });
     });
     setConfig(newConfig);
@@ -173,34 +205,39 @@ export default function GerenciarAnuncios() {
 
       <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Ações Globais */}
-        <Card className="mb-6 rounded-2xl border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between flex-wrap gap-4">
+        <Card className="mb-6 rounded-2xl border-0 shadow-lg dark:bg-slate-800">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h3 className="font-semibold text-slate-800 dark:text-white mb-1">Ações Rápidas</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">Ativar ou desativar todos os anúncios</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
                   onClick={handleEnableAll}
-                  className="gap-2"
+                  className="gap-2 flex-1 sm:flex-none dark:border-slate-600 dark:text-slate-200"
+                  size="sm"
                 >
                   <Eye className="w-4 h-4" />
-                  Ativar Todos
+                  <span className="hidden sm:inline">Ativar Todos</span>
+                  <span className="sm:hidden">Ativar</span>
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleDisableAll}
-                  className="gap-2"
+                  className="gap-2 flex-1 sm:flex-none dark:border-slate-600 dark:text-slate-200"
+                  size="sm"
                 >
                   <EyeOff className="w-4 h-4" />
-                  Desativar Todos
+                  <span className="hidden sm:inline">Desativar Todos</span>
+                  <span className="sm:hidden">Desativar</span>
                 </Button>
                 <Button
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-[#0A66C2] hover:bg-[#004182] gap-2"
+                  className="bg-[#0A66C2] hover:bg-[#004182] gap-2 flex-1 sm:flex-none"
+                  size="sm"
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'Salvando...' : 'Salvar'}
@@ -227,19 +264,20 @@ export default function GerenciarAnuncios() {
           {AD_TYPES.map((adType) => {
             const isEnabled = config[adType.id]?.enabled || false;
             const enabledPages = PAGES.filter(p => config[adType.id]?.pages?.[p.id]).length;
+            const enabledLocations = LOCATIONS.filter(l => config[adType.id]?.locations?.[l.id]).length;
 
             return (
-              <Card key={adType.id} className="rounded-2xl border-0 shadow-lg overflow-hidden">
-                <CardHeader className="bg-slate-50 dark:bg-slate-800/50 border-b dark:border-slate-700">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <CardTitle className="text-lg">{adType.name}</CardTitle>
-                        <Badge variant={isEnabled ? "default" : "secondary"} className={isEnabled ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : ""}>
+              <Card key={adType.id} className="rounded-2xl border-0 shadow-lg overflow-hidden dark:bg-slate-800">
+                <CardHeader className="bg-slate-50 dark:bg-slate-800/50 border-b dark:border-slate-700 p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <CardTitle className="text-base sm:text-lg">{adType.name}</CardTitle>
+                        <Badge variant={isEnabled ? "default" : "secondary"} className={isEnabled ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "text-xs"}>
                           {isEnabled ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{adType.description}</p>
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">{adType.description}</p>
                     </div>
                     <Switch
                       checked={isEnabled}
@@ -249,35 +287,71 @@ export default function GerenciarAnuncios() {
                 </CardHeader>
                 
                 {isEnabled && (
-                  <CardContent className="p-6">
-                    <h4 className="font-semibold text-sm text-slate-700 dark:text-slate-300 mb-3">
-                      Páginas ({enabledPages}/{PAGES.length} ativas)
-                    </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {PAGES.map((page) => {
-                        const pageEnabled = config[adType.id]?.pages?.[page.id] || false;
-                        
-                        return (
-                          <div
-                            key={page.id}
-                            onClick={() => handleTogglePage(adType.id, page.id)}
-                            className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                              pageEnabled
-                                ? 'border-[#0A66C2] bg-[#0A66C2]/5 dark:bg-[#0A66C2]/10'
-                                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                {page.name}
-                              </span>
-                              {pageEnabled && (
-                                <Eye className="w-4 h-4 text-[#0A66C2]" />
-                              )}
+                  <CardContent className="p-4 sm:p-6 space-y-6">
+                    {/* Páginas */}
+                    <div>
+                      <h4 className="font-semibold text-sm text-slate-700 dark:text-slate-300 mb-3">
+                        Páginas ({enabledPages}/{PAGES.length} ativas)
+                      </h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+                        {PAGES.map((page) => {
+                          const pageEnabled = config[adType.id]?.pages?.[page.id] || false;
+                          
+                          return (
+                            <div
+                              key={page.id}
+                              onClick={() => handleTogglePage(adType.id, page.id)}
+                              className={`p-2.5 sm:p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                                pageEnabled
+                                  ? 'border-[#0A66C2] bg-[#0A66C2]/5 dark:bg-[#0A66C2]/10'
+                                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                                  {page.name}
+                                </span>
+                                {pageEnabled && (
+                                  <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0A66C2] flex-shrink-0" />
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Localização */}
+                    <div>
+                      <h4 className="font-semibold text-sm text-slate-700 dark:text-slate-300 mb-3">
+                        Localização ({enabledLocations}/{LOCATIONS.length} ativas)
+                      </h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                        {LOCATIONS.map((location) => {
+                          const locationEnabled = config[adType.id]?.locations?.[location.id] || false;
+                          
+                          return (
+                            <div
+                              key={location.id}
+                              onClick={() => handleToggleLocation(adType.id, location.id)}
+                              className={`p-2.5 sm:p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                                locationEnabled
+                                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                                  {location.name}
+                                </span>
+                                {locationEnabled && (
+                                  <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </CardContent>
                 )}
