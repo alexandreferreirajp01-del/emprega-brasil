@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, Eye, User, Share2, Loader2 } from "lucide-react";
+import { ArrowLeft, Calendar, Eye, User, Share2, Loader2, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
@@ -56,9 +55,81 @@ export default function NewsDetail() {
     }
   };
 
+  const renderBlocks = () => {
+    if (!news.blocks || news.blocks.length === 0) {
+      if (news.content) {
+        return (
+          <div className="prose prose-lg max-w-none">
+            <p className="text-slate-700 text-lg leading-relaxed whitespace-pre-line">
+              {news.content}
+            </p>
+          </div>
+        );
+      }
+      return null;
+    }
+
+    const sorted = [...news.blocks].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    return (
+      <div className="space-y-6">
+        {sorted.map((block, index) => {
+          if (block.type === 'text' && block.content) {
+            return (
+              <p key={index} className="text-slate-700 text-lg leading-relaxed whitespace-pre-line">
+                {block.content}
+              </p>
+            );
+          }
+          
+          if (block.type === 'image' && block.content) {
+            return (
+              <div key={index} className="my-6">
+                <img 
+                  src={block.content} 
+                  alt="" 
+                  className="w-full rounded-lg"
+                />
+              </div>
+            );
+          }
+          
+          if (block.type === 'video' && block.content) {
+            return (
+              <div key={index} className="my-6">
+                <video 
+                  src={block.content} 
+                  controls 
+                  className="w-full rounded-lg"
+                />
+              </div>
+            );
+          }
+          
+          if (block.type === 'link' && block.content) {
+            return (
+              <a 
+                key={index}
+                href={block.content}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-[#0A66C2] hover:underline"
+              >
+                <ExternalLink className="w-4 h-4" />
+                {block.content}
+              </a>
+            );
+          }
+          
+          return null;
+        })}
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
       </div>
     );
@@ -66,7 +137,7 @@ export default function NewsDetail() {
 
   if (!news) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-slate-600 mb-4">Notícia não encontrada</h2>
           <Link to={createPageUrl('News')}>
@@ -78,90 +149,82 @@ export default function NewsDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F2EF] pb-20">
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] py-4 px-4">
-        <div className="max-w-4xl mx-auto">
-          <Link to={createPageUrl('News')}>
-            <Button variant="ghost" className="text-white hover:bg-white/20 -ml-2">
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Voltar
-            </Button>
+    <div className="min-h-screen bg-white pb-20">
+      {/* Header - Estilo G1 */}
+      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] py-2 px-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <Link to={createPageUrl('News')} className="text-white hover:text-white/80 text-sm flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Notícias
           </Link>
+          <div className="flex items-center gap-4 text-white/80 text-xs">
+            <span className="flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              {news.views_count || 0}
+            </span>
+            <span>{formatDate(news.created_date)}</span>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 -mt-6">
-        <Card className="shadow-xl rounded-2xl overflow-hidden">
-          <CardContent className="p-0">
-            {news.image_url && (
-              <img 
-                src={news.image_url} 
-                alt={news.title}
-                className="w-full h-64 md:h-96 object-cover"
-              />
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        <article>
+          {/* Category Badge */}
+          <Badge className="bg-[#0A66C2] text-white border-0 rounded-sm px-3 py-1 text-xs uppercase font-bold mb-4">
+            {news.category}
+          </Badge>
+
+          {/* Title */}
+          <h1 className="text-2xl md:text-4xl font-bold text-slate-900 leading-tight mb-4">
+            {news.title}
+          </h1>
+
+          {news.subtitle && (
+            <p className="text-lg text-slate-600 mb-6 border-l-4 border-[#0A66C2] pl-4">
+              {news.subtitle}
+            </p>
+          )}
+
+          {/* Meta Info */}
+          <div className="flex flex-wrap items-center gap-4 py-4 border-y border-slate-200 text-sm text-slate-500 mb-6">
+            {news.author_name && (
+              <span className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                {news.author_name}
+              </span>
             )}
+            <span className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              {formatDate(news.created_date)}
+            </span>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleShare}
+              className="ml-auto h-8"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              Compartilhar
+            </Button>
+          </div>
 
-            <div className="p-6 md:p-8">
-              <Badge className="bg-[#0A66C2] text-white mb-4">
-                {news.category}
-              </Badge>
+          {/* Content Blocks */}
+          <div className="mb-8">
+            {renderBlocks()}
+          </div>
 
-              <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-4">
-                {news.title}
-              </h1>
-
-              {news.subtitle && (
-                <p className="text-lg text-slate-600 mb-6 border-l-4 border-[#0A66C2] pl-4">
-                  {news.subtitle}
-                </p>
-              )}
-
-              <div className="flex flex-wrap items-center gap-4 py-4 border-y border-slate-200 text-sm text-slate-500">
-                {news.author_name && (
-                  <span className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    {news.author_name}
-                  </span>
-                )}
-                <span className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  {formatDate(news.created_date)}
-                </span>
-                <span className="flex items-center gap-2">
-                  <Eye className="w-4 h-4" />
-                  {news.views_count || 0} visualizações
-                </span>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleShare}
-                  className="ml-auto"
-                >
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Compartilhar
-                </Button>
-              </div>
-
-              <div className="mt-8 prose prose-lg max-w-none">
-                <div 
-                  className="text-slate-700 text-lg leading-relaxed whitespace-pre-line"
-                  dangerouslySetInnerHTML={{ __html: news.content || '' }}
-                />
-              </div>
-
-              <div className="mt-8 pt-6 border-t">
-                <Button 
-                  onClick={() => {
-                    window.open(`https://wa.me/?text=${encodeURIComponent(news.title + ' - ' + window.location.href)}`, '_blank');
-                  }}
-                  className="bg-green-500 hover:bg-green-600 text-white rounded-xl"
-                >
-                  Compartilhar no WhatsApp
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Share Footer */}
+          <div className="pt-6 border-t">
+            <Button 
+              onClick={() => {
+                window.open(`https://wa.me/?text=${encodeURIComponent(news.title + ' - ' + window.location.href)}`, '_blank');
+              }}
+              className="bg-green-500 hover:bg-green-600 text-white rounded-lg"
+            >
+              Compartilhar no WhatsApp
+            </Button>
+          </div>
+        </article>
       </div>
     </div>
   );
