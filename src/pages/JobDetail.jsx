@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import EditJobModal from "@/components/admin/EditJobModal";
+import NativeBannerAd from "@/components/ads/NativeBannerAd";
 
 // Função de fetch robusta
 async function safeFetch(fetchFn, fallback = null) {
@@ -440,6 +441,7 @@ export default function JobDetail() {
                 <p className="text-slate-600 whitespace-pre-line leading-relaxed">
                   {job.description}
                 </p>
+                <NativeBannerAd pageName="JobDetail" location="content" className="my-6" />
               </div>
             )}
 

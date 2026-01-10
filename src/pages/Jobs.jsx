@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import TimeAgo from "@/components/common/TimeAgo";
+import NativeBannerAd from "@/components/ads/NativeBannerAd";
 
 async function safeFetch(fetchFn, fallback = []) {
   for (let i = 0; i < 3; i++) {
@@ -473,43 +474,47 @@ export default function Jobs() {
               Destaques
             </h2>
             <div className="space-y-3">
-              {featuredJobs.map((job) => {
+              {featuredJobs.map((job, index) => {
                 const canView = canViewJob(job);
                 const viewCount = viewsCountMap[job.id] || 0;
 
                 return (
-                  <div 
-                    key={job.id}
-                    onClick={(e) => canView ? null : handleJobClick(job, e)}
-                    className={`border-b border-slate-100 pb-3 ${!canView ? 'cursor-pointer' : ''}`}
-                  >
-                    <Link to={canView ? createPageUrl('JobDetail') + `?id=${job.id}` : '#'}>
-                      <div className="group flex gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-slate-900 group-hover:text-[#0A66C2] transition-colors text-base line-clamp-2 mb-1">
-                            {job.title}
-                          </h3>
-                          <p className="text-sm text-slate-600 mb-2">{job.company}</p>
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                            {job.city && job.state && (
+                  <React.Fragment key={job.id}>
+                    <div 
+                      onClick={(e) => canView ? null : handleJobClick(job, e)}
+                      className={`border-b border-slate-100 pb-3 ${!canView ? 'cursor-pointer' : ''}`}
+                    >
+                      <Link to={canView ? createPageUrl('JobDetail') + `?id=${job.id}` : '#'}>
+                        <div className="group flex gap-3">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-slate-900 group-hover:text-[#0A66C2] transition-colors text-base line-clamp-2 mb-1">
+                              {job.title}
+                            </h3>
+                            <p className="text-sm text-slate-600 mb-2">{job.company}</p>
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                              {job.city && job.state && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {job.city} - {job.state}
+                                </span>
+                              )}
                               <span className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3" />
-                                {job.city} - {job.state}
+                                <Clock className="w-3 h-3" />
+                                <TimeAgo date={job.created_date} />
                               </span>
-                            )}
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              <TimeAgo date={job.created_date} />
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Eye className="w-3 h-3" />
-                              {viewCount}
-                            </span>
+                              <span className="flex items-center gap-1">
+                                <Eye className="w-3 h-3" />
+                                {viewCount}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  </div>
+                      </Link>
+                    </div>
+                    {index === 2 && (
+                      <NativeBannerAd pageName="Jobs" location="content" className="py-4" />
+                    )}
+                  </React.Fragment>
                 );
               })}
             </div>
