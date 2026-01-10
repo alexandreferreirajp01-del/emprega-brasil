@@ -173,7 +173,7 @@ export default function Home() {
               </div>
 
               {/* Quick Actions */}
-              <div className="max-w-6xl mx-auto px-3 sm:px-4 -mt-12 mb-8 relative z-10">
+              <div className="max-w-6xl mx-auto px-3 sm:px-4 mb-8 relative z-10">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                   {quickActions.map((action, i) => (
                     <Link key={i} to={createPageUrl(action.page)}>
