@@ -65,9 +65,7 @@ const menuItems = [
   { id: 'update-jobs-location', name: 'Atualizar Localização de Vagas', icon: MapPin, color: 'blue', action: 'updateJobs', description: 'Atualizar cidade/UF de vagas antigas', roles: ['admin', 'dono'] },
   { id: 'migrate-notifications', name: 'Migrar Notificações', icon: Database, color: 'amber', action: 'migrate', description: 'Atualizar notificações antigas (executar 1x)', roles: ['admin', 'dono'] },
   
-  // Painel Base44
-  { id: 'divider2', type: 'divider', label: 'Painel Base44' },
-  { id: 'base44', name: 'Abrir Painel Base44', icon: Settings, color: 'slate', external: true, description: 'Overview, Users, Data, Analytics, Domains, Integrations, Security, Code, Agents, Logs, API, Settings, Secrets' },
+
 ];
 
 const colorClasses = {
