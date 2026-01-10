@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { Badge } from "@/components/ui/badge";
-import { Bot, Send, Loader2, User as UserIcon, X, Sparkles } from "lucide-react";
+import { Bot, Send, Loader2, User as UserIcon, X, Sparkles, Paperclip, Image as ImageIcon, File } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import ReactMarkdown from 'react-markdown';
 
@@ -102,19 +102,61 @@ export default function FloatingChatButton() {
     };
   }, [conversationId, messages]);
 
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        return { name: file.name, url: file_url, type: file.type };
+      });
+
+      const uploaded = await Promise.all(uploadPromises);
+      setUploadedFiles([...uploadedFiles, ...uploaded]);
+    } catch (error) {
+      console.error('Erro ao fazer upload:', error);
+      alert('Erro ao enviar arquivo. Tente novamente.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeFile = (index) => {
+    setUploadedFiles(uploadedFiles.filter((_, i) => i !== index));
+  };
+
   const handleSend = async () => {
-    if (!input.trim() || !conversationId || loading) return;
+    if ((!input.trim() && uploadedFiles.length === 0) || !conversationId || loading) return;
 
     const userMessage = input.trim();
+    const files = uploadedFiles.map(f => f.url);
     setInput('');
+    setUploadedFiles([]);
     setLoading(true);
 
     try {
       const conversation = await base44.agents.getConversation(conversationId);
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: userMessage
+        content: userMessage || 'Arquivos anexados',
+        file_urls: files.length > 0 ? files : undefined
       });
+
+      // Salvar no histórico
+      try {
+        const currentUser = await base44.auth.me();
+        await base44.entities.ChatHistory.create({
+          conversation_id: conversationId,
+          user_email: currentUser?.email || 'visitante',
+          message_role: 'user',
+          message_content: userMessage || 'Arquivos anexados',
+          file_urls: files.length > 0 ? files : undefined
+        });
+      } catch (e) {
+        // Ignorar erro de histórico
+      }
     } catch (e) {
       console.error('Erro ao enviar mensagem:', e);
       setMessages(prev => [...prev, {
@@ -246,18 +288,57 @@ export default function FloatingChatButton() {
                 ))}
               </div>
             )}
+
+            {/* Preview de arquivos */}
+            {uploadedFiles.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-2">
+                {uploadedFiles.map((file, idx) => (
+                  <div key={idx} className="bg-slate-100 dark:bg-slate-700 rounded-lg px-2 py-1 flex items-center gap-1 text-xs">
+                    {file.type.startsWith('image/') ? (
+                      <ImageIcon className="w-3 h-3 text-[#0A66C2]" />
+                    ) : (
+                      <File className="w-3 h-3 text-[#0A66C2]" />
+                    )}
+                    <span className="truncate max-w-[80px]">{file.name}</span>
+                    <button onClick={() => removeFile(idx)} className="text-red-500 hover:text-red-700">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="flex gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*,.pdf,.doc,.docx,.txt"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading || loading}
+                className="h-10 w-10 flex items-center justify-center border dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 rounded-full transition-colors"
+              >
+                {uploading ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-[#0A66C2]" />
+                ) : (
+                  <Paperclip className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                )}
+              </button>
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Digite aqui..."
+                placeholder="Digite ou envie arquivo..."
                 className="flex-1 h-10 rounded-full text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 disabled={loading}
               />
               <button
                 onClick={handleSend}
-                disabled={!input.trim() || loading}
+                disabled={(!input.trim() && uploadedFiles.length === 0) || loading}
                 className="h-10 w-10 flex items-center justify-center bg-[#0A66C2] hover:bg-[#004182] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full transition-colors"
               >
                 {loading ? (
