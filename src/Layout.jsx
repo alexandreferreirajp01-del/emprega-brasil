@@ -39,7 +39,6 @@ export default function Layout({ children, currentPageName }) {
         { name: 'Início', icon: Home, page: 'Home' },
         { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
         { name: 'Ferramentas', icon: Settings, page: 'Utilidades' },
-        { name: 'IA', icon: Bot, page: 'ChatIA' },
         { name: 'Feed', icon: MessageCircle, page: 'Feed' },
         { name: 'Perfil', icon: User, page: 'Profile' },
       ];
@@ -616,7 +615,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Bottom Navigation (Mobile) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 shadow-lg z-40 safe-area-bottom transition-colors" translate="no">
         <div className="flex items-center justify-around h-16 pb-safe">
-          {navItems.slice(0, 6).map((item) => (
+          {navItems.slice(0, 5).map((item) => (
             <Link 
               key={item.page} 
               to={createPageUrl(item.page)}
