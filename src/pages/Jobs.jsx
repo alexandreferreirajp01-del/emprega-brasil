@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock
+  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -34,6 +34,7 @@ import {
 import PremiumModal from "@/components/subscription/PremiumModal";
 import TimeAgo from "@/components/common/TimeAgo";
 import NativeBannerAd from "@/components/ads/NativeBannerAd";
+import ReportJobModal from "@/components/jobs/ReportJobModal";
 
 async function safeFetch(fetchFn, fallback = []) {
   for (let i = 0; i < 3; i++) {
@@ -70,6 +71,7 @@ export default function Jobs() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [shareJob, setShareJob] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [reportJob, setReportJob] = useState(null);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -583,19 +585,36 @@ export default function Jobs() {
                           </span>
                         </div>
                       </div>
-                      {user && canView && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => handleFavorite(job, e)}
-                          className={`h-8 w-8 rounded-full ${isFavorite ? 'text-red-500' : 'text-slate-400'}`}
-                        >
-                          <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
-                        </Button>
-                      )}
-                      {!canView && (
-                        <Lock className="w-5 h-5 text-purple-600 flex-shrink-0 mt-1" />
-                      )}
+                      <div className="flex items-center gap-1">
+                        {user && canView && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => handleFavorite(job, e)}
+                            className={`h-8 w-8 rounded-full ${isFavorite ? 'text-red-500' : 'text-slate-400'}`}
+                          >
+                            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+                          </Button>
+                        )}
+                        {canView && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setReportJob(job);
+                            }}
+                            className="h-8 w-8 rounded-full text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                            title="Reportar vaga"
+                          >
+                            <AlertCircle className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {!canView && (
+                          <Lock className="w-5 h-5 text-purple-600 flex-shrink-0 mt-1" />
+                        )}
+                      </div>
                     </div>
                   </Link>
                 </div>
@@ -618,6 +637,13 @@ export default function Jobs() {
         onClose={() => setShowPremiumModal(false)}
         user={user}
         onSuccess={() => window.location.reload()}
+      />
+
+      <ReportJobModal
+        job={reportJob}
+        user={user}
+        isOpen={!!reportJob}
+        onClose={() => setReportJob(null)}
       />
     </div>
   );
