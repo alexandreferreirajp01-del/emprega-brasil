@@ -187,13 +187,38 @@ export default function FloatingChatButton() {
     <>
       {/* Floating Button */}
       {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-3 md:bottom-6 md:right-6 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-50 flex items-center justify-center group"
-          title="Assistente IA"
-        >
-          <Sparkles className="w-5 h-5" />
-        </button>
+        <div className="fixed bottom-20 right-3 md:bottom-6 md:right-6 z-50">
+          {/* Ondas pulsantes */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute w-16 h-16 bg-[#0A66C2]/20 rounded-full animate-ping"></div>
+            <div className="absolute w-14 h-14 bg-[#0A66C2]/30 rounded-full animate-pulse"></div>
+          </div>
+          
+          {/* Botão principal */}
+          <button
+            onClick={() => setIsOpen(true)}
+            className="relative bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#0A66C2] text-white p-3.5 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center justify-center animate-float"
+            title="Assistente IA"
+            style={{
+              animation: 'float 3s ease-in-out infinite, gradient-shift 4s ease infinite',
+              backgroundSize: '200% 200%'
+            }}
+          >
+            <Sparkles className="w-5 h-5 animate-pulse" />
+          </button>
+          
+          <style>{`
+            @keyframes float {
+              0%, 100% { transform: translateY(0px) scale(1); }
+              50% { transform: translateY(-5px) scale(1.05); }
+            }
+            
+            @keyframes gradient-shift {
+              0%, 100% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+            }
+          `}</style>
+        </div>
       )}
 
       {/* Chat Window */}
