@@ -19,6 +19,9 @@ import ApplyBasicPermissions from "@/components/common/ApplyBasicPermissions";
 import CookieConsent from "@/components/common/CookieConsent";
 import RouteGuard from "@/components/common/RouteGuard";
 import NavigationFallback from "@/components/common/NavigationFallback";
+import PopunderAd from "@/components/ads/PopunderAd";
+import SocialBarAd from "@/components/ads/SocialBarAd";
+import BannerAd from "@/components/ads/BannerAd";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -281,6 +284,9 @@ export default function Layout({ children, currentPageName }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col notranslate transition-colors duration-300" translate="no" lang="pt-BR">
+      {/* AdsTerra Ads - Globais */}
+      <PopunderAd />
+      <SocialBarAd />
 
       {/* Fallback de navegação anti-tela-branca */}
       <NavigationFallback />
@@ -410,6 +416,11 @@ export default function Layout({ children, currentPageName }) {
                 </Link>
               ))}
                   </nav>
+
+                  {/* AdsTerra Banner 728x90 - Desktop Header */}
+                  <div className="hidden lg:block">
+                    <BannerAd size="728x90" />
+                  </div>
 
                   {/* User Actions */}
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
@@ -626,6 +637,11 @@ export default function Layout({ children, currentPageName }) {
           ))}
         </div>
       </nav>
+
+      {/* AdsTerra Banner 320x50 - Mobile Footer */}
+      <div className="md:hidden fixed bottom-16 left-0 right-0 z-30 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-1 safe-area-bottom">
+        <BannerAd size="320x50" className="mx-auto" />
+      </div>
 
       {/* Floating Buttons */}
       <FloatingButtons />
