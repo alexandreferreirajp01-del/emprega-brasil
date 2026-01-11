@@ -530,7 +530,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 pb-nav">
+      <main className="flex-1 pb-nav -mt-1">
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
