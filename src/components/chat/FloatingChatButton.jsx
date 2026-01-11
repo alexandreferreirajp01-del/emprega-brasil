@@ -197,14 +197,19 @@ export default function FloatingChatButton() {
           {/* Botão principal */}
           <button
             onClick={() => setIsOpen(true)}
-            className="relative bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#0A66C2] text-white p-3.5 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center justify-center animate-float"
+            className="relative bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#0A66C2] text-white p-3.5 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center justify-center overflow-hidden"
             title="Assistente IA"
             style={{
               animation: 'float 3s ease-in-out infinite, gradient-shift 4s ease infinite',
               backgroundSize: '200% 200%'
             }}
           >
-            <Sparkles className="w-5 h-5 animate-pulse" />
+            <Sparkles 
+              className="w-5 h-5" 
+              style={{
+                animation: 'randomSpin 4s ease-in-out infinite, randomMove 3s ease-in-out infinite'
+              }}
+            />
           </button>
           
           <style>{`
@@ -216,6 +221,22 @@ export default function FloatingChatButton() {
             @keyframes gradient-shift {
               0%, 100% { background-position: 0% 50%; }
               50% { background-position: 100% 50%; }
+            }
+            
+            @keyframes randomSpin {
+              0% { transform: rotate(0deg) scale(1); }
+              25% { transform: rotate(180deg) scale(1.2); }
+              50% { transform: rotate(270deg) scale(0.9); }
+              75% { transform: rotate(450deg) scale(1.1); }
+              100% { transform: rotate(720deg) scale(1); }
+            }
+            
+            @keyframes randomMove {
+              0%, 100% { transform: translate(0, 0); }
+              20% { transform: translate(2px, -2px); }
+              40% { transform: translate(-2px, 2px); }
+              60% { transform: translate(2px, 2px); }
+              80% { transform: translate(-2px, -2px); }
             }
           `}</style>
         </div>
