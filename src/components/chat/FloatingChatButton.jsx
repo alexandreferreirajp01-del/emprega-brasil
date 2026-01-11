@@ -189,10 +189,10 @@ export default function FloatingChatButton() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-24 right-4 md:bottom-8 md:right-8 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white px-5 py-3 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105 z-50 flex items-center gap-2 font-semibold text-sm"
+          className="fixed bottom-20 right-3 md:bottom-6 md:right-6 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-50 flex items-center justify-center group"
+          title="Assistente IA"
         >
-          <Sparkles className="w-4 h-4" />
-          Assistente IA
+          <Sparkles className="w-5 h-5" />
         </button>
       )}
 
