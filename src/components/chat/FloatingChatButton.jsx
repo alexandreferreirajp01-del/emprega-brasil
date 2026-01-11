@@ -188,10 +188,10 @@ export default function FloatingChatButton() {
       {/* Floating Button */}
       {!isOpen && (
         <div className="fixed bottom-20 right-3 md:bottom-6 md:right-6 z-50">
-          {/* Ondas pulsantes */}
+          {/* Ondas pulsantes sutis */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="absolute w-16 h-16 bg-[#0A66C2]/20 rounded-full animate-ping"></div>
-            <div className="absolute w-14 h-14 bg-[#0A66C2]/30 rounded-full animate-pulse"></div>
+            <div className="absolute w-16 h-16 bg-[#0A66C2]/5 rounded-full animate-ping"></div>
+            <div className="absolute w-14 h-14 bg-[#0A66C2]/8 rounded-full animate-pulse"></div>
           </div>
           
           {/* Botão principal */}
