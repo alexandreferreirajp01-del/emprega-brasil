@@ -28,6 +28,11 @@ export default function ReportJobModal({ job, user, isOpen, onClose }) {
       return;
     }
 
+    if (!phone.trim()) {
+      toast.error('Preencha seu telefone de contato');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -134,7 +139,7 @@ export default function ReportJobModal({ job, user, isOpen, onClose }) {
 
           {/* Contato - Telefone */}
           <div>
-            <Label htmlFor="phone">Seu Telefone (Opcional)</Label>
+            <Label htmlFor="phone">Seu Telefone *</Label>
             <Input
               id="phone"
               type="tel"
@@ -143,12 +148,13 @@ export default function ReportJobModal({ job, user, isOpen, onClose }) {
               placeholder="(00) 00000-0000"
               className="rounded-lg mt-1"
               maxLength={20}
+              required
             />
           </div>
 
           {/* Info */}
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-xs text-blue-800">
+          <div className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 border-l-4 border-orange-500 rounded-lg shadow-sm">
+            <p className="text-sm text-slate-700 font-medium">
               📧 Sua ocorrência será enviada para nossa equipe. 
               Responderemos assim que possível através do e-mail fornecido.
             </p>
