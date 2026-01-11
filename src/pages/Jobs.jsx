@@ -33,7 +33,6 @@ import {
 } from "@/components/ui/dialog";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import TimeAgo from "@/components/common/TimeAgo";
-import NativeBannerAd from "@/components/ads/NativeBannerAd";
 
 async function safeFetch(fetchFn, fallback = []) {
   for (let i = 0; i < 3; i++) {
@@ -511,9 +510,6 @@ export default function Jobs() {
                         </div>
                       </Link>
                     </div>
-                    {index === 2 && (
-                      <NativeBannerAd pageName="Jobs" location="content" className="py-4" />
-                    )}
                   </React.Fragment>
                 );
               })}
