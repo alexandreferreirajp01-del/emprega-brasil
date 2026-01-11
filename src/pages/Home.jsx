@@ -128,14 +128,14 @@ export default function Home() {
       <VisitTracker pageName="Home" user={user} />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 pt-4 sm:pt-6 pb-20 sm:pb-16 px-3 sm:px-4 relative overflow-hidden transition-colors duration-300">
+      <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden transition-colors duration-300">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-40 h-40 bg-white dark:bg-slate-600 rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-60 h-60 bg-white dark:bg-slate-600 rounded-full blur-3xl"></div>
         </div>
 
         <div className="max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-4 sm:mb-6 px-2">
+          <div className="text-center mb-6 sm:mb-8 px-2">
                   <Badge className="bg-white/20 text-white border-0 mb-3 sm:mb-4 px-3 sm:px-4 py-1 text-xs sm:text-sm">
                     <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     {jobs.length > 0 ? `+${jobs.length}` : '200+'} {jobs.length === 1 ? 'vaga disponível' : 'vagas disponíveis'}
