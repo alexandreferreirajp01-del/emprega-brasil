@@ -1,54 +1,76 @@
 import React, { useState, useEffect } from 'react';
-import AdScript from './AdScript';
 
+/**
+ * Componente wrapper para anúncios do AdsTerra
+ * Verifica se o anúncio deve ser exibido com base nas configurações
+ */
 export default function AdContainer({ 
   adType, 
   pageName,
   location,
+  children,
+  fallback = null,
   className = ''
 }) {
-  const [shouldShow, setShouldShow] = useState(true);
+  const [shouldShow, setShouldShow] = useState(false);
 
   useEffect(() => {
-    try {
-      const config = localStorage.getItem('adsterra_config');
-      if (!config) {
-        setShouldShow(true); // Mostrar por padrão
-        return;
-      }
+    const checkConfig = () => {
+      try {
+        const config = localStorage.getItem('adsterra_config');
+        if (!config) {
+          setShouldShow(false);
+          return;
+        }
 
-      const parsed = JSON.parse(config);
-      const adConfig = parsed[adType];
-      
-      // Se o anúncio não está configurado ou está desativado
-      if (!adConfig || !adConfig.enabled) {
+        const parsed = JSON.parse(config);
+        const adConfig = parsed[adType];
+        
+        if (!adConfig || !adConfig.enabled) {
+          setShouldShow(false);
+          return;
+        }
+
+        if (pageName && !adConfig.pages?.[pageName]) {
+          setShouldShow(false);
+          return;
+        }
+
+        if (location && !adConfig.locations?.[location]) {
+          setShouldShow(false);
+          return;
+        }
+
+        setShouldShow(true);
+      } catch (e) {
+        console.error('Erro ao verificar config de anúncio:', e);
         setShouldShow(false);
-        return;
       }
+    };
 
-      // Verificar se a página está ativa
-      if (pageName && adConfig.pages && !adConfig.pages[pageName]) {
-        setShouldShow(false);
-        return;
-      }
+    checkConfig();
 
-      // Verificar se a localização está ativa
-      if (location && adConfig.locations && !adConfig.locations[location]) {
-        setShouldShow(false);
-        return;
-      }
+    // Listener para atualizações
+    const handleUpdate = () => {
+      checkConfig();
+    };
 
-      setShouldShow(true);
-    } catch (e) {
-      setShouldShow(true); // Mostrar por padrão em caso de erro
-    }
+    window.addEventListener('adsterra_config_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+
+    return () => {
+      window.removeEventListener('adsterra_config_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
   }, [adType, pageName, location]);
 
-  if (!shouldShow) return null;
+  if (!shouldShow) {
+    return fallback;
+  }
 
   return (
     <div className={className}>
-      <AdScript adType={adType} />
+      {children}
     </div>
   );
 }
