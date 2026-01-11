@@ -10,7 +10,6 @@ import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import FeedPostCard from "@/components/feed/FeedPostCard";
 import PremiumModal from "@/components/subscription/PremiumModal";
-import BannerAd from "@/components/ads/BannerAd";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
@@ -167,11 +166,9 @@ export default function Feed() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 py-4">
-        {/* Main Feed - Col 1 e 2 */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Criar Post */}
-          <Card className="rounded-xl dark:bg-slate-800 dark:border-slate-700 transition-colors">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
+        {/* Criar Post */}
+        <Card className="rounded-xl dark:bg-slate-800 dark:border-slate-700 transition-colors">
           <CardContent className="p-4">
             <div className="flex gap-3">
               <Avatar className="w-10 h-10">
@@ -256,19 +253,6 @@ export default function Feed() {
             ))}
           </div>
         )}
-        </div>
-
-        {/* Sidebar - Col 3 */}
-        <div className="hidden lg:flex lg:flex-col gap-4">
-          <div className="sticky top-24 space-y-4">
-            <Card className="rounded-xl dark:bg-slate-800 dark:border-slate-700 transition-colors p-3">
-              <BannerAd size="300x250" className="w-full" />
-            </Card>
-            <Card className="rounded-xl dark:bg-slate-800 dark:border-slate-700 transition-colors p-3">
-              <BannerAd size="300x250" className="w-full" />
-            </Card>
-          </div>
-        </div>
       </div>
     </div>
   );
