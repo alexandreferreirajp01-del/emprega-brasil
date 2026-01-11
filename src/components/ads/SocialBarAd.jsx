@@ -1,6 +1,12 @@
 import React from 'react';
 import AdContainer from './AdContainer';
 
-export default function SocialBarAd() {
-  return <AdContainer adType="social_bar" />;
+export default function SocialBarAd({ pageName }) {
+  return (
+    <AdContainer 
+      adType="social_bar" 
+      pageName={pageName}
+      location="sidebar"
+    />
+  );
 }

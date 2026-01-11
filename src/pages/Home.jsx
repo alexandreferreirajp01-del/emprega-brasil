@@ -14,8 +14,6 @@ import TimeAgo from "@/components/common/TimeAgo";
 import VisitTracker from "@/components/common/VisitTracker";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import PlansBanner from "@/components/common/PlansBanner";
-import NativeBannerAd from "@/components/ads/NativeBannerAd";
-import BannerAd from "@/components/ads/BannerAd";
 
 // Função de fetch com retry robusto
 async function fetchWithRetry(fetchFn, maxRetries = 5) {
@@ -196,11 +194,6 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            {/* Ad Banner */}
-            <div className="hidden lg:block">
-              <NativeBannerAd className="mb-4" />
-            </div>
-
             {/* Featured Jobs */}
             <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden bg-white dark:bg-slate-800 transition-colors" style={{ minHeight: '400px' }}>
               <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-3 sm:p-4 flex items-center justify-between">
