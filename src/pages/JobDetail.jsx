@@ -19,7 +19,6 @@ import {
 import PremiumModal from "@/components/subscription/PremiumModal";
 import EditJobModal from "@/components/admin/EditJobModal";
 import NativeBannerAd from "@/components/ads/NativeBannerAd";
-import BannerAd from "@/components/ads/BannerAd";
 
 // Função de fetch robusta
 async function safeFetch(fetchFn, fallback = null) {
@@ -505,17 +504,9 @@ export default function JobDetail() {
                 </Button>
               </div>
             )}
-            </CardContent>
-            </Card>
-
-            {/* Ads Below Job Modal */}
-            <div className="mt-6">
-            <NativeBannerAd className="mb-4" />
-            <div className="hidden lg:block">
-            <BannerAd size="300x250" className="mx-auto" />
-            </div>
-            </div>
-            </div>
+          </CardContent>
+        </Card>
+      </div>
       
       {/* Share Dialog */}
       <ShareDialog 
