@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, MapPin, Calendar, Building2, Briefcase, 
-  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, Edit, Trash2
+  DollarSign, ExternalLink, Lock, Eye, MessageCircle, Share2, Heart, RefreshCw, Loader2, Edit, Trash2, AlertCircle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -19,6 +19,7 @@ import {
 import PremiumModal from "@/components/subscription/PremiumModal";
 import EditJobModal from "@/components/admin/EditJobModal";
 import NativeBannerAd from "@/components/ads/NativeBannerAd";
+import ReportJobModal from "@/components/jobs/ReportJobModal";
 
 // Função de fetch robusta
 async function safeFetch(fetchFn, fallback = null) {
@@ -80,6 +81,7 @@ export default function JobDetail() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   
   const urlParams = new URLSearchParams(window.location.search);
   const jobId = urlParams.get('id');
@@ -493,7 +495,7 @@ export default function JobDetail() {
 
             {/* Apply Button */}
             {hasContact && (
-              <div className="pt-6 border-t">
+              <div className="pt-6 border-t space-y-3">
                 <Button 
                   size="lg" 
                   onClick={() => setShowContactDialog(true)}
@@ -501,6 +503,16 @@ export default function JobDetail() {
                 >
                   <MessageCircle className="w-5 h-5 mr-2" />
                   Candidatar-se
+                </Button>
+                
+                {/* Botão Reportar */}
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowReportModal(true)}
+                  className="w-full md:w-auto rounded-xl h-12 px-6 text-orange-600 border-orange-300 hover:bg-orange-50"
+                >
+                  <AlertCircle className="w-5 h-5 mr-2" />
+                  Reportar Vaga
                 </Button>
               </div>
             )}
@@ -545,6 +557,14 @@ export default function JobDetail() {
           }}
         />
       )}
+
+      {/* Report Modal */}
+      <ReportJobModal
+        job={job}
+        user={user}
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+      />
     </div>
   );
 }
