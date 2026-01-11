@@ -15,7 +15,6 @@ import Contact from './pages/Contact';
 import Cookies from './pages/Cookies';
 import FAQ from './pages/FAQ';
 import Favoritos from './pages/Favoritos';
-import Feed from './pages/Feed';
 import FluxoUsuarios from './pages/FluxoUsuarios';
 import ForgotPassword from './pages/ForgotPassword';
 import GerenciadorFiltros from './pages/GerenciadorFiltros';
@@ -30,10 +29,7 @@ import GerenciarPrecos from './pages/GerenciarPrecos';
 import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
 import GerenciarUsuarios from './pages/GerenciarUsuarios';
 import GerenciarVagas from './pages/GerenciarVagas';
-import Groups from './pages/Groups';
 import Historico from './pages/Historico';
-import Home from './pages/Home';
-import JobDetail from './pages/JobDetail';
 import Jobs from './pages/Jobs';
 import LGPD from './pages/LGPD';
 import ListaTransmissao from './pages/ListaTransmissao';
@@ -68,6 +64,10 @@ import VagasConverter from './pages/VagasConverter';
 import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
+import Groups from './pages/Groups';
+import Home from './pages/Home';
+import Feed from './pages/Feed';
+import JobDetail from './pages/JobDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -89,7 +89,6 @@ export const PAGES = {
     "Cookies": Cookies,
     "FAQ": FAQ,
     "Favoritos": Favoritos,
-    "Feed": Feed,
     "FluxoUsuarios": FluxoUsuarios,
     "ForgotPassword": ForgotPassword,
     "GerenciadorFiltros": GerenciadorFiltros,
@@ -104,10 +103,7 @@ export const PAGES = {
     "GerenciarSolicitacoes": GerenciarSolicitacoes,
     "GerenciarUsuarios": GerenciarUsuarios,
     "GerenciarVagas": GerenciarVagas,
-    "Groups": Groups,
     "Historico": Historico,
-    "Home": Home,
-    "JobDetail": JobDetail,
     "Jobs": Jobs,
     "LGPD": LGPD,
     "ListaTransmissao": ListaTransmissao,
@@ -142,6 +138,10 @@ export const PAGES = {
     "VagasHomeOffice": VagasHomeOffice,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
+    "Groups": Groups,
+    "Home": Home,
+    "Feed": Feed,
+    "JobDetail": JobDetail,
 }
 
 export const pagesConfig = {
