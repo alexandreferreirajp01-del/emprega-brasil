@@ -316,6 +316,7 @@ export default function Layout({ children, currentPageName }) {
       <meta name="googlebot" content="notranslate" />
       <meta httpEquiv="Content-Language" content="pt-BR" />
       {/* Google AdSense */}
+      <meta name="google-adsense-account" content="ca-pub-8605408842983455" />
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8605408842983455" crossOrigin="anonymous"></script>
       <style>{`
         /* Safe area para notch de celulares */
