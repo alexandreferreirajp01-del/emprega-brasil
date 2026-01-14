@@ -26,6 +26,7 @@ const menuItems = [
   { id: 'notificacoes-admin', name: 'Notificações de Admin', icon: AlertCircle, color: 'amber', page: 'NotificacoesAdmin', description: 'Habilitar/desabilitar notificações do sininho', roles: ['admin', 'dono'] },
   { id: 'vagas', name: 'Gerenciar Vagas', icon: Briefcase, color: 'indigo', page: 'GerenciarVagas', description: 'Visualizar e excluir vagas', permissionId: 'gerenciar_vagas' },
   { id: 'apagar-vagas-periodo', name: 'Apagar Vagas por Período', icon: Trash2, color: 'red', page: 'ApagarVagasPorPeriodo', description: 'Remover vagas antigas do sistema', roles: ['admin', 'dono'] },
+  { id: 'delete-no-contact', name: 'Excluir Vagas Sem Contato', icon: Trash2, color: 'orange', action: 'deleteNoContact', description: 'Remove vagas sem informação de contato', roles: ['admin', 'dono'] },
   { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'blue', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários', permissionId: 'gerenciar_usuarios' },
   { id: 'noticias', name: 'Notícias', icon: Newspaper, color: 'rose', page: 'GerenciarNoticias', description: 'Criar e gerenciar notícias', permissionId: 'noticias' },
   { id: 'feed', name: 'Feed', icon: MessageSquare, color: 'pink', page: 'GerenciarComunidade', description: 'Posts, comentários e chat', permissionId: 'gerenciar_comunidade' },
@@ -170,6 +171,19 @@ export default function Configuracoes() {
         alert(response.data.message || 'Migração concluída com sucesso!');
       } catch (error) {
         alert('Erro na migração: ' + error.message);
+      } finally {
+        setMigrating(false);
+      }
+    } else if (item.action === 'deleteNoContact') {
+      if (!confirm('ATENÇÃO: Isso irá excluir TODAS as vagas sem informação de contato. Deseja continuar?')) return;
+      
+      setMigrating(true);
+      try {
+        const response = await base44.functions.invoke('deleteJobsWithoutContact');
+        alert(response.data.message || 'Exclusão concluída!');
+        console.log('Resultado:', response.data);
+      } catch (error) {
+        alert('Erro: ' + error.message);
       } finally {
         setMigrating(false);
       }
