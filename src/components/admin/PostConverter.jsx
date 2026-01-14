@@ -67,36 +67,66 @@ export default function PostConverter() {
       canvas.width = size;
       canvas.height = size;
 
-      // COMPRIMIR a imagem para caber no quadrado (mantém TODAS as informações)
-      // A imagem será redimensionada para caber totalmente no quadrado
-      ctx.drawImage(img, 0, 0, size, size);
+      // Calcular dimensões para caber no quadrado SEM distorcer (mantém proporções)
+      const imgRatio = img.width / img.height;
+      let drawWidth, drawHeight, x, y;
 
-      // Badge do Instagram no canto inferior direito (destacado e bonito)
-      const badgeWidth = 240;
-      const badgeHeight = 60;
-      const badgeX = size - badgeWidth - 10;
-      const badgeY = size - badgeHeight - 10;
+      if (imgRatio > 1) {
+        // Imagem horizontal - cabe na largura
+        drawWidth = size;
+        drawHeight = size / imgRatio;
+        x = 0;
+        y = (size - drawHeight) / 2;
+      } else {
+        // Imagem vertical - cabe na altura
+        drawHeight = size;
+        drawWidth = size * imgRatio;
+        x = (size - drawWidth) / 2;
+        y = 0;
+      }
+
+      // Fundo branco para áreas vazias
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, size, size);
+
+      // Desenhar imagem mantendo proporções (sem distorção)
+      ctx.drawImage(img, x, y, drawWidth, drawHeight);
+
+      // Badge do Instagram no canto inferior direito (DESTAQUE PROFISSIONAL)
+      const badgeWidth = 260;
+      const badgeHeight = 65;
+      const badgeX = size - badgeWidth - 15;
+      const badgeY = size - badgeHeight - 15;
       
-      // Fundo do badge (marrom escuro estilo das imagens)
-      ctx.fillStyle = 'rgba(92, 64, 51, 0.95)';
+      // Sombra do badge
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowBlur = 15;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 5;
+
+      // Fundo do badge (marrom escuro igual modelo)
+      ctx.fillStyle = '#5C4033';
       ctx.beginPath();
-      ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 12);
+      ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 10);
       ctx.fill();
 
-      // Ícone do Instagram (simulado com emoji/símbolo)
+      // Resetar sombra
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+
+      // Ícone do Instagram
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 28px Arial, sans-serif';
+      ctx.font = '32px Arial, sans-serif';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      
-      // Desenhar ícone do Instagram (câmera)
       const iconX = badgeX + 20;
       const iconY = badgeY + badgeHeight / 2;
       ctx.fillText('📷', iconX, iconY);
 
-      // Texto @vagasabertaspb
-      ctx.font = 'bold 22px Arial, sans-serif';
-      ctx.fillText('vagasabertaspb', iconX + 40, iconY);
+      // Texto @vagasabertaspb (destaque)
+      ctx.font = 'bold 24px Arial, sans-serif';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText('vagasabertaspb', iconX + 50, iconY);
 
       const dataUrl = canvas.toDataURL('image/png', 1.0);
       setConvertedImage(dataUrl);
