@@ -123,16 +123,28 @@ export default function NotificationBell({ user }) {
   };
 
   const getRedirectUrl = (notification) => {
-    // 1. redirect_page tem prioridade absoluta
+    // 1. redirect_url tem prioridade absoluta (URL completa)
+    if (notification.redirect_url) {
+      return notification.redirect_url;
+    }
+
+    // 2. redirect_page tem prioridade seguinte
     if (notification.redirect_page) {
       const params = notification.redirect_params || {};
-      const queryString = Object.keys(params).length > 0 
-        ? '?' + new URLSearchParams(params).toString() 
+      // Converter arrays para strings (ids em array)
+      const processedParams = Object.fromEntries(
+        Object.entries(params).map(([key, value]) => [
+          key,
+          Array.isArray(value) ? value.join(',') : value
+        ])
+      );
+      const queryString = Object.keys(processedParams).length > 0 
+        ? '?' + new URLSearchParams(processedParams).toString() 
         : '';
       return createPageUrl(notification.redirect_page) + queryString;
     }
 
-    // 2. reference_type + reference_id - SEMPRE detalhe específico
+    // 3. reference_type + reference_id - SEMPRE detalhe específico
     if (notification.reference_type && notification.reference_id) {
       switch (notification.reference_type) {
         case 'job':
@@ -157,12 +169,12 @@ export default function NotificationBell({ user }) {
       }
     }
 
-    // 3. job_id - SEMPRE detalhe da vaga
+    // 4. job_id - SEMPRE detalhe da vaga
     if (notification.job_id) {
       return createPageUrl('JobDetail') + '?id=' + notification.job_id;
     }
 
-    // 4. Notificações admin/user sem referência
+    // 5. Notificações admin/user sem referência
     if (notification.type === 'admin' || notification.type === 'user') {
       return createPageUrl('GerenciarUsuarios');
     }
