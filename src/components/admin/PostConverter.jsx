@@ -107,38 +107,68 @@ export default function PostConverter() {
 
       // Extrair informações da imagem com IA
       const extractRes = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extraia TODAS as informações desta vaga de emprego da imagem. Seja fiel ao conteúdo original.
+        prompt: `Analise esta imagem de vaga de emprego e extraia TODAS as informações visíveis.
 
-Retorne em texto estruturado:
-- Cargo/Título
-- Empresa (se houver)
-- Local (se houver)
-- Requisitos/Características
-- Forma de candidatura (WhatsApp, email, etc)
-- Qualquer outra informação importante`,
+Liste de forma detalhada e estruturada:
+- Cargo/Título da vaga
+- Nome da empresa
+- Localização (cidade/estado)
+- Tipo de contrato (CLT, PJ, Estágio, etc)
+- Salário/Remuneração (se mencionado)
+- Requisitos e qualificações necessárias
+- Benefícios oferecidos
+- Forma de candidatura (WhatsApp com número, email, link, etc)
+- Outras informações relevantes
+
+Seja detalhado e preciso. Não invente informações que não estejam na imagem.`,
         file_urls: [previewUrl],
       });
 
-      const extractedInfo = extractRes.data || extractRes;
+      const extractedInfo = typeof extractRes === 'string' ? extractRes : (extractRes.data || JSON.stringify(extractRes));
 
-      // Gerar descrição COMPLETA com IA
+      // Gerar legenda COMPLETA com SEO
       const captionData = await base44.integrations.Core.InvokeLLM({
-        prompt: `Crie uma descrição COMPLETA para Instagram desta vaga:
+        prompt: `Crie uma LEGENDA COMPLETA E PROFISSIONAL para post de vaga no Instagram.
 
-INFORMAÇÕES EXTRAÍDAS:
+📋 INFORMAÇÕES EXTRAÍDAS DA VAGA:
 ${extractedInfo}
 
-Inclua:
-- Todas as informações da vaga de forma organizada e atraente
-- Cargo, local, requisitos, forma de candidatura
-- 5 hashtags relevantes (#vagas #emprego #oportunidade etc)
-- CTA: "Siga @vagasabertaspb para mais oportunidades! Marque aqueles amigos que estão procurando emprego! 💼"
-- SEO otimizado
+📝 ESTRUTURA OBRIGATÓRIA DA LEGENDA:
 
-Formato: POST completo e profissional. Máximo 300 palavras.`,
+1️⃣ TÍTULO CHAMATIVO com emoji apropriado (ex: 🚀 VAGA DISPONÍVEL!)
+
+2️⃣ DESCRIÇÃO COMPLETA E DETALHADA da vaga incluindo:
+   - Cargo e empresa
+   - Localização
+   - Tipo de contrato
+   - Requisitos principais
+   - Benefícios (se houver)
+   
+3️⃣ COMO SE CANDIDATAR de forma destacada (WhatsApp, email, etc)
+   Use: "📩 PARA SE CANDIDATAR:" seguido das instruções
+
+4️⃣ HASHTAGS - Exatamente 5 hashtags relevantes:
+   #vagas #emprego #oportunidade #trabalho #rh
+
+5️⃣ CHAMADA PARA AÇÃO (CTA):
+   "👉 Siga @empregabrasilmais para mais oportunidades!"
+   "🏷️ Marque aqueles amigos que estão buscando emprego!"
+
+🎯 REQUISITOS IMPORTANTES:
+- Texto completo, detalhado e profissional
+- Linguagem clara, direta e objetiva
+- Todas as informações importantes devem estar presentes
+- Otimizado para SEO e alcance máximo
+- Entre 200-350 palavras
+- NÃO use formatação markdown (**, ##, etc)
+- Use APENAS emojis e quebras de linha para organização
+
+IMPORTANTE: Retorne APENAS o texto da legenda pronto para ser copiado e colado no Instagram.`,
       });
 
-      setGeneratedCaption(captionData.data || captionData);
+      const finalCaption = typeof captionData === 'string' ? captionData : (captionData.data || captionData.content || JSON.stringify(captionData));
+      
+      setGeneratedCaption(finalCaption || 'Erro ao gerar legenda. Tente novamente.');
       toast.success('Imagem convertida com sucesso!');
     } catch (error) {
       console.error('Erro ao converter:', error);
