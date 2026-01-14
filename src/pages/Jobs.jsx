@@ -364,9 +364,9 @@ export default function Jobs() {
       {/* Filters - Horizontal Scroll - Estilo G1 */}
       <div className="bg-slate-50 border-b sticky top-[52px] z-10">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="flex overflow-x-auto gap-2 py-3 hide-scrollbar">
+          <div className="flex overflow-x-auto gap-2 py-3 hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <Select value={selectedState} onValueChange={setSelectedState}>
-              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap flex-shrink-0 min-w-[100px]">
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
               <SelectContent>
@@ -383,7 +383,7 @@ export default function Jobs() {
               <PopoverTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="h-9 rounded-full text-xs whitespace-nowrap"
+                  className="h-9 rounded-full text-xs whitespace-nowrap flex-shrink-0 min-w-[90px] max-w-[150px] overflow-hidden text-ellipsis"
                   disabled={selectedState === 'all'}
                 >
                   {selectedCity === 'all' ? 'Cidade' : selectedCity}
@@ -427,7 +427,7 @@ export default function Jobs() {
             </Popover>
 
             <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap flex-shrink-0 min-w-[90px]">
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
@@ -440,7 +440,7 @@ export default function Jobs() {
             </Select>
 
             <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap flex-shrink-0 min-w-[110px] max-w-[150px] overflow-hidden text-ellipsis">
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
@@ -456,7 +456,7 @@ export default function Jobs() {
             </Select>
 
             {userIsPremium && (
-              <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full whitespace-nowrap">
+              <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full whitespace-nowrap flex-shrink-0">
                 <Switch
                   checked={showPremiumOnly}
                   onCheckedChange={setShowPremiumOnly}
@@ -471,7 +471,7 @@ export default function Jobs() {
                 variant="ghost" 
                 size="sm" 
                 onClick={clearFilters} 
-                className="h-9 rounded-full text-xs whitespace-nowrap"
+                className="h-9 rounded-full text-xs whitespace-nowrap flex-shrink-0"
               >
                 Limpar
               </Button>
