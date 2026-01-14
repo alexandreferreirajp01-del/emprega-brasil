@@ -67,30 +67,26 @@ export default function PostConverter() {
       canvas.width = size;
       canvas.height = size;
 
-      // Fundo branco
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, size, size);
-
-      // Calcular dimensões mantendo aspect ratio (SEM DISTORCER)
-      let drawWidth, drawHeight, x, y;
+      // Para story vertical, redimensionar para largura total e comprimir altura proporcionalmente
       const imgRatio = img.width / img.height;
-
-      if (imgRatio > 1) {
-        // Imagem horizontal
-        drawWidth = size;
-        drawHeight = size / imgRatio;
-        x = 0;
-        y = (size - drawHeight) / 2;
+      
+      if (imgRatio < 1) {
+        // Story vertical: ocupar toda a largura, ajustar altura proporcionalmente
+        const drawWidth = size;
+        const drawHeight = size / imgRatio;
+        
+        // Se a altura calculada for maior que o canvas, comprimir para caber
+        if (drawHeight > size) {
+          // Comprimir verticalmente mantendo toda a largura
+          ctx.drawImage(img, 0, 0, drawWidth, size);
+        } else {
+          // Centralizar se couber
+          ctx.drawImage(img, 0, (size - drawHeight) / 2, drawWidth, drawHeight);
+        }
       } else {
-        // Imagem vertical (story)
-        drawHeight = size;
-        drawWidth = size * imgRatio;
-        x = (size - drawWidth) / 2;
-        y = 0;
+        // Horizontal ou quadrado: ocupar todo o espaço
+        ctx.drawImage(img, 0, 0, size, size);
       }
-
-      // Desenhar imagem SEM distorção (mantém proporção original)
-      ctx.drawImage(img, x, y, drawWidth, drawHeight);
 
       // Badge do Instagram no canto inferior direito (destacado e bonito)
       const badgeWidth = 240;
