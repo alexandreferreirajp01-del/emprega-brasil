@@ -271,11 +271,23 @@ export default function JobDetail() {
       <div className="min-h-screen bg-slate-50 pb-20">
         <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-12 px-4">
           <div className="max-w-4xl mx-auto">
-            <Link to={createPageUrl('Jobs')} className="inline-flex items-center text-white/80 hover:text-white mb-6">
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Voltar para vagas
-            </Link>
-          </div>
+              <button 
+                onClick={() => {
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const backUrl = urlParams.get('back');
+
+                  if (backUrl) {
+                    window.location.href = decodeURIComponent(backUrl);
+                  } else {
+                    window.history.back();
+                  }
+                }}
+                className="inline-flex items-center text-white/80 hover:text-white mb-6"
+              >
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                Voltar
+              </button>
+            </div>
         </div>
         <div className="max-w-4xl mx-auto px-4 -mt-6">
           <Card className="shadow-xl rounded-2xl overflow-hidden relative">
