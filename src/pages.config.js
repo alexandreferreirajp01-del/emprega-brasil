@@ -1,4 +1,3 @@
-import About from './pages/About';
 import ActivateBasic from './pages/ActivateBasic';
 import ActivatePremiumManual from './pages/ActivatePremiumManual';
 import Advertise from './pages/Advertise';
@@ -72,11 +71,11 @@ import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import ExcluirVagasSemContato from './pages/ExcluirVagasSemContato';
 import VagasPendentes from './pages/VagasPendentes';
+import About from './pages/About';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "About": About,
     "ActivateBasic": ActivateBasic,
     "ActivatePremiumManual": ActivatePremiumManual,
     "Advertise": Advertise,
@@ -150,6 +149,7 @@ export const PAGES = {
     "VagasPorIA": VagasPorIA,
     "ExcluirVagasSemContato": ExcluirVagasSemContato,
     "VagasPendentes": VagasPendentes,
+    "About": About,
 }
 
 export const pagesConfig = {
