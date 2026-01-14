@@ -318,6 +318,13 @@ export default function Layout({ children, currentPageName }) {
       {/* Google AdSense */}
       <meta name="google-adsense-account" content="ca-pub-8605408842983455" />
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8605408842983455" crossOrigin="anonymous"></script>
+
+      {/* SEO Meta Tags */}
+      <meta name="description" content="Emprega Brasil+ - A maior plataforma de empregos do Brasil com mais de 5.000 vagas ativas. Encontre oportunidades em todas as áreas e estados. Cadastro gratuito." />
+      <meta name="keywords" content="vagas de emprego, empregos brasil, oportunidades de trabalho, recrutamento, currículos, busca de emprego" />
+      <meta name="author" content="Emprega Brasil+ - Alexandre Ferreira" />
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      <link rel="canonical" href="https://empregabrasil.app" />
       <style>{`
         /* Safe area para notch de celulares */
         :root {
