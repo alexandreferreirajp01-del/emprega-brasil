@@ -1,0 +1,141 @@
+import React, { useEffect, useState } from 'react';
+import { Crown, X, Loader2 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { createPageUrl } from "@/utils";
+
+export default function Premium() {
+  const [loading, setLoading] = useState(true);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showAlreadyPremiumPopup, setShowAlreadyPremiumPopup] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const activatePremium = async () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        
+        if (status !== 'ativo') {
+          window.location.href = createPageUrl('Subscription');
+          return;
+        }
+
+        // Verificar autenticação
+        const isAuth = await base44.auth.isAuthenticated();
+        if (!isAuth) {
+          sessionStorage.setItem('needs_login', 'true');
+          sessionStorage.setItem('premium_activation_pending', 'true');
+          window.location.href = createPageUrl('Splash');
+          return;
+        }
+
+        const currentUser = await base44.auth.me();
+        
+        const isPremium = currentUser?.subscription_type === 'premium' || 
+          currentUser?.subscription_type === 'admin' || 
+          currentUser?.role === 'admin';
+        
+        if (isPremium) {
+          setShowAlreadyPremiumPopup(true);
+          setLoading(false);
+          window.history.replaceState({}, '', createPageUrl('Premium'));
+        } else {
+          // Ativar Premium
+          await base44.auth.updateMe({ subscription_type: 'premium' });
+          setShowSuccessPopup(true);
+          setLoading(false);
+          window.history.replaceState({}, '', createPageUrl('Premium'));
+        }
+      } catch (e) {
+        console.error('Erro ao ativar premium:', e);
+        setError('Erro ao ativar Premium. Tente novamente.');
+        setLoading(false);
+      }
+    };
+
+    activatePremium();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl p-8 text-center">
+          <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Processando ativação Premium...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl p-8 text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Erro</h2>
+          <p className="text-slate-600 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.href = createPageUrl('Subscription')}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-xl transition-all"
+          >
+            Ver Planos
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center p-4">
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Crown className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">
+              Parabéns! 🎉
+            </h2>
+            <p className="text-slate-600 text-lg mb-8">
+              Você agora é um membro <span className="font-bold text-purple-600">Premium</span>!<br />
+              Aproveite todos os benefícios exclusivos.
+            </p>
+            <button
+              onClick={() => window.location.href = createPageUrl('Home')}
+              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-4 rounded-xl transition-all text-lg"
+            >
+              Começar Agora
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Already Premium Popup */}
+      {showAlreadyPremiumPopup && (
+        <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Crown className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">
+              Você já é Premium! ⭐
+            </h2>
+            <p className="text-slate-600 text-lg mb-8">
+              Sua conta já possui o plano <span className="font-bold text-purple-600">Premium</span> ativo.<br />
+              Continue aproveitando todos os benefícios!
+            </p>
+            <button
+              onClick={() => window.location.href = createPageUrl('Home')}
+              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-4 rounded-xl transition-all text-lg"
+            >
+              Ir para Início
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
