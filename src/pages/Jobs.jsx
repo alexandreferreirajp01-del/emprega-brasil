@@ -62,6 +62,7 @@ export default function Jobs() {
   const [cityOpen, setCityOpen] = useState(false);
   const [funcOpen, setFuncOpen] = useState(false);
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
+  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
@@ -259,8 +260,9 @@ export default function Jobs() {
     const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     const matchesPremium = !showPremiumOnly || job.is_premium;
+    const matchesFeatured = !showFeaturedOnly || job.is_featured;
     
-    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium;
+    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured;
   });
 
   const filteredCities = availableCities.filter(city =>
@@ -455,17 +457,6 @@ export default function Jobs() {
               </SelectContent>
             </Select>
 
-            {userIsPremium && (
-              <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full whitespace-nowrap">
-                <Switch
-                  checked={showPremiumOnly}
-                  onCheckedChange={setShowPremiumOnly}
-                  className="data-[state=checked]:bg-purple-600"
-                />
-                <span className="text-xs font-medium text-slate-700">Premium</span>
-              </div>
-            )}
-
             {hasActiveFilters && (
               <Button 
                 variant="ghost" 
@@ -477,6 +468,31 @@ export default function Jobs() {
               </Button>
             )}
           </div>
+
+          {/* Filtros Premium e Destaque */}
+          {userIsPremium && (
+            <div className="flex gap-3 pb-3 px-1">
+              <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap">
+                <Switch
+                  checked={showPremiumOnly}
+                  onCheckedChange={setShowPremiumOnly}
+                  className="data-[state=checked]:bg-purple-600"
+                />
+                <Lock className="w-3.5 h-3.5 text-purple-600" />
+                <span className="text-xs font-medium text-slate-700">Premium</span>
+              </div>
+
+              <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap">
+                <Switch
+                  checked={showFeaturedOnly}
+                  onCheckedChange={setShowFeaturedOnly}
+                  className="data-[state=checked]:bg-yellow-500"
+                />
+                <Star className="w-3.5 h-3.5 text-yellow-500" />
+                <span className="text-xs font-medium text-slate-700">Destaque</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
