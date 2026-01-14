@@ -32,6 +32,18 @@ Deno.serve(async (req) => {
     let emailSubject = notification.title;
     let primaryJobId = jobs.length > 0 ? jobs[0].id : null;
 
+    // Se múltiplas vagas e a primeira tem contato, replicar para as outras
+    if (numJobs > 1 && jobs[0]) {
+      const primaryContact = jobs[0].application_link || jobs[0].additional_info;
+      if (primaryContact) {
+        for (let i = 1; i < jobs.length; i++) {
+          if (!jobs[i].application_link && !jobs[i].additional_info) {
+            jobs[i].application_link = primaryContact;
+          }
+        }
+      }
+    }
+
     // Se um template foi selecionado, usar ele
     if (templateId) {
       try {
