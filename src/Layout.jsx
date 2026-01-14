@@ -22,6 +22,7 @@ import NavigationFallback from "@/components/common/NavigationFallback";
 import PopunderAd from "@/components/ads/PopunderAd";
 import SocialBarAd from "@/components/ads/SocialBarAd";
 import BannerAd from "@/components/ads/BannerAd";
+import WelcomePopup from "@/components/common/WelcomePopup";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -665,6 +666,9 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Popup Manager */}
       <PopupManager />
+
+      {/* Welcome Popup */}
+      <WelcomePopup />
       </div>
       );
       }
