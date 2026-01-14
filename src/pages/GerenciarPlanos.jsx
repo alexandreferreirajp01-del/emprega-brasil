@@ -171,7 +171,7 @@ export default function GerenciarPlanos() {
     switch (plan) {
       case 'premium': return 'Premium';
       case 'premium_black': return 'Premium Black';
-      case 'recruiter': return 'Recrutador';
+      case 'recruiter': return 'Recrutador R$19,90';
       default: return 'Básico';
     }
   };
