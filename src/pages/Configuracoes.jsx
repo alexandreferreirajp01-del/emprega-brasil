@@ -68,6 +68,10 @@ const menuItems = [
   { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
   { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },
   
+  // Links Especiais
+  { id: 'divider-links', type: 'divider', label: 'Links & Automação' },
+  { id: 'links-especiais', name: 'Links Especiais', icon: LinkIcon, color: 'purple', page: 'GerenciarLinksEspeciais', description: 'Gerencie links que habilitam planos automaticamente', roles: ['admin', 'dono'] },
+
   // Manutenção
   { id: 'divider-manutencao', type: 'divider', label: 'Manutenção', roles: ['admin', 'dono'] },
   { id: 'update-jobs-location', name: 'Atualizar Localização de Vagas', icon: MapPin, color: 'blue', action: 'updateJobs', description: 'Atualizar cidade/UF de vagas antigas', roles: ['admin', 'dono'] },
