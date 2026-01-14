@@ -20,6 +20,7 @@ export default function GerenciarAcessos() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [premiumLinkEnabled, setPremiumLinkEnabled] = useState(true);
+  const [basicLinkEnabled, setBasicLinkEnabled] = useState(true);
   
   const [newLink, setNewLink] = useState({
     type: 'premium',
@@ -44,9 +45,12 @@ export default function GerenciarAcessos() {
       const linksData = await base44.entities.AccessLink.list('-created_date', 1000);
       setLinks(linksData);
 
-      // Carregar estado do link Premium principal
-      const config = localStorage.getItem('premium_link_enabled');
-      setPremiumLinkEnabled(config !== 'false');
+      // Carregar estado dos links principais
+      const premiumConfig = localStorage.getItem('premium_link_enabled');
+      setPremiumLinkEnabled(premiumConfig !== 'false');
+      
+      const basicConfig = localStorage.getItem('basic_link_enabled');
+      setBasicLinkEnabled(basicConfig !== 'false');
     } catch (error) {
       console.error('Erro:', error);
       toast.error('Erro ao carregar dados');
@@ -127,7 +131,15 @@ export default function GerenciarAcessos() {
     toast.success(newState ? 'Link Premium ativado' : 'Link Premium desativado');
   };
 
+  const toggleBasicLink = () => {
+    const newState = !basicLinkEnabled;
+    setBasicLinkEnabled(newState);
+    localStorage.setItem('basic_link_enabled', newState.toString());
+    toast.success(newState ? 'Link Básico ativado' : 'Link Básico desativado');
+  };
+
   const premiumMainLink = `${window.location.origin}${createPageUrl('Premium')}?status=success`;
+  const basicMainLink = 'https://empregabrasil.site/home';
 
   if (loading) {
     return (
@@ -146,7 +158,7 @@ export default function GerenciarAcessos() {
   return (
     <div className="max-w-7xl mx-auto p-4 space-y-6">
       {/* Link Premium Principal */}
-      <Card className="border-2 border-[#0A66C2]">
+      <Card className="border-2 border-yellow-500">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -176,6 +188,43 @@ export default function GerenciarAcessos() {
           <div className="flex items-center gap-2 text-sm">
             <Badge className={premiumLinkEnabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
               {premiumLinkEnabled ? 'Ativado' : 'Desativado'}
+            </Badge>
+            <span className="text-slate-600">• Uso ilimitado • Não expira</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Link Básico Principal */}
+      <Card className="border-2 border-blue-500">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Briefcase className="w-6 h-6 text-blue-500" />
+              Link Básico Principal
+            </div>
+            <Switch checked={basicLinkEnabled} onCheckedChange={toggleBasicLink} />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="p-4 bg-slate-50 rounded-xl border">
+            <div className="flex items-center justify-between gap-4">
+              <code className="text-sm flex-1 break-all">{basicMainLink}</code>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(basicMainLink);
+                  toast.success('Link copiado!');
+                }}
+                disabled={!basicLinkEnabled}
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Badge className={basicLinkEnabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+              {basicLinkEnabled ? 'Ativado' : 'Desativado'}
             </Badge>
             <span className="text-slate-600">• Uso ilimitado • Não expira</span>
           </div>
