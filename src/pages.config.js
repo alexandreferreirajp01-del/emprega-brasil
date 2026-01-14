@@ -2,6 +2,7 @@ import About from './pages/About';
 import ActivateBasic from './pages/ActivateBasic';
 import ActivatePremiumManual from './pages/ActivatePremiumManual';
 import Advertise from './pages/Advertise';
+import Agentes from './pages/Agentes';
 import AnalyticsPage from './pages/AnalyticsPage';
 import ApagarVagasPorPeriodo from './pages/ApagarVagasPorPeriodo';
 import BancoDadosAssistente from './pages/BancoDadosAssistente';
@@ -69,7 +70,7 @@ import VagasConverter from './pages/VagasConverter';
 import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
-import Agentes from './pages/Agentes';
+import ExcluirVagasSemContato from './pages/ExcluirVagasSemContato';
 import __Layout from './Layout.jsx';
 
 
@@ -78,6 +79,7 @@ export const PAGES = {
     "ActivateBasic": ActivateBasic,
     "ActivatePremiumManual": ActivatePremiumManual,
     "Advertise": Advertise,
+    "Agentes": Agentes,
     "AnalyticsPage": AnalyticsPage,
     "ApagarVagasPorPeriodo": ApagarVagasPorPeriodo,
     "BancoDadosAssistente": BancoDadosAssistente,
@@ -145,7 +147,7 @@ export const PAGES = {
     "VagasHomeOffice": VagasHomeOffice,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
-    "Agentes": Agentes,
+    "ExcluirVagasSemContato": ExcluirVagasSemContato,
 }
 
 export const pagesConfig = {
