@@ -12,10 +12,19 @@ Deno.serve(async (req) => {
     // Buscar todas as vagas
     const allJobs = await base44.asServiceRole.entities.Job.list('-created_date', 10000);
 
-    // Filtrar vagas sem contato (application_link vazio ou null)
-    const jobsWithoutContact = allJobs.filter(job => 
-      !job.application_link || job.application_link.trim() === ''
-    );
+    // Filtrar vagas sem contato (application_link vazio, null ou undefined)
+    const jobsWithoutContact = allJobs.filter(job => {
+      const link = job.application_link;
+      return !link || link === '' || link.trim() === '' || link === 'undefined' || link === 'null';
+    });
+    
+    console.log(`Total de vagas: ${allJobs.length}`);
+    console.log(`Vagas sem contato encontradas: ${jobsWithoutContact.length}`);
+    console.log('Primeiras 5 vagas sem contato:', jobsWithoutContact.slice(0, 5).map(j => ({
+      id: j.id,
+      title: j.title,
+      application_link: j.application_link
+    })));
 
     // Excluir vagas sem contato em lotes de 10 por vez
     let deleted = 0;
