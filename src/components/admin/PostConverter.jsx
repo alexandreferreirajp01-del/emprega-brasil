@@ -105,79 +105,63 @@ export default function PostConverter() {
       const dataUrl = canvas.toDataURL('image/png', 1.0);
       setConvertedImage(dataUrl);
 
-      // Extrair informações da imagem com IA
+      // Extrair informações estruturadas da imagem
       const extractRes = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analise esta imagem de vaga de emprego e extraia TODAS as informações visíveis.
-
-Liste de forma detalhada e estruturada:
-- Cargo/Título da vaga
-- Nome da empresa
-- Localização (cidade/estado)
-- Tipo de contrato (CLT, PJ, Estágio, etc)
-- Salário/Remuneração (se mencionado)
-- Requisitos e qualificações necessárias
-- Benefícios oferecidos
-- Forma de candidatura (WhatsApp com número, email, link, etc)
-- Outras informações relevantes
-
-Seja detalhado e preciso. Não invente informações que não estejam na imagem.`,
+        prompt: `Analise esta imagem de vaga de emprego e extraia todas as informações visíveis.
+        
+Retorne um objeto JSON com os seguintes campos (se não encontrar alguma informação, deixe vazio):
+- cargo: título da vaga
+- empresa: nome da empresa
+- local: cidade/estado
+- tipo_contrato: CLT, PJ, Estágio, etc
+- salario: remuneração se mencionada
+- requisitos: lista de requisitos principais (texto corrido)
+- beneficios: benefícios oferecidos
+- candidatura: como se candidatar (WhatsApp, email, etc)`,
         file_urls: [previewUrl],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            cargo: { type: "string" },
+            empresa: { type: "string" },
+            local: { type: "string" },
+            tipo_contrato: { type: "string" },
+            salario: { type: "string" },
+            requisitos: { type: "string" },
+            beneficios: { type: "string" },
+            candidatura: { type: "string" }
+          }
+        }
       });
 
-      const extractedInfo = typeof extractRes === 'string' ? extractRes : (extractRes.data || JSON.stringify(extractRes));
+      const vagaInfo = extractRes;
 
-      // Gerar legenda COMPLETA com SEO
-      const captionData = await base44.integrations.Core.InvokeLLM({
-        prompt: `Crie uma LEGENDA COMPLETA E PROFISSIONAL para post de vaga no Instagram.
+      // Gerar legenda estruturada com JSON
+      const captionRes = await base44.integrations.Core.InvokeLLM({
+        prompt: `Crie uma legenda profissional para Instagram com base nas informações da vaga.
 
-📋 INFORMAÇÕES EXTRAÍDAS DA VAGA:
-${extractedInfo}
+INFORMAÇÕES DA VAGA:
+${JSON.stringify(vagaInfo, null, 2)}
 
-📝 ESTRUTURA OBRIGATÓRIA DA LEGENDA:
+Retorne apenas o campo "legenda" com o texto completo e formatado, incluindo:
 
-1️⃣ TÍTULO CHAMATIVO com emoji apropriado (ex: 🚀 VAGA DISPONÍVEL!)
+1. Título chamativo com emoji (ex: 🚀 VAGA DISPONÍVEL!)
+2. Descrição detalhada: cargo, empresa, local, requisitos, benefícios
+3. Como se candidatar (destaque com 📩 PARA SE CANDIDATAR:)
+4. 5 hashtags: #vagas #emprego #oportunidade #trabalho #rh
+5. CTA: "👉 Siga @empregabrasilmais para mais oportunidades! 🏷️ Marque aqueles amigos que estão buscando emprego!"
 
-2️⃣ DESCRIÇÃO COMPLETA E DETALHADA da vaga incluindo:
-   - Cargo e empresa
-   - Localização
-   - Tipo de contrato
-   - Requisitos principais
-   - Benefícios (se houver)
-   
-3️⃣ COMO SE CANDIDATAR de forma destacada (WhatsApp, email, etc)
-   Use: "📩 PARA SE CANDIDATAR:" seguido das instruções
-
-4️⃣ HASHTAGS - Exatamente 5 hashtags relevantes:
-   #vagas #emprego #oportunidade #trabalho #rh
-
-5️⃣ CHAMADA PARA AÇÃO (CTA):
-   "👉 Siga @empregabrasilmais para mais oportunidades!"
-   "🏷️ Marque aqueles amigos que estão buscando emprego!"
-
-🎯 REQUISITOS IMPORTANTES:
-- Texto completo, detalhado e profissional
-- Linguagem clara, direta e objetiva
-- Todas as informações importantes devem estar presentes
-- Otimizado para SEO e alcance máximo
-- Entre 200-350 palavras
-- NÃO use formatação markdown (**, ##, etc)
-- Use APENAS emojis e quebras de linha para organização
-
-IMPORTANTE: Retorne APENAS o texto da legenda pronto para ser copiado e colado no Instagram.`,
+Use apenas emojis e quebras de linha. SEM markdown. Texto direto para Instagram.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            legenda: { type: "string" }
+          }
+        }
       });
 
-      let finalCaption = '';
-      if (typeof captionData === 'string') {
-        finalCaption = captionData;
-      } else if (captionData.data) {
-        finalCaption = typeof captionData.data === 'string' ? captionData.data : JSON.stringify(captionData.data);
-      } else if (captionData.content) {
-        finalCaption = captionData.content;
-      } else {
-        finalCaption = JSON.stringify(captionData);
-      }
-      
-      setGeneratedCaption(finalCaption || 'Erro ao gerar legenda. Tente novamente.');
+      const legendaFinal = captionRes?.legenda || captionRes?.data?.legenda || 'Erro ao gerar legenda';
+      setGeneratedCaption(legendaFinal);
       toast.success('Imagem convertida com sucesso!');
     } catch (error) {
       console.error('Erro ao converter:', error);
@@ -258,20 +242,30 @@ IMPORTANTE: Se algo não estiver visível, retorne string vazia. Não invente in
 
       setNewPostData(extractedData);
 
-      // Gerar caption
+      // Gerar legenda estruturada
       const captionRes = await base44.integrations.Core.InvokeLLM({
-        prompt: `Crie uma descrição Instagram profissional para esta vaga:
+        prompt: `Crie uma legenda completa para Instagram com as informações da vaga.
 
+DADOS DA VAGA:
 ${JSON.stringify(extractedData, null, 2)}
 
-Inclua:
-- Texto atraente (2-3 linhas)
-- 5 hashtags
-- CTA para seguir @vagasabertaspb e marcar amigos
-- Máximo 150 palavras`,
+A legenda deve incluir:
+1. Título chamativo com emoji
+2. Descrição completa da vaga (cargo, empresa, local, requisitos)
+3. Como se candidatar (📩 PARA SE CANDIDATAR:)
+4. 5 hashtags: #vagas #emprego #oportunidade #trabalho #rh
+5. CTA: "👉 Siga @empregabrasilmais! 🏷️ Marque amigos!"
+
+Apenas emojis e quebras de linha. SEM markdown.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            legenda: { type: "string" }
+          }
+        }
       });
 
-      setGeneratedCaption(captionRes.data || captionRes);
+      setGeneratedCaption(captionRes?.legenda || captionRes?.data?.legenda || 'Legenda não gerada');
       toast.success('POST criado com sucesso!');
     } catch (error) {
       console.error('Erro:', error);
