@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Loader2, Sparkles, FileText, X, Zap, Trash2, CheckCircle } from "lucide-react";
+import { Upload, Loader2, Sparkles, FileText, X, Zap, Trash2, CheckCircle, ClipboardPaste } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import { Textarea } from "@/components/ui/textarea";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
 import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
 
@@ -19,6 +20,7 @@ export default function PostsEmMassaTXT() {
   const [processing, setProcessing] = useState(false);
   const [extractedJobs, setExtractedJobs] = useState([]);
   const [publishing, setPublishing] = useState(false);
+  const [pastedText, setPastedText] = useState('');
 
   useEffect(() => {
     const init = async () => {
@@ -58,6 +60,68 @@ export default function PostsEmMassaTXT() {
       alert('Erro no upload');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const processPastedText = async () => {
+    if (!pastedText.trim()) return;
+    
+    setProcessing(true);
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `EXTRAIA TODAS AS VAGAS deste texto com MÁXIMA PRECISÃO (pode ter até 50 vagas):
+
+REGRAS CRÍTICAS para CADA vaga:
+1. CIDADE e UF: SEMPRE identifique ambos
+   - Recife → city: "Recife", state: "PE"
+   - João Pessoa → city: "João Pessoa", state: "PB"
+   - São Paulo → city: "São Paulo", state: "SP"
+   
+2. SALÁRIO: extraia SOMENTE valores numéricos/monetários
+   - Correto: "R$ 1.500", "2.000 a 3.000"
+   - Deixe VAZIO se não houver valor numérico
+   
+3. Se vaga for remota: city: "Remoto", state: ""
+
+TEXTO:
+${pastedText}`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            jobs: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string", description: "Cargo da vaga" },
+                  company: { type: "string", description: "Nome da empresa" },
+                  city: { type: "string", description: "Cidade (ou 'Remoto')" },
+                  state: { type: "string", description: "UF de 2 letras" },
+                  salary_range: { type: "string", description: "APENAS valor monetário" },
+                  contact_phone: { type: "string" },
+                  application_link: { type: "string" },
+                  description: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const extractedJobs = (result.jobs || []).map(job => {
+        const autoState = (job.city && !job.state) ? getStateFromCity(job.city) : null;
+        return {
+          ...job,
+          state: job.state || autoState || ''
+        };
+      });
+
+      setExtractedJobs(extractedJobs);
+      setStep(2);
+    } catch (err) {
+      alert('Erro ao processar: ' + err.message);
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -227,8 +291,48 @@ ${text}`,
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-lg">
+                    <ClipboardPaste className="w-5 h-5" />
+                    Colar Texto Direto
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Cole o texto copiado dos grupos:</label>
+                  <Textarea
+                    value={pastedText}
+                    onChange={(e) => setPastedText(e.target.value)}
+                    placeholder="Cole aqui o texto com as vagas copiado dos grupos WhatsApp..."
+                    className="min-h-[200px] rounded-xl"
+                    disabled={processing}
+                  />
+                  <p className="text-xs text-slate-500">
+                    💡 Cole múltiplas vagas de uma vez - a IA vai extrair automaticamente
+                  </p>
+                </div>
+
+                {pastedText.trim() && (
+                  <Button
+                    onClick={processPastedText}
+                    disabled={processing}
+                    className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl"
+                  >
+                    {processing ? (
+                      <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Processando...</>
+                    ) : (
+                      <><Zap className="w-5 h-5 mr-2" />Processar com IA</>
+                    )}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-lg">
                     <Upload className="w-5 h-5" />
-                    Upload de Arquivos
+                    Ou Upload de Arquivos
                   </span>
                   <Badge variant="outline">{files.length}/50</Badge>
                 </CardTitle>
