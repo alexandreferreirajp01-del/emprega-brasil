@@ -14,6 +14,8 @@ const ICON_MAP = {
 
 export default function Subscription() {
   const [user, setUser] = useState(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showAlreadyPremiumPopup, setShowAlreadyPremiumPopup] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -22,6 +24,32 @@ export default function Subscription() {
         if (isAuth) {
           const currentUser = await base44.auth.me();
           setUser(currentUser);
+          
+          // Verificar se há parâmetro status=ativo na URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const status = urlParams.get('status');
+          
+          if (status === 'ativo') {
+            const isPremium = currentUser?.subscription_type === 'premium' || 
+              currentUser?.subscription_type === 'admin' || 
+              currentUser?.role === 'admin';
+            
+            if (isPremium) {
+              setShowAlreadyPremiumPopup(true);
+              window.history.replaceState({}, '', window.location.pathname);
+            } else {
+              // Ativar Premium
+              await base44.auth.updateMe({ subscription_type: 'premium' });
+              setShowSuccessPopup(true);
+              window.history.replaceState({}, '', window.location.pathname);
+              
+              // Recarregar usuário
+              setTimeout(async () => {
+                const updatedUser = await base44.auth.me();
+                setUser(updatedUser);
+              }, 500);
+            }
+          }
         }
       } catch (e) {
         console.log('Não autenticado - OK');
@@ -46,14 +74,17 @@ export default function Subscription() {
       return;
     }
 
-    let message = plan.whatsapp_message || 
-      `Olá! Quero assinar o plano ${plan.name} por R$${plan.price.toFixed(2)} no aplicativo Vagas Abertas Paraíba.`;
-    
-    message = message
-      .replace(/{nome}/g, plan.name)
-      .replace(/{preco}/g, `R$${plan.price.toFixed(2)}`);
+    // Redirecionar para Mercado Pago baseado no plano
+    const mercadoPagoLinks = {
+      '9.90': 'https://mpago.la/2R3P5Qb',
+      '19.90': 'https://mpago.la/2R3P5Qb',
+      '27.00': 'https://mpago.la/1EwRFu9'
+    };
 
-    window.open(`https://wa.me/5583991971320?text=${encodeURIComponent(message)}`, '_blank');
+    const priceKey = plan.price.toFixed(2);
+    const link = mercadoPagoLinks[priceKey] || mercadoPagoLinks['27.00'];
+    
+    window.open(link, '_blank');
   };
 
   if (isLoading) {
@@ -185,6 +216,74 @@ export default function Subscription() {
           </div>
         </div>
       </div>
+
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Crown className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                Parabéns! 🎉
+              </h2>
+              <p className="text-slate-600 dark:text-slate-300 mb-6">
+                Você agora é um membro <span className="font-bold text-purple-600 dark:text-purple-400">Premium</span>! Aproveite todos os benefícios exclusivos.
+              </p>
+              <button
+                onClick={() => {
+                  setShowSuccessPopup(false);
+                  window.location.reload();
+                }}
+                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 rounded-xl transition-all"
+              >
+                Começar Agora
+              </button>
+              <button
+                onClick={() => {
+                  setShowSuccessPopup(false);
+                  window.location.reload();
+                }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Already Premium Popup */}
+      {showAlreadyPremiumPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Crown className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                Você já é Premium! ⭐
+              </h2>
+              <p className="text-slate-600 dark:text-slate-300 mb-6">
+                Sua conta já possui o plano <span className="font-bold text-purple-600 dark:text-purple-400">Premium</span> ativo. Continue aproveitando todos os benefícios!
+              </p>
+              <button
+                onClick={() => setShowAlreadyPremiumPopup(false)}
+                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 rounded-xl transition-all"
+              >
+                Entendi
+              </button>
+              <button
+                onClick={() => setShowAlreadyPremiumPopup(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
