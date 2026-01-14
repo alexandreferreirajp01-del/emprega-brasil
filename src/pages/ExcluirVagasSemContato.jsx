@@ -173,8 +173,12 @@ export default function ExcluirVagasSemContato() {
               <Card key={job.id} className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-slate-800 dark:text-white mb-1 truncate">
+                    <Link 
+                      to={createPageUrl('JobDetail') + `?id=${job.id}`}
+                      className="flex-1 min-w-0 cursor-pointer"
+                      target="_blank"
+                    >
+                      <h3 className="font-semibold text-slate-800 dark:text-white mb-1 truncate hover:text-blue-600 transition-colors">
                         {job.title}
                       </h3>
                       <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
@@ -195,12 +199,13 @@ export default function ExcluirVagasSemContato() {
                           Sem Contato
                         </Badge>
                       </div>
-                    </div>
+                    </Link>
                     
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (confirm(`Excluir vaga "${job.title}"?`)) {
                           deleteJob(job.id);
                         }
