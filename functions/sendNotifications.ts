@@ -77,7 +77,12 @@ Deno.serve(async (req) => {
       }
     }
     
-    const jobUrl = primaryJobId ? `/jobs?id=${primaryJobId}` : `/jobs`;
+    // Se múltiplas vagas, redirecionar para página de lote
+    const jobUrl = numJobs > 1 
+      ? `/recent-jobs-batch?ids=${jobIds.join(',')}` 
+      : primaryJobId 
+        ? `/jobs?id=${primaryJobId}` 
+        : `/jobs`;
 
     let results = {
       email: { sent: 0, failed: 0 },

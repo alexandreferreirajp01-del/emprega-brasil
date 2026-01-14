@@ -72,6 +72,7 @@ import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
+import RecentJobsBatch from './pages/RecentJobsBatch';
 import __Layout from './Layout.jsx';
 
 
@@ -150,6 +151,7 @@ export const PAGES = {
     "VagasPendentes": VagasPendentes,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
+    "RecentJobsBatch": RecentJobsBatch,
 }
 
 export const pagesConfig = {
