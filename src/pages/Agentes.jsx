@@ -46,6 +46,9 @@ const agents = [
 const MessageBubble = ({ message }) => {
   const isUser = message.role === 'user';
   
+  // Só mostrar tool_calls se não tiver content (significa que ainda está processando)
+  const isProcessing = message.tool_calls && message.tool_calls.length > 0 && !message.content;
+  
   return (
     <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
@@ -96,14 +99,25 @@ const MessageBubble = ({ message }) => {
           </div>
         )}
         
-        {message.tool_calls && message.tool_calls.length > 0 && (
-          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 space-y-1">
-            {message.tool_calls.map((tool, idx) => (
-              <div key={idx} className="flex items-center gap-1">
-                <Loader2 className="w-3 h-3 animate-spin" />
-                <span>Executando: {tool.name || 'função'}...</span>
-              </div>
-            ))}
+        {isProcessing && (
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 mb-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-sm font-medium">Processando...</span>
+            </div>
+            <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+              {message.tool_calls.slice(0, 3).map((tool, idx) => (
+                <div key={idx} className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+                  <span>{tool.name?.replace('entities.', '').replace('.', ' ') || 'Executando função'}</span>
+                </div>
+              ))}
+              {message.tool_calls.length > 3 && (
+                <div className="text-slate-400 pl-3">
+                  +{message.tool_calls.length - 3} operações
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
