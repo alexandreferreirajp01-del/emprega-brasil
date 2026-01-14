@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
     if (notification.channels.bell) {
       try {
         for (const userEmail of targetUsers) {
-          await base44.asServiceRole.entities.Notification.create({
+          const notifData = {
             user_email: userEmail,
             title: dynamicTitle,
             message: dynamicMessage,
@@ -103,7 +103,18 @@ Deno.serve(async (req) => {
             reference_id: primaryJobId,
             job_id: primaryJobId,
             is_read: false
-          });
+          };
+
+          // Se múltiplas vagas, redirecionar para página de lote
+          if (numJobs > 1) {
+            notifData.redirect_page = 'RecentJobsBatch';
+            notifData.redirect_params = { ids: jobIds.join(',') };
+          } else if (primaryJobId) {
+            notifData.redirect_page = 'JobDetail';
+            notifData.redirect_params = { id: primaryJobId };
+          }
+
+          await base44.asServiceRole.entities.Notification.create(notifData);
           results.bell.sent++;
         }
       } catch (err) {
