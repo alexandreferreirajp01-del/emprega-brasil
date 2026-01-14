@@ -40,6 +40,7 @@ export default function Layout({ children, currentPageName }) {
       const defaultItems = [
         { name: 'Início', icon: Home, page: 'Home' },
         { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
+        { name: 'Notícias', icon: Newspaper, page: 'News' },
         { name: 'Ferramentas', icon: Settings, page: 'Utilidades' },
         { name: 'Feed', icon: MessageCircle, page: 'Feed' },
         { name: 'Perfil', icon: User, page: 'Profile' },
@@ -492,7 +493,7 @@ export default function Layout({ children, currentPageName }) {
         {mobileMenuOpen && (
           <div className="lg:hidden border-t bg-white dark:bg-slate-800 dark:border-slate-700 transition-colors">
             <nav className="p-4 space-y-2">
-              {navItems.map((item) => (
+              {navItems.filter(item => item.page !== 'Profile').map((item) => (
                 <Link 
                   key={item.page} 
                   to={createPageUrl(item.page)}

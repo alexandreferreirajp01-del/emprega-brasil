@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle
+  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle, ToggleRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -461,7 +461,7 @@ export default function Jobs() {
                 onClick={() => setShowPremiumOnly(!showPremiumOnly)}
                 className="h-9 rounded-full text-xs whitespace-nowrap"
               >
-                <Lock className="w-3 h-3 mr-1" />
+                <ToggleRight className="w-3 h-3 mr-1" />
                 Premium
               </Button>
             )}
