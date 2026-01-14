@@ -1,18 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { 
   Upload, Download, Copy, Image as ImageIcon, FileText, 
-  Loader2, CheckCircle, Wand2, RefreshCw
+  Loader2, Wand2, RefreshCw, ArrowLeft
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 
 export default function PostConverter() {
-  const [mode, setMode] = useState(null); // 'convert' ou 'create'
+  const [mode, setMode] = useState(null);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploadedText, setUploadedText] = useState('');
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -20,7 +20,6 @@ export default function PostConverter() {
   const [generatedCaption, setGeneratedCaption] = useState('');
   const [convertedImage, setConvertedImage] = useState(null);
   const [newPostData, setNewPostData] = useState(null);
-  const canvasRef = useRef(null);
   const newPostRef = useRef(null);
 
   const handleFileUpload = (e) => {
@@ -43,7 +42,7 @@ export default function PostConverter() {
     setNewPostData(null);
   };
 
-  // Opção 1: Apenas Converter (Story -> Feed)
+  // Opção 1: Converter Story → Feed (manter design original)
   const handleConvert = async () => {
     if (!previewUrl) {
       toast.error('Faça upload de uma imagem primeiro');
@@ -68,68 +67,80 @@ export default function PostConverter() {
       canvas.width = size;
       canvas.height = size;
 
-      // Fundo branco
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, size, size);
-
-      // Calcular dimensões para manter aspect ratio da imagem original
+      // Calcular dimensões para fit vertical (story → feed)
       const imgRatio = img.width / img.height;
       let drawWidth, drawHeight, x, y;
 
-      if (imgRatio > 1) {
+      // Para story vertical (9:16), ajustar para caber no quadrado
+      if (imgRatio < 1) {
+        // Imagem vertical
         drawWidth = size;
         drawHeight = size / imgRatio;
         x = 0;
-        y = (size - drawHeight) / 2;
+        y = -(drawHeight - size) / 2; // Centralizar verticalmente
       } else {
-        drawHeight = size * 0.85; // 85% da altura para deixar espaço para o @
-        drawWidth = drawHeight * imgRatio;
-        x = (size - drawWidth) / 2;
+        // Imagem horizontal ou quadrada
+        drawHeight = size;
+        drawWidth = size * imgRatio;
+        x = -(drawWidth - size) / 2;
         y = 0;
       }
 
-      // Desenhar imagem original
+      // Desenhar imagem original COMPLETA (mantendo todo o conteúdo)
       ctx.drawImage(img, x, y, drawWidth, drawHeight);
 
-      // Adicionar @ no final
-      const footerHeight = 80;
-      const footerY = size - footerHeight;
+      // Adicionar rodapé com @ no canto inferior direito
+      const badgeWidth = 200;
+      const badgeHeight = 50;
+      const badgeX = size - badgeWidth - 20;
+      const badgeY = size - badgeHeight - 20;
       
-      ctx.fillStyle = '#0A66C2';
-      ctx.fillRect(0, footerY, size, footerHeight);
+      // Fundo do badge (marrom escuro com transparência)
+      ctx.fillStyle = 'rgba(80, 50, 30, 0.85)';
+      ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 8);
+      ctx.fill();
 
-      // Logo Instagram + @
+      // Texto do Instagram
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 40px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('@vagasabertaspb', size / 2, footerY + 50);
+      ctx.font = 'bold 16px Arial, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('📷', badgeX + 15, badgeY + 32);
+      ctx.fillText('vagasabertaspb', badgeX + 40, badgeY + 32);
 
-      const dataUrl = canvas.toDataURL('image/png');
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
       setConvertedImage(dataUrl);
 
       // Gerar descrição com IA
-      const { data } = await base44.integrations.Core.InvokeLLM({
-        prompt: `Crie uma descrição para Instagram para uma vaga de emprego. Inclua:
-- Texto atraente e profissional
-- Exatamente 5 hashtags relevantes (#vagas #emprego etc)
-- CTA para seguir o perfil e marcar amigos
-- SEO otimizado
-- Máximo 150 palavras
+      const captionData = await base44.integrations.Core.InvokeLLM({
+        prompt: `Crie uma descrição profissional para Instagram de uma vaga de emprego. 
 
-Formato: [Descrição] + [Hashtags] + [CTA]`,
+Inclua:
+- Texto atraente e chamativo (2-3 linhas)
+- Exatamente 5 hashtags relevantes (#vagas #emprego #oportunidade etc)
+- CTA para seguir o perfil e marcar amigos que procuram emprego
+- SEO otimizado para alcance
+
+Formato:
+[Descrição atraente]
+
+[5 hashtags]
+
+[CTA: "Siga @vagasabertaspb para mais oportunidades! Marque aqueles amigos que estão procurando emprego! 💼"]
+
+Máximo 150 palavras.`,
       });
 
-      setGeneratedCaption(data);
+      setGeneratedCaption(captionData.data || captionData);
       toast.success('Imagem convertida com sucesso!');
     } catch (error) {
       console.error('Erro ao converter:', error);
-      toast.error('Erro ao converter imagem');
+      toast.error('Erro ao converter imagem: ' + error.message);
     } finally {
       setProcessing(false);
     }
   };
 
-  // Opção 2: Criar Novo POST
+  // Opção 2: Criar Novo POST do zero
   const handleCreateNew = async () => {
     if (!previewUrl && !uploadedText) {
       toast.error('Faça upload de uma imagem ou insira texto');
@@ -141,24 +152,24 @@ Formato: [Descrição] + [Hashtags] + [CTA]`,
       let extractedData;
 
       if (uploadedFile) {
-        // Upload da imagem
-        const formData = new FormData();
-        formData.append('file', uploadedFile);
+        // Upload da imagem para análise
         const uploadRes = await base44.integrations.Core.UploadFile({ file: uploadedFile });
         
         // Extrair informações da imagem com IA
-        const { data } = await base44.integrations.Core.InvokeLLM({
-          prompt: `Analise esta imagem de vaga de emprego e extraia TODAS as informações:
-- Título da vaga
+        const extractRes = await base44.integrations.Core.InvokeLLM({
+          prompt: `Analise esta imagem de vaga de emprego e extraia TODAS as informações visíveis. Seja fiel ao conteúdo original, não invente nada.
+
+Extraia:
+- Título da vaga (cargo)
 - Nome da empresa
 - Local (cidade/estado)
 - Tipo de contrato (CLT, PJ, etc)
 - Salário (se houver)
-- Requisitos
-- Benefícios
-- Forma de candidatura
+- Requisitos/características
+- Benefícios (se houver)
+- Forma de candidatura (WhatsApp, email, site)
 
-Retorne em JSON estruturado.`,
+IMPORTANTE: Se algo não estiver visível, retorne string vazia. Não invente informações.`,
           file_urls: [uploadRes.file_url],
           response_json_schema: {
             type: "object",
@@ -175,11 +186,11 @@ Retorne em JSON estruturado.`,
           }
         });
 
-        extractedData = data;
+        extractedData = extractRes.data || extractRes;
       } else {
         // Extrair do texto
-        const { data } = await base44.integrations.Core.InvokeLLM({
-          prompt: `Analise este texto de vaga e extraia informações estruturadas:\n\n${uploadedText}`,
+        const extractRes = await base44.integrations.Core.InvokeLLM({
+          prompt: `Analise este texto de vaga e extraia informações estruturadas. Seja fiel ao texto original:\n\n${uploadedText}`,
           response_json_schema: {
             type: "object",
             properties: {
@@ -195,40 +206,42 @@ Retorne em JSON estruturado.`,
           }
         });
 
-        extractedData = data;
+        extractedData = extractRes.data || extractRes;
       }
 
       setNewPostData(extractedData);
 
       // Gerar caption
       const captionRes = await base44.integrations.Core.InvokeLLM({
-        prompt: `Crie uma descrição Instagram para esta vaga:
+        prompt: `Crie uma descrição Instagram profissional para esta vaga:
+
 ${JSON.stringify(extractedData, null, 2)}
 
 Inclua:
-- Texto atraente
+- Texto atraente (2-3 linhas)
 - 5 hashtags
-- CTA para seguir e marcar amigos
+- CTA para seguir @vagasabertaspb e marcar amigos
 - Máximo 150 palavras`,
       });
 
-      setGeneratedCaption(captionRes.data);
+      setGeneratedCaption(captionRes.data || captionRes);
       toast.success('POST criado com sucesso!');
     } catch (error) {
       console.error('Erro:', error);
-      toast.error('Erro ao criar POST');
+      toast.error('Erro ao criar POST: ' + error.message);
     } finally {
       setProcessing(false);
     }
   };
 
-  const downloadImage = async (imageUrl, filename) => {
+  const downloadImage = (imageUrl, filename) => {
     const link = document.createElement('a');
     link.href = imageUrl;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast.success('Download iniciado!');
   };
 
   const downloadNewPost = async () => {
@@ -239,69 +252,88 @@ Inclua:
         backgroundColor: '#FFFFFF',
         scale: 2,
         logging: false,
+        useCORS: true,
       });
 
-      const dataUrl = canvas.toDataURL('image/png');
-      downloadImage(dataUrl, 'post-instagram.png');
-      toast.success('Download iniciado!');
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
+      downloadImage(dataUrl, 'post-instagram-1080x1080.png');
     } catch (error) {
+      console.error('Erro:', error);
       toast.error('Erro ao fazer download');
     }
   };
 
   const copyCaption = () => {
     navigator.clipboard.writeText(generatedCaption);
-    toast.success('Legenda copiada!');
+    toast.success('Legenda copiada para área de transferência!');
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>POST Converter - Instagram</CardTitle>
+      <Card className="rounded-2xl shadow-lg">
+        <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-slate-100">
+          <CardTitle className="flex items-center gap-3">
+            <ImageIcon className="w-6 h-6 text-[#0A66C2]" />
+            POST Converter - Instagram
+          </CardTitle>
+          <p className="text-sm text-slate-600 mt-1">
+            Converta stories em posts feed ou crie novos posts automaticamente
+          </p>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="p-6 space-y-6">
           {!mode && (
-            <div className="grid md:grid-cols-2 gap-4">
-              <Button
+            <div className="grid md:grid-cols-2 gap-6">
+              <button
                 onClick={() => setMode('convert')}
-                className="h-32 flex-col gap-3 bg-gradient-to-br from-[#0A66C2] to-[#004182] hover:opacity-90"
+                className="group h-40 rounded-2xl bg-gradient-to-br from-[#0A66C2] to-[#004182] hover:shadow-xl transition-all p-6 flex flex-col items-center justify-center gap-4 text-white"
               >
-                <RefreshCw className="w-8 h-8" />
-                <div>
-                  <div className="font-bold text-lg">Apenas Converter</div>
-                  <div className="text-xs opacity-90">Story → Feed (1:1)</div>
+                <RefreshCw className="w-12 h-12 group-hover:rotate-180 transition-transform duration-500" />
+                <div className="text-center">
+                  <div className="font-bold text-xl mb-1">Apenas Converter</div>
+                  <div className="text-sm opacity-90">Story (9:16) → Feed (1:1)</div>
+                  <div className="text-xs opacity-75 mt-2">Mantém design original + adiciona @</div>
                 </div>
-              </Button>
+              </button>
 
-              <Button
+              <button
                 onClick={() => setMode('create')}
-                className="h-32 flex-col gap-3 bg-gradient-to-br from-purple-600 to-purple-700 hover:opacity-90"
+                className="group h-40 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 hover:shadow-xl transition-all p-6 flex flex-col items-center justify-center gap-4 text-white"
               >
-                <Wand2 className="w-8 h-8" />
-                <div>
-                  <div className="font-bold text-lg">Criar Novo POST</div>
-                  <div className="text-xs opacity-90">Gerar design automático</div>
+                <Wand2 className="w-12 h-12 group-hover:scale-110 transition-transform" />
+                <div className="text-center">
+                  <div className="font-bold text-xl mb-1">Criar Novo POST</div>
+                  <div className="text-sm opacity-90">Com IA e design automático</div>
+                  <div className="text-xs opacity-75 mt-2">Extrai informações e gera arte</div>
                 </div>
-              </Button>
+              </button>
             </div>
           )}
 
           {mode && (
             <>
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">
-                  {mode === 'convert' ? 'Converter Imagem' : 'Criar Novo POST'}
-                </h3>
-                <Button variant="outline" onClick={resetAll}>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800">
+                    {mode === 'convert' ? '📐 Converter Formato' : '✨ Criar Novo POST'}
+                  </h3>
+                  <p className="text-sm text-slate-600">
+                    {mode === 'convert' 
+                      ? 'Converte story vertical para feed quadrado mantendo todo o conteúdo original' 
+                      : 'Cria um novo post com design profissional a partir das informações extraídas'}
+                  </p>
+                </div>
+                <Button variant="outline" onClick={resetAll} className="gap-2">
+                  <ArrowLeft className="w-4 h-4" />
                   Voltar
                 </Button>
               </div>
 
-              {/* Upload */}
+              {/* Upload Section */}
               <div className="space-y-4">
-                <Label>Upload de Imagem</Label>
-                <div className="border-2 border-dashed rounded-xl p-8 text-center hover:bg-slate-50 transition-colors">
+                <Label className="text-base font-semibold">
+                  {mode === 'convert' ? 'Upload da Imagem (Story)' : 'Upload de Imagem ou Texto'}
+                </Label>
+                <div className="border-2 border-dashed border-slate-300 rounded-2xl p-12 text-center hover:bg-slate-50 hover:border-[#0A66C2] transition-all cursor-pointer">
                   <input
                     type="file"
                     accept="image/*"
@@ -310,30 +342,44 @@ Inclua:
                     id="file-upload"
                   />
                   <label htmlFor="file-upload" className="cursor-pointer">
-                    <ImageIcon className="w-12 h-12 mx-auto mb-3 text-slate-400" />
-                    <p className="text-sm text-slate-600">Clique para fazer upload da imagem</p>
+                    <Upload className="w-16 h-16 mx-auto mb-4 text-slate-400" />
+                    <p className="text-base font-medium text-slate-700 mb-1">
+                      Clique para fazer upload
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      {mode === 'convert' 
+                        ? 'Envie uma imagem vertical (story 9:16)' 
+                        : 'PNG, JPG até 10MB'}
+                    </p>
                   </label>
                 </div>
 
                 {mode === 'create' && (
                   <>
-                    <div className="text-center text-sm text-slate-500">OU</div>
+                    <div className="text-center">
+                      <span className="px-4 py-2 bg-slate-100 rounded-full text-sm font-medium text-slate-600">
+                        OU
+                      </span>
+                    </div>
                     <div>
-                      <Label>Cole o texto da vaga</Label>
+                      <Label className="text-base font-semibold">Cole o Texto da Vaga</Label>
                       <Textarea
                         value={uploadedText}
                         onChange={(e) => setUploadedText(e.target.value)}
-                        placeholder="Cole aqui o texto completo da vaga..."
-                        rows={6}
-                        className="mt-2"
+                        placeholder="Cole aqui todas as informações da vaga (título, empresa, requisitos, forma de candidatura, etc)..."
+                        rows={8}
+                        className="mt-2 text-base"
                       />
                     </div>
                   </>
                 )}
 
                 {previewUrl && (
-                  <div className="rounded-lg overflow-hidden border max-w-xs mx-auto">
-                    <img src={previewUrl} alt="Preview" className="w-full" />
+                  <div className="mt-6">
+                    <Label className="text-base font-semibold mb-3 block">Preview Original:</Label>
+                    <div className="rounded-xl overflow-hidden border-2 border-slate-200 max-w-sm mx-auto shadow-lg">
+                      <img src={previewUrl} alt="Preview" className="w-full" />
+                    </div>
                   </div>
                 )}
               </div>
@@ -342,55 +388,60 @@ Inclua:
               <Button
                 onClick={mode === 'convert' ? handleConvert : handleCreateNew}
                 disabled={processing || (!previewUrl && !uploadedText)}
-                className="w-full h-12 text-lg"
+                className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-[#0A66C2] to-[#004182] hover:opacity-90"
               >
                 {processing ? (
                   <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    <Loader2 className="w-6 h-6 mr-3 animate-spin" />
                     Processando...
                   </>
                 ) : (
                   <>
-                    {mode === 'convert' ? 'Converter Agora' : 'Criar POST'}
+                    {mode === 'convert' ? '🔄 Converter Agora' : '✨ Criar POST'}
                   </>
                 )}
               </Button>
 
               {/* Resultados - Converter */}
               {mode === 'convert' && convertedImage && (
-                <div className="space-y-4 pt-6 border-t">
-                  <h4 className="font-semibold text-lg">Resultado</h4>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <Label>Imagem Convertida</Label>
-                      <div className="mt-2 border rounded-lg overflow-hidden">
+                <div className="space-y-6 pt-6 border-t-2">
+                  <h4 className="text-xl font-bold text-slate-800">✅ Conversão Concluída</h4>
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <Label className="text-base font-semibold">📱 Imagem Convertida (1080x1080)</Label>
+                      <div className="rounded-xl overflow-hidden border-2 border-[#0A66C2] shadow-xl">
                         <img src={convertedImage} alt="Convertida" className="w-full" />
                       </div>
                       <Button
-                        onClick={() => downloadImage(convertedImage, 'post-feed-instagram.png')}
-                        className="w-full mt-3"
+                        onClick={() => downloadImage(convertedImage, 'post-feed-instagram-1080x1080.png')}
+                        className="w-full h-12 bg-green-600 hover:bg-green-700"
                       >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download Imagem
+                        <Download className="w-5 h-5 mr-2" />
+                        Download Imagem (PNG)
                       </Button>
                     </div>
 
-                    <div>
-                      <Label>Legenda Gerada</Label>
+                    <div className="space-y-4">
+                      <Label className="text-base font-semibold">📝 Legenda Gerada (SEO)</Label>
                       <Textarea
                         value={generatedCaption}
                         onChange={(e) => setGeneratedCaption(e.target.value)}
-                        rows={10}
-                        className="mt-2 font-sans text-sm"
+                        rows={12}
+                        className="font-sans text-sm resize-none"
                       />
                       <Button
                         onClick={copyCaption}
                         variant="outline"
-                        className="w-full mt-3"
+                        className="w-full h-12 border-2"
                       >
-                        <Copy className="w-4 h-4 mr-2" />
+                        <Copy className="w-5 h-5 mr-2" />
                         Copiar Legenda
                       </Button>
+                      <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                        <p className="text-xs text-blue-800 font-medium">
+                          💡 Dica: A legenda já está otimizada com hashtags e CTA. Cole no Instagram!
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -398,94 +449,115 @@ Inclua:
 
               {/* Resultados - Criar Novo */}
               {mode === 'create' && newPostData && (
-                <div className="space-y-4 pt-6 border-t">
-                  <h4 className="font-semibold text-lg">POST Criado</h4>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <Label>Preview do POST</Label>
+                <div className="space-y-6 pt-6 border-t-2">
+                  <h4 className="text-xl font-bold text-slate-800">✅ POST Criado com Sucesso</h4>
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <Label className="text-base font-semibold">🎨 Preview do POST</Label>
                       <div 
                         ref={newPostRef}
-                        className="mt-2 bg-white rounded-lg overflow-hidden shadow-lg"
+                        className="mx-auto rounded-xl overflow-hidden shadow-2xl"
                         style={{ width: '540px', height: '540px', maxWidth: '100%' }}
                       >
-                        {/* Design do POST */}
-                        <div className="w-full h-full relative bg-gradient-to-br from-blue-50 to-blue-100 p-8 flex flex-col justify-between">
-                          {/* Logo */}
-                          <div className="absolute top-4 right-4 w-16 h-16 bg-[#0A66C2] rounded-full flex items-center justify-center">
-                            <span className="text-white font-bold text-xl">EB+</span>
+                        {/* Design Padrão do POST */}
+                        <div className="w-full h-full relative bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 p-6 flex flex-col justify-between">
+                          {/* Decorações */}
+                          <div className="absolute top-0 right-0 w-32 h-32 border-4 border-dashed border-orange-300 rounded-full -translate-y-8 translate-x-8 opacity-40" />
+                          <div className="absolute bottom-20 left-0 w-24 h-24 border-4 border-dashed border-orange-300 rounded-full -translate-x-8 opacity-40" />
+
+                          {/* Header com logo */}
+                          <div className="relative z-10 flex justify-between items-start">
+                            <div className="space-y-1">
+                              <p className="text-orange-600 font-bold text-lg tracking-wide">Emprega Brasil+</p>
+                              <p className="text-slate-700 font-bold text-3xl leading-tight">CONTRATA</p>
+                            </div>
+                            <div className="w-14 h-14 bg-[#0A66C2] rounded-full flex items-center justify-center shadow-lg">
+                              <span className="text-white font-bold text-lg">EB+</span>
+                            </div>
                           </div>
 
-                          {/* Conteúdo */}
-                          <div className="space-y-4">
-                            <div className="bg-white rounded-xl p-6 shadow-md">
-                              <h2 className="text-2xl font-bold text-[#0A66C2] mb-2 leading-tight">
-                                {newPostData.titulo}
+                          {/* Conteúdo Principal */}
+                          <div className="relative z-10 space-y-4">
+                            {/* Card do Cargo */}
+                            <div className="bg-white rounded-2xl p-5 shadow-lg">
+                              <h2 className="text-xl font-bold text-slate-800 text-center leading-tight">
+                                {newPostData.titulo || 'VAGA DISPONÍVEL'}
                               </h2>
-                              <p className="text-lg text-slate-700 font-semibold">{newPostData.empresa}</p>
                             </div>
 
-                            <div className="bg-white/90 rounded-xl p-5 space-y-3">
-                              {newPostData.local && (
-                                <div className="flex items-start gap-2">
-                                  <span className="text-[#0A66C2] font-bold">📍</span>
-                                  <span className="text-sm text-slate-700">{newPostData.local}</span>
-                                </div>
-                              )}
-                              {newPostData.tipo && (
-                                <div className="flex items-start gap-2">
-                                  <span className="text-[#0A66C2] font-bold">💼</span>
-                                  <span className="text-sm text-slate-700">{newPostData.tipo}</span>
-                                </div>
-                              )}
-                              {newPostData.salario && (
-                                <div className="flex items-start gap-2">
-                                  <span className="text-[#0A66C2] font-bold">💰</span>
-                                  <span className="text-sm text-slate-700 font-semibold">{newPostData.salario}</span>
-                                </div>
+                            {/* Características */}
+                            <div className="bg-white/95 rounded-2xl p-5 space-y-3 shadow-md">
+                              <p className="text-orange-600 font-bold text-sm">Características importantes:</p>
+                              {newPostData.requisitos && (
+                                <p className="text-slate-700 text-sm leading-relaxed">
+                                  {newPostData.requisitos.split('\n').slice(0, 4).map((item, i) => (
+                                    <span key={i} className="block">- {item}</span>
+                                  ))}
+                                </p>
                               )}
                             </div>
+
+                            {/* Candidatura */}
+                            {newPostData.candidatura && (
+                              <div className="bg-orange-600 rounded-2xl p-4 text-white shadow-md">
+                                <p className="text-sm font-bold text-center">
+                                  {newPostData.candidatura}
+                                </p>
+                              </div>
+                            )}
                           </div>
 
                           {/* Footer */}
-                          <div className="bg-[#0A66C2] rounded-xl p-4 text-center">
-                            <p className="text-white font-bold text-lg">@vagasabertaspb</p>
-                            <p className="text-white/80 text-xs">Emprega Brasil+</p>
+                          <div className="relative z-10 flex items-end justify-between">
+                            <div className="bg-gradient-to-r from-amber-400 to-orange-400 rounded-t-full w-3/4 h-24 flex items-center justify-center shadow-lg">
+                              <div className="text-center">
+                                <p className="text-slate-800 font-bold text-lg">Emprega Brasil+</p>
+                              </div>
+                            </div>
+                            <div className="bg-amber-900/80 rounded-tl-2xl px-4 py-2">
+                              <p className="text-white text-xs font-bold">📷 vagasabertaspb</p>
+                            </div>
                           </div>
                         </div>
                       </div>
                       <Button
                         onClick={downloadNewPost}
-                        className="w-full mt-3"
+                        className="w-full h-12 bg-green-600 hover:bg-green-700"
                       >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download POST
+                        <Download className="w-5 h-5 mr-2" />
+                        Download POST (PNG)
                       </Button>
                     </div>
 
-                    <div>
-                      <Label>Legenda Gerada</Label>
+                    <div className="space-y-4">
+                      <Label className="text-base font-semibold">📝 Legenda Gerada</Label>
                       <Textarea
                         value={generatedCaption}
                         onChange={(e) => setGeneratedCaption(e.target.value)}
-                        rows={12}
-                        className="mt-2 font-sans text-sm"
+                        rows={10}
+                        className="font-sans text-sm resize-none"
                       />
                       <Button
                         onClick={copyCaption}
                         variant="outline"
-                        className="w-full mt-3"
+                        className="w-full h-12 border-2"
                       >
-                        <Copy className="w-4 h-4 mr-2" />
+                        <Copy className="w-5 h-5 mr-2" />
                         Copiar Legenda
                       </Button>
 
-                      <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                        <p className="text-xs text-slate-600">
-                          <strong>Informações Extraídas:</strong>
-                        </p>
-                        <pre className="text-xs mt-2 text-slate-700 whitespace-pre-wrap">
-                          {JSON.stringify(newPostData, null, 2)}
-                        </pre>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">📋 Informações Extraídas:</Label>
+                        <div className="p-4 bg-slate-50 rounded-xl border space-y-2 text-xs">
+                          {Object.entries(newPostData).map(([key, value]) => (
+                            value && (
+                              <div key={key}>
+                                <strong className="text-slate-600 capitalize">{key}:</strong>
+                                <p className="text-slate-800 ml-2">{value}</p>
+                              </div>
+                            )
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
