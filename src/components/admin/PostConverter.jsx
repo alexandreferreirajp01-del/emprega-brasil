@@ -67,26 +67,13 @@ export default function PostConverter() {
       canvas.width = size;
       canvas.height = size;
 
-      // Para story vertical, redimensionar para largura total e comprimir altura proporcionalmente
-      const imgRatio = img.width / img.height;
+      // Comprimir tanto horizontal quanto verticalmente para ajustar ao formato feed
+      // Reduz levemente mantendo todas as informações visíveis
+      const padding = 40; // Pequeno padding para não ficar colado nas bordas
+      const drawWidth = size - (padding * 2);
+      const drawHeight = size - (padding * 2);
       
-      if (imgRatio < 1) {
-        // Story vertical: ocupar toda a largura, ajustar altura proporcionalmente
-        const drawWidth = size;
-        const drawHeight = size / imgRatio;
-        
-        // Se a altura calculada for maior que o canvas, comprimir para caber
-        if (drawHeight > size) {
-          // Comprimir verticalmente mantendo toda a largura
-          ctx.drawImage(img, 0, 0, drawWidth, size);
-        } else {
-          // Centralizar se couber
-          ctx.drawImage(img, 0, (size - drawHeight) / 2, drawWidth, drawHeight);
-        }
-      } else {
-        // Horizontal ou quadrado: ocupar todo o espaço
-        ctx.drawImage(img, 0, 0, size, size);
-      }
+      ctx.drawImage(img, padding, padding, drawWidth, drawHeight);
 
       // Badge do Instagram no canto inferior direito (destacado e bonito)
       const badgeWidth = 240;
@@ -118,24 +105,37 @@ export default function PostConverter() {
       const dataUrl = canvas.toDataURL('image/png', 1.0);
       setConvertedImage(dataUrl);
 
-      // Gerar descrição com IA
+      // Extrair informações da imagem com IA
+      const extractRes = await base44.integrations.Core.InvokeLLM({
+        prompt: `Extraia TODAS as informações desta vaga de emprego da imagem. Seja fiel ao conteúdo original.
+
+Retorne em texto estruturado:
+- Cargo/Título
+- Empresa (se houver)
+- Local (se houver)
+- Requisitos/Características
+- Forma de candidatura (WhatsApp, email, etc)
+- Qualquer outra informação importante`,
+        file_urls: [previewUrl],
+      });
+
+      const extractedInfo = extractRes.data || extractRes;
+
+      // Gerar descrição COMPLETA com IA
       const captionData = await base44.integrations.Core.InvokeLLM({
-        prompt: `Crie uma descrição profissional para Instagram de uma vaga de emprego. 
+        prompt: `Crie uma descrição COMPLETA para Instagram desta vaga:
+
+INFORMAÇÕES EXTRAÍDAS:
+${extractedInfo}
 
 Inclua:
-- Texto atraente e chamativo (2-3 linhas)
-- Exatamente 5 hashtags relevantes (#vagas #emprego #oportunidade etc)
-- CTA para seguir o perfil e marcar amigos que procuram emprego
-- SEO otimizado para alcance
+- Todas as informações da vaga de forma organizada e atraente
+- Cargo, local, requisitos, forma de candidatura
+- 5 hashtags relevantes (#vagas #emprego #oportunidade etc)
+- CTA: "Siga @vagasabertaspb para mais oportunidades! Marque aqueles amigos que estão procurando emprego! 💼"
+- SEO otimizado
 
-Formato:
-[Descrição atraente]
-
-[5 hashtags]
-
-[CTA: "Siga @vagasabertaspb para mais oportunidades! Marque aqueles amigos que estão procurando emprego! 💼"]
-
-Máximo 150 palavras.`,
+Formato: POST completo e profissional. Máximo 300 palavras.`,
       });
 
       setGeneratedCaption(captionData.data || captionData);
