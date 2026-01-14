@@ -166,7 +166,16 @@ ${extractedInfo}
 IMPORTANTE: Retorne APENAS o texto da legenda pronto para ser copiado e colado no Instagram.`,
       });
 
-      const finalCaption = typeof captionData === 'string' ? captionData : (captionData.data || captionData.content || JSON.stringify(captionData));
+      let finalCaption = '';
+      if (typeof captionData === 'string') {
+        finalCaption = captionData;
+      } else if (captionData.data) {
+        finalCaption = typeof captionData.data === 'string' ? captionData.data : JSON.stringify(captionData.data);
+      } else if (captionData.content) {
+        finalCaption = captionData.content;
+      } else {
+        finalCaption = JSON.stringify(captionData);
+      }
       
       setGeneratedCaption(finalCaption || 'Erro ao gerar legenda. Tente novamente.');
       toast.success('Imagem convertida com sucesso!');
@@ -475,11 +484,6 @@ Inclua:
                         <Copy className="w-5 h-5 mr-2" />
                         Copiar Legenda
                       </Button>
-                      <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
-                        <p className="text-xs text-blue-800 font-medium">
-                          💡 Dica: A legenda já está otimizada com hashtags e CTA. Cole no Instagram!
-                        </p>
-                      </div>
                     </div>
                   </div>
                 </div>
