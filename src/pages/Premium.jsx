@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Crown, X, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 
 export default function Premium() {
   const [loading, setLoading] = useState(true);
@@ -14,13 +15,9 @@ export default function Premium() {
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const status = urlParams.get('status');
+        const code = urlParams.get('code');
         
-        if (status !== 'ativo') {
-          window.location.href = createPageUrl('Subscription');
-          return;
-        }
-
-        // Verificar autenticação
+        // Verificar autenticação primeiro
         const isAuth = await base44.auth.isAuthenticated();
         if (!isAuth) {
           sessionStorage.setItem('needs_login', 'true');
@@ -39,13 +36,74 @@ export default function Premium() {
           setShowAlreadyPremiumPopup(true);
           setLoading(false);
           window.history.replaceState({}, '', createPageUrl('Premium'));
-        } else {
-          // Ativar Premium
+          return;
+        }
+
+        // Link com código único
+        if (code) {
+          const links = await base44.entities.AccessLink.filter({ code });
+          if (links.length === 0) {
+            setError('Link inválido ou não encontrado');
+            setLoading(false);
+            return;
+          }
+
+          const link = links[0];
+
+          if (!link.is_active) {
+            setError('Este link foi desativado');
+            setLoading(false);
+            return;
+          }
+
+          if (link.expires_at && new Date(link.expires_at) < new Date()) {
+            setError('Este link expirou');
+            setLoading(false);
+            return;
+          }
+
+          if (link.used_by && link.is_single_use) {
+            setError('Este link já foi utilizado');
+            setLoading(false);
+            return;
+          }
+
+          // Ativar acesso
+          await base44.auth.updateMe({ subscription_type: link.link_type });
+
+          // Marcar link como usado
+          if (link.is_single_use) {
+            await base44.asServiceRole.entities.AccessLink.update(link.id, {
+              used_by: currentUser.email,
+              used_at: new Date().toISOString(),
+              is_active: false
+            });
+          }
+
+          setShowSuccessPopup(true);
+          setLoading(false);
+          window.history.replaceState({}, '', createPageUrl('Premium'));
+          return;
+        }
+
+        // Link Premium principal (status=ativo)
+        if (status === 'ativo') {
+          const premiumEnabled = localStorage.getItem('premium_link_enabled');
+          if (premiumEnabled === 'false') {
+            setError('Link Premium desativado temporariamente');
+            setLoading(false);
+            return;
+          }
+
           await base44.auth.updateMe({ subscription_type: 'premium' });
           setShowSuccessPopup(true);
           setLoading(false);
           window.history.replaceState({}, '', createPageUrl('Premium'));
+          return;
         }
+
+        // Sem status ou code válido
+        window.location.href = createPageUrl('Subscription');
       } catch (e) {
         console.error('Erro ao ativar premium:', e);
         setError('Erro ao ativar Premium. Tente novamente.');

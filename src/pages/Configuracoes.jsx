@@ -34,6 +34,7 @@ const menuItems = [
   { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'orange', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos', permissionId: 'biblioteca_admin' },
   { id: 'planos', name: 'Gerenciar Planos', icon: Crown, color: 'purple', page: 'GerenciarPlanos', description: 'Controle de assinaturas e cobranças', roles: ['admin', 'dono'], permissionId: 'gerenciar_planos' },
   { id: 'precos', name: 'Gerenciar Preços', icon: Settings, color: 'emerald', page: 'GerenciarPrecos', description: 'Ajustar valores dos planos', roles: ['admin', 'dono'] },
+  { id: 'acessos', name: 'Gerenciar Acessos', icon: Key, color: 'purple', page: 'GerenciarAcessos', description: 'Links de ativação únicos', roles: ['admin', 'dono'] },
   
   // Ferramentas de Produção
   { id: 'dividerProducao', type: 'divider', label: 'Ferramentas de Produção' },
