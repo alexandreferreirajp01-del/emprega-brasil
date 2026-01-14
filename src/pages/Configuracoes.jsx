@@ -53,6 +53,7 @@ const menuItems = [
   // Assistente IA
   { id: 'dividerAssistente', type: 'divider', label: 'Assistente IA', roles: ['admin', 'dono'] },
   { id: 'banco-dados-assistente', name: 'Banco de Dados do Assistente', icon: MessageCircle, color: 'cyan', page: 'BancoDadosAssistente', description: 'Histórico completo de conversas da IA', roles: ['admin', 'dono'] },
+  { id: 'agente-validacao', name: 'Agente de Validação', icon: Shield, color: 'emerald', external: true, externalUrl: 'https://app.base44.com/ai-agents/validador_vagas', description: 'Valida vagas, contatos e links automaticamente', roles: ['admin', 'dono'] },
 
   // Interações
   { id: 'dividerInteracoes', type: 'divider', label: 'Interações' },
