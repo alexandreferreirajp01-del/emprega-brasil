@@ -42,7 +42,7 @@ export default function PostConverter() {
     setNewPostData(null);
   };
 
-  // Opção 1: Converter Story → Feed (manter design original)
+  // Opção 1: Converter Story → Feed (comprimir e reorganizar)
   const handleConvert = async () => {
     if (!previewUrl) {
       toast.error('Faça upload de uma imagem primeiro');
@@ -67,45 +67,36 @@ export default function PostConverter() {
       canvas.width = size;
       canvas.height = size;
 
-      // Calcular dimensões para fit vertical (story → feed)
-      const imgRatio = img.width / img.height;
-      let drawWidth, drawHeight, x, y;
+      // COMPRIMIR a imagem para caber no quadrado (mantém TODAS as informações)
+      // A imagem será redimensionada para caber totalmente no quadrado
+      ctx.drawImage(img, 0, 0, size, size);
 
-      // Para story vertical (9:16), ajustar para caber no quadrado
-      if (imgRatio < 1) {
-        // Imagem vertical
-        drawWidth = size;
-        drawHeight = size / imgRatio;
-        x = 0;
-        y = -(drawHeight - size) / 2; // Centralizar verticalmente
-      } else {
-        // Imagem horizontal ou quadrada
-        drawHeight = size;
-        drawWidth = size * imgRatio;
-        x = -(drawWidth - size) / 2;
-        y = 0;
-      }
-
-      // Desenhar imagem original COMPLETA (mantendo todo o conteúdo)
-      ctx.drawImage(img, x, y, drawWidth, drawHeight);
-
-      // Adicionar rodapé com @ no canto inferior direito
-      const badgeWidth = 200;
-      const badgeHeight = 50;
-      const badgeX = size - badgeWidth - 20;
-      const badgeY = size - badgeHeight - 20;
+      // Badge do Instagram no canto inferior direito (destacado e bonito)
+      const badgeWidth = 240;
+      const badgeHeight = 60;
+      const badgeX = size - badgeWidth - 10;
+      const badgeY = size - badgeHeight - 10;
       
-      // Fundo do badge (marrom escuro com transparência)
-      ctx.fillStyle = 'rgba(80, 50, 30, 0.85)';
-      ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 8);
+      // Fundo do badge (marrom escuro estilo das imagens)
+      ctx.fillStyle = 'rgba(92, 64, 51, 0.95)';
+      ctx.beginPath();
+      ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 12);
       ctx.fill();
 
-      // Texto do Instagram
+      // Ícone do Instagram (simulado com emoji/símbolo)
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 16px Arial, sans-serif';
+      ctx.font = 'bold 28px Arial, sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('📷', badgeX + 15, badgeY + 32);
-      ctx.fillText('vagasabertaspb', badgeX + 40, badgeY + 32);
+      ctx.textBaseline = 'middle';
+      
+      // Desenhar ícone do Instagram (câmera)
+      const iconX = badgeX + 20;
+      const iconY = badgeY + badgeHeight / 2;
+      ctx.fillText('📷', iconX, iconY);
+
+      // Texto @vagasabertaspb
+      ctx.font = 'bold 22px Arial, sans-serif';
+      ctx.fillText('vagasabertaspb', iconX + 40, iconY);
 
       const dataUrl = canvas.toDataURL('image/png', 1.0);
       setConvertedImage(dataUrl);
