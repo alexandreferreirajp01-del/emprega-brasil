@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
   try {
@@ -91,10 +91,10 @@ Deno.serve(async (req) => {
     
     // Se múltiplas vagas, redirecionar para página de lote
     const jobUrl = numJobs > 1 
-      ? `/recent-jobs-batch?ids=${jobIds.join(',')}` 
+      ? `https://empregabrasil.app/recent-jobs-batch?ids=${jobIds.join(',')}` 
       : primaryJobId 
-        ? `/jobs?id=${primaryJobId}` 
-        : `/jobs`;
+        ? `https://empregabrasil.app/jobs?id=${primaryJobId}` 
+        : `https://empregabrasil.app/jobs`;
 
     let results = {
       email: { sent: 0, failed: 0 },
@@ -121,9 +121,11 @@ Deno.serve(async (req) => {
           if (numJobs > 1) {
             notifData.redirect_page = 'RecentJobsBatch';
             notifData.redirect_params = { ids: jobIds.join(',') };
+            notifData.redirect_url = `https://empregabrasil.app/recent-jobs-batch?ids=${jobIds.join(',')}`;
           } else if (primaryJobId) {
             notifData.redirect_page = 'JobDetail';
             notifData.redirect_params = { id: primaryJobId };
+            notifData.redirect_url = `https://empregabrasil.app/jobs?id=${primaryJobId}`;
           }
 
           await base44.asServiceRole.entities.Notification.create(notifData);
