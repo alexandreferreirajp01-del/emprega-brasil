@@ -58,9 +58,9 @@ export default function Premium() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#0A66C2] to-[#004182] flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl p-8 text-center">
-          <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-[#0A66C2] animate-spin mx-auto mb-4" />
           <p className="text-slate-600">Processando ativação Premium...</p>
         </div>
       </div>
@@ -88,24 +88,24 @@ export default function Premium() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A66C2] to-[#004182] flex items-center justify-center p-4">
       {/* Success Popup */}
       {showSuccessPopup && (
         <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-300">
           <div className="text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-gradient-to-br from-[#0A66C2] to-[#004182] rounded-full flex items-center justify-center mx-auto mb-6">
               <Crown className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-slate-900 mb-3">
               Parabéns! 🎉
             </h2>
             <p className="text-slate-600 text-lg mb-8">
-              Você agora é um membro <span className="font-bold text-purple-600">Premium</span>!<br />
+              Você agora é um membro <span className="font-bold text-[#0A66C2]">Premium</span>!<br />
               Aproveite todos os benefícios exclusivos.
             </p>
             <button
               onClick={() => window.location.href = createPageUrl('Home')}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-4 rounded-xl transition-all text-lg"
+              className="w-full bg-gradient-to-r from-[#0A66C2] to-[#004182] hover:opacity-90 text-white font-semibold py-4 rounded-xl transition-all text-lg"
             >
               Começar Agora
             </button>
@@ -117,19 +117,19 @@ export default function Premium() {
       {showAlreadyPremiumPopup && (
         <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-300">
           <div className="text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-gradient-to-br from-[#0A66C2] to-[#004182] rounded-full flex items-center justify-center mx-auto mb-6">
               <Crown className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-slate-900 mb-3">
               Você já é Premium! ⭐
             </h2>
             <p className="text-slate-600 text-lg mb-8">
-              Sua conta já possui o plano <span className="font-bold text-purple-600">Premium</span> ativo.<br />
+              Sua conta já possui o plano <span className="font-bold text-[#0A66C2]">Premium</span> ativo.<br />
               Continue aproveitando todos os benefícios!
             </p>
             <button
               onClick={() => window.location.href = createPageUrl('Home')}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-4 rounded-xl transition-all text-lg"
+              className="w-full bg-gradient-to-r from-[#0A66C2] to-[#004182] hover:opacity-90 text-white font-semibold py-4 rounded-xl transition-all text-lg"
             >
               Ir para Início
             </button>
