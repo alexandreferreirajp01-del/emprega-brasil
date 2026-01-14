@@ -67,9 +67,30 @@ export default function PostConverter() {
       canvas.width = size;
       canvas.height = size;
 
-      // COMPRIMIR a imagem para caber no quadrado (mantém TODAS as informações)
-      // A imagem será redimensionada para caber totalmente no quadrado
-      ctx.drawImage(img, 0, 0, size, size);
+      // Fundo branco
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, size, size);
+
+      // Calcular dimensões mantendo aspect ratio (SEM DISTORCER)
+      let drawWidth, drawHeight, x, y;
+      const imgRatio = img.width / img.height;
+
+      if (imgRatio > 1) {
+        // Imagem horizontal
+        drawWidth = size;
+        drawHeight = size / imgRatio;
+        x = 0;
+        y = (size - drawHeight) / 2;
+      } else {
+        // Imagem vertical (story)
+        drawHeight = size;
+        drawWidth = size * imgRatio;
+        x = (size - drawWidth) / 2;
+        y = 0;
+      }
+
+      // Desenhar imagem SEM distorção (mantém proporção original)
+      ctx.drawImage(img, x, y, drawWidth, drawHeight);
 
       // Badge do Instagram no canto inferior direito (destacado e bonito)
       const badgeWidth = 240;
