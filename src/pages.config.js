@@ -69,6 +69,7 @@ import VagasConverter from './pages/VagasConverter';
 import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
+import Agentes from './pages/Agentes';
 import __Layout from './Layout.jsx';
 
 
@@ -144,6 +145,7 @@ export const PAGES = {
     "VagasHomeOffice": VagasHomeOffice,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
+    "Agentes": Agentes,
 }
 
 export const pagesConfig = {
