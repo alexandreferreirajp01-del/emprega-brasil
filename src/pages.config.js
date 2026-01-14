@@ -1,3 +1,4 @@
+import About from './pages/About';
 import ActivateBasic from './pages/ActivateBasic';
 import ActivatePremiumManual from './pages/ActivatePremiumManual';
 import Advertise from './pages/Advertise';
@@ -13,6 +14,7 @@ import ChatIA from './pages/ChatIA';
 import Configuracoes from './pages/Configuracoes';
 import Contact from './pages/Contact';
 import Cookies from './pages/Cookies';
+import ExcluirVagasSemContato from './pages/ExcluirVagasSemContato';
 import FAQ from './pages/FAQ';
 import Favoritos from './pages/Favoritos';
 import Feed from './pages/Feed';
@@ -67,15 +69,14 @@ import Terms from './pages/Terms';
 import Utilidades from './pages/Utilidades';
 import VagasConverter from './pages/VagasConverter';
 import VagasHomeOffice from './pages/VagasHomeOffice';
+import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
-import ExcluirVagasSemContato from './pages/ExcluirVagasSemContato';
-import VagasPendentes from './pages/VagasPendentes';
-import About from './pages/About';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "About": About,
     "ActivateBasic": ActivateBasic,
     "ActivatePremiumManual": ActivatePremiumManual,
     "Advertise": Advertise,
@@ -91,6 +92,7 @@ export const PAGES = {
     "Configuracoes": Configuracoes,
     "Contact": Contact,
     "Cookies": Cookies,
+    "ExcluirVagasSemContato": ExcluirVagasSemContato,
     "FAQ": FAQ,
     "Favoritos": Favoritos,
     "Feed": Feed,
@@ -145,11 +147,9 @@ export const PAGES = {
     "Utilidades": Utilidades,
     "VagasConverter": VagasConverter,
     "VagasHomeOffice": VagasHomeOffice,
+    "VagasPendentes": VagasPendentes,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
-    "ExcluirVagasSemContato": ExcluirVagasSemContato,
-    "VagasPendentes": VagasPendentes,
-    "About": About,
 }
 
 export const pagesConfig = {

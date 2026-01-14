@@ -166,18 +166,16 @@ ${qrCodeLink ? `
           batches.push(jobsToCreate.slice(i, i + batchSize));
         }
 
-        let firstJobId = null;
+        const createdJobIds = [];
         for (const batch of batches) {
           const results = await Promise.all(
             batch.map(job => base44.entities.Job.create(job))
           );
-          if (!firstJobId && results[0]) {
-            firstJobId = results[0].id;
-          }
+          createdJobIds.push(...results.map(r => r.id));
         }
         
         // Notificações em background (não bloquear)
-        if (wizardData.notification && firstJobId) {
+        if (wizardData.notification && createdJobIds.length > 0) {
           base44.entities.User.list().then(users => {
             const targetUsers = wizardData.notification.premiumOnly 
               ? users.filter(u => u.subscription_type === 'premium' || u.role === 'admin').map(u => u.email)
@@ -185,7 +183,8 @@ ${qrCodeLink ? `
 
             base44.functions.invoke('sendNotifications', {
               notification: wizardData.notification,
-              jobId: firstJobId,
+              jobIds: createdJobIds, // Array de IDs
+              templateId: wizardData.notification.templateId,
               targetUsers
             }).catch(() => {});
           }).catch(() => {});
