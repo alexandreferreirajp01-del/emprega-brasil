@@ -16,9 +16,9 @@ import Cookies from './pages/Cookies';
 import FAQ from './pages/FAQ';
 import Favoritos from './pages/Favoritos';
 import Feed from './pages/Feed';
-import FluxoUsuarios from './pages/FluxoUsuarios';
 import ForgotPassword from './pages/ForgotPassword';
 import GerenciadorFiltros from './pages/GerenciadorFiltros';
+import GerenciarAcessos from './pages/GerenciarAcessos';
 import GerenciarAnuncios from './pages/GerenciarAnuncios';
 import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarCores from './pages/GerenciarCores';
@@ -48,7 +48,6 @@ import Payment from './pages/Payment';
 import PaymentsPage from './pages/PaymentsPage';
 import PendingAccess from './pages/PendingAccess';
 import Permissoes from './pages/Permissoes';
-import PostConverter from './pages/PostConverter';
 import PostarNoticia from './pages/PostarNoticia';
 import PostarVaga from './pages/PostarVaga';
 import PostsEmMassa from './pages/PostsEmMassa';
@@ -70,7 +69,6 @@ import VagasConverter from './pages/VagasConverter';
 import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
-import GerenciarAcessos from './pages/GerenciarAcessos';
 import __Layout from './Layout.jsx';
 
 
@@ -93,9 +91,9 @@ export const PAGES = {
     "FAQ": FAQ,
     "Favoritos": Favoritos,
     "Feed": Feed,
-    "FluxoUsuarios": FluxoUsuarios,
     "ForgotPassword": ForgotPassword,
     "GerenciadorFiltros": GerenciadorFiltros,
+    "GerenciarAcessos": GerenciarAcessos,
     "GerenciarAnuncios": GerenciarAnuncios,
     "GerenciarComunidade": GerenciarComunidade,
     "GerenciarCores": GerenciarCores,
@@ -125,7 +123,6 @@ export const PAGES = {
     "PaymentsPage": PaymentsPage,
     "PendingAccess": PendingAccess,
     "Permissoes": Permissoes,
-    "PostConverter": PostConverter,
     "PostarNoticia": PostarNoticia,
     "PostarVaga": PostarVaga,
     "PostsEmMassa": PostsEmMassa,
@@ -147,7 +144,6 @@ export const PAGES = {
     "VagasHomeOffice": VagasHomeOffice,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
-    "GerenciarAcessos": GerenciarAcessos,
 }
 
 export const pagesConfig = {

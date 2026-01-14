@@ -15,7 +15,6 @@ import { Link } from "react-router-dom";
 const menuItems = [
   // Sistema
   { id: 'divider-sistema', type: 'divider', label: 'Sistema', roles: ['admin', 'dono'] },
-  { id: 'assistente-ia', name: 'Assistente de IA', icon: Bot, color: 'blue', external: true, externalUrl: 'https://app.base44.com/agents', description: 'Chat com IA para gerenciar o app', roles: ['admin', 'dono'] },
   { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', icon: Settings, color: 'purple', page: 'GerenciarFuncoes', description: 'Habilitar/desabilitar funções do app', roles: ['admin', 'dono'] },
   { id: 'popups', name: 'Gerenciar Popups', icon: AlertCircle, color: 'indigo', page: 'GerenciarPopups', description: 'Avisos e mensagens no app', roles: ['admin', 'dono'] },
   { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'purple', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'], permissionId: 'permissoes' },
@@ -43,7 +42,6 @@ const menuItems = [
   { id: 'posts-massa-txt', name: 'Posts em Massa TXT', icon: FileText, color: 'indigo', page: 'PostsEmMassaTXT', description: 'Upload arquivos TXT/DOC/PDF e extraia até 50 vagas', permissionId: 'posts_massa_txt' },
   { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
   { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'teal', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
-  { id: 'post-converter', name: 'POST Converter', icon: Image, color: 'purple', page: 'PostConverter', description: 'Converter posts para Instagram', roles: ['recruiter', 'admin', 'dono'] },
 
 
   
@@ -64,7 +62,6 @@ const menuItems = [
   
   // Analytics e Monitoramento
   { id: 'divider1', type: 'divider', label: 'Analytics e Monitoramento' },
-  { id: 'fluxo-usuarios', name: 'Fluxo de Usuários', icon: Users, color: 'emerald', page: 'FluxoUsuarios', description: 'Monitoramento em tempo real', roles: ['admin', 'dono'], permissionId: 'fluxo_usuarios' },
   { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
   { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },
   

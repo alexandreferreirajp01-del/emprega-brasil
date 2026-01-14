@@ -454,6 +454,18 @@ export default function Jobs() {
               </SelectContent>
             </Select>
 
+            {userIsPremium && (
+              <Button
+                variant={showPremiumOnly ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowPremiumOnly(!showPremiumOnly)}
+                className="h-9 rounded-full text-xs whitespace-nowrap"
+              >
+                <Lock className="w-3 h-3 mr-1" />
+                Premium
+              </Button>
+            )}
+
             {hasActiveFilters && (
               <Button 
                 variant="ghost" 
