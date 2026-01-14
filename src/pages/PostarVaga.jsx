@@ -202,6 +202,12 @@ EXTRAIA:`,
         applicationLink = `mailto:${formData.contact_email}`;
       }
 
+      // VALIDAÇÃO: Se não houver contato, marcar como pendente
+      const hasContact = applicationLink && applicationLink.trim() !== '';
+      if (!hasContact) {
+        alert('⚠️ ATENÇÃO: Esta vaga não tem informação de contato e será enviada para PENDÊNCIAS. Adicione telefone, email ou site para publicar.');
+      }
+
       const finalJobData = {
         ...jobData,
         title: formData.title,
@@ -211,7 +217,8 @@ EXTRAIA:`,
         description: formData.description,
         salary_range: formData.salary_range,
         image_url: formData.image_url,
-        application_link: applicationLink
+        application_link: applicationLink,
+        status: hasContact ? 'published' : 'pending_contact'
       };
 
       if (wizardData.schedule) {

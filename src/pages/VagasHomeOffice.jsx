@@ -115,13 +115,17 @@ ${rawText}`,
         // Priorizar link do QR Code se não houver link na vaga
         const finalLink = v.link || qrCodeLink || '';
         
+        // VALIDAÇÃO: marcar status baseado em contato
+        const hasContact = finalLink && finalLink.trim() !== '';
+        
         return {
           title: v.titulo,
           description: v.descricao || `Vaga Home Office - ${v.titulo}`,
           application_link: finalLink,
           job_type: 'Home Office',
           state: finalState,
-          city: finalCity
+          city: finalCity,
+          status: hasContact ? 'published' : 'pending_contact'
         };
       });
       

@@ -118,10 +118,14 @@ ${qrCodeLink ? `
           // Fallback: auto-completar estado se não veio da IA
           const autoState = (job.city && !job.state) ? getStateFromCity(job.city) : null;
           
+          // VALIDAÇÃO: marcar status baseado em contato
+          const hasContact = job.application_link && job.application_link.trim() !== '';
+          
           allJobs.push({
             ...job,
             state: job.state || autoState || '',
-            image_url: img.url
+            image_url: img.url,
+            status: hasContact ? 'published' : 'pending_contact'
           });
         });
 

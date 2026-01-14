@@ -97,6 +97,10 @@ ${rawText}`,
         result.application_link = qrCodeLink;
       }
       
+      // VALIDAÇÃO: marcar status baseado em contato
+      const hasContact = result.application_link && result.application_link.trim() !== '';
+      result.status = hasContact ? 'published' : 'pending_contact';
+      
       setExtractedData(result);
       setStep(2);
     } catch (err) {

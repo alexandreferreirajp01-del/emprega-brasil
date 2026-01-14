@@ -211,6 +211,10 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
         applicationLink = `mailto:${generalInfoResult.contact_email}`;
       }
       
+      // VALIDAÇÃO: Se não houver contato, marcar como pendente
+      const hasContact = applicationLink && applicationLink.trim() !== '';
+      const jobStatus = hasContact ? 'published' : 'pending_contact';
+      
       // Salário: específico ou geral
       const finalSalary = jobData.specific_salary || generalInfoResult.salary_range || '';
       
@@ -231,7 +235,8 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
         image_url: imageUrl || '',
         additional_info: '',
         is_premium: false,
-        is_featured: false
+        is_featured: false,
+        status: jobStatus
       });
     }
 
