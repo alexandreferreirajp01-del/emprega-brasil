@@ -90,13 +90,6 @@ export default function RecentJobsBatch() {
               <Card className="rounded-xl hover:shadow-lg transition-all cursor-pointer group border-0">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
-                    {job.image_url && (
-                      <img 
-                        src={job.image_url} 
-                        alt={job.title}
-                        className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
-                      />
-                    )}
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-lg text-slate-800 dark:text-white group-hover:text-[#0A66C2] transition-colors line-clamp-2 mb-2">
                         {job.title}
