@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { X, Heart } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export default function WelcomePopup() {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,34 +47,36 @@ export default function WelcomePopup() {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed inset-0 flex items-center justify-center z-50 p-4"
           >
-            {/* LED Border Animation */}
-            <motion.div
-              className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"
-            >
-              <div className="relative w-full max-w-sm">
-                <motion.div
-                  animate={{ 
-                    boxShadow: [
-                      '0 0 20px rgba(10, 102, 194, 0.3)',
-                      '0 0 40px rgba(10, 102, 194, 0.6)',
-                      '0 0 20px rgba(10, 102, 194, 0.3)',
-                    ]
+            <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden relative">
+              {/* LED Border Animation - Corre pela borda */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none rounded-2xl" style={{ filter: 'drop-shadow(0 0 8px rgba(10, 102, 194, 0.6))' }}>
+                <defs>
+                  <linearGradient id="ledGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#0A66C2" stopOpacity="1" />
+                    <stop offset="50%" stopColor="#378FE9" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#0A66C2" stopOpacity="0.3" />
+                  </linearGradient>
+                </defs>
+                <motion.rect
+                  x="8"
+                  y="8"
+                  width="calc(100% - 16px)"
+                  height="calc(100% - 16px)"
+                  rx="12"
+                  fill="none"
+                  stroke="url(#ledGradient)"
+                  strokeWidth="2"
+                  strokeDasharray="300"
+                  animate={{
+                    strokeDashoffset: [300, -300]
                   }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="absolute inset-0 rounded-2xl"
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
                 />
-              </div>
-            </motion.div>
-
-            <div className="bg-gradient-to-br from-white to-blue-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden relative border border-blue-200 dark:border-blue-900">
-              {/* Animated Border LED */}
-              <div className="absolute inset-0 rounded-2xl pointer-events-none overflow-hidden">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                  className="absolute inset-0 rounded-2xl border-2 border-transparent border-t-blue-400 border-r-blue-300"
-                />
-              </div>
+              </svg>
               {/* Close Button */}
               <button
                 onClick={handleClose}
@@ -85,18 +87,6 @@ export default function WelcomePopup() {
 
               {/* Content */}
               <div className="p-6 text-center relative z-10">
-                {/* Logo */}
-                <motion.div
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="mb-4"
-                >
-                  <img 
-                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png"
-                    alt="Emprega Brasil+"
-                    className="w-14 h-14 mx-auto object-contain"
-                  />
-                </motion.div>
 
                 {/* Title */}
                 <motion.h2
@@ -123,14 +113,7 @@ export default function WelcomePopup() {
                   </p>
                 </motion.div>
 
-                {/* Heart Animation */}
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  className="mb-6"
-                >
-                  <Heart className="w-8 h-8 text-red-500 mx-auto fill-red-500" />
-                </motion.div>
+
 
                 {/* CTA Button */}
                 <motion.div
