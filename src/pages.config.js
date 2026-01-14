@@ -58,6 +58,7 @@ import Premium from './pages/Premium';
 import Privacy from './pages/Privacy';
 import ProfessionalResume from './pages/ProfessionalResume';
 import Profile from './pages/Profile';
+import RecentJobsBatch from './pages/RecentJobsBatch';
 import RecruiterArea from './pages/RecruiterArea';
 import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
@@ -72,7 +73,6 @@ import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
-import RecentJobsBatch from './pages/RecentJobsBatch';
 import __Layout from './Layout.jsx';
 
 
@@ -137,6 +137,7 @@ export const PAGES = {
     "Privacy": Privacy,
     "ProfessionalResume": ProfessionalResume,
     "Profile": Profile,
+    "RecentJobsBatch": RecentJobsBatch,
     "RecruiterArea": RecruiterArea,
     "Register": Register,
     "ResetPassword": ResetPassword,
@@ -151,7 +152,6 @@ export const PAGES = {
     "VagasPendentes": VagasPendentes,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
-    "RecentJobsBatch": RecentJobsBatch,
 }
 
 export const pagesConfig = {

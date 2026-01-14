@@ -24,17 +24,13 @@ export default function RecentJobsBatch() {
         }
 
         const jobIds = idsParam.split(',');
-        const loadedJobs = [];
-
-        for (const id of jobIds) {
-          try {
-            const job = await base44.entities.Job.get(id);
-            if (job) loadedJobs.push(job);
-          } catch (e) {
-            console.warn(`Job ${id} not found`);
-          }
-        }
-
+        
+        // Carrega todas em paralelo
+        const jobPromises = jobIds.map(id => 
+          base44.entities.Job.get(id).catch(() => null)
+        );
+        
+        const loadedJobs = (await Promise.all(jobPromises)).filter(job => job !== null);
         setJobs(loadedJobs);
       } catch (e) {
         console.error('Error loading jobs:', e);
@@ -86,7 +82,10 @@ export default function RecentJobsBatch() {
           </Card>
         ) : (
           jobs.map((job) => (
-            <Link key={job.id} to={createPageUrl('JobDetail') + `?id=${job.id}`}>
+            <Link 
+              key={job.id} 
+              to={createPageUrl('JobDetail') + `?id=${job.id}&back=${encodeURIComponent(window.location.pathname + window.location.search)}`}
+            >
               <Card className="rounded-xl hover:shadow-lg transition-all cursor-pointer group border-0">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
