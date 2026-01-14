@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { 
   ChevronRight, ChevronLeft, Crown, Star, Bell, Send, 
   Calendar, Check, Loader2, Clock, Zap, Mail,
-  Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code
+  Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Sparkles
 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import {
   Select,
   SelectContent,
@@ -71,6 +72,8 @@ export default function UnifiedPostWizard({
   // Etapa 2 - Notificações
   const [sendNotification, setSendNotification] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState('urgente');
+  const [selectedDbTemplate, setSelectedDbTemplate] = useState(null);
+  const [dbTemplates, setDbTemplates] = useState([]);
   const [customTitle, setCustomTitle] = useState('');
   const [customMessage, setCustomMessage] = useState('');
   const [notifChannels, setNotifChannels] = useState({
@@ -87,6 +90,19 @@ export default function UnifiedPostWizard({
 
   const template = NOTIFICATION_TEMPLATES.find(t => t.id === selectedTemplate);
   const jobCount = jobsData.length;
+
+  // Carregar templates do banco
+  useEffect(() => {
+    const loadTemplates = async () => {
+      try {
+        const templates = await base44.entities.NotificationTemplate.filter({ is_active: true });
+        setDbTemplates(templates || []);
+      } catch (e) {
+        console.warn('Erro ao carregar templates:', e);
+      }
+    };
+    loadTemplates();
+  }, []);
 
   const toggleContractType = (type) => {
     setSelectedContractTypes(prev => 
@@ -111,7 +127,8 @@ export default function UnifiedPostWizard({
     const notificationData = sendNotification ? {
       title: customTitle || `${template?.emoji} ${template?.title}`,
       message: customMessage || template?.msg,
-      channels: notifChannels
+      channels: notifChannels,
+      templateId: selectedDbTemplate // Incluir ID do template selecionado
     } : null;
 
     const scheduleData = publishMode === 'schedule' ? {
@@ -307,6 +324,36 @@ export default function UnifiedPostWizard({
 
             {sendNotification === true && (
               <div className="space-y-4">
+                {/* Templates do Banco de Dados */}
+                {dbTemplates.length > 0 && (
+                  <div>
+                    <Label className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                      Templates Salvos
+                    </Label>
+                    <Select value={selectedDbTemplate || ''} onValueChange={(v) => setSelectedDbTemplate(v || null)}>
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder="Selecione um template..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={null}>Nenhum (usar padrão)</SelectItem>
+                        {dbTemplates.map(t => (
+                          <SelectItem key={t.id} value={t.id}>
+                            {t.icon} {t.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedDbTemplate && (
+                      <div className="mt-2 p-2.5 bg-purple-50 rounded-lg border border-purple-200">
+                        <p className="text-xs text-purple-800">
+                          ✨ Template dinâmico será aplicado com base no número de vagas
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Canais de Notificação (SEM WhatsApp) */}
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold text-slate-700 block">Enviar para:</Label>
