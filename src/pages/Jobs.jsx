@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle, ToggleRight
+  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import {
   Popover,
   PopoverContent,
@@ -455,15 +456,14 @@ export default function Jobs() {
             </Select>
 
             {userIsPremium && (
-              <Button
-                variant={showPremiumOnly ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowPremiumOnly(!showPremiumOnly)}
-                className="h-9 rounded-full text-xs whitespace-nowrap"
-              >
-                <ToggleRight className="w-3 h-3 mr-1" />
-                Premium
-              </Button>
+              <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full whitespace-nowrap">
+                <Switch
+                  checked={showPremiumOnly}
+                  onCheckedChange={setShowPremiumOnly}
+                  className="data-[state=checked]:bg-purple-600"
+                />
+                <span className="text-xs font-medium text-slate-700">Premium</span>
+              </div>
             )}
 
             {hasActiveFilters && (
