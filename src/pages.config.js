@@ -25,6 +25,7 @@ import GerenciarAnuncios from './pages/GerenciarAnuncios';
 import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarCores from './pages/GerenciarCores';
 import GerenciarFuncoes from './pages/GerenciarFuncoes';
+import GerenciarLinksEspeciais from './pages/GerenciarLinksEspeciais';
 import GerenciarNoticias from './pages/GerenciarNoticias';
 import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPopups from './pages/GerenciarPopups';
@@ -73,7 +74,6 @@ import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
-import GerenciarLinksEspeciais from './pages/GerenciarLinksEspeciais';
 import __Layout from './Layout.jsx';
 
 
@@ -105,6 +105,7 @@ export const PAGES = {
     "GerenciarComunidade": GerenciarComunidade,
     "GerenciarCores": GerenciarCores,
     "GerenciarFuncoes": GerenciarFuncoes,
+    "GerenciarLinksEspeciais": GerenciarLinksEspeciais,
     "GerenciarNoticias": GerenciarNoticias,
     "GerenciarPlanos": GerenciarPlanos,
     "GerenciarPopups": GerenciarPopups,
@@ -153,7 +154,6 @@ export const PAGES = {
     "VagasPendentes": VagasPendentes,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
-    "GerenciarLinksEspeciais": GerenciarLinksEspeciais,
 }
 
 export const pagesConfig = {

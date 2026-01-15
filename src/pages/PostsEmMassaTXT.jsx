@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
 import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
+import { extractQRCodeLink } from "@/components/admin/QRCodeExtractor";
 
 export default function PostsEmMassaTXT() {
   const { getStateFromCity } = useCityStateAutocomplete();
@@ -21,6 +22,8 @@ export default function PostsEmMassaTXT() {
   const [extractedJobs, setExtractedJobs] = useState([]);
   const [publishing, setPublishing] = useState(false);
   const [pastedText, setPastedText] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
     const init = async () => {
@@ -68,6 +71,12 @@ export default function PostsEmMassaTXT() {
     
     setProcessing(true);
     try {
+      // Extrair QR Code se houver imagem
+      let qrCodeLink = null;
+      if (imageUrl) {
+        qrCodeLink = await extractQRCodeLink(imageUrl);
+      }
+      
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `EXTRAIA TODAS AS VAGAS deste texto com MÁXIMA PRECISÃO (pode ter até 50 vagas):
 
@@ -82,6 +91,8 @@ REGRAS CRÍTICAS para CADA vaga:
    - Deixe VAZIO se não houver valor numérico
    
 3. Se vaga for remota: city: "Remoto", state: ""
+${qrCodeLink ? `
+4. QR CODE LINK DETECTADO: ${qrCodeLink}` : ''}
 
 TEXTO:
 ${pastedText}`,
@@ -110,9 +121,18 @@ ${pastedText}`,
 
       const extractedJobs = (result.jobs || []).map(job => {
         const autoState = (job.city && !job.state) ? getStateFromCity(job.city) : null;
+        
+        // Priorizar link do QR Code se não houver link na vaga
+        const finalLink = job.application_link || qrCodeLink || '';
+        
+        // VALIDAÇÃO: marcar status baseado em contato
+        const hasContact = finalLink && finalLink.trim() !== '';
+        
         return {
           ...job,
-          state: job.state || autoState || ''
+          state: job.state || autoState || '',
+          application_link: finalLink,
+          status: hasContact ? 'published' : 'pending_contact'
         };
       });
 
@@ -297,6 +317,37 @@ ${text}`,
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Imagem (opcional, para detectar QR Code):</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="txt-image"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setImageFile(file);
+                        try {
+                          const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                          setImageUrl(file_url);
+                        } catch (err) {
+                          alert('Erro no upload');
+                        }
+                      }
+                    }}
+                  />
+                  <label htmlFor="txt-image">
+                    <Button type="button" variant="outline" className="w-full pointer-events-none mb-2">
+                      <Upload className="w-4 h-4 mr-2" />
+                      {imageFile ? imageFile.name : 'Carregar Imagem'}
+                    </Button>
+                  </label>
+                  {imageUrl && (
+                    <img src={imageUrl} alt="Preview" className="w-full h-32 object-cover rounded-lg mb-2" />
+                  )}
+                </div>
+                
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Cole o texto copiado dos grupos:</label>
                   <Textarea
