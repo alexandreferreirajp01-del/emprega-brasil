@@ -1,363 +1,110 @@
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Mail, Lock, User, Phone, MapPin, CheckCircle, AlertCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from 'react';
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import PasswordInput from "@/components/common/PasswordInput";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Register() {
-  const [formData, setFormData] = useState({
-    full_name: '',
-    username: '',
-    email: '',
-    phone: '',
-    city: '',
-    state: 'PB',
-    password: '',
-    confirmPassword: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [success, setSuccess] = useState(false);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.full_name.trim()) {
-      newErrors.full_name = 'Nome completo é obrigatório';
-    }
-
-    if (!formData.username.trim()) {
-      newErrors.username = 'Nome de usuário é obrigatório';
-    } else if (formData.username.length < 3) {
-      newErrors.username = 'Nome de usuário deve ter no mínimo 3 caracteres';
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-    if (!formData.email.trim()) {
-      newErrors.email = 'E-mail é obrigatório';
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'E-mail inválido';
-    }
-
-    if (!formData.city.trim()) {
-      newErrors.city = 'Cidade é obrigatória';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Senha é obrigatória';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Senha deve ter no mínimo 6 caracteres';
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'As senhas não coincidem';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleGoogleLogin = () => {
+    localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+    base44.auth.redirectToLogin(createPageUrl('Home'));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch('/api/functions/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'manual_register',
-          custom_full_name: formData.full_name,
-          username: formData.username,
-          email: formData.email.toLowerCase(),
-          password: formData.password,
-          phone: formData.phone,
-          city: formData.city,
-          state: formData.state
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Notificar admins sobre novo usuário
-        try {
-          await base44.functions.invoke('notifyAdmins', {
-            event_type: 'new_user',
-            data: {
-              user_email: formData.email,
-              user_name: formData.full_name
-            }
-          });
-        } catch (e) {
-          console.warn('Erro ao notificar admins:', e);
-        }
-
-        setSuccess(true);
-        // Não redirecionar automaticamente - usuário precisa confirmar email
-      } else {
-        if (data.error) {
-          if (data.error.includes('já cadastrado')) {
-            setErrors({ email: data.error });
-          } else if (data.error.includes('já existe')) {
-            setErrors({ username: data.error });
-          } else {
-            setErrors({ general: data.error });
-          }
-        }
-        setLoading(false);
-      }
-
-    } catch (error) {
-      console.error('Erro ao criar conta:', error);
-      // Extrair mensagem de erro mais específica
-      const errorMessage = error.response?.data?.error || 
-                          error.message || 
-                          'Erro ao criar conta. Tente novamente.';
-      
-      if (errorMessage.includes('já está cadastrado')) {
-        setErrors({ email: errorMessage });
-      } else {
-        setErrors({ general: errorMessage });
-      }
-    } finally {
-      setLoading(false);
-    }
+  const handleMicrosoftLogin = () => {
+    localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+    base44.auth.redirectToLogin(createPageUrl('Home'));
   };
 
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Limpar erro do campo ao digitar
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
+  const handleFacebookLogin = () => {
+    localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+    base44.auth.redirectToLogin(createPageUrl('Home'));
   };
-
-  if (success) {
-    return (
-      <div className="min-h-screen bg-[#057642] flex flex-col items-center justify-center px-4">
-        <Card className="w-full max-w-md rounded-2xl shadow-2xl border-0">
-          <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-10 h-10 text-green-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">Verifique seu E-mail! 📧</h2>
-            <p className="text-slate-600 mb-4">
-              Enviamos um link de confirmação para:<br/>
-              <strong className="text-[#0A66C2]">{formData.email}</strong>
-            </p>
-            <p className="text-sm text-slate-500 mb-6">
-              Clique no link do e-mail para ativar sua conta e fazer login.
-            </p>
-            <Link to={createPageUrl('Splash')}>
-              <Button className="mt-4 bg-[#0A66C2] hover:bg-[#004182]">
-                Ir para Login
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-[#0A66C2] flex flex-col items-center justify-start pt-8 px-4 pb-8">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-white dark:bg-slate-900 flex flex-col items-center justify-start pt-12 px-4 pb-8 transition-colors">
+      <div className="w-full max-w-md mb-4">
         <Link to={createPageUrl('Splash')}>
-          <Button variant="ghost" className="text-white hover:bg-white/20 mb-4">
-            <ArrowLeft className="w-5 h-5 mr-2" />Voltar
+          <Button variant="ghost" className="text-slate-600 hover:bg-slate-100 -ml-2">
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Voltar
           </Button>
         </Link>
-
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-3">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925b32acced418ac606d1b9/0fe1413fb_logoempreto.jpeg" 
-              alt="Logo" 
-              className="w-12 h-12 object-contain rounded-xl"
-            />
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-1">Criar Conta</h1>
-          <p className="text-white/80 text-sm">Preencha seus dados para começar</p>
-        </div>
-
-        <Card className="rounded-2xl shadow-2xl border-0">
-          <CardContent className="p-6 space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Nome Completo */}
-              <div>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <Input
-                    type="text"
-                    placeholder="Nome completo *"
-                    value={formData.full_name}
-                    onChange={(e) => handleChange('full_name', e.target.value)}
-                    className={`pl-11 h-12 rounded-xl text-base ${errors.full_name ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.full_name && (
-                  <p className="text-red-500 text-xs mt-1 ml-1">{errors.full_name}</p>
-                )}
-              </div>
-
-              {/* Nome de Usuário */}
-              <div>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <Input
-                    type="text"
-                    placeholder="Nome de usuário *"
-                    value={formData.username}
-                    onChange={(e) => handleChange('username', e.target.value.toLowerCase().replace(/\s/g, ''))}
-                    className={`pl-11 h-12 rounded-xl text-base ${errors.username ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.username && (
-                  <p className="text-red-500 text-xs mt-1 ml-1">{errors.username}</p>
-                )}
-              </div>
-
-              {/* E-mail */}
-              <div>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <Input
-                    type="email"
-                    placeholder="E-mail *"
-                    value={formData.email}
-                    onChange={(e) => handleChange('email', e.target.value.toLowerCase())}
-                    className={`pl-11 h-12 rounded-xl text-base ${errors.email ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-red-500 text-xs mt-1 ml-1">{errors.email}</p>
-                )}
-              </div>
-
-              {/* Telefone */}
-              <div>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <Input
-                    type="tel"
-                    placeholder="Telefone (83) 99999-9999 *"
-                    value={formData.phone}
-                    onChange={(e) => handleChange('phone', e.target.value)}
-                    className={`pl-11 h-12 rounded-xl text-base ${errors.phone ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.phone && (
-                  <p className="text-red-500 text-xs mt-1 ml-1">{errors.phone}</p>
-                )}
-              </div>
-
-              {/* Cidade/Estado */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2">
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <Input
-                      type="text"
-                      placeholder="Cidade *"
-                      value={formData.city}
-                      onChange={(e) => handleChange('city', e.target.value)}
-                      className={`pl-11 h-12 rounded-xl text-base ${errors.city ? 'border-red-500' : ''}`}
-                    />
-                  </div>
-                  {errors.city && (
-                    <p className="text-red-500 text-xs mt-1 ml-1">{errors.city}</p>
-                  )}
-                </div>
-                <div>
-                  <Input
-                    type="text"
-                    placeholder="UF"
-                    value={formData.state}
-                    onChange={(e) => handleChange('state', e.target.value.toUpperCase())}
-                    maxLength={2}
-                    className="h-12 rounded-xl text-base text-center"
-                  />
-                </div>
-              </div>
-
-              {/* Senha */}
-              <div>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 z-10" />
-                  <PasswordInput
-                    value={formData.password}
-                    onChange={(e) => handleChange('password', e.target.value)}
-                    placeholder="Criar senha (mínimo 6 caracteres) *"
-                    className={`pl-11 h-12 rounded-xl text-base ${errors.password ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.password && (
-                  <p className="text-red-500 text-xs mt-1 ml-1">{errors.password}</p>
-                )}
-              </div>
-
-              {/* Confirmar Senha */}
-              <div>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 z-10" />
-                  <PasswordInput
-                    value={formData.confirmPassword}
-                    onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                    placeholder="Confirmar senha *"
-                    className={`pl-11 h-12 rounded-xl text-base ${errors.confirmPassword ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-xs mt-1 ml-1">{errors.confirmPassword}</p>
-                )}
-              </div>
-
-              {/* Erro Geral */}
-              {errors.general && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-700 text-sm">{errors.general}</p>
-                </div>
-              )}
-
-              {/* Botão Submit */}
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl text-base font-semibold"
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  'Confirmar Cadastro'
-                )}
-              </Button>
-
-              {/* Info */}
-              <p className="text-center text-xs text-slate-400 pt-2">
-                * Campos obrigatórios
-              </p>
-            </form>
-          </CardContent>
-        </Card>
-
-        <p className="text-center text-white/60 text-xs mt-4">
-          Ao criar uma conta, você concorda com nossos{' '}
-          <Link to={createPageUrl('Terms')} className="text-white/80 hover:text-white hover:underline">
-            Termos de Uso
-          </Link>
-        </p>
       </div>
+
+      <div className="text-center mb-8">
+        <div className="w-32 h-32 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-6 p-4">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png" 
+            alt="Emprega Brasil+" 
+            className="w-full h-full object-contain"
+          />
+        </div>
+        <h1 className="text-4xl font-bold text-[#0A66C2] mb-2">Criar Conta</h1>
+        <p className="text-slate-600 text-lg">Escolha uma forma de entrar</p>
+      </div>
+
+      <Card className="w-full max-w-md rounded-2xl shadow-2xl border-0">
+        <CardContent className="p-6 space-y-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGoogleLogin}
+            className="w-full h-14 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-base font-semibold shadow-sm hover:shadow-md transition-all"
+          >
+            <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continuar com Google
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleMicrosoftLogin}
+            className="w-full h-14 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-base font-semibold shadow-sm hover:shadow-md transition-all"
+          >
+            <svg className="w-6 h-6 mr-3" viewBox="0 0 23 23">
+              <path fill="#f25022" d="M0 0h11v11H0z"/>
+              <path fill="#00a4ef" d="M12 0h11v11H12z"/>
+              <path fill="#7fba00" d="M0 12h11v11H0z"/>
+              <path fill="#ffb900" d="M12 12h11v11H12z"/>
+            </svg>
+            Continuar com Microsoft
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleFacebookLogin}
+            className="w-full h-14 rounded-xl border-2 border-[#1877F2] bg-[#1877F2] hover:bg-[#0C63D4] text-white text-base font-semibold shadow-sm hover:shadow-md transition-all"
+          >
+            <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            Continuar com Facebook
+          </Button>
+
+          <p className="text-center text-xs text-slate-500 pt-4">
+            Ao continuar, você concorda com nossos{' '}
+            <a href={createPageUrl('Terms')} className="text-slate-600 hover:text-slate-800 hover:underline">Termos de Uso</a>
+            {' e '}
+            <a href={createPageUrl('Privacy')} className="text-slate-600 hover:text-slate-800 hover:underline">Política de Privacidade</a>
+          </p>
+        </CardContent>
+      </Card>
+
+      <p className="text-slate-500 text-xs mt-8 text-center">
+        © {new Date().getFullYear()} Emprega Brasil+
+      </p>
     </div>
   );
 }
