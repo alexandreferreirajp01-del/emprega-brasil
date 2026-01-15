@@ -1,5 +1,4 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { createHash } from 'node:crypto';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
@@ -14,15 +13,12 @@ Deno.serve(async (req) => {
         return new Response(`
           <!DOCTYPE html>
           <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>Erro - Emprega Brasil+</title>
-          </head>
+          <head><meta charset="UTF-8"><title>Erro</title></head>
           <body style="font-family: Arial, sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
             <div style="background: white; padding: 40px; border-radius: 10px; text-align: center; max-width: 500px;">
               <div style="font-size: 60px; margin-bottom: 20px;">❌</div>
-              <h1 style="color: #dc3545; margin: 0 0 15px 0;">Link Inválido</h1>
-              <p style="color: #666;">Token de confirmação não encontrado.</p>
+              <h1 style="color: #dc3545;">Link Inválido</h1>
+              <p style="color: #666;">Token não encontrado.</p>
             </div>
           </body>
           </html>
@@ -35,16 +31,13 @@ Deno.serve(async (req) => {
         return new Response(`
           <!DOCTYPE html>
           <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>Link Expirado - Emprega Brasil+</title>
-          </head>
+          <head><meta charset="UTF-8"><title>Link Expirado</title></head>
           <body style="font-family: Arial, sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
             <div style="background: white; padding: 40px; border-radius: 10px; text-align: center; max-width: 500px;">
               <div style="font-size: 60px; margin-bottom: 20px;">⏰</div>
-              <h1 style="color: #ffc107; margin: 0 0 15px 0;">Link Expirado</h1>
+              <h1 style="color: #ffc107;">Link Expirado</h1>
               <p style="color: #666; margin-bottom: 30px;">Este link já foi usado ou expirou.</p>
-              <a href="https://empregabrasil.app" style="display: inline-block; background: #0A66C2; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">Voltar ao Site</a>
+              <a href="https://empregabrasil.app" style="display: inline-block; background: #0A66C2; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">Voltar</a>
             </div>
           </body>
           </html>
@@ -52,9 +45,7 @@ Deno.serve(async (req) => {
       }
 
       const user = users[0];
-
       await base44.asServiceRole.entities.User.update(user.id, {
-        access_status: 'approved',
         email_confirmed: true,
         confirmation_token: null
       });
@@ -62,20 +53,15 @@ Deno.serve(async (req) => {
       return new Response(`
         <!DOCTYPE html>
         <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>Conta Ativada - Emprega Brasil+</title>
-          <script>
-            setTimeout(() => { window.location.href = 'https://empregabrasil.app'; }, 3000);
-          </script>
+        <head><meta charset="UTF-8"><title>Conta Ativada</title>
+          <script>setTimeout(() => { window.location.href = 'https://empregabrasil.app'; }, 3000);</script>
         </head>
         <body style="font-family: Arial, sans-serif; background: linear-gradient(135deg, #0A66C2 0%, #004182 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
-          <div style="background: white; padding: 50px; border-radius: 15px; text-align: center; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+          <div style="background: white; padding: 50px; border-radius: 15px; text-align: center; max-width: 500px;">
             <div style="font-size: 80px; margin-bottom: 20px;">🎉</div>
-            <h1 style="color: #28a745; margin: 0 0 15px 0; font-size: 32px;">Conta Ativada!</h1>
-            <p style="color: #666; margin-bottom: 10px; font-size: 18px;">Bem-vindo, <strong>${user.full_name || user.custom_full_name}</strong>!</p>
-            <p style="color: #888; margin-bottom: 30px;">Redirecionando...</p>
-            <a href="https://empregabrasil.app" style="display: inline-block; background: #0A66C2; color: white; padding: 14px 35px; text-decoration: none; border-radius: 8px; font-weight: bold;">Acessar Agora</a>
+            <h1 style="color: #28a745; font-size: 32px;">Conta Ativada!</h1>
+            <p style="color: #666; font-size: 18px;">Bem-vindo!</p>
+            <p style="color: #888;">Redirecionando...</p>
           </div>
         </body>
         </html>
@@ -114,35 +100,50 @@ Deno.serve(async (req) => {
       }
 
       // Verificar se username já existe
-      const usernameToUse = username?.toLowerCase() || email.split('@')[0].toLowerCase();
-      const existingByUsername = await base44.asServiceRole.entities.User.filter({ username: usernameToUse });
-      if (existingByUsername && existingByUsername.length > 0) {
-        return Response.json({ success: false, error: 'Nome de usuário já existe' }, { status: 400 });
+      if (username) {
+        const existingByUsername = await base44.asServiceRole.entities.User.filter({ username: username.toLowerCase() });
+        if (existingByUsername && existingByUsername.length > 0) {
+          return Response.json({ success: false, error: 'Nome de usuário já existe' }, { status: 400 });
+        }
       }
 
-      // Gerar salt e hash da senha
-      const salt = crypto.randomUUID();
-      const passwordHash = createHash('sha256').update(password + salt).digest('hex');
       const confirmToken = crypto.randomUUID();
+      const usernameToUse = username?.toLowerCase() || email.split('@')[0].toLowerCase();
 
-      // Criar usuário diretamente na entidade User
-      const newUser = await base44.asServiceRole.entities.User.create({
+      // Registrar usuário com signUp do Base44
+      const { data: authData, error: signUpError } = await base44.auth.signUp({
         email: email.toLowerCase(),
-        full_name: custom_full_name,
-        custom_full_name: custom_full_name,
+        password: password,
+        options: {
+          emailRedirectTo: 'https://empregabrasil.app',
+          data: {
+            full_name: custom_full_name,
+            username: usernameToUse,
+            phone: phone || '',
+            city: city || '',
+            state: state || '',
+            subscription_type: 'basic',
+            email_confirmed: false,
+            confirmation_token: confirmToken
+          }
+        }
+      });
+
+      if (signUpError) {
+        console.error('Erro no signUp:', signUpError);
+        return Response.json({ success: false, error: signUpError.message || 'Erro ao criar conta' }, { status: 400 });
+      }
+
+      // Atualizar dados do usuário na entidade User
+      const userId = authData.user.id;
+      await base44.asServiceRole.entities.User.update(userId, {
         username: usernameToUse,
-        password_hash: passwordHash,
-        password_salt: salt,
         phone: phone || '',
         city: city || '',
         state: state || '',
-        profile_photo: '',
-        googleId: '',
         subscription_type: 'basic',
-        access_status: 'pending',
         email_confirmed: false,
-        confirmation_token: confirmToken,
-        permissions: {}
+        confirmation_token: confirmToken
       });
 
       const confirmUrl = `https://empregabrasil.app/api/functions/auth/confirm_email?token=${confirmToken}`;
@@ -164,7 +165,7 @@ Deno.serve(async (req) => {
                 <div style="text-align: center; margin: 30px 0;">
                   <a href="${confirmUrl}" style="display: inline-block; background: #0A66C2; color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px;">✅ Confirmar Cadastro</a>
                 </div>
-                <p style="color: #666; font-size: 14px;">Ou copie e cole este link: <a href="${confirmUrl}" style="color: #0A66C2;">${confirmUrl}</a></p>
+                <p style="color: #666; font-size: 14px;">Ou copie este link: <a href="${confirmUrl}" style="color: #0A66C2;">${confirmUrl}</a></p>
               </div>
             </div>
           </body>
@@ -175,7 +176,7 @@ Deno.serve(async (req) => {
       return Response.json({
         success: true,
         message: 'Cadastro criado! Verifique seu e-mail.',
-        user: { id: newUser.id, email: newUser.email, full_name: newUser.full_name || newUser.custom_full_name }
+        user: { id: userId, email: email.toLowerCase(), full_name: custom_full_name }
       });
     }
 
@@ -188,45 +189,44 @@ Deno.serve(async (req) => {
       }
 
       // Buscar usuário por email ou username
-      let user = null;
+      let userEmail = username;
       
-      const usersByEmail = await base44.asServiceRole.entities.User.filter({ email: username.toLowerCase() });
-      if (usersByEmail && usersByEmail.length > 0) {
-        user = usersByEmail[0];
-      } else {
+      if (!username.includes('@')) {
         const usersByUsername = await base44.asServiceRole.entities.User.filter({ username: username.toLowerCase() });
         if (usersByUsername && usersByUsername.length > 0) {
-          user = usersByUsername[0];
+          userEmail = usersByUsername[0].email;
+        } else {
+          return Response.json({ success: false, error: 'Usuário não encontrado' }, { status: 404 });
         }
       }
 
-      if (!user) {
+      // Verificar se usuário existe
+      const users = await base44.asServiceRole.entities.User.filter({ email: userEmail.toLowerCase() });
+      if (!users || users.length === 0) {
         return Response.json({ success: false, error: 'Usuário não encontrado' }, { status: 404 });
       }
+
+      const user = users[0];
 
       // Verificar se email foi confirmado
       if (!user.email_confirmed) {
         return Response.json({ success: false, error: 'Confirme seu e-mail antes de fazer login' }, { status: 403 });
       }
 
-      // Verificar senha
-      const passwordHash = createHash('sha256').update(password + user.password_salt).digest('hex');
-      if (passwordHash !== user.password_hash) {
+      // Fazer login
+      const { error: signInError } = await base44.auth.signIn({
+        email: userEmail.toLowerCase(),
+        password: password
+      });
+
+      if (signInError) {
         return Response.json({ success: false, error: 'Senha incorreta' }, { status: 401 });
       }
 
-      // Fazer login (criar sessão manualmente)
-      // Como não podemos usar signIn com usuários custom, vamos retornar sucesso
-      // e o frontend vai gerenciar a sessão
       return Response.json({
         success: true,
         message: 'Login realizado com sucesso!',
-        user: { 
-          id: user.id, 
-          email: user.email, 
-          full_name: user.full_name || user.custom_full_name,
-          subscription_type: user.subscription_type
-        }
+        user: { id: user.id, email: user.email, full_name: user.full_name }
       });
     }
 
