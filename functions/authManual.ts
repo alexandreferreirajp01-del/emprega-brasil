@@ -58,6 +58,8 @@ Deno.serve(async (req) => {
 
       // Criar usuário no sistema Base44 (email, full_name, role são built-in)
       const newUser = await base44.asServiceRole.entities.User.create({
+        full_name: `${nome} ${sobrenome}`,
+        email,
         nome,
         sobrenome,
         idade,
