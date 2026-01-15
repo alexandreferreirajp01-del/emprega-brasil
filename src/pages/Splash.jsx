@@ -176,14 +176,8 @@ export default function Splash() {
     
     const targetPage = redirectTo || 'Home';
     
-    // Redirecionar para OAuth da Apple
-    const redirectUrl = window.location.origin + createPageUrl(targetPage);
-    base44.auth.signInWithOAuth({
-      provider: 'apple',
-      options: {
-        redirectTo: redirectUrl
-      }
-    });
+    // Redirecionar para OAuth da Apple (mesmo comportamento do Google)
+    base44.auth.redirectToLogin(createPageUrl(targetPage));
   };
 
 

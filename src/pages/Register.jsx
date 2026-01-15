@@ -36,15 +36,11 @@ export default function Register() {
       newErrors.username = 'Nome de usuário deve ter no mínimo 3 caracteres';
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!formData.email.trim()) {
       newErrors.email = 'E-mail é obrigatório';
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = 'E-mail inválido';
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Telefone é obrigatório';
     }
 
     if (!formData.city.trim()) {
@@ -82,7 +78,10 @@ export default function Register() {
           custom_full_name: formData.full_name,
           username: formData.username,
           email: formData.email.toLowerCase(),
-          password: formData.password
+          password: formData.password,
+          phone: formData.phone,
+          city: formData.city,
+          state: formData.state
         })
       });
 
@@ -103,9 +102,7 @@ export default function Register() {
         }
 
         setSuccess(true);
-        setTimeout(() => {
-          window.location.href = createPageUrl('Splash');
-        }, 3000);
+        // Não redirecionar automaticamente - usuário precisa confirmar email
       } else {
         if (data.error) {
           if (data.error.includes('já cadastrado')) {
@@ -152,14 +149,19 @@ export default function Register() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">Conta Criada!</h2>
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">Verifique seu E-mail! 📧</h2>
             <p className="text-slate-600 mb-4">
-              Enviamos um e-mail de confirmação para <strong>{formData.email}</strong>
+              Enviamos um link de confirmação para:<br/>
+              <strong className="text-[#0A66C2]">{formData.email}</strong>
             </p>
             <p className="text-sm text-slate-500 mb-6">
-              Redirecionando para o login...
+              Clique no link do e-mail para ativar sua conta e fazer login.
             </p>
-            <Loader2 className="w-6 h-6 animate-spin mx-auto text-green-600" />
+            <Link to={createPageUrl('Splash')}>
+              <Button className="mt-4 bg-[#0A66C2] hover:bg-[#004182]">
+                Ir para Login
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
