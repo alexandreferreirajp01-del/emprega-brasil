@@ -150,46 +150,32 @@ export default function Splash() {
     base44.auth.redirectToLogin(createPageUrl(targetPage));
   };
 
-  // Login com Apple
+  // Login com Apple - usa o mesmo fluxo do Google
   const handleAppleLogin = async () => {
+    localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+    
+    const redirectTo = sessionStorage.getItem('redirect_after_login');
+    sessionStorage.removeItem('needs_login');
+    sessionStorage.removeItem('redirect_after_login');
+    
     try {
-      setLoading(true);
-      setError('');
-
-      const redirectUrl = window.location.origin + window.location.pathname;
-      
-      await base44.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: redirectUrl
-        }
-      });
-
       const user = await base44.auth.me();
       if (user) {
-        localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
-        sessionStorage.removeItem('needs_login');
-        
-        try {
-          await base44.functions.invoke('notifyAdmins', {
-            event_type: 'user_login',
-            data: {
-              user_email: user.email,
-              user_name: user.full_name || user.email,
-              login_method: 'apple'
-            }
-          });
-        } catch (e) {
-          console.warn('Erro ao notificar admins:', e);
-        }
-        window.location.href = createPageUrl('Home');
+        await base44.functions.invoke('notifyAdmins', {
+          event_type: 'user_login',
+          data: {
+            user_email: user.email,
+            user_name: user.full_name || user.email,
+            login_method: 'apple'
+          }
+        });
       }
-    } catch (err) {
-      console.error('Erro no login com Apple:', err);
-      setError('Erro ao fazer login com Apple. Tente novamente.');
-    } finally {
-      setLoading(false);
+    } catch (e) {
+      // Ignorar
     }
+    
+    const targetPage = redirectTo || 'Home';
+    base44.auth.redirectToLogin(createPageUrl(targetPage));
   };
 
 
