@@ -132,6 +132,15 @@ export default function FloatingChatButton() {
 
     const userMessage = input.trim();
     const files = uploadedFiles.map(f => f.url);
+    
+    // Adicionar mensagem do usuário imediatamente à UI
+    const userMsg = {
+      role: 'user',
+      content: userMessage || 'Arquivos anexados',
+      file_urls: files.length > 0 ? files : undefined
+    };
+    setMessages(prev => [...prev, userMsg]);
+    
     setInput('');
     setUploadedFiles([]);
     setLoading(true);
@@ -161,7 +170,7 @@ export default function FloatingChatButton() {
       console.error('Erro ao enviar mensagem:', e);
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Desculpe, ocorreu um erro. Tente novamente.'
+        content: '❌ Desculpe, ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente em alguns segundos.'
       }]);
     } finally {
       setLoading(false);
@@ -384,8 +393,9 @@ export default function FloatingChatButton() {
               />
               <button
                 onClick={handleSend}
-                disabled={(!input.trim() && uploadedFiles.length === 0) || loading}
-                className="h-10 w-10 flex items-center justify-center bg-[#0A66C2] hover:bg-[#004182] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full transition-colors"
+                disabled={(!input.trim() && uploadedFiles.length === 0) || loading || !conversationId}
+                className="h-10 w-10 flex items-center justify-center bg-[#0A66C2] hover:bg-[#004182] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full transition-colors shadow-lg"
+                title={!conversationId ? 'Iniciando conversa...' : 'Enviar mensagem'}
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
