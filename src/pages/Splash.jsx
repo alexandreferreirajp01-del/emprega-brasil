@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Mail, Lock, Briefcase, ArrowLeft, Apple } from "lucide-react";
+import { Loader2, Mail, Lock, Briefcase, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import PasswordInput from "@/components/common/PasswordInput";
 
@@ -80,10 +80,10 @@ export default function Splash() {
     setError('');
     
     try {
-      const response = await fetch('/api/functions/auth/manual_login', {
+      const response = await fetch('/api/functions/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: email, password })
+        body: JSON.stringify({ action: 'manual_login', username: email, password })
       });
       
       const data = await response.json();
@@ -150,8 +150,8 @@ export default function Splash() {
     base44.auth.redirectToLogin(createPageUrl(targetPage));
   };
 
-  // Login com Apple - usa o mesmo fluxo do Google
-  const handleAppleLogin = async () => {
+  // Login com Microsoft
+  const handleMicrosoftLogin = async () => {
     localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
     
     const redirectTo = sessionStorage.getItem('redirect_after_login');
@@ -166,7 +166,35 @@ export default function Splash() {
           data: {
             user_email: user.email,
             user_name: user.full_name || user.email,
-            login_method: 'apple'
+            login_method: 'microsoft'
+          }
+        });
+      }
+    } catch (e) {
+      // Ignorar
+    }
+    
+    const targetPage = redirectTo || 'Home';
+    base44.auth.redirectToLogin(createPageUrl(targetPage));
+  };
+
+  // Login com Facebook
+  const handleFacebookLogin = async () => {
+    localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
+    
+    const redirectTo = sessionStorage.getItem('redirect_after_login');
+    sessionStorage.removeItem('needs_login');
+    sessionStorage.removeItem('redirect_after_login');
+    
+    try {
+      const user = await base44.auth.me();
+      if (user) {
+        await base44.functions.invoke('notifyAdmins', {
+          event_type: 'user_login',
+          data: {
+            user_email: user.email,
+            user_name: user.full_name || user.email,
+            login_method: 'facebook'
           }
         });
       }
@@ -308,11 +336,28 @@ export default function Splash() {
             <Button
               type="button"
               variant="outline"
-              onClick={handleAppleLogin}
-              className="w-full h-14 rounded-xl border-2 border-black bg-black hover:bg-gray-900 text-white text-base font-semibold shadow-sm hover:shadow-md transition-all"
+              onClick={handleMicrosoftLogin}
+              className="w-full h-14 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-base font-semibold shadow-sm hover:shadow-md transition-all"
             >
-              <Apple className="w-6 h-6 mr-3" />
-              Continuar com Apple
+              <svg className="w-6 h-6 mr-3" viewBox="0 0 23 23">
+                <path fill="#f25022" d="M0 0h11v11H0z"/>
+                <path fill="#00a4ef" d="M12 0h11v11H12z"/>
+                <path fill="#7fba00" d="M0 12h11v11H0z"/>
+                <path fill="#ffb900" d="M12 12h11v11H12z"/>
+              </svg>
+              Continuar com Microsoft
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleFacebookLogin}
+              className="w-full h-14 rounded-xl border-2 border-[#1877F2] bg-[#1877F2] hover:bg-[#0C63D4] text-white text-base font-semibold shadow-sm hover:shadow-md transition-all"
+            >
+              <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              Continuar com Facebook
             </Button>
           </div>
 

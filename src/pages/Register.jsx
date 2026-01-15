@@ -71,10 +71,11 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/functions/auth/manual_register', {
+      const response = await fetch('/api/functions/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          action: 'manual_register',
           custom_full_name: formData.full_name,
           username: formData.username,
           email: formData.email.toLowerCase(),
