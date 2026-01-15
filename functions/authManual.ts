@@ -103,10 +103,8 @@ Deno.serve(async (req) => {
         const verificationToken = crypto.randomUUID();
         const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24h
 
-        // Criar usuário no sistema Base44
+        // Criar usuário no sistema Base44 (email e full_name são gerenciados automaticamente pelo Base44)
         const newUser = await base44.asServiceRole.entities.User.create({
-          email: email,
-          full_name: `${nome} ${sobrenome}`,
           nome,
           sobrenome,
           idade: idadeNum,
