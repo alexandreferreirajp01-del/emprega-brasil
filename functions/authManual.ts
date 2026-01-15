@@ -12,123 +12,191 @@ Deno.serve(async (req) => {
     if (action === 'register') {
       const { nome, sobrenome, idade, localidade, username, email, telefone, password } = body;
 
-      // Validações
-      if (!nome || !sobrenome || !idade || !localidade || !username || !email || !telefone || !password) {
-        return Response.json({ success: false, error: 'Todos os campos são obrigatórios' }, { status: 400 });
-      }
-
-      if (idade < 14) {
-        return Response.json({ success: false, error: 'Você precisa ter pelo menos 14 anos' }, { status: 400 });
-      }
-
-      if (username.length < 3 || /\s/.test(username)) {
-        return Response.json({ success: false, error: 'Username deve ter no mínimo 3 caracteres e não pode conter espaços' }, { status: 400 });
-      }
-
-      if (password.length < 6) {
-        return Response.json({ success: false, error: 'Senha deve ter no mínimo 6 caracteres' }, { status: 400 });
-      }
-
-      // Verificar se username já existe
-      const existingUsername = await base44.asServiceRole.entities.User.filter({ username });
-      if (existingUsername.length > 0) {
-        return Response.json({ success: false, error: 'Esse nome de usuário já está em uso. Tente outro.' }, { status: 400 });
-      }
-
-      // Verificar se email já existe
-      const existingEmail = await base44.asServiceRole.entities.User.filter({ email });
-      if (existingEmail.length > 0) {
-        const user = existingEmail[0];
-        if (user.authProvider !== 'password') {
+      try {
+        // Validações básicas
+        if (!nome || !sobrenome || !idade || !localidade || !username || !email || !telefone || !password) {
           return Response.json({ 
             success: false, 
-            error: `Esse email já possui conta via ${user.authProvider}. Faça login por ${user.authProvider} ou use outro email.` 
+            errorCode: 'MISSING_FIELDS',
+            error: 'Todos os campos são obrigatórios',
+            field: 'all'
           }, { status: 400 });
-        } else {
-          return Response.json({ success: false, error: 'Email já cadastrado' }, { status: 400 });
         }
+
+        // Validar idade
+        const idadeNum = parseInt(idade);
+        if (isNaN(idadeNum) || idadeNum < 14) {
+          return Response.json({ 
+            success: false, 
+            errorCode: 'INVALID_AGE',
+            error: 'Você precisa ter pelo menos 14 anos',
+            field: 'idade'
+          }, { status: 400 });
+        }
+
+        // Validar username
+        if (username.length < 3 || /\s/.test(username)) {
+          return Response.json({ 
+            success: false, 
+            errorCode: 'INVALID_USERNAME',
+            error: 'Username deve ter no mínimo 3 caracteres e não pode conter espaços',
+            field: 'username'
+          }, { status: 400 });
+        }
+
+        // Validar email
+        if (!/\S+@\S+\.\S+/.test(email)) {
+          return Response.json({ 
+            success: false, 
+            errorCode: 'INVALID_EMAIL',
+            error: 'Email inválido',
+            field: 'email'
+          }, { status: 400 });
+        }
+
+        // Validar senha
+        if (password.length < 6) {
+          return Response.json({ 
+            success: false, 
+            errorCode: 'INVALID_PASSWORD',
+            error: 'Senha deve ter no mínimo 6 caracteres',
+            field: 'password'
+          }, { status: 400 });
+        }
+
+        // Verificar se username já existe
+        const existingUsername = await base44.asServiceRole.entities.User.filter({ username });
+        if (existingUsername.length > 0) {
+          return Response.json({ 
+            success: false, 
+            errorCode: 'USERNAME_ALREADY_EXISTS',
+            error: 'Nome de usuário já cadastrado',
+            field: 'username'
+          }, { status: 409 });
+        }
+
+        // Verificar se email já existe
+        const existingEmail = await base44.asServiceRole.entities.User.filter({ email });
+        if (existingEmail.length > 0) {
+          const user = existingEmail[0];
+          if (user.authProvider !== 'password') {
+            return Response.json({ 
+              success: false, 
+              errorCode: 'EMAIL_EXISTS_OTHER_PROVIDER',
+              error: `Email já cadastrado via ${user.authProvider}. Use o botão ${user.authProvider} para entrar.`,
+              field: 'email'
+            }, { status: 409 });
+          } else {
+            return Response.json({ 
+              success: false, 
+              errorCode: 'EMAIL_ALREADY_EXISTS',
+              error: 'Email já cadastrado',
+              field: 'email'
+            }, { status: 409 });
+          }
+        }
+
+        // Hash da senha
+        const senhaHash = await bcrypt.hash(password, 10);
+
+        // Gerar token de verificação
+        const verificationToken = crypto.randomUUID();
+        const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24h
+
+        // Criar usuário no sistema Base44
+        const newUser = await base44.asServiceRole.entities.User.create({
+          email: email,
+          full_name: `${nome} ${sobrenome}`,
+          nome,
+          sobrenome,
+          idade: idadeNum,
+          localidade,
+          username,
+          telefone,
+          senhaHash,
+          authProvider: 'password',
+          emailVerified: false,
+          accountStatus: 'pending_verification',
+          verificationToken,
+          verificationTokenExpiry,
+          subscription_type: 'basic'
+        });
+
+        // Tentar enviar email de verificação (não deve quebrar o cadastro se falhar)
+        let emailSent = true;
+        try {
+          const verificationLink = `${new URL(req.url).origin}/verify-email?token=${verificationToken}`;
+          
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: email,
+            subject: 'Emprega Brasil+ - Confirme seu cadastro',
+            body: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; border-radius: 10px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                  <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png" alt="Emprega Brasil+" style="width: 100px; height: 100px;">
+                  <h1 style="color: #0A66C2; margin-top: 20px;">Emprega Brasil+</h1>
+                </div>
+                
+                <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                  <h2 style="color: #333; margin-bottom: 20px;">Olá, ${nome}!</h2>
+                  
+                  <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+                    Obrigado por se cadastrar no <strong>Emprega Brasil+</strong>! 
+                  </p>
+                  
+                  <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                    Para ativar sua conta e começar a procurar vagas de emprego, por favor confirme seu email clicando no botão abaixo:
+                  </p>
+                  
+                  <div style="text-align: center; margin: 30px 0;">
+                    <a href="${verificationLink}" style="background-color: #0A66C2; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold; display: inline-block;">
+                      Validar meu cadastro
+                    </a>
+                  </div>
+                  
+                  <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 25px;">
+                    <h3 style="color: #333; font-size: 14px; margin-bottom: 10px;">📋 Seus dados:</h3>
+                    <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Nome:</strong> ${nome} ${sobrenome}</p>
+                    <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Username:</strong> ${username}</p>
+                    <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Email:</strong> ${email}</p>
+                    <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Localidade:</strong> ${localidade}</p>
+                    <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Telefone:</strong> ${telefone}</p>
+                  </div>
+                  
+                  <p style="color: #999; font-size: 12px; margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px;">
+                    ⚠️ Este link expira em 24 horas. Se você não solicitou este cadastro, ignore este email.
+                  </p>
+                </div>
+                
+                <p style="text-align: center; color: #999; font-size: 12px; margin-top: 20px;">
+                  © ${new Date().getFullYear()} Emprega Brasil+ - Todos os direitos reservados
+                </p>
+              </div>
+            `
+          });
+        } catch (emailError) {
+          console.error('Erro ao enviar email:', emailError);
+          emailSent = false;
+        }
+
+        return Response.json({ 
+          success: true, 
+          message: emailSent 
+            ? 'Cadastro realizado! Verifique seu email para ativar sua conta.'
+            : 'Conta criada! Porém houve falha no envio do email. Entre em contato com o suporte.',
+          userId: newUser.id,
+          emailSent
+        });
+
+      } catch (registerError) {
+        console.error('Erro no registro:', registerError);
+        return Response.json({ 
+          success: false, 
+          errorCode: 'REGISTRATION_ERROR',
+          error: 'Erro ao criar conta. Tente novamente.',
+          details: registerError.message 
+        }, { status: 500 });
       }
-
-      // Hash da senha
-      const senhaHash = await bcrypt.hash(password, 10);
-
-      // Gerar token de verificação
-      const verificationToken = crypto.randomUUID();
-      const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24h
-
-      // Criar usuário no sistema Base44 (email, full_name, role são built-in e gerenciados automaticamente)
-      const newUser = await base44.asServiceRole.entities.User.create({
-        nome,
-        sobrenome,
-        idade,
-        localidade,
-        username,
-        telefone,
-        senhaHash,
-        authProvider: 'password',
-        emailVerified: false,
-        accountStatus: 'pending_verification',
-        verificationToken,
-        verificationTokenExpiry,
-        subscription_type: 'basic'
-      });
-
-      // Enviar email de verificação
-      const verificationLink = `${new URL(req.url).origin}/verify-email?token=${verificationToken}`;
-      
-      await base44.asServiceRole.integrations.Core.SendEmail({
-        to: email,
-        subject: 'Emprega Brasil+ - Confirme seu cadastro',
-        body: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; border-radius: 10px;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png" alt="Emprega Brasil+" style="width: 100px; height: 100px;">
-              <h1 style="color: #0A66C2; margin-top: 20px;">Emprega Brasil+</h1>
-            </div>
-            
-            <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-              <h2 style="color: #333; margin-bottom: 20px;">Olá, ${nome}!</h2>
-              
-              <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
-                Obrigado por se cadastrar no <strong>Emprega Brasil+</strong>! 
-              </p>
-              
-              <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
-                Para ativar sua conta e começar a procurar vagas de emprego, por favor confirme seu email clicando no botão abaixo:
-              </p>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${verificationLink}" style="background-color: #0A66C2; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold; display: inline-block;">
-                  Validar meu cadastro
-                </a>
-              </div>
-              
-              <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 25px;">
-                <h3 style="color: #333; font-size: 14px; margin-bottom: 10px;">📋 Seus dados:</h3>
-                <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Nome:</strong> ${nome} ${sobrenome}</p>
-                <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Username:</strong> ${username}</p>
-                <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Email:</strong> ${email}</p>
-                <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Localidade:</strong> ${localidade}</p>
-                <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Telefone:</strong> ${telefone}</p>
-              </div>
-              
-              <p style="color: #999; font-size: 12px; margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px;">
-                ⚠️ Este link expira em 24 horas. Se você não solicitou este cadastro, ignore este email.
-              </p>
-            </div>
-            
-            <p style="text-align: center; color: #999; font-size: 12px; margin-top: 20px;">
-              © ${new Date().getFullYear()} Emprega Brasil+ - Todos os direitos reservados
-            </p>
-          </div>
-        `
-      });
-
-      return Response.json({ 
-        success: true, 
-        message: 'Cadastro realizado! Verifique seu email para ativar sua conta.',
-        userId: newUser.id 
-      });
     }
 
     // ===== LOGIN =====

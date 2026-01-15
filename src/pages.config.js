@@ -62,6 +62,8 @@ import Profile from './pages/Profile';
 import RecentJobsBatch from './pages/RecentJobsBatch';
 import RecruiterArea from './pages/RecruiterArea';
 import Register from './pages/Register';
+import RegistrationSuccess from './pages/RegistrationSuccess';
+import ResendVerification from './pages/ResendVerification';
 import ResetPassword from './pages/ResetPassword';
 import ResponderChat from './pages/ResponderChat';
 import Security from './pages/Security';
@@ -74,9 +76,7 @@ import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
-import RegistrationSuccess from './pages/RegistrationSuccess';
 import VerifyEmail from './pages/VerifyEmail';
-import ResendVerification from './pages/ResendVerification';
 import __Layout from './Layout.jsx';
 
 
@@ -145,6 +145,8 @@ export const PAGES = {
     "RecentJobsBatch": RecentJobsBatch,
     "RecruiterArea": RecruiterArea,
     "Register": Register,
+    "RegistrationSuccess": RegistrationSuccess,
+    "ResendVerification": ResendVerification,
     "ResetPassword": ResetPassword,
     "ResponderChat": ResponderChat,
     "Security": Security,
@@ -157,9 +159,7 @@ export const PAGES = {
     "VagasPendentes": VagasPendentes,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
-    "RegistrationSuccess": RegistrationSuccess,
     "VerifyEmail": VerifyEmail,
-    "ResendVerification": ResendVerification,
 }
 
 export const pagesConfig = {

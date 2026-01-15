@@ -129,11 +129,51 @@ export default function Register() {
         // Redirecionar para página de sucesso
         window.location.href = createPageUrl('RegistrationSuccess') + `?email=${encodeURIComponent(formData.email)}`;
       } else {
-        setError(response.data.error || 'Erro ao criar conta');
+        // Mostrar erro específico baseado no código
+        const errorData = response.data;
+        let errorMessage = errorData.error || 'Erro ao criar conta';
+        
+        // Mapear códigos de erro para mensagens específicas
+        switch (errorData.errorCode) {
+          case 'USERNAME_ALREADY_EXISTS':
+            errorMessage = 'Nome de usuário já cadastrado. Tente outro.';
+            break;
+          case 'EMAIL_ALREADY_EXISTS':
+            errorMessage = 'Email já cadastrado. Faça login ou use outro email.';
+            break;
+          case 'EMAIL_EXISTS_OTHER_PROVIDER':
+            errorMessage = errorData.error;
+            break;
+          case 'INVALID_AGE':
+            errorMessage = 'Idade inválida. Você precisa ter pelo menos 14 anos.';
+            break;
+          case 'INVALID_USERNAME':
+            errorMessage = 'Username deve ter no mínimo 3 caracteres e não pode conter espaços.';
+            break;
+          case 'INVALID_EMAIL':
+            errorMessage = 'Email inválido.';
+            break;
+          case 'INVALID_PASSWORD':
+            errorMessage = 'Senha deve ter no mínimo 6 caracteres.';
+            break;
+          case 'MISSING_FIELDS':
+            errorMessage = 'Preencha todos os campos obrigatórios.';
+            break;
+        }
+        
+        setError(errorMessage);
         setLoading(false);
       }
     } catch (err) {
-      setError(err.message || 'Erro ao criar conta. Tente novamente.');
+      console.error('Erro no cadastro:', err);
+      // Erro de rede ou servidor
+      if (err.response?.status === 500) {
+        setError('Erro no servidor. Tente novamente em alguns instantes.');
+      } else if (err.response?.status === 409) {
+        setError('Dados já cadastrados. Verifique username ou email.');
+      } else {
+        setError('Erro ao criar conta. Verifique sua conexão e tente novamente.');
+      }
       setLoading(false);
     }
   };
