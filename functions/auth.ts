@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
           <div style="background: white; padding: 50px; border-radius: 15px; text-align: center; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
             <div style="font-size: 80px; margin-bottom: 20px;">🎉</div>
             <h1 style="color: #28a745; margin: 0 0 15px 0; font-size: 32px;">Conta Ativada!</h1>
-            <p style="color: #666; margin-bottom: 10px; font-size: 18px;">Bem-vindo, <strong>${user.full_name}</strong>!</p>
+            <p style="color: #666; margin-bottom: 10px; font-size: 18px;">Bem-vindo, <strong>${user.full_name || user.custom_full_name}</strong>!</p>
             <p style="color: #888; margin-bottom: 30px;">Redirecionando...</p>
             <a href="https://empregabrasil.app" style="display: inline-block; background: #0A66C2; color: white; padding: 14px 35px; text-decoration: none; border-radius: 8px; font-weight: bold;">Acessar Agora</a>
           </div>
@@ -114,11 +114,10 @@ Deno.serve(async (req) => {
       }
 
       // Verificar se username já existe
-      if (username) {
-        const existingByUsername = await base44.asServiceRole.entities.User.filter({ username: username.toLowerCase() });
-        if (existingByUsername && existingByUsername.length > 0) {
-          return Response.json({ success: false, error: 'Nome de usuário já existe' }, { status: 400 });
-        }
+      const usernameToUse = username?.toLowerCase() || email.split('@')[0].toLowerCase();
+      const existingByUsername = await base44.asServiceRole.entities.User.filter({ username: usernameToUse });
+      if (existingByUsername && existingByUsername.length > 0) {
+        return Response.json({ success: false, error: 'Nome de usuário já existe' }, { status: 400 });
       }
 
       // Gerar salt e hash da senha
@@ -126,29 +125,24 @@ Deno.serve(async (req) => {
       const passwordHash = createHash('sha256').update(password + salt).digest('hex');
       const confirmToken = crypto.randomUUID();
 
-      // Criar usuário no Base44 com signUp
-      const { user: newUser } = await base44.auth.signUp({
+      // Criar usuário diretamente na entidade User
+      const newUser = await base44.asServiceRole.entities.User.create({
         email: email.toLowerCase(),
-        password: password,
-        options: {
-          data: {
-            full_name: custom_full_name,
-            custom_full_name: custom_full_name,
-            username: username?.toLowerCase() || email.split('@')[0].toLowerCase(),
-            password_hash: passwordHash,
-            password_salt: salt,
-            phone: phone || '',
-            city: city || '',
-            state: state || '',
-            profile_photo: '',
-            googleId: '',
-            subscription_type: 'basic',
-            access_status: 'pending',
-            email_confirmed: false,
-            confirmation_token: confirmToken,
-            permissions: {}
-          }
-        }
+        full_name: custom_full_name,
+        custom_full_name: custom_full_name,
+        username: usernameToUse,
+        password_hash: passwordHash,
+        password_salt: salt,
+        phone: phone || '',
+        city: city || '',
+        state: state || '',
+        profile_photo: '',
+        googleId: '',
+        subscription_type: 'basic',
+        access_status: 'pending',
+        email_confirmed: false,
+        confirmation_token: confirmToken,
+        permissions: {}
       });
 
       const confirmUrl = `https://empregabrasil.app/api/functions/auth/confirm_email?token=${confirmToken}`;
@@ -181,7 +175,7 @@ Deno.serve(async (req) => {
       return Response.json({
         success: true,
         message: 'Cadastro criado! Verifique seu e-mail.',
-        user: { id: newUser.id, email: newUser.email, full_name: newUser.user_metadata?.full_name }
+        user: { id: newUser.id, email: newUser.email, full_name: newUser.full_name || newUser.custom_full_name }
       });
     }
 
@@ -221,13 +215,18 @@ Deno.serve(async (req) => {
         return Response.json({ success: false, error: 'Senha incorreta' }, { status: 401 });
       }
 
-      // Fazer login no Base44
-      await base44.auth.signIn({ email: user.email, password: password });
-
+      // Fazer login (criar sessão manualmente)
+      // Como não podemos usar signIn com usuários custom, vamos retornar sucesso
+      // e o frontend vai gerenciar a sessão
       return Response.json({
         success: true,
         message: 'Login realizado com sucesso!',
-        user: { id: user.id, email: user.email, full_name: user.full_name }
+        user: { 
+          id: user.id, 
+          email: user.email, 
+          full_name: user.full_name || user.custom_full_name,
+          subscription_type: user.subscription_type
+        }
       });
     }
 
