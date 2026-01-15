@@ -8,9 +8,13 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const url = new URL(req.url);
-    const action = url.pathname.split('/').pop();
     
-    const body = await req.json();
+    // Verificar se é uma requisição GET (confirm_email)
+    if (req.method === 'GET') {
+      const action = url.pathname.split('/').pop();
+      if (action === 'confirm_email') {
+        // Processar confirmação de email via GET
+        const token = url.searchParams.get('token');
 
     // ==================== REGISTRO MANUAL ====================
     if (action === 'manual_register') {
@@ -217,132 +221,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ==================== CONFIRMAR EMAIL ====================
-    if (action === 'confirm_email') {
-      const token = url.searchParams.get('token');
-      
-      if (!token) {
-        return new Response(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Erro - Emprega Brasil+</title>
-          </head>
-          <body style="font-family: Arial, sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
-            <div style="background: white; padding: 40px; border-radius: 10px; text-align: center; max-width: 500px;">
-              <div style="font-size: 60px; margin-bottom: 20px;">❌</div>
-              <h1 style="color: #dc3545; margin: 0 0 15px 0;">Link Inválido</h1>
-              <p style="color: #666; margin-bottom: 30px;">Token de confirmação não encontrado.</p>
-            </div>
-          </body>
-          </html>
-        `, {
-          headers: { 'Content-Type': 'text/html' },
-          status: 400
-        });
-      }
 
-      try {
-        const users = await base44.asServiceRole.entities.User.filter({ 
-          confirmation_token: token 
-        });
-
-        if (!users || users.length === 0) {
-          return new Response(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Erro - Emprega Brasil+</title>
-            </head>
-            <body style="font-family: Arial, sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
-              <div style="background: white; padding: 40px; border-radius: 10px; text-align: center; max-width: 500px;">
-                <div style="font-size: 60px; margin-bottom: 20px;">⏰</div>
-                <h1 style="color: #ffc107; margin: 0 0 15px 0;">Link Expirado</h1>
-                <p style="color: #666; margin-bottom: 30px;">Este link já foi usado ou expirou. Tente se cadastrar novamente.</p>
-                <a href="${Deno.env.get('BASE44_APP_URL') || 'https://empregabrasil.app'}" style="display: inline-block; background: #0A66C2; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">Voltar ao Site</a>
-              </div>
-            </body>
-            </html>
-          `, {
-            headers: { 'Content-Type': 'text/html' }
-          });
-        }
-
-        const user = users[0];
-
-        // Ativar conta
-        await base44.asServiceRole.entities.User.update(user.id, {
-          access_status: 'approved',
-          email_confirmed: true,
-          confirmation_token: null
-        });
-
-        const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://empregabrasil.app';
-
-        return new Response(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Conta Ativada - Emprega Brasil+</title>
-            <script>
-              setTimeout(() => {
-                window.location.href = '${appUrl}';
-              }, 3000);
-            </script>
-          </head>
-          <body style="font-family: Arial, sans-serif; background: linear-gradient(135deg, #0A66C2 0%, #004182 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
-            <div style="background: white; padding: 50px; border-radius: 15px; text-align: center; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-              <div style="font-size: 80px; margin-bottom: 20px;">🎉</div>
-              <h1 style="color: #28a745; margin: 0 0 15px 0; font-size: 32px;">Conta Ativada!</h1>
-              <p style="color: #666; margin-bottom: 10px; font-size: 18px;">Bem-vindo, <strong>${user.full_name}</strong>!</p>
-              <p style="color: #888; margin-bottom: 30px;">Redirecionando para o aplicativo...</p>
-              <div style="width: 100%; height: 4px; background: #e0e0e0; border-radius: 2px; overflow: hidden; margin-bottom: 20px;">
-                <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #0A66C2, #28a745); animation: loading 3s linear;"></div>
-              </div>
-              <a href="${appUrl}" style="display: inline-block; background: #0A66C2; color: white; padding: 14px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Acessar Agora</a>
-            </div>
-            <style>
-              @keyframes loading {
-                from { transform: translateX(-100%); }
-                to { transform: translateX(0); }
-              }
-            </style>
-          </body>
-          </html>
-        `, {
-          headers: { 'Content-Type': 'text/html' }
-        });
-
-      } catch (error) {
-        console.error('Erro ao confirmar email:', error);
-        return new Response(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Erro - Emprega Brasil+</title>
-          </head>
-          <body style="font-family: Arial, sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
-            <div style="background: white; padding: 40px; border-radius: 10px; text-align: center; max-width: 500px;">
-              <div style="font-size: 60px; margin-bottom: 20px;">⚠️</div>
-              <h1 style="color: #dc3545; margin: 0 0 15px 0;">Erro</h1>
-              <p style="color: #666; margin-bottom: 30px;">Ocorreu um erro ao confirmar seu cadastro. Tente novamente.</p>
-            </div>
-          </body>
-          </html>
-        `, {
-          headers: { 'Content-Type': 'text/html' },
-          status: 500
-        });
-      }
-    }
 
     // ==================== LOGIN MANUAL ====================
     if (action === 'manual_login') {
