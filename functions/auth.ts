@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createHash } from 'node:crypto';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
@@ -106,11 +107,13 @@ Deno.serve(async (req) => {
         return Response.json({ success: false, error: 'E-mail inválido' }, { status: 400 });
       }
 
+      // Verificar se email já existe
       const existingByEmail = await base44.asServiceRole.entities.User.filter({ email: email.toLowerCase() });
       if (existingByEmail && existingByEmail.length > 0) {
         return Response.json({ success: false, error: 'Este e-mail já está cadastrado' }, { status: 400 });
       }
 
+      // Verificar se username já existe
       if (username) {
         const existingByUsername = await base44.asServiceRole.entities.User.filter({ username: username.toLowerCase() });
         if (existingByUsername && existingByUsername.length > 0) {
@@ -118,20 +121,34 @@ Deno.serve(async (req) => {
         }
       }
 
+      // Gerar salt e hash da senha
+      const salt = crypto.randomUUID();
+      const passwordHash = createHash('sha256').update(password + salt).digest('hex');
       const confirmToken = crypto.randomUUID();
 
-      const newUser = await base44.asServiceRole.entities.User.create({
-        full_name: custom_full_name,
-        username: username?.toLowerCase() || null,
+      // Criar usuário no Base44 com signUp
+      const { user: newUser } = await base44.auth.signUp({
         email: email.toLowerCase(),
-        phone: phone || null,
-        city: city || null,
-        state: state || null,
         password: password,
-        subscription_type: 'basic',
-        access_status: 'pending',
-        email_confirmed: false,
-        confirmation_token: confirmToken
+        options: {
+          data: {
+            full_name: custom_full_name,
+            custom_full_name: custom_full_name,
+            username: username?.toLowerCase() || email.split('@')[0].toLowerCase(),
+            password_hash: passwordHash,
+            password_salt: salt,
+            phone: phone || '',
+            city: city || '',
+            state: state || '',
+            profile_photo: '',
+            googleId: '',
+            subscription_type: 'basic',
+            access_status: 'pending',
+            email_confirmed: false,
+            confirmation_token: confirmToken,
+            permissions: {}
+          }
+        }
       });
 
       const confirmUrl = `https://empregabrasil.app/api/functions/auth/confirm_email?token=${confirmToken}`;
@@ -164,7 +181,7 @@ Deno.serve(async (req) => {
       return Response.json({
         success: true,
         message: 'Cadastro criado! Verifique seu e-mail.',
-        user: { id: newUser.id, email: newUser.email, full_name: newUser.full_name }
+        user: { id: newUser.id, email: newUser.email, full_name: newUser.user_metadata?.full_name }
       });
     }
 
@@ -176,6 +193,7 @@ Deno.serve(async (req) => {
         return Response.json({ success: false, error: 'E-mail/usuário e senha são obrigatórios' }, { status: 400 });
       }
 
+      // Buscar usuário por email ou username
       let user = null;
       
       const usersByEmail = await base44.asServiceRole.entities.User.filter({ email: username.toLowerCase() });
@@ -192,10 +210,18 @@ Deno.serve(async (req) => {
         return Response.json({ success: false, error: 'Usuário não encontrado' }, { status: 404 });
       }
 
+      // Verificar se email foi confirmado
       if (!user.email_confirmed) {
         return Response.json({ success: false, error: 'Confirme seu e-mail antes de fazer login' }, { status: 403 });
       }
 
+      // Verificar senha
+      const passwordHash = createHash('sha256').update(password + user.password_salt).digest('hex');
+      if (passwordHash !== user.password_hash) {
+        return Response.json({ success: false, error: 'Senha incorreta' }, { status: 401 });
+      }
+
+      // Fazer login no Base44
       await base44.auth.signIn({ email: user.email, password: password });
 
       return Response.json({
