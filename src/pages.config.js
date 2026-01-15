@@ -74,6 +74,9 @@ import VagasHomeOffice from './pages/VagasHomeOffice';
 import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
+import RegistrationSuccess from './pages/RegistrationSuccess';
+import VerifyEmail from './pages/VerifyEmail';
+import ResendVerification from './pages/ResendVerification';
 import __Layout from './Layout.jsx';
 
 
@@ -154,6 +157,9 @@ export const PAGES = {
     "VagasPendentes": VagasPendentes,
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
+    "RegistrationSuccess": RegistrationSuccess,
+    "VerifyEmail": VerifyEmail,
+    "ResendVerification": ResendVerification,
 }
 
 export const pagesConfig = {

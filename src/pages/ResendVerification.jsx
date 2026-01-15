@@ -4,10 +4,10 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, ArrowLeft, Key, CheckCircle } from "lucide-react";
+import { Loader2, ArrowLeft, Mail, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function ForgotPassword() {
+export default function ResendVerification() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,8 +29,8 @@ export default function ForgotPassword() {
     setError('');
 
     try {
-      const response = await base44.functions.invoke('resetPassword', {
-        action: 'request_reset',
+      const response = await base44.functions.invoke('authManual', {
+        action: 'resend_verification',
         email
       });
 
@@ -60,7 +60,7 @@ export default function ForgotPassword() {
             </h1>
 
             <p className="text-slate-600 mb-6">
-              Se o email <strong>{email}</strong> estiver cadastrado, você receberá um link para redefinir sua senha.
+              Enviamos um novo link de verificação para <strong>{email}</strong>
             </p>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
@@ -68,17 +68,13 @@ export default function ForgotPassword() {
               <ol className="list-decimal list-inside space-y-1 text-slate-600 text-sm">
                 <li>Abra seu email</li>
                 <li>Procure pelo email do Emprega Brasil+</li>
-                <li>Clique no botão "Redefinir minha senha"</li>
-                <li>Crie uma nova senha</li>
+                <li>Clique no botão "Validar meu cadastro"</li>
               </ol>
-              <p className="text-slate-500 text-xs mt-3">
-                ⚠️ O link expira em 1 hora
-              </p>
             </div>
 
             <Link to={createPageUrl('Splash')}>
               <Button className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl font-semibold">
-                Voltar para Login
+                Ir para Login
               </Button>
             </Link>
           </CardContent>
@@ -100,13 +96,13 @@ export default function ForgotPassword() {
 
       <div className="text-center mb-8">
         <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Key className="w-10 h-10 text-[#0A66C2]" />
+          <Mail className="w-10 h-10 text-[#0A66C2]" />
         </div>
         <h1 className="text-3xl font-bold text-[#0A66C2] mb-2">
-          Esqueci minha senha
+          Reenviar Verificação
         </h1>
         <p className="text-slate-600">
-          Digite seu email para receber um link de recuperação
+          Digite seu email para receber um novo link
         </p>
       </div>
 
@@ -139,16 +135,9 @@ export default function ForgotPassword() {
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                'Enviar Link de Recuperação'
+                'Reenviar Email'
               )}
             </Button>
-
-            <p className="text-center text-xs text-slate-500">
-              Lembrou sua senha?{' '}
-              <Link to={createPageUrl('Splash')} className="text-[#0A66C2] hover:underline font-medium">
-                Fazer login
-              </Link>
-            </p>
           </form>
         </CardContent>
       </Card>
