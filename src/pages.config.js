@@ -27,6 +27,7 @@ import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarCores from './pages/GerenciarCores';
 import GerenciarFuncoes from './pages/GerenciarFuncoes';
 import GerenciarLinksEspeciais from './pages/GerenciarLinksEspeciais';
+import GerenciarMapa from './pages/GerenciarMapa';
 import GerenciarNoticias from './pages/GerenciarNoticias';
 import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPopups from './pages/GerenciarPopups';
@@ -61,6 +62,7 @@ import Premium from './pages/Premium';
 import Privacy from './pages/Privacy';
 import ProfessionalResume from './pages/ProfessionalResume';
 import Profile from './pages/Profile';
+import ReativarVagas from './pages/ReativarVagas';
 import RecentJobsBatch from './pages/RecentJobsBatch';
 import RecruiterArea from './pages/RecruiterArea';
 import Register from './pages/Register';
@@ -79,8 +81,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import ReativarVagas from './pages/ReativarVagas';
-import GerenciarMapa from './pages/GerenciarMapa';
 import __Layout from './Layout.jsx';
 
 
@@ -114,6 +114,7 @@ export const PAGES = {
     "GerenciarCores": GerenciarCores,
     "GerenciarFuncoes": GerenciarFuncoes,
     "GerenciarLinksEspeciais": GerenciarLinksEspeciais,
+    "GerenciarMapa": GerenciarMapa,
     "GerenciarNoticias": GerenciarNoticias,
     "GerenciarPlanos": GerenciarPlanos,
     "GerenciarPopups": GerenciarPopups,
@@ -148,6 +149,7 @@ export const PAGES = {
     "Privacy": Privacy,
     "ProfessionalResume": ProfessionalResume,
     "Profile": Profile,
+    "ReativarVagas": ReativarVagas,
     "RecentJobsBatch": RecentJobsBatch,
     "RecruiterArea": RecruiterArea,
     "Register": Register,
@@ -166,8 +168,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "ReativarVagas": ReativarVagas,
-    "GerenciarMapa": GerenciarMapa,
 }
 
 export const pagesConfig = {

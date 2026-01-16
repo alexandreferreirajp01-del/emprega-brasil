@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Camera, Loader2, X, CheckCircle, Search, ArrowRight, Briefcase } from "lucide-react";
+import { Camera, Loader2, X, CheckCircle, Search, ArrowRight, Briefcase, MapPin } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
@@ -28,12 +28,16 @@ export default function PostarVaga() {
     job_function: '',
     state: '',
     city: '',
+    neighborhood: '',
+    addressText: '',
     description: '',
     salary_range: '',
     contact_phone: '',
     contact_email: '',
     website: '',
-    image_url: ''
+    image_url: '',
+    showOnMap: true,
+    locationType: 'CIDADE'
   });
 
   const [funcSearch, setFuncSearch] = useState('');
@@ -266,8 +270,9 @@ EXTRAIA TUDO:`,
       }
       
       setFormData({
-        title: '', company: '', job_function: '', city: '', description: '',
-        salary_range: '', contact_phone: '', contact_email: '', website: '', image_url: ''
+        title: '', company: '', job_function: '', city: '', neighborhood: '', addressText: '', 
+        description: '', salary_range: '', contact_phone: '', contact_email: '', website: '', 
+        image_url: '', showOnMap: true, locationType: 'CIDADE'
       });
       setStep(1);
     } catch (err) {
@@ -498,11 +503,127 @@ EXTRAIA TUDO:`,
                     className="h-11"
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Localização no Mapa */}
+            <Card className="rounded-xl border-2 border-blue-100 bg-blue-50/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-blue-600" />
+                  📍 Localização no Mapa
+                </CardTitle>
+                <p className="text-sm text-slate-600">Defina como sua vaga aparecerá no mapa</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Toggle Exibir no Mapa */}
+                <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
+                  <input
+                    type="checkbox"
+                    checked={formData.showOnMap}
+                    onChange={(e) => setFormData(prev => ({ ...prev, showOnMap: e.target.checked }))}
+                    className="w-5 h-5 text-blue-600 rounded"
+                  />
+                  <div>
+                    <Label className="text-sm font-medium">Exibir esta vaga no mapa</Label>
+                    <p className="text-xs text-slate-500">(recomendado para melhor visibilidade)</p>
+                  </div>
+                </div>
+
+                {formData.showOnMap && (
+                  <>
+                    {/* Tipo de Localização */}
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Tipo de localização</Label>
+                      <div className="space-y-2">
+                        <label className="flex items-start gap-3 p-3 bg-white rounded-lg border-2 cursor-pointer hover:border-blue-300 transition-colors"
+                          style={{ borderColor: formData.locationType === 'CIDADE' ? '#3b82f6' : '#e2e8f0' }}>
+                          <input
+                            type="radio"
+                            name="locationType"
+                            value="CIDADE"
+                            checked={formData.locationType === 'CIDADE'}
+                            onChange={(e) => setFormData(prev => ({ ...prev, locationType: e.target.value }))}
+                            className="mt-1"
+                          />
+                          <div>
+                            <div className="font-medium text-sm">🏙️ Geral (Cidade)</div>
+                            <div className="text-xs text-slate-500">Pino no centro da cidade</div>
+                          </div>
+                        </label>
+
+                        <label className="flex items-start gap-3 p-3 bg-white rounded-lg border-2 cursor-pointer hover:border-blue-300 transition-colors"
+                          style={{ borderColor: formData.locationType === 'BAIRRO' ? '#3b82f6' : '#e2e8f0' }}>
+                          <input
+                            type="radio"
+                            name="locationType"
+                            value="BAIRRO"
+                            checked={formData.locationType === 'BAIRRO'}
+                            onChange={(e) => setFormData(prev => ({ ...prev, locationType: e.target.value }))}
+                            className="mt-1"
+                          />
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">📍 Aproximada (Bairro)</div>
+                            <div className="text-xs text-slate-500 mb-2">Pino no centro do bairro</div>
+                            {formData.locationType === 'BAIRRO' && (
+                              <Input
+                                value={formData.neighborhood}
+                                onChange={(e) => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
+                                placeholder="Nome do bairro"
+                                className="h-9 mt-1"
+                              />
+                            )}
+                          </div>
+                        </label>
+
+                        <label className="flex items-start gap-3 p-3 bg-white rounded-lg border-2 cursor-pointer hover:border-blue-300 transition-colors"
+                          style={{ borderColor: formData.locationType === 'EXATA' ? '#3b82f6' : '#e2e8f0' }}>
+                          <input
+                            type="radio"
+                            name="locationType"
+                            value="EXATA"
+                            checked={formData.locationType === 'EXATA'}
+                            onChange={(e) => setFormData(prev => ({ ...prev, locationType: e.target.value }))}
+                            className="mt-1"
+                          />
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">🎯 Exata (Endereço completo)</div>
+                            <div className="text-xs text-slate-500 mb-2">Pino exato no endereço</div>
+                            {formData.locationType === 'EXATA' && (
+                              <Input
+                                value={formData.addressText}
+                                onChange={(e) => setFormData(prev => ({ ...prev, addressText: e.target.value }))}
+                                placeholder="Rua, número, CEP"
+                                className="h-9 mt-1"
+                              />
+                            )}
+                          </div>
+                        </label>
+
+                        <label className="flex items-start gap-3 p-3 bg-white rounded-lg border-2 cursor-pointer hover:border-blue-300 transition-colors"
+                          style={{ borderColor: formData.locationType === 'REMOTO' ? '#3b82f6' : '#e2e8f0' }}>
+                          <input
+                            type="radio"
+                            name="locationType"
+                            value="REMOTO"
+                            checked={formData.locationType === 'REMOTO'}
+                            onChange={(e) => setFormData(prev => ({ ...prev, locationType: e.target.value }))}
+                            className="mt-1"
+                          />
+                          <div>
+                            <div className="font-medium text-sm">💻 Online / Remoto</div>
+                            <div className="text-xs text-slate-500">Sem pino no mapa</div>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <Button
                   onClick={handleContinue}
                   disabled={!formData.title}
-                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 rounded-xl mt-4"
+                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 rounded-xl"
                 >
                   Continuar
                   <ArrowRight className="w-5 h-5 ml-2" />
