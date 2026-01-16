@@ -50,43 +50,36 @@ export default function PostsEmMassa() {
     try {
       for (const file of files) {
         try {
+          // Validação
           if (file.size > 15 * 1024 * 1024) {
             errors.push(`${file.name}: arquivo > 15MB`);
             continue;
           }
           
+          // Retry logic
           let result = null;
           let retries = 3;
           
           while (!result && retries > 0) {
             try {
-              // Converter File para Blob explicitamente
-              const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+              const uploadResult = await base44.integrations.Core.UploadFile({ file });
               
-              // Enviar como FormData para melhor compatibilidade
-              const formData = new FormData();
-              formData.append('file', blob, file.name);
-              
-              const uploadResult = await base44.integrations.Core.UploadFile({ file: blob });
-              
-              // Múltiplos formatos de resposta
+              // Verifica diferentes formatos de resposta
               if (uploadResult?.file_url) {
                 result = uploadResult.file_url;
               } else if (uploadResult?.data?.file_url) {
                 result = uploadResult.data.file_url;
-              } else if (uploadResult?.url) {
-                result = uploadResult.url;
               } else if (typeof uploadResult === 'string') {
                 result = uploadResult;
-              }
-              
-              if (!result) {
-                throw new Error('Sem URL retornada');
+              } else if (uploadResult) {
+                console.log('Upload response:', uploadResult);
+                errors.push(`${file.name}: resposta inesperada do servidor`);
+                break;
               }
             } catch (retryErr) {
               retries--;
               if (retries > 0) {
-                await new Promise(r => setTimeout(r, 500));
+                await new Promise(r => setTimeout(r, 1000)); // Wait 1s before retry
               }
             }
           }
@@ -98,21 +91,24 @@ export default function PostsEmMassa() {
               status: 'pending',
               name: file.name 
             });
-          } else {
-            errors.push(`${file.name}: falha permanente`);
+          } else if (retries === 0) {
+            errors.push(`${file.name}: falha após 3 tentativas`);
           }
         } catch (fileErr) {
-          errors.push(`${file.name}: ${fileErr.message}`);
+          errors.push(`${file.name}: ${fileErr.message || 'erro desconhecido'}`);
         }
       }
       
       if (uploaded.length > 0) {
         setImages(prev => [...prev, ...uploaded]);
+        if (errors.length > 0) {
+          alert(`✅ ${uploaded.length} imagem(ns) carregada(s)\n❌ Erros:\n${errors.join('\n')}`);
+        }
       } else {
-        alert(`❌ Erro no upload:\n${errors.join('\n')}`);
+        alert(`❌ Nenhuma imagem foi carregada:\n${errors.join('\n') || 'Tente novamente'}`);
       }
     } catch (err) {
-      alert(`❌ ${err.message}`);
+      alert(`❌ Erro crítico: ${err.message}`);
     } finally {
       setUploading(false);
     }
