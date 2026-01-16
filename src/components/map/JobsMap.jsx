@@ -12,6 +12,21 @@ import TimeAgo from "@/components/common/TimeAgo";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
+// Estilos globais para Leaflet
+const leafletStyles = `
+  .leaflet-container {
+    position: relative !important;
+    top: auto !important;
+    z-index: auto !important;
+  }
+  .leaflet-pane {
+    position: absolute !important;
+  }
+`;
+const styleSheet = document.createElement('style');
+styleSheet.textContent = leafletStyles;
+document.head.appendChild(styleSheet);
+
 // Fix Leaflet icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
