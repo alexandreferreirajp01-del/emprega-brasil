@@ -92,6 +92,7 @@ Deno.serve(async (req) => {
     // Admin - criar vaga diretamente
     const createdJob = await base44.asServiceRole.entities.Job.create({
       ...jobData,
+      city: jobData.city || 'Não informado',
       is_premium: visibility === 'premium' || jobData.is_premium,
       is_featured: jobData.is_featured || false
     });

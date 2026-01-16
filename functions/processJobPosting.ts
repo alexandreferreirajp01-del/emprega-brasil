@@ -224,7 +224,7 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
       finalJobs.push({
         title: jobData.title,
         company: generalInfoResult.company || 'Empresa confidencial',
-        city: generalInfoResult.city || '',
+        city: generalInfoResult.city || 'Não informado',
         state: generalInfoResult.state || '',
         job_function: jobFunction,
         category: jobCategory,

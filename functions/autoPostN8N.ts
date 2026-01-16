@@ -97,7 +97,7 @@ IMPORTANTE:
         const vagaPendente = await base44.asServiceRole.entities.Job.create({
           title: vaga.titulo,
           company: vaga.empresa || 'Empresa não informada',
-          city: vaga.cidade || '',
+          city: vaga.cidade || 'Não informado',
           state: vaga.estado || '',
           salary_range: vaga.salario || '',
           job_type: vaga.tipo_contrato || 'CLT',

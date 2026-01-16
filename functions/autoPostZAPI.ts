@@ -117,6 +117,7 @@ Deno.serve(async (req) => {
 
                 await base44.asServiceRole.entities.Job.create({
                     ...vaga,
+                    city: vaga.city || 'Não informado',
                     status: 'published',
                     published_at: new Date().toISOString()
                 });
