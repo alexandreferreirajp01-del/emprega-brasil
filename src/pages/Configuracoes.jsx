@@ -72,7 +72,7 @@ const menuItems = [
   // Links Especiais
   { id: 'divider-links', type: 'divider', label: 'Links & Automação' },
   { id: 'links-especiais', name: 'Links Especiais', icon: LinkIcon, color: 'purple', page: 'GerenciarLinksEspeciais', description: 'Gerencie links que habilitam planos automaticamente', roles: ['admin', 'dono'] },
-  { id: 'geocode-jobs', name: 'Geocodificar Vagas', icon: MapPin, color: 'teal', action: 'geocodeJobs', description: 'Adicionar coordenadas automaticamente às vagas', roles: ['admin', 'dono'] },
+  { id: 'geocode-jobs', name: 'Geocodificar Vagas', icon: MapPin, color: 'teal', action: 'geocodeJobs', description: 'Adicionar coordenadas às vagas sem localização', roles: ['admin', 'dono'] },
 
   // Manutenção
   { id: 'divider-manutencao', type: 'divider', label: 'Manutenção', roles: ['admin', 'dono'] },
@@ -195,19 +195,12 @@ export default function Configuracoes() {
         setMigrating(false);
       }
     } else if (item.action === 'geocodeJobs') {
-      if (!confirm('Geocodificar TODAS as vagas sem coordenadas?\n\n⚠️ Pode levar vários minutos.\n✅ Fallback automático para centro da cidade.\n\nContinuar?')) return;
+      if (!confirm('Geocodificar todas as vagas sem coordenadas? Pode levar vários minutos.')) return;
       
       setMigrating(true);
       try {
-        const response = await base44.functions.invoke('geocodeJobAuto');
-        alert(
-          `✅ CONCLUÍDO!\n\n` +
-          `📍 ${response.data.successCount} geocodificadas com sucesso\n` +
-          `⚠️ ${response.data.fallbackCount} usando fallback (centro da cidade)\n` +
-          `❌ ${response.data.failCount} falhas\n\n` +
-          `Total processado: ${response.data.totalJobs} vagas`
-        );
-        console.log('Resultado completo:', response.data);
+        const response = await base44.functions.invoke('geocodeAllJobs');
+        alert(`✅ Concluído!\n\n✓ ${response.data.successCount} vagas geocodificadas\n✗ ${response.data.failCount} falhas`);
       } catch (error) {
         alert('Erro: ' + error.message);
       } finally {
