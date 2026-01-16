@@ -176,7 +176,7 @@ export default function JobsMap({ onJobClick }) {
   }
 
   return (
-    <div className="relative w-full h-[400px] sm:h-[500px] rounded-xl overflow-hidden">
+    <div className="relative w-full h-[500px] rounded-xl overflow-hidden">
       <MapContainer
         center={centerBrasil}
         zoom={4}
