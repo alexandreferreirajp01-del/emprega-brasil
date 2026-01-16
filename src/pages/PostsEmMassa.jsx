@@ -208,11 +208,30 @@ export default function PostsEmMassa() {
   };
 
   const handlePublish = async (wizardData) => {
+    if (!wizardData?.jobs || wizardData.jobs.length === 0) {
+      alert('Nenhuma vaga para publicar');
+      return;
+    }
+    
     setPublishing(true);
     try {
-      const jobsToCreate = wizardData.jobs;
+      const jobsToCreate = wizardData.jobs.map(job => ({
+        title: job.title?.trim() || '',
+        company: job.company?.trim() || '',
+        city: job.city?.trim() || '',
+        state: (job.state || '').toUpperCase(),
+        salary_range: job.salary_range || '',
+        description: job.description || '',
+        contact_phone: job.contact_phone || '',
+        application_link: job.application_link || '',
+        image_url: job.image_url || '',
+        is_featured: job.is_featured || false,
+        status: 'ativa',
+        job_type: job.job_type || 'CLT'
+      }));
 
-      if (wizardData.schedule) {
+      if (wizardData.schedule?.date && wizardData.schedule?.time) {
+        // Agendar vagas
         await base44.entities.ScheduledPost.create({
           post_type: 'job_mass',
           scheduled_date: new Date(`${wizardData.schedule.date}T${wizardData.schedule.time}`).toISOString(),
@@ -220,10 +239,10 @@ export default function PostsEmMassa() {
           notification_data: wizardData.notification || {},
           status: 'pending'
         });
-        alert('Vagas agendadas!');
+        alert(`✅ ${jobsToCreate.length} vagas agendadas!`);
       } else {
-        // Criar vagas em paralelo (máximo 5 por vez para não sobrecarregar)
-        const batchSize = 5;
+        // Publicar imediatamente em lotes
+        const batchSize = 3; // Reduzido para evitar timeout
         const batches = [];
         for (let i = 0; i < jobsToCreate.length; i += batchSize) {
           batches.push(jobsToCreate.slice(i, i + batchSize));
@@ -231,36 +250,30 @@ export default function PostsEmMassa() {
 
         const createdJobIds = [];
         for (const batch of batches) {
-          const results = await Promise.all(
-            batch.map(job => base44.entities.Job.create(job))
-          );
-          createdJobIds.push(...results.map(r => r.id));
+          try {
+            const results = await Promise.all(
+              batch.map(job => base44.entities.Job.create(job))
+            );
+            createdJobIds.push(...results.map(r => r.id).filter(Boolean));
+          } catch (batchErr) {
+            console.error('Erro ao criar lote:', batchErr);
+          }
         }
         
-        // Notificações em background (não bloquear)
-        if (wizardData.notification && createdJobIds.length > 0) {
-          base44.entities.User.list().then(users => {
-            const targetUsers = wizardData.notification.premiumOnly 
-              ? users.filter(u => u.subscription_type === 'premium' || u.role === 'admin').map(u => u.email)
-              : users.map(u => u.email);
-
-            base44.functions.invoke('sendNotifications', {
-              notification: wizardData.notification,
-              jobIds: createdJobIds, // Array de IDs
-              templateId: wizardData.notification.templateId,
-              targetUsers
-            }).catch(() => {});
-          }).catch(() => {});
+        if (createdJobIds.length > 0) {
+          alert(`✅ ${createdJobIds.length} vagas publicadas!`);
+        } else {
+          alert('❌ Nenhuma vaga foi publicada. Tente novamente.');
         }
-        
-        alert(`${jobsToCreate.length} vagas publicadas!`);
       }
       
+      // Limpar estado
       setImages([]);
       setExtractedJobs([]);
       setStep(1);
     } catch (err) {
-      alert('Erro: ' + err.message);
+      console.error('Erro ao publicar:', err);
+      alert(`❌ Erro: ${err.message}`);
     } finally {
       setPublishing(false);
     }
