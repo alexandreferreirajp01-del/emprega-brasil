@@ -27,6 +27,7 @@ import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarCores from './pages/GerenciarCores';
 import GerenciarFuncoes from './pages/GerenciarFuncoes';
 import GerenciarLinksEspeciais from './pages/GerenciarLinksEspeciais';
+import GerenciarMapaVagas from './pages/GerenciarMapaVagas';
 import GerenciarNoticias from './pages/GerenciarNoticias';
 import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPopups from './pages/GerenciarPopups';
@@ -78,7 +79,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import GerenciarMapaVagas from './pages/GerenciarMapaVagas';
 import __Layout from './Layout.jsx';
 
 
@@ -112,6 +112,7 @@ export const PAGES = {
     "GerenciarCores": GerenciarCores,
     "GerenciarFuncoes": GerenciarFuncoes,
     "GerenciarLinksEspeciais": GerenciarLinksEspeciais,
+    "GerenciarMapaVagas": GerenciarMapaVagas,
     "GerenciarNoticias": GerenciarNoticias,
     "GerenciarPlanos": GerenciarPlanos,
     "GerenciarPopups": GerenciarPopups,
@@ -163,7 +164,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "GerenciarMapaVagas": GerenciarMapaVagas,
 }
 
 export const pagesConfig = {
