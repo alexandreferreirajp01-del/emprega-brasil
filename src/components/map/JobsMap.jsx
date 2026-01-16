@@ -119,12 +119,6 @@ export default function JobsMap({ onJobClick }) {
         setJobs(validJobs);
         console.log(`✅ ${validJobs.length} vagas no mapa`);
         
-        // Se muito poucas vagas, avisar
-        if (validJobs.length < 10 && activeJobs.length > 100) {
-          console.error(`⚠️ PROBLEMA: Só ${validJobs.length} vagas de ${activeJobs.length} ativas têm coordenadas!`);
-          console.error('Execute a ferramenta "Geocodificar Vagas" em Configurações');
-        }
-        
       } catch (error) {
         console.error('❌ Erro:', error);
       } finally {

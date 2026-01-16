@@ -72,7 +72,6 @@ const menuItems = [
   // Links Especiais
   { id: 'divider-links', type: 'divider', label: 'Links & Automação' },
   { id: 'links-especiais', name: 'Links Especiais', icon: LinkIcon, color: 'purple', page: 'GerenciarLinksEspeciais', description: 'Gerencie links que habilitam planos automaticamente', roles: ['admin', 'dono'] },
-  { id: 'check-geo-status', name: 'Verificar Status Geo', icon: MapPin, color: 'blue', action: 'checkGeoStatus', description: 'Ver quantas vagas têm coordenadas', roles: ['admin', 'dono'] },
   { id: 'geocode-jobs', name: 'Geocodificar Vagas', icon: MapPin, color: 'teal', action: 'geocodeJobs', description: 'Adicionar coordenadas automaticamente às vagas', roles: ['admin', 'dono'] },
 
   // Manutenção
@@ -190,27 +189,6 @@ export default function Configuracoes() {
         const response = await base44.functions.invoke('deleteJobsWithoutContact');
         alert(response.data.message || 'Exclusão concluída!');
         console.log('Resultado:', response.data);
-      } catch (error) {
-        alert('Erro: ' + error.message);
-      } finally {
-        setMigrating(false);
-      }
-    } else if (item.action === 'checkGeoStatus') {
-      setMigrating(true);
-      try {
-        const response = await base44.functions.invoke('checkJobsGeoStatus');
-        const stats = response.data.stats;
-        alert(
-          `📊 STATUS DAS VAGAS:\n\n` +
-          `Total no banco: ${stats.total}\n` +
-          `Ativas: ${stats.ativas}\n\n` +
-          `✅ Com coordenadas: ${stats.ativasComCoords}\n` +
-          `❌ Sem coordenadas: ${stats.ativasSemCoords}\n` +
-          `⚠️ Coordenadas inválidas: ${stats.coordsInvalidas}\n` +
-          `🏙️ Sem cidade/estado: ${stats.semCidade}\n\n` +
-          `Expiradas: ${stats.expiradas}`
-        );
-        console.log('Detalhes completos:', response.data);
       } catch (error) {
         alert('Erro: ' + error.message);
       } finally {
