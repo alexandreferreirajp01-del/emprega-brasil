@@ -10,9 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { 
   ChevronRight, ChevronLeft, Crown, Star, Bell, Send, 
   Calendar, Check, Loader2, Clock, Zap, Mail,
-  Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Sparkles, MapPin, AlertTriangle
+  Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Sparkles
 } from "lucide-react";
-import LocationMapBlock from "./LocationMapBlock";
 import { base44 } from "@/api/base44Client";
 import {
   Select,
@@ -65,12 +64,10 @@ export default function UnifiedPostWizard({
 }) {
   const [step, setStep] = useState(1);
   
-  // Etapa 1 - Revisão + Tipos de Contratação + Premium Individual + Localização
+  // Etapa 1 - Revisão + Tipos de Contratação + Premium Individual
   const [selectedContractTypes, setSelectedContractTypes] = useState([]);
   const [individualPremiumFlags, setIndividualPremiumFlags] = useState({});
   const [isFeatured, setIsFeatured] = useState(false);
-  const [editingJobIndex, setEditingJobIndex] = useState(null);
-  const [editedJobs, setEditedJobs] = useState(jobsData);
   
   // Etapa 2 - Notificações
   const [sendNotification, setSendNotification] = useState(null);
@@ -141,17 +138,12 @@ export default function UnifiedPostWizard({
     } : null;
 
     // Preparar jobs em lote para acelerar
-    const jobsToPublish = editedJobs.map((j, idx) => ({
+    const jobsToPublish = jobsData.map((j, idx) => ({
       ...j,
       contract_types: selectedContractTypes,
       is_premium: individualPremiumFlags[idx] || false,
       is_featured: isFeatured,
-      published_at: brasiliaTime,
-      showOnMap: j.showOnMap ?? true,
-      locationType: j.locationType || 'CIDADE',
-      neighborhood: j.neighborhood || null,
-      addressText: j.addressText || null,
-      geoStatus: 'PENDENTE'
+      published_at: brasiliaTime
     }));
 
     const finalData = {
@@ -252,118 +244,37 @@ export default function UnifiedPostWizard({
                 </div>
               </div>
               <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                {editedJobs.map((job, i) => {
-                  const missingLocation = job.showOnMap !== false && 
-                    job.locationType !== 'REMOTO' && 
-                    (!job.city || !job.state);
-                  
-                  return (
-                    <div key={i} className={`p-3 rounded-lg border ${missingLocation ? 'bg-orange-50 border-orange-300' : 'bg-slate-50 border-slate-200'}`}>
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-sm text-slate-800 truncate">{job.title || 'Sem título'}</h4>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {job.company && <Badge variant="outline" className="text-xs">🏢 {job.company}</Badge>}
-                            {job.city && <Badge variant="outline" className="text-xs">📍 {job.city}</Badge>}
-                            {job.showOnMap !== false && (
-                              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                                🗺️ No mapa
-                              </Badge>
-                            )}
-                          </div>
-                          {missingLocation && (
-                            <div className="flex items-center gap-1 mt-2 text-orange-700">
-                              <AlertTriangle className="w-3 h-3" />
-                              <p className="text-xs font-medium">Falta cidade/estado</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setEditingJobIndex(editingJobIndex === i ? null : i)}
-                            className="h-7 text-xs"
-                          >
-                            {editingJobIndex === i ? 'Fechar' : 'Editar'}
-                          </Button>
-                          <div className="flex items-center gap-1.5 bg-purple-50 px-2 py-1.5 rounded-lg border border-purple-200">
-                            <Crown className="w-3.5 h-3.5 text-purple-600" />
-                            <Switch
-                              checked={individualPremiumFlags[i] || false}
-                              onCheckedChange={(checked) => {
-                                setIndividualPremiumFlags(prev => ({ ...prev, [i]: checked }));
-                              }}
-                              className="scale-75"
-                            />
-                          </div>
-                          <Badge variant="outline" className="text-xs shrink-0">#{i + 1}</Badge>
+                {jobsData.map((job, i) => (
+                  <div key={i} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-sm text-slate-800 truncate">{job.title || 'Sem título'}</h4>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {job.company && <Badge variant="outline" className="text-xs">🏢 {job.company}</Badge>}
+                          {job.city && <Badge variant="outline" className="text-xs">📍 {job.city}</Badge>}
                         </div>
                       </div>
-
-                      {editingJobIndex === i && (
-                        <div className="mt-3 space-y-2 pt-3 border-t">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <Label className="text-xs">Cidade *</Label>
-                              <Input
-                                value={job.city || ''}
-                                onChange={(e) => {
-                                  const updated = [...editedJobs];
-                                  updated[i] = { ...updated[i], city: e.target.value };
-                                  setEditedJobs(updated);
-                                }}
-                                placeholder="Ex: João Pessoa"
-                                className="h-9 text-sm"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-xs">Estado (UF) *</Label>
-                              <Input
-                                value={job.state || ''}
-                                onChange={(e) => {
-                                  const updated = [...editedJobs];
-                                  updated[i] = { ...updated[i], state: e.target.value.toUpperCase() };
-                                  setEditedJobs(updated);
-                                }}
-                                placeholder="Ex: PB"
-                                maxLength={2}
-                                className="h-9 text-sm"
-                              />
-                            </div>
-                          </div>
-                          <LocationMapBlock
-                            formData={editedJobs[i]}
-                            setFormData={(updater) => {
-                              const updated = [...editedJobs];
-                              updated[i] = typeof updater === 'function' ? updater(updated[i]) : updater;
-                              setEditedJobs(updated);
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-1.5 bg-purple-50 px-2 py-1.5 rounded-lg border border-purple-200">
+                          <Crown className="w-3.5 h-3.5 text-purple-600" />
+                          <Switch
+                            checked={individualPremiumFlags[i] || false}
+                            onCheckedChange={(checked) => {
+                              setIndividualPremiumFlags(prev => ({ ...prev, [i]: checked }));
                             }}
+                            className="scale-75"
                           />
                         </div>
-                      )}
+                        <Badge variant="outline" className="text-xs shrink-0">#{i + 1}</Badge>
+                      </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </div>
 
             <Button
-              onClick={() => {
-                // Validar se tem vagas sem localização
-                const hasInvalid = editedJobs.some(j => 
-                  j.showOnMap !== false && 
-                  j.locationType !== 'REMOTO' && 
-                  (!j.city || !j.state)
-                );
-                
-                if (hasInvalid) {
-                  alert('⚠️ Algumas vagas não têm cidade/estado preenchidos.\n\nClique em "Editar" nas vagas destacadas para corrigir.');
-                  return;
-                }
-                
-                setStep(2);
-              }}
+              onClick={() => setStep(2)}
               disabled={selectedContractTypes.length === 0}
               className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
             >
