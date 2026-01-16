@@ -52,16 +52,8 @@ export default function JobsMap({ onJobClick }) {
   useEffect(() => {
     const loadJobs = async () => {
       try {
-        const activeJobs = await base44.entities.Job.list('-created_date', 5000);
-        // Filter only active jobs with valid coordinates
-        const validJobs = activeJobs.filter(j => 
-          j.status === 'ativa' && 
-          j.latitude && 
-          j.longitude && 
-          !isNaN(j.latitude) && 
-          !isNaN(j.longitude)
-        );
-        setJobs(validJobs);
+        const activeJobs = await base44.entities.Job.filter({ status: 'ativa' }, '-created_date', 5000);
+        setJobs(activeJobs);
       } catch (error) {
         console.error('Error loading jobs:', error);
       } finally {
