@@ -191,12 +191,12 @@ export default function JobsMap({ onJobClick }) {
   }
 
   return (
-    <div className="relative w-full h-[400px] sm:h-[500px] rounded-xl overflow-hidden">
+    <div className="w-full h-full">
       <MapContainer
         center={centerBrasil}
         zoom={4}
         scrollWheelZoom={true}
-        className="w-full h-full"
+        style={{ width: '100%', height: '100%' }}
         zoomControl={true}
       >
         <TileLayer
