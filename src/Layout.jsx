@@ -41,7 +41,6 @@ export default function Layout({ children, currentPageName }) {
       const defaultItems = [
         { name: 'Início', icon: Home, page: 'Home' },
         { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-        { name: 'Mapa', icon: MapPin, page: 'MapaVagas' },
         { name: 'Notícias', icon: Newspaper, page: 'News' },
         { name: 'Ferramentas', icon: Settings, page: 'Utilidades' },
         { name: 'Feed', icon: MessageCircle, page: 'Feed' },
