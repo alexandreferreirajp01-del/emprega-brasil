@@ -176,7 +176,7 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-jobs'] });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      onUpdateSuccess();
+      if (onUpdateSuccess) onUpdateSuccess();
       onClose();
     },
     onError: (error) => {
