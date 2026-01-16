@@ -40,164 +40,162 @@ export default function PostsEmMassa() {
   }, []);
 
   const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files || []).slice(0, 50);
+    const files = Array.from(e.target.files).slice(0, 50);
     if (files.length === 0) return;
     
     setUploading(true);
     const uploaded = [];
-    let successCount = 0;
+    let errors = [];
     
     try {
       for (const file of files) {
         try {
-          // Validações básicas
-          if (!file.type.startsWith('image/')) {
-            console.warn(`${file.name} não é imagem`);
+          if (file.size > 15 * 1024 * 1024) {
+            errors.push(`${file.name}: arquivo > 15MB`);
             continue;
           }
           
-          if (file.size > 20 * 1024 * 1024) {
-            console.warn(`${file.name} > 20MB`);
-            continue;
+          let result = null;
+          let retries = 3;
+          
+          while (!result && retries > 0) {
+            try {
+              // Converter File para Blob explicitamente
+              const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+              
+              // Enviar como FormData para melhor compatibilidade
+              const formData = new FormData();
+              formData.append('file', blob, file.name);
+              
+              const uploadResult = await base44.integrations.Core.UploadFile({ file: blob });
+              
+              // Múltiplos formatos de resposta
+              if (uploadResult?.file_url) {
+                result = uploadResult.file_url;
+              } else if (uploadResult?.data?.file_url) {
+                result = uploadResult.data.file_url;
+              } else if (uploadResult?.url) {
+                result = uploadResult.url;
+              } else if (typeof uploadResult === 'string') {
+                result = uploadResult;
+              }
+              
+              if (!result) {
+                throw new Error('Sem URL retornada');
+              }
+            } catch (retryErr) {
+              retries--;
+              if (retries > 0) {
+                await new Promise(r => setTimeout(r, 500));
+              }
+            }
           }
           
-          // Upload direto - enviar File object como está
-          const uploadResult = await base44.integrations.Core.UploadFile({ file });
-          
-          // Extrair URL da resposta (vários formatos possíveis)
-          const fileUrl = uploadResult?.file_url || 
-                         uploadResult?.data?.file_url || 
-                         uploadResult?.url ||
-                         (typeof uploadResult === 'string' ? uploadResult : null);
-          
-          if (fileUrl && typeof fileUrl === 'string' && fileUrl.trim()) {
+          if (result) {
             uploaded.push({ 
               id: Date.now() + Math.random(), 
-              url: fileUrl, 
+              url: result, 
               status: 'pending',
               name: file.name 
             });
-            successCount++;
+          } else {
+            errors.push(`${file.name}: falha permanente`);
           }
         } catch (fileErr) {
-          console.error(`Erro ao uploadar ${file.name}:`, fileErr);
+          errors.push(`${file.name}: ${fileErr.message}`);
         }
       }
       
-      if (successCount > 0) {
+      if (uploaded.length > 0) {
         setImages(prev => [...prev, ...uploaded]);
       } else {
-        alert('❌ Nenhuma imagem foi carregada. Verifique o arquivo e tente novamente.');
+        alert(`❌ Erro no upload:\n${errors.join('\n')}`);
       }
     } catch (err) {
-      console.error('Upload fatal:', err);
-      alert(`❌ Erro: ${err.message}`);
+      alert(`❌ ${err.message}`);
     } finally {
       setUploading(false);
     }
   };
 
   const processImages = async () => {
-    if (images.length === 0) {
-      alert('Selecione imagens primeiro');
-      return;
-    }
-    
     setProcessing(true);
     const allJobs = [];
-    
     try {
       for (const img of images) {
-        if (!img.url) continue;
-        
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'processing' } : i));
         
-        try {
-          // Extrair QR Code
-          let qrCodeLink = null;
-          try {
-            qrCodeLink = await extractQRCodeLink(img.url);
-          } catch (e) {
-            console.warn('QR code extraction failed:', e);
-          }
-          
-          // Processar com IA
-          const result = await base44.integrations.Core.InvokeLLM({
-            prompt: `Extraia TODAS as vagas de emprego desta imagem. Para cada vaga retorne:
-- title: cargo/função (obrigatório)
-- company: nome da empresa (obrigatório)
-- city: cidade (obrigatório - se remoto, coloque "Remoto")
-- state: UF de 2 letras (ex: SP, RJ, PB)
-- salary_range: faixa salarial se houver valor numérico
-- description: descrição da vaga
-- contact_phone: telefone se encontrar
-- application_link: link para candidatura ou WhatsApp`,
-            file_urls: [img.url],
-            response_json_schema: {
-              type: "object",
-              properties: {
-                jobs: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      title: { type: "string" },
-                      company: { type: "string" },
-                      city: { type: "string" },
-                      state: { type: "string" },
-                      salary_range: { type: "string" },
-                      description: { type: "string" },
-                      contact_phone: { type: "string" },
-                      application_link: { type: "string" }
-                    },
-                    required: ["title", "company", "city"]
+        // Extrair QR Code com função poderosa
+        const qrCodeLink = await extractQRCodeLink(img.url);
+        
+        const result = await base44.integrations.Core.InvokeLLM({
+          prompt: `EXTRAIA TODAS AS VAGAS desta imagem com MÁXIMA PRECISÃO:
+
+REGRAS CRÍTICAS para CADA vaga:
+1. CIDADE e UF: SEMPRE identifique ambos
+   - Recife → city: "Recife", state: "PE"
+   - João Pessoa → city: "João Pessoa", state: "PB"
+   - São Paulo → city: "São Paulo", state: "SP"
+   
+2. SALÁRIO: extraia SOMENTE valores numéricos/monetários
+   - Correto: "R$ 1.500", "2.000 a 3.000"
+   - Deixe VAZIO se não houver valor numérico
+   
+3. Se vaga for remota: city: "Remoto", state: ""
+${qrCodeLink ? `
+4. QR CODE LINK DETECTADO: ${qrCodeLink}` : ''}`,
+          file_urls: [img.url],
+          response_json_schema: {
+            type: "object",
+            properties: {
+              jobs: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string", description: "Cargo da vaga" },
+                    company: { type: "string", description: "Nome da empresa" },
+                    city: { type: "string", description: "Cidade (ou 'Remoto')" },
+                    state: { type: "string", description: "UF de 2 letras" },
+                    salary_range: { type: "string", description: "APENAS valor monetário" },
+                    contact_phone: { type: "string" },
+                    application_link: { type: "string" },
+                    description: { type: "string" }
                   }
                 }
               }
             }
+          }
+        });
+        
+        // Aplicar link do QR Code se não houver link nas vagas
+        (result.jobs || []).forEach(job => {
+          if (qrCodeLink && !job.application_link) {
+            job.application_link = qrCodeLink;
+          }
+        });
+
+        (result.jobs || []).forEach(job => {
+          // Fallback: auto-completar estado se não veio da IA
+          const autoState = (job.city && !job.state) ? getStateFromCity(job.city) : null;
+          
+          // VALIDAÇÃO: marcar status baseado em contato
+          const hasContact = job.application_link && job.application_link.trim() !== '';
+          
+          allJobs.push({
+            ...job,
+            state: job.state || autoState || '',
+            image_url: img.url,
+            status: hasContact ? 'published' : 'pending_contact'
           });
-          
-          const jobs = result?.jobs || [];
-          
-          // Processar cada vaga
-          jobs.forEach((job, idx) => {
-            if (!job.title || !job.company || !job.city) {
-              console.warn(`Vaga ${idx} inválida, pulando`);
-              return;
-            }
-            
-            allJobs.push({
-              title: job.title.trim(),
-              company: job.company.trim(),
-              city: job.city.trim(),
-              state: (job.state || getStateFromCity(job.city) || '').toUpperCase(),
-              salary_range: job.salary_range || '',
-              description: job.description || '',
-              contact_phone: job.contact_phone || '',
-              application_link: job.application_link || qrCodeLink || '',
-              image_url: img.url,
-              is_featured: false,
-              status: 'ativa',
-              job_type: 'CLT'
-            });
-          });
-          
-          setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'completed', count: jobs.length } : i));
-        } catch (processErr) {
-          console.error(`Erro ao processar imagem:`, processErr);
-          setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'error' } : i));
-        }
+        });
+
+        setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'completed', count: result.jobs?.length || 0 } : i));
       }
-      
-      if (allJobs.length === 0) {
-        alert('❌ Nenhuma vaga foi extraída. Verifique as imagens.');
-        return;
-      }
-      
       setExtractedJobs(allJobs);
       setStep(2);
     } catch (err) {
-      alert(`❌ Erro crítico ao processar: ${err.message}`);
+      alert('Erro ao processar');
     } finally {
       setProcessing(false);
     }
@@ -208,30 +206,11 @@ export default function PostsEmMassa() {
   };
 
   const handlePublish = async (wizardData) => {
-    if (!wizardData?.jobs || wizardData.jobs.length === 0) {
-      alert('Nenhuma vaga para publicar');
-      return;
-    }
-    
     setPublishing(true);
     try {
-      const jobsToCreate = wizardData.jobs.map(job => ({
-        title: job.title?.trim() || '',
-        company: job.company?.trim() || '',
-        city: job.city?.trim() || '',
-        state: (job.state || '').toUpperCase(),
-        salary_range: job.salary_range || '',
-        description: job.description || '',
-        contact_phone: job.contact_phone || '',
-        application_link: job.application_link || '',
-        image_url: job.image_url || '',
-        is_featured: job.is_featured || false,
-        status: 'ativa',
-        job_type: job.job_type || 'CLT'
-      }));
+      const jobsToCreate = wizardData.jobs;
 
-      if (wizardData.schedule?.date && wizardData.schedule?.time) {
-        // Agendar vagas
+      if (wizardData.schedule) {
         await base44.entities.ScheduledPost.create({
           post_type: 'job_mass',
           scheduled_date: new Date(`${wizardData.schedule.date}T${wizardData.schedule.time}`).toISOString(),
@@ -239,10 +218,10 @@ export default function PostsEmMassa() {
           notification_data: wizardData.notification || {},
           status: 'pending'
         });
-        alert(`✅ ${jobsToCreate.length} vagas agendadas!`);
+        alert('Vagas agendadas!');
       } else {
-        // Publicar imediatamente em lotes
-        const batchSize = 3; // Reduzido para evitar timeout
+        // Criar vagas em paralelo (máximo 5 por vez para não sobrecarregar)
+        const batchSize = 5;
         const batches = [];
         for (let i = 0; i < jobsToCreate.length; i += batchSize) {
           batches.push(jobsToCreate.slice(i, i + batchSize));
@@ -250,30 +229,36 @@ export default function PostsEmMassa() {
 
         const createdJobIds = [];
         for (const batch of batches) {
-          try {
-            const results = await Promise.all(
-              batch.map(job => base44.entities.Job.create(job))
-            );
-            createdJobIds.push(...results.map(r => r.id).filter(Boolean));
-          } catch (batchErr) {
-            console.error('Erro ao criar lote:', batchErr);
-          }
+          const results = await Promise.all(
+            batch.map(job => base44.entities.Job.create(job))
+          );
+          createdJobIds.push(...results.map(r => r.id));
         }
         
-        if (createdJobIds.length > 0) {
-          alert(`✅ ${createdJobIds.length} vagas publicadas!`);
-        } else {
-          alert('❌ Nenhuma vaga foi publicada. Tente novamente.');
+        // Notificações em background (não bloquear)
+        if (wizardData.notification && createdJobIds.length > 0) {
+          base44.entities.User.list().then(users => {
+            const targetUsers = wizardData.notification.premiumOnly 
+              ? users.filter(u => u.subscription_type === 'premium' || u.role === 'admin').map(u => u.email)
+              : users.map(u => u.email);
+
+            base44.functions.invoke('sendNotifications', {
+              notification: wizardData.notification,
+              jobIds: createdJobIds, // Array de IDs
+              templateId: wizardData.notification.templateId,
+              targetUsers
+            }).catch(() => {});
+          }).catch(() => {});
         }
+        
+        alert(`${jobsToCreate.length} vagas publicadas!`);
       }
       
-      // Limpar estado
       setImages([]);
       setExtractedJobs([]);
       setStep(1);
     } catch (err) {
-      console.error('Erro ao publicar:', err);
-      alert(`❌ Erro: ${err.message}`);
+      alert('Erro: ' + err.message);
     } finally {
       setPublishing(false);
     }
