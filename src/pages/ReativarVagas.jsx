@@ -30,7 +30,6 @@ export default function ReativarVagas() {
         const response = await base44.functions.invoke('reactivateJobs', { mode: 'list' });
         setExpiredJobs(response.data.jobs || []);
         console.log('Vagas expiradas carregadas:', response.data.jobs?.length || 0);
-        console.log('Debug info:', response.data.debug);
       } catch (error) {
         console.error('Erro:', error);
         alert('Erro ao carregar vagas: ' + error.message);
