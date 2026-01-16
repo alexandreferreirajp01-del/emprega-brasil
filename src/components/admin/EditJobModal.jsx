@@ -161,15 +161,13 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
       if (updatedJobData.showOnMap) {
         try {
           console.log('🔄 Geocodificando vaga:', job.id);
-          await base44.functions.invoke('geocodeSystem', {
-            action: 'single',
-            jobId: job.id
+          await base44.functions.invoke('geocodeJobAdvanced', {
+            event: { entity_id: job.id }
           });
           console.log('✅ Vaga geocodificada e aparecerá no mapa');
         } catch (e) {
           console.error('Erro ao geocodificar:', e);
-          // Não bloquear salvamento por erro de geocode
-          console.warn('⚠️ Vaga salva mas geocode falhou. Pode processar depois via gerenciador.');
+          throw new Error('Vaga atualizada, mas falha ao geocodificar. Tente novamente.');
         }
       }
     },

@@ -4,7 +4,7 @@ import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Building2, Briefcase, Clock, Navigation, X, RefreshCw, Loader2 } from 'lucide-react';
+import { MapPin, Building2, Briefcase, Clock, Navigation, X } from 'lucide-react';
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
@@ -58,28 +58,10 @@ function LocationButton() {
     <Button
       onClick={handleMyLocation}
       disabled={loading}
-      className="absolute bottom-4 right-4 z-[1000] bg-white hover:bg-slate-50 text-slate-700 shadow-lg rounded-xl border border-slate-200"
+      className="absolute top-4 right-4 z-[1000] bg-white hover:bg-slate-50 text-slate-700 shadow-lg rounded-xl border border-slate-200"
       size="icon"
     >
       <Navigation className="w-4 h-4" />
-    </Button>
-  );
-}
-
-function RefreshButton({ onRefresh, refreshing }) {
-  return (
-    <Button
-      onClick={onRefresh}
-      disabled={refreshing}
-      className="absolute top-4 right-4 z-[1000] bg-white hover:bg-slate-50 text-slate-700 shadow-lg rounded-xl border border-slate-200"
-      size="icon"
-      title="Atualizar mapa"
-    >
-      {refreshing ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
-      ) : (
-        <RefreshCw className="w-4 h-4" />
-      )}
     </Button>
   );
 }
@@ -88,27 +70,10 @@ export default function JobsMap({ onJobClick }) {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCluster, setSelectedCluster] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadJobs();
   }, []);
-
-  const handleRefreshMap = async () => {
-    setRefreshing(true);
-    try {
-      await base44.functions.invoke('geocodeSystem', {
-        action: 'batch',
-        batchSize: 100
-      });
-      await loadJobs();
-      alert('✅ Mapa atualizado com sucesso!');
-    } catch (error) {
-      alert('Erro ao atualizar: ' + error.message);
-    } finally {
-      setRefreshing(false);
-    }
-  };
 
   const loadJobs = async () => {
     try {
@@ -189,7 +154,6 @@ export default function JobsMap({ onJobClick }) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
-        <RefreshButton onRefresh={handleRefreshMap} refreshing={refreshing} />
         <LocationButton />
 
         <MarkerClusterGroup
