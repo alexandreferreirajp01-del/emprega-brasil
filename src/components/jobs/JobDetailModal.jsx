@@ -2,8 +2,9 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, Building2, MapPin, DollarSign, Calendar, ExternalLink } from "lucide-react";
+import { Briefcase, Building2, MapPin, DollarSign, Calendar, ExternalLink, Eye } from "lucide-react";
 import moment from 'moment';
+import { createPageUrl } from "@/utils";
 
 export default function JobDetailModal({ job, isOpen, onClose }) {
   if (!job) return null;
@@ -95,15 +96,26 @@ export default function JobDetailModal({ job, isOpen, onClose }) {
             </div>
           )}
 
-          {job.application_link && (
+          <div className="flex gap-2">
             <Button 
-              className="w-full" 
-              onClick={() => window.open(job.application_link, '_blank')}
+              variant="outline"
+              className="flex-1" 
+              onClick={() => window.location.href = createPageUrl('JobDetail') + `?id=${job.id}`}
             >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Candidatar-se
+              <Eye className="w-4 h-4 mr-2" />
+              Ver Vaga Completa
             </Button>
-          )}
+            
+            {job.application_link && (
+              <Button 
+                className="flex-1" 
+                onClick={() => window.open(job.application_link, '_blank')}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Candidatar-se
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
