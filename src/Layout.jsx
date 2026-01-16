@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
         Home, Briefcase, User, Menu, X, 
-        LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings, Bot, MapPin
+        LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings, Bot
       } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -41,7 +41,6 @@ export default function Layout({ children, currentPageName }) {
       const defaultItems = [
         { name: 'Início', icon: Home, page: 'Home' },
         { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
-        { name: 'Mapa', icon: MapPin, page: 'MapaVagas' },
         { name: 'Notícias', icon: Newspaper, page: 'News' },
         { name: 'Ferramentas', icon: Settings, page: 'Utilidades' },
         { name: 'Feed', icon: MessageCircle, page: 'Feed' },

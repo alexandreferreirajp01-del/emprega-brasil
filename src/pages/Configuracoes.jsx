@@ -72,7 +72,6 @@ const menuItems = [
   // Links Especiais
   { id: 'divider-links', type: 'divider', label: 'Links & Automação' },
   { id: 'links-especiais', name: 'Links Especiais', icon: LinkIcon, color: 'purple', page: 'GerenciarLinksEspeciais', description: 'Gerencie links que habilitam planos automaticamente', roles: ['admin', 'dono'] },
-  { id: 'geocode-jobs', name: 'Geocodificar Vagas', icon: MapPin, color: 'teal', action: 'geocodeJobs', description: 'Adicionar coordenadas às vagas sem localização', roles: ['admin', 'dono'] },
 
   // Manutenção
   { id: 'divider-manutencao', type: 'divider', label: 'Manutenção', roles: ['admin', 'dono'] },
@@ -189,18 +188,6 @@ export default function Configuracoes() {
         const response = await base44.functions.invoke('deleteJobsWithoutContact');
         alert(response.data.message || 'Exclusão concluída!');
         console.log('Resultado:', response.data);
-      } catch (error) {
-        alert('Erro: ' + error.message);
-      } finally {
-        setMigrating(false);
-      }
-    } else if (item.action === 'geocodeJobs') {
-      if (!confirm('Geocodificar todas as vagas sem coordenadas? Pode levar vários minutos.')) return;
-      
-      setMigrating(true);
-      try {
-        const response = await base44.functions.invoke('geocodeAllJobs');
-        alert(`✅ Concluído!\n\n✓ ${response.data.successCount} vagas geocodificadas\n✗ ${response.data.failCount} falhas`);
       } catch (error) {
         alert('Erro: ' + error.message);
       } finally {
