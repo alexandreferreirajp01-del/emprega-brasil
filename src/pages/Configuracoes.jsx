@@ -72,8 +72,7 @@ const menuItems = [
   // Links Especiais
   { id: 'divider-links', type: 'divider', label: 'Links & Automação' },
   { id: 'links-especiais', name: 'Links Especiais', icon: LinkIcon, color: 'purple', page: 'GerenciarLinksEspeciais', description: 'Gerencie links que habilitam planos automaticamente', roles: ['admin', 'dono'] },
-  { id: 'check-geo-status', name: 'Verificar Status Geo', icon: MapPin, color: 'blue', action: 'checkGeoStatus', description: 'Ver quantas vagas têm coordenadas', roles: ['admin', 'dono'] },
-  { id: 'geocode-jobs', name: 'Geocodificar Vagas', icon: MapPin, color: 'teal', action: 'geocodeJobs', description: 'Adicionar coordenadas automaticamente às vagas', roles: ['admin', 'dono'] },
+  { id: 'gerenciar-mapa', name: 'Gerenciar Mapa', icon: MapPin, color: 'blue', page: 'GerenciarMapa', description: 'Interface completa para geocodificar vagas e visualizar estatísticas', roles: ['admin', 'dono'] },
   { id: 'reactivate-jobs', name: 'Reativar Vagas', icon: RefreshCw, color: 'green', page: 'ReativarVagas', description: 'Reativar vagas expiradas em massa ou selecionadas', roles: ['admin', 'dono'] },
 
   // Manutenção

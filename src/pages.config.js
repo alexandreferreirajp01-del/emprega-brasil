@@ -80,6 +80,7 @@ import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
 import ReativarVagas from './pages/ReativarVagas';
+import GerenciarMapa from './pages/GerenciarMapa';
 import __Layout from './Layout.jsx';
 
 
@@ -166,6 +167,7 @@ export const PAGES = {
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
     "ReativarVagas": ReativarVagas,
+    "GerenciarMapa": GerenciarMapa,
 }
 
 export const pagesConfig = {
