@@ -61,35 +61,42 @@ ${imageUrl ? 'ANALISANDO IMAGEM E TEXTO' : 'ANALISANDO TEXTO'}`,
 
     // ETAPA 2: EXTRAÇÃO DE INFORMAÇÕES GERAIS (herdadas por todas as vagas)
     const generalInfoResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `EXTRAIA INFORMAÇÕES GERAIS que se aplicam a TODAS as vagas:
+      prompt: `ANÁLISE COMPLETA E DETALHADA - NÃO PERCA NENHUMA INFORMAÇÃO:
 
-REGRAS CRÍTICAS:
-1. CIDADE e UF:
-   - Sempre identifique ambos
-   - Formato: city: "Nome Cidade", state: "UF" (2 letras maiúsculas)
+🎯 LOCALIZAÇÃO (OBRIGATÓRIO):
+   - Cidade COMPLETA (ex: "João Pessoa", "Campina Grande")
+   - UF com 2 letras maiúsculas (PE, PB, SP, RJ, etc)
+   - Bairro (se mencionado)
+   - Endereço completo (se houver rua, número, CEP)
+   - Se múltiplas cidades: extraia TODAS
    - Recife → city: "Recife", state: "PE"
    - João Pessoa → city: "João Pessoa", state: "PB"
-   - São Paulo → city: "São Paulo", state: "SP"
-   - Campina Grande → city: "Campina Grande", state: "PB"
 
-2. FAIXA SALARIAL:
-   - Extraia SOMENTE valores monetários
-   - Válido: "R$ 1.500", "2.000", "1.500 a 2.500"
-   - INVÁLIDO: "a combinar", "benefícios", horários
-   - Se não houver valor numérico: deixe VAZIO
+📞 CONTATOS (EXTRAIR TODOS):
+   - Telefone fixo (ex: (83) 3333-3333)
+   - Celular/WhatsApp (ex: (83) 99999-9999, 83999999999)
+   - Email (TODOS os emails mencionados)
+   - Instagram, Facebook, LinkedIn (@ ou link completo)
+   - Site da empresa
+   - Link de formulário/candidatura
+   - QR Code (se identificar na imagem)
+   
+💰 SALÁRIO:
+   - Extraia APENAS valores numéricos/monetários
+   - Válido: "R$ 1.500", "2.000 a 3.000", "1.320,00"
+   - IGNORE: "a combinar", "compatível com mercado"
+   - Se não houver: deixe VAZIO
 
-3. EMPRESA:
+🏢 EMPRESA & DESCRIÇÃO:
    - Nome completo da empresa
-   - Se não mencionar: use "Empresa confidencial"
-
-4. DESCRIÇÃO GERAL:
-   - Benefícios comuns a todas as vagas
-   - Horário de trabalho (se geral)
+   - Benefícios (vale transporte, alimentação, plano saúde)
+   - Horário de trabalho
    - Forma de candidatura
-   - Observações gerais
 
-5. TIPOS DE CONTRATO:
+📝 TIPOS DE CONTRATO:
    - CLT, PJ, Autônomo, Estágio, Jovem Aprendiz, Temporário, Freelancer, Trainee, Home Office
+
+⚠️ IMPORTANTE: EXTRAIA TUDO que encontrar, não omita nenhum contato ou endereço!
 
 ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
       file_urls: imageUrl ? [imageUrl] : undefined,
@@ -99,6 +106,8 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
           company: { type: "string", description: "Nome da empresa" },
           city: { type: "string", description: "Cidade completa" },
           state: { type: "string", description: "UF (2 letras maiúsculas)" },
+          neighborhood: { type: "string", description: "Bairro (se mencionado)" },
+          full_address: { type: "string", description: "Endereço completo se houver" },
           general_description: { type: "string", description: "Descrição/benefícios gerais" },
           salary_range: { type: "string", description: "Faixa salarial APENAS numérica" },
           contract_types: { 
@@ -106,9 +115,16 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
             items: { type: "string" },
             description: "Tipos de contrato identificados"
           },
-          contact_phone: { type: "string", description: "Telefone" },
-          contact_email: { type: "string", description: "Email" },
-          application_link: { type: "string", description: "Link" },
+          contact_phone: { type: "string", description: "Telefone principal" },
+          contact_phone_2: { type: "string", description: "Telefone secundário" },
+          contact_whatsapp: { type: "string", description: "WhatsApp específico" },
+          contact_email: { type: "string", description: "Email principal" },
+          contact_email_2: { type: "string", description: "Email secundário" },
+          instagram: { type: "string", description: "Instagram (@usuario ou link)" },
+          facebook: { type: "string", description: "Facebook (link)" },
+          linkedin: { type: "string", description: "LinkedIn (link)" },
+          website: { type: "string", description: "Site da empresa" },
+          application_link: { type: "string", description: "Link de candidatura/formulário" },
           work_schedule: { type: "string", description: "Horário (se geral)" }
         }
       }
@@ -201,15 +217,29 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
         }
       }
       
-      // Montar link de candidatura
-      let applicationLink = generalInfoResult.application_link || '';
-      if (!applicationLink && generalInfoResult.contact_phone) {
-        const phone = generalInfoResult.contact_phone.replace(/\D/g, '');
+      // Montar link de candidatura (priorizar link direto > WhatsApp > Email)
+      let applicationLink = generalInfoResult.application_link || generalInfoResult.website || '';
+      
+      if (!applicationLink && (generalInfoResult.contact_whatsapp || generalInfoResult.contact_phone)) {
+        const phone = (generalInfoResult.contact_whatsapp || generalInfoResult.contact_phone).replace(/\D/g, '');
         const finalPhone = phone.startsWith('55') ? phone : `55${phone}`;
         applicationLink = `https://wa.me/${finalPhone}`;
       } else if (!applicationLink && generalInfoResult.contact_email) {
         applicationLink = `mailto:${generalInfoResult.contact_email}`;
       }
+      
+      // Construir texto de contatos adicionais
+      let additionalContacts = '';
+      if (generalInfoResult.contact_phone_2) additionalContacts += `📞 ${generalInfoResult.contact_phone_2}\n`;
+      if (generalInfoResult.contact_email_2) additionalContacts += `📧 ${generalInfoResult.contact_email_2}\n`;
+      if (generalInfoResult.instagram) additionalContacts += `📷 Instagram: ${generalInfoResult.instagram}\n`;
+      if (generalInfoResult.facebook) additionalContacts += `👥 Facebook: ${generalInfoResult.facebook}\n`;
+      if (generalInfoResult.linkedin) additionalContacts += `💼 LinkedIn: ${generalInfoResult.linkedin}\n`;
+      
+      // Adicionar localização detalhada
+      let locationInfo = '';
+      if (generalInfoResult.neighborhood) locationInfo += `📍 Bairro: ${generalInfoResult.neighborhood}\n`;
+      if (generalInfoResult.full_address) locationInfo += `📍 Endereço: ${generalInfoResult.full_address}\n`;
       
       // VALIDAÇÃO: Se não houver contato, marcar como pendente
       const hasContact = applicationLink && applicationLink.trim() !== '';
@@ -233,7 +263,7 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
         contract_types: generalInfoResult.contract_types || [],
         application_link: applicationLink,
         image_url: imageUrl || '',
-        additional_info: '',
+        additional_info: (locationInfo + additionalContacts).trim(),
         is_premium: false,
         is_featured: false,
         status: jobStatus

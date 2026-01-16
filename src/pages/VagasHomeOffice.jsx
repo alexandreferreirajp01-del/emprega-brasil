@@ -54,23 +54,30 @@ export default function VagasHomeOffice() {
       }
       
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `EXTRAIA TODAS as vagas HOME OFFICE deste texto:
+        prompt: `🏠 EXTRAÇÃO VAGAS HOME OFFICE - ANÁLISE COMPLETA:
 
-INSTRUÇÕES:
-1. Para cada vaga identifique:
+Para CADA vaga identifique:
+
+📍 LOCALIZAÇÃO:
+   - Se 100% remoto SEM cidade: city: "Home Office", state: ""
+   - Se mencionar cidade de apoio: extraia cidade + UF
+   - Exemplo: "Remoto para Recife" → city: "Recife", state: "PE"
+   - Bairro (se mencionar)
+
+📞 CONTATOS (TODOS):
+   - Telefones (fixo, celular, WhatsApp)
+   - Emails (TODOS)
+   - Instagram, Facebook, LinkedIn
+   - Site, formulário${qrCodeLink ? `
+   - QR CODE: ${qrCodeLink}` : ''}
+   
+💼 DADOS DA VAGA:
    - Título/cargo
-   - Link de inscrição
    - Descrição completa
-   - Se mencionar cidade específica: extraia cidade e UF
-   
-2. IMPORTANTE: se a vaga for 100% remota SEM cidade específica:
-   - city: "Home Office"
-   - state: ""
-   
-3. Se mencionar cidade: identifique UF correspondente
-   - Ex: "Home Office com suporte em Recife" → city: "Recife", state: "PE"
-${qrCodeLink ? `
-QR CODE LINK: ${qrCodeLink}` : ''}
+   - Salário (se houver)
+   - Benefícios
+
+⚠️ NÃO OMITA NENHUM CONTATO OU INFORMAÇÃO!
 
 TEXTO:
 ${rawText}`,

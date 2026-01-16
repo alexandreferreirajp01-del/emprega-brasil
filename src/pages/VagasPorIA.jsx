@@ -53,22 +53,28 @@ export default function VagasPorIA() {
       }
       
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `EXTRAIA COM PRECISÃO os dados desta vaga:
+        prompt: `🔍 EXTRAÇÃO COMPLETA E DETALHADA - NÃO OMITA NADA:
 
-REGRAS OBRIGATÓRIAS:
-1. CIDADE e UF: identifique SEMPRE a cidade e o estado (UF com 2 letras)
-   - Ex: João Pessoa → city: "João Pessoa", state: "PB"
-   - Ex: Recife → city: "Recife", state: "PE"
+📍 LOCALIZAÇÃO:
+   - Cidade completa (ex: "João Pessoa", "Campina Grande")
+   - Estado UF (2 letras: PB, PE, SP, RJ)
+   - Bairro (se mencionar)
+   - Endereço (se houver rua/número)
+   - Se 100% remoto: city: "Remoto", state: ""
    
-2. FAIXA SALARIAL: extraia APENAS valores monetários
-   - Válido: "R$ 1.500", "2.000 a 3.000"
-   - Se não houver valor numérico, deixe VAZIO
-   
-3. Se a vaga for 100% remota, defina city: "Remoto" e state: ""
+📞 CONTATOS (EXTRAIR ABSOLUTAMENTE TODOS):
+   - Telefones (fixo e celular)
+   - WhatsApp (pode ser diferente do celular)
+   - Emails (TODOS)
+   - Instagram, Facebook, LinkedIn
+   - Site, formulário, links${qrCodeLink ? `
+   - QR CODE: ${qrCodeLink}` : ''}
 
-TEXTO DA VAGA:${qrCodeLink ? `
-QR CODE LINK: ${qrCodeLink}` : ''}
+💰 SALÁRIO (apenas números):
+   - Válido: "R$ 1.500", "2k a 3k"
+   - Ignore: "a combinar"
 
+📋 TEXTO COMPLETO:
 ${rawText}`,
         response_json_schema: {
           type: "object",

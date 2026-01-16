@@ -96,28 +96,29 @@ export default function PostarVaga() {
       
       // Extrair dados com IA
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `EXTRAIA COM PRECISÃO MÁXIMA os dados desta vaga de emprego:
+        prompt: `🔍 ANÁLISE COMPLETA - EXTRAIA TODAS AS INFORMAÇÕES:
 
-REGRAS CRÍTICAS:
-1. CIDADE e UF: SEMPRE identifique a cidade completa e a UF correspondente
-   - Recife → PE
-   - João Pessoa → PB
-   - Campina Grande → PB
-   - São Paulo → SP
-   - Se houver múltiplas cidades, use a primeira/principal
+📍 LOCALIZAÇÃO (não perca nada):
+   - Cidade completa
+   - Estado (UF com 2 letras)
+   - Bairro (se mencionado)
+   - Endereço completo (rua, número, CEP)
    
-2. FAIXA SALARIAL: extraia APENAS valores monetários
-   - Válido: "R$ 1.500", "2.000", "1.500 a 2.500"
-   - INVÁLIDO: benefícios, horários, descrições
-   - Se não houver salário numérico, deixe VAZIO
-
-3. DADOS DE CONTATO:
-   - Telefone (formato: 83999999999)
-   - Email
-   - Website/Link${qrCodeLink ? `
+📞 CONTATOS (EXTRAIR TODOS):
+   - Telefone fixo
+   - Celular/WhatsApp (TODOS os números)
+   - Email (TODOS os emails)
+   - Instagram (@usuario ou link)
+   - Facebook, LinkedIn
+   - Site da empresa
+   - Link de formulário${qrCodeLink ? `
    - QR CODE DETECTADO: ${qrCodeLink}` : ''}
 
-EXTRAIA:`,
+💰 SALÁRIO (apenas valores numéricos):
+   - Válido: "R$ 1.500", "2.000 a 3.000"
+   - Ignore: "a combinar", "compatível"
+
+EXTRAIA TUDO:`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",

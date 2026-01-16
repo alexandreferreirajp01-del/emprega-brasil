@@ -78,23 +78,38 @@ export default function PostsEmMassaTXT() {
       }
       
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `EXTRAIA TODAS AS VAGAS deste texto com MÁXIMA PRECISÃO (pode ter até 50 vagas):
+        prompt: `🔍 EXTRAÇÃO EM MASSA - ANÁLISE PROFUNDA (até 50 vagas):
 
-REGRAS CRÍTICAS para CADA vaga:
-1. CIDADE e UF: SEMPRE identifique ambos
-   - Recife → city: "Recife", state: "PE"
-   - João Pessoa → city: "João Pessoa", state: "PB"
-   - São Paulo → city: "São Paulo", state: "SP"
-   
-2. SALÁRIO: extraia SOMENTE valores numéricos/monetários
-   - Correto: "R$ 1.500", "2.000 a 3.000"
-   - Deixe VAZIO se não houver valor numérico
-   
-3. Se vaga for remota: city: "Remoto", state: ""
-${qrCodeLink ? `
-4. QR CODE LINK DETECTADO: ${qrCodeLink}` : ''}
+Para CADA VAGA extraia TUDO:
 
-TEXTO:
+📍 LOCALIZAÇÃO COMPLETA:
+   - Cidade (nome completo)
+   - Estado (UF: PE, PB, SP, etc)
+   - Bairro (se mencionar)
+   - Endereço (se houver)
+   - Se remoto: city: "Remoto", state: ""
+   
+📞 TODOS OS CONTATOS (não perca nenhum):
+   - Telefones (fixo, celular, WhatsApp)
+   - Emails (primário e secundário)
+   - Instagram, Facebook, LinkedIn
+   - Sites, formulários, links${qrCodeLink ? `
+   - QR CODE: ${qrCodeLink}` : ''}
+
+💰 SALÁRIO (apenas valores):
+   - "R$ 1.500", "2k a 3k"
+   - Ignore "a combinar"
+
+📋 DADOS COMPLETOS:
+   - Título/cargo
+   - Empresa
+   - Descrição detalhada
+   - Benefícios
+   - Requisitos
+
+⚠️ REGRA DE OURO: NÃO OMITA NENHUMA INFORMAÇÃO!
+
+TEXTO COMPLETO:
 ${pastedText}`,
         response_json_schema: {
           type: "object",
