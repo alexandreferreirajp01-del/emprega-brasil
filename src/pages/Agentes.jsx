@@ -40,6 +40,15 @@ const agents = [
     description: 'Agente de Validação Automática de Vagas - Garantir que todas as vagas tenham contato válido e informações corretas',
     bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50',
     textColor: 'text-green-600'
+  },
+  {
+    id: 'gerenciador_mapa',
+    name: 'Gerenciador do Mapa',
+    icon: Bot,
+    color: 'from-orange-500 to-red-600',
+    description: 'Agente especializado em gerenciar a localização e geocodificação de vagas no mapa. Corrige problemas de coordenadas e processa vagas pendentes.',
+    bgColor: 'bg-gradient-to-br from-orange-50 to-red-50',
+    textColor: 'text-orange-600'
   }
 ];
 
