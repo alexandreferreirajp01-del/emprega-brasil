@@ -116,20 +116,23 @@ export default function JobDetail() {
     const loadData = async () => {
       setIsLoading(true);
       
-      // Buscar a vaga diretamente pelo ID usando filter
-      const [foundJobs, allViews, allFavorites] = await Promise.all([
-        safeFetch(() => base44.entities.Job.filter({ id: jobId }), []),
-        safeFetch(() => base44.entities.JobView.filter({ job_id: jobId }), []),
-        user ? safeFetch(() => base44.entities.FavoriteJob.filter({ user_email: user?.email }), []) : Promise.resolve([])
+      // Buscar todas as vagas e filtrar
+      const [allJobs, allViews, allFavorites] = await Promise.all([
+        safeFetch(() => base44.entities.Job.list('-created_date', 500), []),
+        safeFetch(() => base44.entities.JobView.list('-created_date', 2000), []),
+        user ? safeFetch(() => base44.entities.FavoriteJob.list('-created_date', 500), []) : Promise.resolve([])
       ]);
 
       if (mounted) {
-        // Pegar a primeira vaga encontrada
-        const foundJob = foundJobs && foundJobs.length > 0 ? foundJobs[0] : null;
+        // Encontrar a vaga específica
+        const foundJob = allJobs?.find(j => j.id === jobId) || null;
         setJob(foundJob);
         
-        setViews(allViews || []);
-        setFavorites(allFavorites || []);
+        // Filtrar views desta vaga
+        setViews(allViews?.filter(v => v.job_id === jobId) || []);
+        
+        // Filtrar favoritos do usuário
+        setFavorites(allFavorites?.filter(f => f.user_email === user?.email) || []);
         
         setIsLoading(false);
         
