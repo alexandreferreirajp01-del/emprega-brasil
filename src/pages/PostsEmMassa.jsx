@@ -42,16 +42,47 @@ export default function PostsEmMassa() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files).slice(0, 50);
     if (files.length === 0) return;
+    
+    // Validar arquivos
+    const validFiles = files.filter(f => {
+      if (!f.type.startsWith('image/')) {
+        alert(`❌ ${f.name} não é uma imagem válida`);
+        return false;
+      }
+      if (f.size > 10 * 1024 * 1024) { // 10MB
+        alert(`❌ ${f.name} é muito grande (máx 10MB)`);
+        return false;
+      }
+      return true;
+    });
+    
+    if (validFiles.length === 0) return;
+    
     setUploading(true);
     const uploaded = [];
+    let errorCount = 0;
+    
     try {
-      for (const file of files) {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file });
-        uploaded.push({ id: Date.now() + Math.random(), url: file_url, status: 'pending' });
+      for (const file of validFiles) {
+        try {
+          const { file_url } = await base44.integrations.Core.UploadFile({ file });
+          uploaded.push({ id: Date.now() + Math.random(), url: file_url, status: 'pending' });
+        } catch (fileErr) {
+          errorCount++;
+          console.error(`Erro ao fazer upload de ${file.name}:`, fileErr);
+        }
       }
-      setImages(prev => [...prev, ...uploaded]);
+      
+      if (uploaded.length === 0) {
+        alert('❌ Nenhuma imagem foi carregada. Tente novamente.');
+      } else if (errorCount > 0) {
+        alert(`⚠️ ${uploaded.length} imagens carregadas (${errorCount} falharam)`);
+        setImages(prev => [...prev, ...uploaded]);
+      } else {
+        setImages(prev => [...prev, ...uploaded]);
+      }
     } catch (err) {
-      alert('Erro no upload');
+      alert(`❌ Erro no upload: ${err.message || 'Tente novamente'}`);
     } finally {
       setUploading(false);
     }
