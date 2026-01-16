@@ -12,21 +12,6 @@ import TimeAgo from "@/components/common/TimeAgo";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Estilos globais para Leaflet
-const leafletStyles = `
-  .leaflet-container {
-    position: relative !important;
-    top: auto !important;
-    z-index: auto !important;
-  }
-  .leaflet-pane {
-    position: absolute !important;
-  }
-`;
-const styleSheet = document.createElement('style');
-styleSheet.textContent = leafletStyles;
-document.head.appendChild(styleSheet);
-
 // Fix Leaflet icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -191,12 +176,12 @@ export default function JobsMap({ onJobClick }) {
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="relative w-full h-[400px] sm:h-[500px] rounded-xl overflow-hidden">
       <MapContainer
         center={centerBrasil}
         zoom={4}
         scrollWheelZoom={true}
-        style={{ width: '100%', height: '100%' }}
+        className="w-full h-full"
         zoomControl={true}
       >
         <TileLayer
