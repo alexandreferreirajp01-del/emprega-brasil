@@ -40,79 +40,58 @@ export default function PostsEmMassa() {
   }, []);
 
   const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files).slice(0, 50);
+    const files = Array.from(e.target.files || []).slice(0, 50);
     if (files.length === 0) return;
     
     setUploading(true);
     const uploaded = [];
-    let errors = [];
+    let successCount = 0;
     
     try {
       for (const file of files) {
         try {
-          if (file.size > 15 * 1024 * 1024) {
-            errors.push(`${file.name}: arquivo > 15MB`);
+          // Validações básicas
+          if (!file.type.startsWith('image/')) {
+            console.warn(`${file.name} não é imagem`);
             continue;
           }
           
-          let result = null;
-          let retries = 3;
-          
-          while (!result && retries > 0) {
-            try {
-              // Converter File para Blob explicitamente
-              const blob = new Blob([await file.arrayBuffer()], { type: file.type });
-              
-              // Enviar como FormData para melhor compatibilidade
-              const formData = new FormData();
-              formData.append('file', blob, file.name);
-              
-              const uploadResult = await base44.integrations.Core.UploadFile({ file: blob });
-              
-              // Múltiplos formatos de resposta
-              if (uploadResult?.file_url) {
-                result = uploadResult.file_url;
-              } else if (uploadResult?.data?.file_url) {
-                result = uploadResult.data.file_url;
-              } else if (uploadResult?.url) {
-                result = uploadResult.url;
-              } else if (typeof uploadResult === 'string') {
-                result = uploadResult;
-              }
-              
-              if (!result) {
-                throw new Error('Sem URL retornada');
-              }
-            } catch (retryErr) {
-              retries--;
-              if (retries > 0) {
-                await new Promise(r => setTimeout(r, 500));
-              }
-            }
+          if (file.size > 20 * 1024 * 1024) {
+            console.warn(`${file.name} > 20MB`);
+            continue;
           }
           
-          if (result) {
+          // Upload direto - enviar File object como está
+          const uploadResult = await base44.integrations.Core.UploadFile({ file });
+          
+          // Extrair URL da resposta (vários formatos possíveis)
+          const fileUrl = uploadResult?.file_url || 
+                         uploadResult?.data?.file_url || 
+                         uploadResult?.url ||
+                         (typeof uploadResult === 'string' ? uploadResult : null);
+          
+          if (fileUrl && typeof fileUrl === 'string' && fileUrl.trim()) {
             uploaded.push({ 
               id: Date.now() + Math.random(), 
-              url: result, 
+              url: fileUrl, 
               status: 'pending',
               name: file.name 
             });
-          } else {
-            errors.push(`${file.name}: falha permanente`);
+            successCount++;
           }
         } catch (fileErr) {
-          errors.push(`${file.name}: ${fileErr.message}`);
+          console.error(`Erro ao uploadar ${file.name}:`, fileErr);
         }
       }
       
-      if (uploaded.length > 0) {
+      if (successCount > 0) {
         setImages(prev => [...prev, ...uploaded]);
       } else {
-        alert(`❌ Erro no upload:\n${errors.join('\n')}`);
+        alert('❌ Nenhuma imagem foi carregada. Verifique o arquivo e tente novamente.');
       }
     } catch (err) {
-      alert(`❌ ${err.message}`);
+      console.error('Upload fatal:', err);
+      alert(`❌ Erro: ${err.message}`);
     } finally {
       setUploading(false);
     }
