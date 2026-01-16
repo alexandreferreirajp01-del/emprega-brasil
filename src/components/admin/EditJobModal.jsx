@@ -154,20 +154,6 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
         }
       }
 
-      // Se mudou cidade/estado, resetar coordenadas e marcar para reprocessar
-      const locationChanged = 
-        updatedJobData.city !== job.city || 
-        updatedJobData.state !== job.state ||
-        updatedJobData.neighborhood !== job.neighborhood ||
-        updatedJobData.addressText !== job.addressText;
-
-      if (locationChanged) {
-        updatedJobData.latitude = null;
-        updatedJobData.longitude = null;
-        updatedJobData.geocode_status = 'pendente';
-        updatedJobData.exibir_no_mapa = updatedJobData.showOnMap;
-      }
-
       // Atualizar vaga
       await base44.entities.Job.update(job.id, updatedJobData);
       
@@ -175,14 +161,15 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
       if (updatedJobData.showOnMap) {
         try {
           console.log('🔄 Geocodificando vaga:', job.id);
-          const result = await base44.functions.invoke('geocodeSystem', {
+          await base44.functions.invoke('geocodeSystem', {
             action: 'single',
             jobId: job.id
           });
-          console.log('✅ Vaga geocodificada:', result.data);
+          console.log('✅ Vaga geocodificada e aparecerá no mapa');
         } catch (e) {
           console.error('Erro ao geocodificar:', e);
-          throw new Error('Vaga salva, mas erro ao geocodificar. Use o Gerenciador de Mapa para processar.');
+          // Não bloquear salvamento por erro de geocode
+          console.warn('⚠️ Vaga salva mas geocode falhou. Pode processar depois via gerenciador.');
         }
       }
     },
