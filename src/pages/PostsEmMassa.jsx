@@ -98,83 +98,106 @@ export default function PostsEmMassa() {
   };
 
   const processImages = async () => {
+    if (images.length === 0) {
+      alert('Selecione imagens primeiro');
+      return;
+    }
+    
     setProcessing(true);
     const allJobs = [];
+    
     try {
       for (const img of images) {
+        if (!img.url) continue;
+        
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'processing' } : i));
         
-        // Extrair QR Code com função poderosa
-        const qrCodeLink = await extractQRCodeLink(img.url);
-        
-        const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `EXTRAIA TODAS AS VAGAS desta imagem com MÁXIMA PRECISÃO:
-
-REGRAS CRÍTICAS para CADA vaga:
-1. CIDADE e UF: SEMPRE identifique ambos
-   - Recife → city: "Recife", state: "PE"
-   - João Pessoa → city: "João Pessoa", state: "PB"
-   - São Paulo → city: "São Paulo", state: "SP"
-   
-2. SALÁRIO: extraia SOMENTE valores numéricos/monetários
-   - Correto: "R$ 1.500", "2.000 a 3.000"
-   - Deixe VAZIO se não houver valor numérico
-   
-3. Se vaga for remota: city: "Remoto", state: ""
-${qrCodeLink ? `
-4. QR CODE LINK DETECTADO: ${qrCodeLink}` : ''}`,
-          file_urls: [img.url],
-          response_json_schema: {
-            type: "object",
-            properties: {
-              jobs: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    title: { type: "string", description: "Cargo da vaga" },
-                    company: { type: "string", description: "Nome da empresa" },
-                    city: { type: "string", description: "Cidade (ou 'Remoto')" },
-                    state: { type: "string", description: "UF de 2 letras" },
-                    salary_range: { type: "string", description: "APENAS valor monetário" },
-                    contact_phone: { type: "string" },
-                    application_link: { type: "string" },
-                    description: { type: "string" }
+        try {
+          // Extrair QR Code
+          let qrCodeLink = null;
+          try {
+            qrCodeLink = await extractQRCodeLink(img.url);
+          } catch (e) {
+            console.warn('QR code extraction failed:', e);
+          }
+          
+          // Processar com IA
+          const result = await base44.integrations.Core.InvokeLLM({
+            prompt: `Extraia TODAS as vagas de emprego desta imagem. Para cada vaga retorne:
+- title: cargo/função (obrigatório)
+- company: nome da empresa (obrigatório)
+- city: cidade (obrigatório - se remoto, coloque "Remoto")
+- state: UF de 2 letras (ex: SP, RJ, PB)
+- salary_range: faixa salarial se houver valor numérico
+- description: descrição da vaga
+- contact_phone: telefone se encontrar
+- application_link: link para candidatura ou WhatsApp`,
+            file_urls: [img.url],
+            response_json_schema: {
+              type: "object",
+              properties: {
+                jobs: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      title: { type: "string" },
+                      company: { type: "string" },
+                      city: { type: "string" },
+                      state: { type: "string" },
+                      salary_range: { type: "string" },
+                      description: { type: "string" },
+                      contact_phone: { type: "string" },
+                      application_link: { type: "string" }
+                    },
+                    required: ["title", "company", "city"]
                   }
                 }
               }
             }
-          }
-        });
-        
-        // Aplicar link do QR Code se não houver link nas vagas
-        (result.jobs || []).forEach(job => {
-          if (qrCodeLink && !job.application_link) {
-            job.application_link = qrCodeLink;
-          }
-        });
-
-        (result.jobs || []).forEach(job => {
-          // Fallback: auto-completar estado se não veio da IA
-          const autoState = (job.city && !job.state) ? getStateFromCity(job.city) : null;
-          
-          // VALIDAÇÃO: marcar status baseado em contato
-          const hasContact = job.application_link && job.application_link.trim() !== '';
-          
-          allJobs.push({
-            ...job,
-            state: job.state || autoState || '',
-            image_url: img.url,
-            status: hasContact ? 'published' : 'pending_contact'
           });
-        });
-
-        setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'completed', count: result.jobs?.length || 0 } : i));
+          
+          const jobs = result?.jobs || [];
+          
+          // Processar cada vaga
+          jobs.forEach((job, idx) => {
+            if (!job.title || !job.company || !job.city) {
+              console.warn(`Vaga ${idx} inválida, pulando`);
+              return;
+            }
+            
+            allJobs.push({
+              title: job.title.trim(),
+              company: job.company.trim(),
+              city: job.city.trim(),
+              state: (job.state || getStateFromCity(job.city) || '').toUpperCase(),
+              salary_range: job.salary_range || '',
+              description: job.description || '',
+              contact_phone: job.contact_phone || '',
+              application_link: job.application_link || qrCodeLink || '',
+              image_url: img.url,
+              is_featured: false,
+              status: 'ativa',
+              job_type: 'CLT'
+            });
+          });
+          
+          setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'completed', count: jobs.length } : i));
+        } catch (processErr) {
+          console.error(`Erro ao processar imagem:`, processErr);
+          setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'error' } : i));
+        }
       }
+      
+      if (allJobs.length === 0) {
+        alert('❌ Nenhuma vaga foi extraída. Verifique as imagens.');
+        return;
+      }
+      
       setExtractedJobs(allJobs);
       setStep(2);
     } catch (err) {
-      alert('Erro ao processar');
+      alert(`❌ Erro crítico ao processar: ${err.message}`);
     } finally {
       setProcessing(false);
     }
