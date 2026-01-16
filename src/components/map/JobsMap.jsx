@@ -54,55 +54,73 @@ export default function JobsMap({ onJobClick }) {
   useEffect(() => {
     const loadJobs = async () => {
       try {
-        console.log('🔍 Carregando TODAS as vagas ativas...');
+        console.log('🔍 Carregando TODAS as vagas...');
         
-        // Buscar TODAS as vagas sem limite
+        // Buscar TODAS as vagas - SEM FILTROS
         const allJobs = await base44.entities.Job.list('-created_date', 10000);
         
-        console.log(`📊 Total de vagas no banco: ${allJobs.length}`);
+        console.log(`📊 Total no banco: ${allJobs.length}`);
+        console.log('Primeiras 3 vagas:', allJobs.slice(0, 3).map(j => ({
+          id: j.id,
+          title: j.title,
+          status: j.status,
+          city: j.city,
+          lat: j.latitude,
+          lng: j.longitude,
+          latType: typeof j.latitude,
+          lngType: typeof j.longitude
+        })));
         
         // Filtrar apenas ativas
         const activeJobs = allJobs.filter(j => j.status === 'ativa');
-        console.log(`✅ Vagas ativas: ${activeJobs.length}`);
+        console.log(`✅ Ativas: ${activeJobs.length}`);
         
-        // Separar com e sem coordenadas
-        const withCoords = activeJobs.filter(j => {
-          const hasLat = j.latitude && !isNaN(parseFloat(j.latitude));
-          const hasLng = j.longitude && !isNaN(parseFloat(j.longitude));
-          return hasLat && hasLng;
+        // Processar coordenadas com mais flexibilidade
+        const validJobs = [];
+        const invalidJobs = [];
+        
+        activeJobs.forEach(job => {
+          // Tentar converter latitude e longitude
+          const lat = job.latitude;
+          const lng = job.longitude;
+          
+          // Verificar se existem e são válidos
+          if (lat != null && lng != null) {
+            const latNum = typeof lat === 'string' ? parseFloat(lat.trim()) : parseFloat(lat);
+            const lngNum = typeof lng === 'string' ? parseFloat(lng.trim()) : parseFloat(lng);
+            
+            if (!isNaN(latNum) && !isNaN(lngNum) && latNum !== 0 && lngNum !== 0) {
+              validJobs.push({
+                ...job,
+                latitude: latNum,
+                longitude: lngNum
+              });
+            } else {
+              invalidJobs.push({ ...job, reason: 'Coordenadas inválidas ou zero' });
+            }
+          } else {
+            invalidJobs.push({ ...job, reason: 'Sem coordenadas' });
+          }
         });
         
-        const withoutCoords = activeJobs.filter(j => {
-          const hasLat = j.latitude && !isNaN(parseFloat(j.latitude));
-          const hasLng = j.longitude && !isNaN(parseFloat(j.longitude));
-          return !hasLat || !hasLng;
-        });
+        console.log(`📍 Válidas: ${validJobs.length}`);
+        console.log(`❌ Inválidas: ${invalidJobs.length}`);
         
-        console.log(`📍 Com coordenadas: ${withCoords.length}`);
-        console.log(`❌ Sem coordenadas: ${withoutCoords.length}`);
-        
-        if (withoutCoords.length > 0) {
-          console.warn('⚠️ Vagas sem coordenadas:', withoutCoords.map(j => ({
-            id: j.id,
+        if (invalidJobs.length > 0) {
+          console.warn('⚠️ Vagas sem coordenadas:', invalidJobs.slice(0, 10).map(j => ({
             title: j.title,
             city: j.city,
             lat: j.latitude,
-            lng: j.longitude
+            lng: j.longitude,
+            reason: j.reason
           })));
         }
         
-        // Converter coordenadas para número
-        const validJobs = withCoords.map(j => ({
-          ...j,
-          latitude: parseFloat(j.latitude),
-          longitude: parseFloat(j.longitude)
-        }));
-        
         setJobs(validJobs);
-        console.log(`✅ ${validJobs.length} vagas carregadas no mapa`);
+        console.log(`✅ ${validJobs.length} vagas no mapa`);
         
       } catch (error) {
-        console.error('❌ Erro ao carregar vagas:', error);
+        console.error('❌ Erro:', error);
       } finally {
         setLoading(false);
       }
