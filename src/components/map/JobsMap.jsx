@@ -229,27 +229,32 @@ export default function JobsMap({ onJobClick }) {
             </div>
             <CardContent className="p-4 overflow-y-auto max-h-[60vh] space-y-3">
               {selectedCluster.map((job) => (
-                <Link key={job.id} to={createPageUrl('JobDetail') + `?id=${job.id}`}>
-                  <div className="p-3 rounded-xl hover:bg-slate-50 transition-colors border border-slate-200">
-                    <h4 className="font-semibold text-slate-800 mb-1">{job.title}</h4>
-                    <p className="text-sm text-slate-600 flex items-center gap-1 mb-2">
-                      <Building2 className="w-3 h-3" />
-                      {job.company}
-                    </p>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {job.job_type && (
-                        <Badge variant="outline" className="text-xs">
-                          <Briefcase className="w-3 h-3 mr-1" />
-                          {job.job_type}
-                        </Badge>
-                      )}
-                      <span className="text-xs text-slate-400 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        <TimeAgo date={job.created_date} />
-                      </span>
-                    </div>
+                <div 
+                  key={job.id}
+                  onClick={() => {
+                    setSelectedCluster(null);
+                    onJobClick && onJobClick(job);
+                  }}
+                  className="p-3 rounded-xl hover:bg-slate-50 transition-colors border border-slate-200 cursor-pointer"
+                >
+                  <h4 className="font-semibold text-slate-800 mb-1">{job.title}</h4>
+                  <p className="text-sm text-slate-600 flex items-center gap-1 mb-2">
+                    <Building2 className="w-3 h-3" />
+                    {job.company}
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {job.job_type && (
+                      <Badge variant="outline" className="text-xs">
+                        <Briefcase className="w-3 h-3 mr-1" />
+                        {job.job_type}
+                      </Badge>
+                    )}
+                    <span className="text-xs text-slate-400 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      <TimeAgo date={job.created_date} />
+                    </span>
                   </div>
-                </Link>
+                </div>
               ))}
             </CardContent>
           </Card>
