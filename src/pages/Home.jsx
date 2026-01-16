@@ -14,6 +14,7 @@ import TimeAgo from "@/components/common/TimeAgo";
 import VisitTracker from "@/components/common/VisitTracker";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import PlansBanner from "@/components/common/PlansBanner";
+import JobsMap from "@/components/map/JobsMap";
 import JobDetailModal from "@/components/jobs/JobDetailModal";
 
 // Função de fetch com retry robusto
@@ -42,6 +43,7 @@ export default function Home() {
   const [news, setNews] = useState([]);
   const [posts, setPosts] = useState([]);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -278,7 +280,23 @@ export default function Home() {
               </CardContent>
             </Card>
 
-
+            {/* Mapa de Vagas */}
+            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden bg-white dark:bg-slate-800 transition-colors">
+              <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-3 sm:p-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-white text-sm sm:text-lg">Mapa de Vagas</h2>
+                    <p className="text-white/70 text-xs sm:text-sm">Encontre vagas próximas a você</p>
+                  </div>
+                </div>
+              </div>
+              <div className="h-[400px] sm:h-[500px]">
+                <JobsMap onJobClick={setSelectedJob} />
+              </div>
+            </Card>
 
           </div>
 
@@ -367,7 +385,14 @@ export default function Home() {
         }}
       />
 
-
+      {/* Job Detail Modal */}
+      {selectedJob && (
+        <JobDetailModal
+          job={selectedJob}
+          isOpen={!!selectedJob}
+          onClose={() => setSelectedJob(null)}
+        />
+      )}
     </div>
   );
 }
