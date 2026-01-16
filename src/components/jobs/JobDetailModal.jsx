@@ -100,7 +100,12 @@ export default function JobDetailModal({ job, isOpen, onClose }) {
             <Button 
               variant="outline"
               className="flex-1" 
-              onClick={() => window.location.href = createPageUrl('JobDetail') + `?id=${job.id}`}
+              onClick={() => {
+                onClose();
+                setTimeout(() => {
+                  window.location.href = createPageUrl('JobDetail') + `?id=${job.id}`;
+                }, 100);
+              }}
             >
               <Eye className="w-4 h-4 mr-2" />
               Ver Vaga Completa
