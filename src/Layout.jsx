@@ -392,7 +392,7 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       {/* Top Navigation */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-40 transition-colors duration-300" translate="no">
+      <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-[9999] transition-colors duration-300" translate="no">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-24">
             {/* Logo */}
