@@ -15,6 +15,7 @@ import VisitTracker from "@/components/common/VisitTracker";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import PlansBanner from "@/components/common/PlansBanner";
 import JobDetailModal from "@/components/jobs/JobDetailModal";
+import JobsMap from "@/components/map/JobsMap";
 
 // Função de fetch com retry robusto
 async function fetchWithRetry(fetchFn, maxRetries = 5) {
@@ -42,6 +43,7 @@ export default function Home() {
   const [news, setNews] = useState([]);
   const [posts, setPosts] = useState([]);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
