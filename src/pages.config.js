@@ -27,7 +27,6 @@ import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarCores from './pages/GerenciarCores';
 import GerenciarFuncoes from './pages/GerenciarFuncoes';
 import GerenciarLinksEspeciais from './pages/GerenciarLinksEspeciais';
-import GerenciarMapa from './pages/GerenciarMapa';
 import GerenciarNoticias from './pages/GerenciarNoticias';
 import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPopups from './pages/GerenciarPopups';
@@ -42,7 +41,6 @@ import JobDetail from './pages/JobDetail';
 import Jobs from './pages/Jobs';
 import LGPD from './pages/LGPD';
 import ListaTransmissao from './pages/ListaTransmissao';
-import MapaVagas from './pages/MapaVagas';
 import Mensagens from './pages/Mensagens';
 import News from './pages/News';
 import NewsDetail from './pages/NewsDetail';
@@ -62,7 +60,6 @@ import Premium from './pages/Premium';
 import Privacy from './pages/Privacy';
 import ProfessionalResume from './pages/ProfessionalResume';
 import Profile from './pages/Profile';
-import ReativarVagas from './pages/ReativarVagas';
 import RecentJobsBatch from './pages/RecentJobsBatch';
 import RecruiterArea from './pages/RecruiterArea';
 import Register from './pages/Register';
@@ -114,7 +111,6 @@ export const PAGES = {
     "GerenciarCores": GerenciarCores,
     "GerenciarFuncoes": GerenciarFuncoes,
     "GerenciarLinksEspeciais": GerenciarLinksEspeciais,
-    "GerenciarMapa": GerenciarMapa,
     "GerenciarNoticias": GerenciarNoticias,
     "GerenciarPlanos": GerenciarPlanos,
     "GerenciarPopups": GerenciarPopups,
@@ -129,7 +125,6 @@ export const PAGES = {
     "Jobs": Jobs,
     "LGPD": LGPD,
     "ListaTransmissao": ListaTransmissao,
-    "MapaVagas": MapaVagas,
     "Mensagens": Mensagens,
     "News": News,
     "NewsDetail": NewsDetail,
@@ -149,7 +144,6 @@ export const PAGES = {
     "Privacy": Privacy,
     "ProfessionalResume": ProfessionalResume,
     "Profile": Profile,
-    "ReativarVagas": ReativarVagas,
     "RecentJobsBatch": RecentJobsBatch,
     "RecruiterArea": RecruiterArea,
     "Register": Register,
