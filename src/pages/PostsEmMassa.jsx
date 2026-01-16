@@ -42,87 +42,58 @@ export default function PostsEmMassa() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files || []).slice(0, 50);
     if (files.length === 0) return;
-
+    
     setUploading(true);
     const uploaded = [];
-
-    for (const file of files) {
-      try {
-        // Validações básicas
-        if (!file.type.startsWith('image/')) {
-          console.warn(`${file.name} não é imagem`);
-          continue;
-        }
-
-        if (file.size > 20 * 1024 * 1024) { // 20MB
-          console.warn(`${file.name} > 20MB`);
-          continue;
-        }
-
-        // Tentar upload com retries
-        let fileUrl = null;
-        let lastError = null;
-
-        for (let attempt = 0; attempt < 3; attempt++) {
-          try {
-            console.log(`Tentativa ${attempt + 1} de upload para ${file.name}`);
-
-            // Converter para Blob explicitamente
-            const arrayBuffer = await file.arrayBuffer();
-            const blob = new Blob([arrayBuffer], { type: file.type });
-
-            // Fazer upload
-            const response = await base44.integrations.Core.UploadFile({ file: blob });
-
-            console.log('Resposta do upload:', response);
-
-            // Extrair URL de vários possíveis formatos
-            if (response && typeof response === 'object') {
-              fileUrl = response.file_url || 
-                        response.data?.file_url || 
-                        response.url ||
-                        response.data?.url;
-            } else if (typeof response === 'string') {
-              fileUrl = response;
-            }
-
-            // Validar URL
-            if (fileUrl && typeof fileUrl === 'string' && fileUrl.trim().length > 0) {
-              console.log(`Upload bem-sucedido: ${fileUrl}`);
-              break;
-            } else {
-              lastError = new Error('URL não retornada ou inválida');
-            }
-          } catch (err) {
-            lastError = err;
-            console.error(`Erro na tentativa ${attempt + 1}:`, err);
-            if (attempt < 2) {
-              await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-            }
+    let successCount = 0;
+    
+    try {
+      for (const file of files) {
+        try {
+          // Validações básicas
+          if (!file.type.startsWith('image/')) {
+            console.warn(`${file.name} não é imagem`);
+            continue;
           }
+          
+          if (file.size > 20 * 1024 * 1024) {
+            console.warn(`${file.name} > 20MB`);
+            continue;
+          }
+          
+          // Upload direto - enviar File object como está
+          const uploadResult = await base44.integrations.Core.UploadFile({ file });
+          
+          // Extrair URL da resposta (vários formatos possíveis)
+          const fileUrl = uploadResult?.file_url || 
+                         uploadResult?.data?.file_url || 
+                         uploadResult?.url ||
+                         (typeof uploadResult === 'string' ? uploadResult : null);
+          
+          if (fileUrl && typeof fileUrl === 'string' && fileUrl.trim()) {
+            uploaded.push({ 
+              id: Date.now() + Math.random(), 
+              url: fileUrl, 
+              status: 'pending',
+              name: file.name 
+            });
+            successCount++;
+          }
+        } catch (fileErr) {
+          console.error(`Erro ao uploadar ${file.name}:`, fileErr);
         }
-
-        if (fileUrl) {
-          uploaded.push({
-            id: Date.now() + Math.random(),
-            url: fileUrl,
-            status: 'pending',
-            name: file.name
-          });
-        } else {
-          console.error(`Falha ao fazer upload de ${file.name}:`, lastError?.message || 'Erro desconhecido');
-        }
-      } catch (err) {
-        console.error(`Erro crítico ao processar ${file.name}:`, err);
       }
-    }
-
-    setUploading(false);
-
-    if (uploaded.length > 0) {
-      setImages(prev => [...prev, ...uploaded]);
-    } else {
-      alert(`❌ Nenhuma imagem foi carregada. Verifique:\n• Formato (JPG, PNG, etc)\n• Tamanho (máx 20MB)\n• Conexão com internet`);
+      
+      if (successCount > 0) {
+        setImages(prev => [...prev, ...uploaded]);
+      } else {
+        alert('❌ Nenhuma imagem foi carregada. Verifique o arquivo e tente novamente.');
+      }
+    } catch (err) {
+      console.error('Upload fatal:', err);
+      alert(`❌ Erro: ${err.message}`);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -131,16 +102,16 @@ export default function PostsEmMassa() {
       alert('Selecione imagens primeiro');
       return;
     }
-
+    
     setProcessing(true);
     const allJobs = [];
-
+    
     try {
       for (const img of images) {
         if (!img.url) continue;
-
+        
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'processing' } : i));
-
+        
         try {
           // Extrair QR Code
           let qrCodeLink = null;
@@ -149,7 +120,7 @@ export default function PostsEmMassa() {
           } catch (e) {
             console.warn('QR code extraction failed:', e);
           }
-
+          
           // Processar com IA
           const result = await base44.integrations.Core.InvokeLLM({
             prompt: `Extraia TODAS as vagas de emprego desta imagem. Para cada vaga retorne:
@@ -185,16 +156,16 @@ export default function PostsEmMassa() {
               }
             }
           });
-
+          
           const jobs = result?.jobs || [];
-
+          
           // Processar cada vaga
           jobs.forEach((job, idx) => {
             if (!job.title || !job.company || !job.city) {
               console.warn(`Vaga ${idx} inválida, pulando`);
               return;
             }
-
+            
             allJobs.push({
               title: job.title.trim(),
               company: job.company.trim(),
@@ -210,19 +181,19 @@ export default function PostsEmMassa() {
               job_type: 'CLT'
             });
           });
-
+          
           setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'completed', count: jobs.length } : i));
         } catch (processErr) {
           console.error(`Erro ao processar imagem:`, processErr);
           setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'error' } : i));
         }
       }
-
+      
       if (allJobs.length === 0) {
         alert('❌ Nenhuma vaga foi extraída. Verifique as imagens.');
         return;
       }
-
+      
       setExtractedJobs(allJobs);
       setStep(2);
     } catch (err) {
@@ -241,7 +212,7 @@ export default function PostsEmMassa() {
       alert('Nenhuma vaga para publicar');
       return;
     }
-
+    
     setPublishing(true);
     try {
       const jobsToCreate = wizardData.jobs.map(job => ({
@@ -271,7 +242,7 @@ export default function PostsEmMassa() {
         alert(`✅ ${jobsToCreate.length} vagas agendadas!`);
       } else {
         // Publicar imediatamente em lotes
-        const batchSize = 3;
+        const batchSize = 3; // Reduzido para evitar timeout
         const batches = [];
         for (let i = 0; i < jobsToCreate.length; i += batchSize) {
           batches.push(jobsToCreate.slice(i, i + batchSize));
@@ -288,14 +259,14 @@ export default function PostsEmMassa() {
             console.error('Erro ao criar lote:', batchErr);
           }
         }
-
+        
         if (createdJobIds.length > 0) {
           alert(`✅ ${createdJobIds.length} vagas publicadas!`);
         } else {
           alert('❌ Nenhuma vaga foi publicada. Tente novamente.');
         }
       }
-
+      
       // Limpar estado
       setImages([]);
       setExtractedJobs([]);
