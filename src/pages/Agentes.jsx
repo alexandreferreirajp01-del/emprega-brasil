@@ -158,7 +158,9 @@ export default function Agentes() {
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      setTimeout(() => scrollToBottom(), 100);
+    }
   }, [messages]);
 
   useEffect(() => {
