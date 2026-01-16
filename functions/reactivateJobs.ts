@@ -14,32 +14,11 @@ Deno.serve(async (req) => {
     // Modo de listagem - retornar vagas expiradas
     if (mode === 'list') {
       const allJobs = await base44.asServiceRole.entities.Job.list('-created_date', 10000);
-      
-      // Log para debug
-      console.log('Total de vagas:', allJobs.length);
-      const statusCount = {};
-      allJobs.forEach(j => {
-        statusCount[j.status] = (statusCount[j.status] || 0) + 1;
-      });
-      console.log('Distribuição de status:', statusCount);
-      
-      // Filtrar vagas expiradas (incluir variações)
-      const expired = allJobs.filter(j => 
-        j.status === 'expirada' || 
-        j.status === 'expired' || 
-        (j.expiration_date && new Date(j.expiration_date) < new Date())
-      );
-      
-      console.log('Vagas expiradas encontradas:', expired.length);
-      
+      const expired = allJobs.filter(j => j.status === 'expirada');
       return Response.json({
         success: true,
         jobs: expired,
-        count: expired.length,
-        debug: {
-          totalJobs: allJobs.length,
-          statusCount
-        }
+        count: expired.length
       });
     }
     
