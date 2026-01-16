@@ -68,24 +68,44 @@ Deno.serve(async (req) => {
 
     console.log('🚀 Iniciando geocodificação FORÇADA de todas as vagas ativas...');
 
-    // Buscar TODAS as vagas ativas
-    const allJobs = await base44.asServiceRole.entities.Job.list('-created_date', 10000);
-    const activeJobs = allJobs.filter(j => 
-      j.status === 'ativa' && 
-      j.showOnMap !== false &&
-      j.city && 
-      j.state
-    );
+    // Buscar TODAS as vagas (sem limite)
+    let allJobs = [];
+    let skip = 0;
+    const limit = 1000;
+    
+    while (true) {
+      const batch = await base44.asServiceRole.entities.Job.filter(
+        { status: 'ativa' },
+        '-created_date',
+        limit,
+        skip
+      );
+      
+      if (batch.length === 0) break;
+      allJobs = allJobs.concat(batch);
+      skip += batch.length;
+      console.log(`📦 Carregadas ${allJobs.length} vagas até agora...`);
+      
+      if (batch.length < limit) break;
+    }
 
-    console.log(`📊 Total: ${allJobs.length} | Ativas: ${activeJobs.length} | Para geocodificar: ${activeJobs.length}`);
+    console.log(`📊 Total de vagas ativas no banco: ${allJobs.length}`);
+
+    // Filtrar vagas que precisam de geocodificação
+    const jobsToProcess = allJobs.filter(j => j.city && j.state);
+    console.log(`📍 Vagas com cidade/estado: ${jobsToProcess.length}`);
 
     let success = 0;
     let failed = 0;
     const errors = [];
 
-    for (const job of activeJobs) {
+    for (let i = 0; i < jobsToProcess.length; i++) {
+      const job = jobsToProcess[i];
+      
       try {
-        console.log(`\n🔄 Processando: ${job.id} - ${job.title}`);
+        if (i % 50 === 0) {
+          console.log(`\n📊 Progresso: ${i}/${jobsToProcess.length} (${Math.round(i/jobsToProcess.length*100)}%)`);
+        }
         
         let coords = null;
         let source = 'GEOCODING';
@@ -101,38 +121,44 @@ Deno.serve(async (req) => {
             geoSource: 'MANUAL',
             geoPrecision: null,
             locationKey: 'REMOTO',
-            locationType: 'REMOTO'
+            locationType: 'REMOTO',
+            showOnMap: true
           });
           success++;
-          console.log('✅ Remoto');
           continue;
         }
 
-        // Tentar geocoding por cidade
-        const cityQuery = `${job.city}, ${job.state}, Brasil`;
-        console.log(`Tentando: ${cityQuery}`);
-        coords = await geocodeAddress(cityQuery);
-        await new Promise(r => setTimeout(r, 1100)); // Rate limit
+        // Tentar geocoding por cidade (com timeout curto)
+        try {
+          const cityQuery = `${job.city}, ${job.state}, Brasil`;
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          
+          coords = await geocodeAddress(cityQuery);
+          clearTimeout(timeoutId);
+          
+          // Rate limit reduzido para acelerar
+          await new Promise(r => setTimeout(r, 500));
+        } catch (geoError) {
+          console.log(`⚠️ Geocoding timeout para ${job.city}, usando fallback`);
+        }
 
         // Fallback 1: Cidades PB
         if (!coords && job.state === 'PB' && pbCitiesCoords[job.city]) {
           coords = pbCitiesCoords[job.city];
           source = 'FALLBACK';
-          console.log('Usando fallback PB');
         }
 
         // Fallback 2: Capital do estado
         if (!coords && stateCoords[job.state]) {
           coords = stateCoords[job.state];
           source = 'FALLBACK';
-          console.log('Usando fallback estado');
         }
 
         // Fallback 3: João Pessoa
         if (!coords) {
           coords = pbCitiesCoords['João Pessoa'];
           source = 'FALLBACK';
-          console.log('Usando fallback final');
         }
 
         const locationKey = generateLocationKey(locationType, job.city, job.state, job.neighborhood, coords);
@@ -149,12 +175,13 @@ Deno.serve(async (req) => {
         });
 
         success++;
-        console.log(`✅ ${coords.latitude || coords.lat}, ${coords.longitude || coords.lon}`);
 
       } catch (err) {
         failed++;
         errors.push(`${job.id}: ${err.message}`);
-        console.error(`❌ Erro:`, err.message);
+        console.error(`❌ Vaga ${job.id}:`, err.message);
+        // Continuar mesmo com erro
+        continue;
       }
     }
 
