@@ -26,10 +26,10 @@ export default function ReativarVagas() {
           return;
         }
 
-        const allJobs = await base44.asServiceRole.entities.Job.list('-created_date', 10000);
-        const expired = allJobs.filter(j => j.status === 'expirada');
-        console.log('Total de vagas:', allJobs.length, '| Expiradas:', expired.length);
-        setExpiredJobs(expired);
+        // Usar a função backend para listar vagas expiradas
+        const response = await base44.functions.invoke('reactivateJobs', { mode: 'list' });
+        setExpiredJobs(response.data.jobs || []);
+        console.log('Vagas expiradas carregadas:', response.data.jobs?.length || 0);
       } catch (error) {
         console.error('Erro:', error);
         alert('Erro ao carregar vagas: ' + error.message);
@@ -80,10 +80,8 @@ export default function ReativarVagas() {
       alert(response.data.message);
       
       // Recarregar lista
-      const allJobs = await base44.asServiceRole.entities.Job.list('-created_date', 10000);
-      const expired = allJobs.filter(j => j.status === 'expirada');
-      console.log('Após reativação - Expiradas:', expired.length);
-      setExpiredJobs(expired);
+      const refreshResponse = await base44.functions.invoke('reactivateJobs', { mode: 'list' });
+      setExpiredJobs(refreshResponse.data.jobs || []);
       setSelected([]);
 
     } catch (error) {
