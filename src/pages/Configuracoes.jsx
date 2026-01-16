@@ -76,7 +76,6 @@ const menuItems = [
   // Mapa de Vagas
   { id: 'divider-mapa', type: 'divider', label: 'Mapa de Vagas' },
   { id: 'gerenciar-mapa', name: 'Gerenciar Mapa', icon: MapPin, color: 'blue', page: 'GerenciarMapaVagas', description: 'Processar geolocalização das vagas', roles: ['admin', 'dono'] },
-  { id: 'agente-mapa', name: 'Assistente do Mapa', icon: Bot, color: 'purple', page: 'Agentes', description: 'Chat com IA para configurar vagas no mapa', roles: ['admin', 'dono'] },
 
 
   
