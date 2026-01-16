@@ -73,6 +73,10 @@ const menuItems = [
   { id: 'divider-links', type: 'divider', label: 'Links & Automação' },
   { id: 'links-especiais', name: 'Links Especiais', icon: LinkIcon, color: 'purple', page: 'GerenciarLinksEspeciais', description: 'Gerencie links que habilitam planos automaticamente', roles: ['admin', 'dono'] },
 
+  // Mapa de Vagas
+  { id: 'divider-mapa', type: 'divider', label: 'Mapa de Vagas' },
+  { id: 'gerenciar-mapa', name: 'Gerenciar Mapa', icon: MapPin, color: 'blue', page: 'GerenciarMapaVagas', description: 'Processar geolocalização das vagas', roles: ['admin', 'dono'] },
+
 
   
 

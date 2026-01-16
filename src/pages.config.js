@@ -78,6 +78,7 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
+import GerenciarMapaVagas from './pages/GerenciarMapaVagas';
 import __Layout from './Layout.jsx';
 
 
@@ -162,6 +163,7 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
+    "GerenciarMapaVagas": GerenciarMapaVagas,
 }
 
 export const pagesConfig = {
