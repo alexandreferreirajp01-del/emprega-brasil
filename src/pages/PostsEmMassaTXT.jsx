@@ -130,6 +130,7 @@ ${pastedText}`,
         
         return {
           ...job,
+          city: job.city || 'Não informado',
           state: job.state || autoState || '',
           application_link: finalLink,
           status: hasContact ? 'published' : 'pending_contact'
@@ -202,6 +203,7 @@ ${text}`,
           
           allJobs.push({
             ...job,
+            city: job.city || 'Não informado',
             state: job.state || autoState || ''
           });
         });

@@ -115,7 +115,8 @@ ${rawText}`,
     try {
       const jobData = {
         ...extractedData,
-        ...wizardData.jobs[0]
+        ...wizardData.jobs[0],
+        city: wizardData.jobs[0].city || extractedData.city || 'Não informado'
       };
 
       if (wizardData.schedule) {

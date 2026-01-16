@@ -124,7 +124,7 @@ ${rawText}`,
           application_link: finalLink,
           job_type: 'Home Office',
           state: finalState,
-          city: finalCity,
+          city: finalCity || 'Não informado',
           status: hasContact ? 'published' : 'pending_contact'
         };
       });
