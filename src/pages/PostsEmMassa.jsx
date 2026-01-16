@@ -45,38 +45,70 @@ export default function PostsEmMassa() {
     
     setUploading(true);
     const uploaded = [];
-    let errorCount = 0;
+    let errors = [];
     
     try {
       for (const file of files) {
         try {
-          // Validação básica
-          if (file.size > 15 * 1024 * 1024) { // 15MB
-            console.warn(`${file.name} muito grande`);
-            errorCount++;
+          // Validação
+          if (file.size > 15 * 1024 * 1024) {
+            errors.push(`${file.name}: arquivo > 15MB`);
             continue;
           }
           
-          // Tentar fazer upload
-          const result = await base44.integrations.Core.UploadFile({ file });
-          if (result?.file_url) {
-            uploaded.push({ id: Date.now() + Math.random(), url: result.file_url, status: 'pending' });
-          } else {
-            errorCount++;
+          // Retry logic
+          let result = null;
+          let retries = 3;
+          
+          while (!result && retries > 0) {
+            try {
+              const uploadResult = await base44.integrations.Core.UploadFile({ file });
+              
+              // Verifica diferentes formatos de resposta
+              if (uploadResult?.file_url) {
+                result = uploadResult.file_url;
+              } else if (uploadResult?.data?.file_url) {
+                result = uploadResult.data.file_url;
+              } else if (typeof uploadResult === 'string') {
+                result = uploadResult;
+              } else if (uploadResult) {
+                console.log('Upload response:', uploadResult);
+                errors.push(`${file.name}: resposta inesperada do servidor`);
+                break;
+              }
+            } catch (retryErr) {
+              retries--;
+              if (retries > 0) {
+                await new Promise(r => setTimeout(r, 1000)); // Wait 1s before retry
+              }
+            }
+          }
+          
+          if (result) {
+            uploaded.push({ 
+              id: Date.now() + Math.random(), 
+              url: result, 
+              status: 'pending',
+              name: file.name 
+            });
+          } else if (retries === 0) {
+            errors.push(`${file.name}: falha após 3 tentativas`);
           }
         } catch (fileErr) {
-          errorCount++;
-          console.error(`Upload falhou para ${file.name}:`, fileErr.message);
+          errors.push(`${file.name}: ${fileErr.message || 'erro desconhecido'}`);
         }
       }
       
       if (uploaded.length > 0) {
         setImages(prev => [...prev, ...uploaded]);
+        if (errors.length > 0) {
+          alert(`✅ ${uploaded.length} imagem(ns) carregada(s)\n❌ Erros:\n${errors.join('\n')}`);
+        }
       } else {
-        alert('❌ Nenhuma imagem foi carregada. Verifique o arquivo e tente novamente.');
+        alert(`❌ Nenhuma imagem foi carregada:\n${errors.join('\n') || 'Tente novamente'}`);
       }
     } catch (err) {
-      alert(`❌ Erro geral: ${err.message}`);
+      alert(`❌ Erro crítico: ${err.message}`);
     } finally {
       setUploading(false);
     }
