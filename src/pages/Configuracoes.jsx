@@ -156,6 +156,22 @@ export default function Configuracoes() {
 
 
   const handleItemClick = async (item) => {
+    if (item.action === 'migrateOldJobs') {
+      if (!confirm('⚠️ Isso vai atualizar TODAS as vagas ativas e geocodificar as que não têm coordenadas. Pode levar alguns minutos. Continuar?')) {
+        return;
+      }
+      setMigrating(true);
+      try {
+        const response = await base44.functions.invoke('migrateOldJobs');
+        alert(response.data.message + '\n\nGeocoding: ' + response.data.geocodingResult.message);
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      } finally {
+        setMigrating(false);
+      }
+      return;
+    }
+
     if (item.action === 'updateJobs') {
       if (!confirm('Atualizar cidade/UF de todas as vagas antigas? Pode levar alguns minutos.')) return;
       
