@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Edit, Save, Loader2, CheckCircle2, Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Users, Trash2, MapPin, AlertCircle } from 'lucide-react';
+import { Edit, Save, Loader2, CheckCircle2, Briefcase, FileText, UserCheck, GraduationCap, Clock3, Code, Users, Trash2 } from 'lucide-react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
@@ -110,8 +110,6 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
         company: job.company || '',
         state: job.state || '',
         city: job.city || '',
-        neighborhood: job.neighborhood || '',
-        addressText: job.addressText || '',
         salary_range: job.salary_range || '',
         job_type: job.job_type || '',
         job_function: job.job_function || '',
@@ -123,8 +121,6 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
         contract_types: job.contract_types || [],
         is_premium: job.is_premium || false,
         is_featured: job.is_featured || false,
-        showOnMap: job.showOnMap !== undefined ? job.showOnMap : true,
-        locationType: job.locationType || 'CIDADE',
       });
     }
   }, [job]);
@@ -140,34 +136,7 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
   }, [editedJob.state, availableCities, editedJob.city]);
 
   const updateJobMutation = useMutation({
-    mutationFn: async (updatedJobData) => {
-      // Validar dados de localização se showOnMap = true
-      if (updatedJobData.showOnMap) {
-        if (!updatedJobData.city || !updatedJobData.state) {
-          throw new Error('⚠️ Para exibir no mapa, informe Cidade e Estado');
-        }
-        if (updatedJobData.locationType === 'BAIRRO' && !updatedJobData.neighborhood) {
-          throw new Error('⚠️ Para localização por Bairro, informe o bairro');
-        }
-        if (updatedJobData.locationType === 'EXATA' && !updatedJobData.addressText) {
-          throw new Error('⚠️ Para localização Exata, informe o endereço completo');
-        }
-      }
-
-      // Atualizar vaga
-      await base44.entities.Job.update(job.id, updatedJobData);
-      
-      // Se ativou mapa, geocodificar
-      if (updatedJobData.showOnMap && (!job.latitude || !job.longitude || job.geoStatus !== 'OK')) {
-        try {
-          await base44.functions.invoke('geocodeJobAdvanced', {
-            event: { entity_id: job.id }
-          });
-        } catch (e) {
-          console.error('Erro ao geocodificar:', e);
-        }
-      }
-    },
+    mutationFn: (updatedJobData) => base44.entities.Job.update(job.id, updatedJobData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-jobs'] });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
@@ -176,7 +145,7 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
     },
     onError: (error) => {
       console.error("Erro ao atualizar vaga:", error);
-      alert(error.message || 'Erro ao atualizar vaga');
+      alert('Erro ao atualizar vaga: ' + error.message);
     },
   });
 
@@ -481,121 +450,6 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
                     className="mt-1"
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* Localização no Mapa */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-slate-800 flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                📍 Localização no Mapa
-              </h3>
-              
-              {(!editedJob.city || !editedJob.state) && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-amber-800 font-medium">Atenção: Informe Cidade e Estado</p>
-                    <p className="text-xs text-amber-700 mt-1">Para exibir no mapa, preencha os campos acima</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-4 p-4 bg-slate-50 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="showOnMap" className="font-medium">Exibir no Mapa</Label>
-                    <p className="text-xs text-slate-500">Mostrar esta vaga no mapa de oportunidades</p>
-                  </div>
-                  <Switch
-                    id="showOnMap"
-                    checked={editedJob.showOnMap}
-                    onCheckedChange={(checked) => handleSwitchChange('showOnMap', checked)}
-                  />
-                </div>
-
-                {editedJob.showOnMap && (
-                  <div className="space-y-3 border-t pt-3">
-                    <Label>Tipo de Localização</Label>
-                    <div className="space-y-2">
-                      <label className="flex items-start gap-3 p-2 bg-white rounded-lg border cursor-pointer hover:border-blue-300"
-                        style={{ borderColor: editedJob.locationType === 'CIDADE' ? '#3b82f6' : '#e2e8f0' }}>
-                        <input
-                          type="radio"
-                          name="locationType"
-                          checked={editedJob.locationType === 'CIDADE'}
-                          onChange={() => handleSelectChange('locationType', 'CIDADE')}
-                          className="mt-1"
-                        />
-                        <div>
-                          <div className="font-medium text-sm">🏙️ Geral (Cidade)</div>
-                          <div className="text-xs text-slate-500">Pino no centro da cidade</div>
-                        </div>
-                      </label>
-
-                      <label className="flex items-start gap-3 p-2 bg-white rounded-lg border cursor-pointer hover:border-blue-300"
-                        style={{ borderColor: editedJob.locationType === 'BAIRRO' ? '#3b82f6' : '#e2e8f0' }}>
-                        <input
-                          type="radio"
-                          name="locationType"
-                          checked={editedJob.locationType === 'BAIRRO'}
-                          onChange={() => handleSelectChange('locationType', 'BAIRRO')}
-                          className="mt-1"
-                        />
-                        <div className="flex-1">
-                          <div className="font-medium text-sm">📍 Aproximada (Bairro)</div>
-                          <div className="text-xs text-slate-500 mb-2">Pino no centro do bairro</div>
-                          {editedJob.locationType === 'BAIRRO' && (
-                            <Input
-                              value={editedJob.neighborhood}
-                              onChange={(e) => handleInputChange({ target: { name: 'neighborhood', value: e.target.value }})}
-                              placeholder="Nome do bairro"
-                              className="h-9 mt-1"
-                            />
-                          )}
-                        </div>
-                      </label>
-
-                      <label className="flex items-start gap-3 p-2 bg-white rounded-lg border cursor-pointer hover:border-blue-300"
-                        style={{ borderColor: editedJob.locationType === 'EXATA' ? '#3b82f6' : '#e2e8f0' }}>
-                        <input
-                          type="radio"
-                          name="locationType"
-                          checked={editedJob.locationType === 'EXATA'}
-                          onChange={() => handleSelectChange('locationType', 'EXATA')}
-                          className="mt-1"
-                        />
-                        <div className="flex-1">
-                          <div className="font-medium text-sm">🎯 Exata (Endereço completo)</div>
-                          <div className="text-xs text-slate-500 mb-2">Pino exato no endereço</div>
-                          {editedJob.locationType === 'EXATA' && (
-                            <Input
-                              value={editedJob.addressText}
-                              onChange={(e) => handleInputChange({ target: { name: 'addressText', value: e.target.value }})}
-                              placeholder="Rua, número, CEP"
-                              className="h-9 mt-1"
-                            />
-                          )}
-                        </div>
-                      </label>
-
-                      <label className="flex items-start gap-3 p-2 bg-white rounded-lg border cursor-pointer hover:border-blue-300"
-                        style={{ borderColor: editedJob.locationType === 'REMOTO' ? '#3b82f6' : '#e2e8f0' }}>
-                        <input
-                          type="radio"
-                          name="locationType"
-                          checked={editedJob.locationType === 'REMOTO'}
-                          onChange={() => handleSelectChange('locationType', 'REMOTO')}
-                          className="mt-1"
-                        />
-                        <div>
-                          <div className="font-medium text-sm">💻 Online / Remoto</div>
-                          <div className="text-xs text-slate-500">Sem pino no mapa</div>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
