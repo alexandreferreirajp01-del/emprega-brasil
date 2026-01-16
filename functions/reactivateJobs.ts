@@ -11,17 +11,6 @@ Deno.serve(async (req) => {
 
     const { jobIds, mode } = await req.json();
     
-    // Modo de listagem - retornar vagas expiradas
-    if (mode === 'list') {
-      const allJobs = await base44.asServiceRole.entities.Job.list('-created_date', 10000);
-      const expired = allJobs.filter(j => j.status === 'expirada');
-      return Response.json({
-        success: true,
-        jobs: expired,
-        count: expired.length
-      });
-    }
-    
     let jobsToUpdate = [];
     
     if (mode === 'all') {
