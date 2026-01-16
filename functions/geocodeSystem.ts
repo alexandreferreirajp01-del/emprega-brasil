@@ -68,6 +68,7 @@ async function buscarCache(base44, query) {
   try {
     const caches = await base44.asServiceRole.entities.LocationCache.filter({ query }, '-created_date', 1);
     if (caches.length > 0) {
+      // Incrementar contador de uso
       await base44.asServiceRole.entities.LocationCache.update(caches[0].id, {
         uso_count: (caches[0].uso_count || 0) + 1
       });
@@ -220,29 +221,13 @@ async function geocodeJob(base44, job) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    
-    // Verificar autenticação apenas para ações manuais
-    const body = await req.json();
-    const { action, jobId, batchSize, event } = body;
-
-    // Se for automação de entity, processar automaticamente
-    if (event && event.type && event.entity_name === 'Job') {
-      const job = await base44.asServiceRole.entities.Job.filter({ id: event.entity_id }, '-created_date', 1);
-      if (job && job.length > 0) {
-        const resultado = await geocodeJob(base44, job[0]);
-        await base44.asServiceRole.entities.Job.update(event.entity_id, {
-          ...resultado,
-          ultima_atualizacao_localizacao: new Date().toISOString()
-        });
-      }
-      return Response.json({ success: true });
-    }
-
-    // Para ações manuais, verificar admin
     const user = await base44.auth.me();
+
     if (!user || (user.role !== 'admin' && user.subscription_type !== 'admin')) {
       return Response.json({ error: 'Acesso negado' }, { status: 403 });
     }
+
+    const { action, jobId, batchSize } = await req.json();
 
     // Processar vaga única
     if (action === 'single' && jobId) {
