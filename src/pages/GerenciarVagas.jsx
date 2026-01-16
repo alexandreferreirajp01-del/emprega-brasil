@@ -48,7 +48,7 @@ export default function GerenciarVagas() {
 
   const { data: jobs = [] } = useQuery({
     queryKey: ['admin-jobs'],
-    queryFn: () => base44.entities.Job.list('-created_date', 10000),
+    queryFn: () => base44.entities.Job.list('-created_date', 500),
     staleTime: 60000,
   });
 
@@ -140,13 +140,13 @@ export default function GerenciarVagas() {
                     </div>
                     <div className="flex gap-2">
                       <Button 
-                        variant="ghost" 
+                        variant="outline" 
                         size="sm" 
                         onClick={() => {
                           setEditingJob(job);
                           setIsEditModalOpen(true);
                         }}
-                        className="rounded-lg text-slate-600 hover:bg-slate-100"
+                        className="rounded-lg text-blue-600 hover:bg-blue-50 border-blue-300 hover:border-blue-400"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
