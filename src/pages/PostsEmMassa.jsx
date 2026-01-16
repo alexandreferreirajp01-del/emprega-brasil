@@ -60,14 +60,27 @@ export default function PostsEmMassa() {
   const processImages = async () => {
     setProcessing(true);
     const allJobs = [];
-    try {
-      for (const img of images) {
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const img of images) {
+      try {
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'processing' } : i));
         
-        // Extrair QR Code com função poderosa
-        const qrCodeLink = await extractQRCodeLink(img.url);
+        // Extrair QR Code com timeout
+        let qrCodeLink = null;
+        try {
+          const qrPromise = extractQRCodeLink(img.url);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('QR timeout')), 8000)
+          );
+          qrCodeLink = await Promise.race([qrPromise, timeoutPromise]);
+        } catch (qrErr) {
+          console.warn('QR code extraction falhou:', qrErr);
+        }
         
-        const result = await base44.integrations.Core.InvokeLLM({
+        // Processar com IA com timeout
+        const llmPromise = base44.integrations.Core.InvokeLLM({
           prompt: `EXTRAIA TODAS AS VAGAS desta imagem com MÁXIMA PRECISÃO:
 
 REGRAS CRÍTICAS para CADA vaga:
@@ -106,6 +119,12 @@ ${qrCodeLink ? `
             }
           }
         });
+
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout na IA')), 30000)
+        );
+
+        const result = await Promise.race([llmPromise, timeoutPromise]);
         
         // Aplicar link do QR Code se não houver link nas vagas
         (result.jobs || []).forEach(job => {
@@ -115,10 +134,7 @@ ${qrCodeLink ? `
         });
 
         (result.jobs || []).forEach(job => {
-          // Fallback: auto-completar estado se não veio da IA
           const autoState = (job.city && !job.state) ? getStateFromCity(job.city) : null;
-          
-          // VALIDAÇÃO: marcar status baseado em contato
           const hasContact = job.application_link && job.application_link.trim() !== '';
           
           allJobs.push({
@@ -130,13 +146,24 @@ ${qrCodeLink ? `
         });
 
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'completed', count: result.jobs?.length || 0 } : i));
+        successCount++;
+      } catch (err) {
+        console.error('Erro processando imagem:', img.id, err);
+        setImages(prev => prev.map(i => i.id === img.id ? { ...i, status: 'error' } : i));
+        errorCount++;
       }
+    }
+
+    setProcessing(false);
+
+    if (allJobs.length > 0) {
       setExtractedJobs(allJobs);
       setStep(2);
-    } catch (err) {
-      alert('Erro ao processar');
-    } finally {
-      setProcessing(false);
+      if (errorCount > 0) {
+        alert(`✅ ${successCount} imagens processadas\n❌ ${errorCount} falharam (continuou mesmo assim)`);
+      }
+    } else {
+      alert(`❌ Nenhuma vaga extraída.\nErros: ${errorCount}\nTente novamente ou use imagens de melhor qualidade.`);
     }
   };
 
@@ -281,6 +308,11 @@ ${qrCodeLink ? `
                         {img.status === 'completed' && img.count > 0 && (
                           <div className="absolute top-1 right-1 bg-green-600 text-white px-2 py-0.5 rounded text-xs">
                             {img.count}
+                          </div>
+                        )}
+                        {img.status === 'error' && (
+                          <div className="absolute top-1 right-1 bg-red-600 text-white px-2 py-0.5 rounded text-xs">
+                            ✗
                           </div>
                         )}
                       </div>
