@@ -6,7 +6,7 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette, MapPin, Trash2, Image, AlertTriangle, Link as LinkIcon, RefreshCw
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette, MapPin, Trash2, Image, AlertTriangle, Link as LinkIcon
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -74,7 +74,6 @@ const menuItems = [
   { id: 'links-especiais', name: 'Links Especiais', icon: LinkIcon, color: 'purple', page: 'GerenciarLinksEspeciais', description: 'Gerencie links que habilitam planos automaticamente', roles: ['admin', 'dono'] },
   { id: 'check-geo-status', name: 'Verificar Status Geo', icon: MapPin, color: 'blue', action: 'checkGeoStatus', description: 'Ver quantas vagas têm coordenadas', roles: ['admin', 'dono'] },
   { id: 'geocode-jobs', name: 'Geocodificar Vagas', icon: MapPin, color: 'teal', action: 'geocodeJobs', description: 'Adicionar coordenadas automaticamente às vagas', roles: ['admin', 'dono'] },
-  { id: 'reactivate-jobs', name: 'Reativar Vagas', icon: RefreshCw, color: 'green', page: 'ReativarVagas', description: 'Reativar vagas expiradas em massa ou selecionadas', roles: ['admin', 'dono'] },
 
   // Manutenção
   { id: 'divider-manutencao', type: 'divider', label: 'Manutenção', roles: ['admin', 'dono'] },

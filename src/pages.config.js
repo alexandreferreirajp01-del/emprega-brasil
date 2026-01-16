@@ -14,7 +14,6 @@ import ChatIA from './pages/ChatIA';
 import Configuracoes from './pages/Configuracoes';
 import Contact from './pages/Contact';
 import Cookies from './pages/Cookies';
-import EnviarParaTodos from './pages/EnviarParaTodos';
 import ExcluirVagasSemContato from './pages/ExcluirVagasSemContato';
 import FAQ from './pages/FAQ';
 import Favoritos from './pages/Favoritos';
@@ -41,7 +40,6 @@ import JobDetail from './pages/JobDetail';
 import Jobs from './pages/Jobs';
 import LGPD from './pages/LGPD';
 import ListaTransmissao from './pages/ListaTransmissao';
-import MapaVagas from './pages/MapaVagas';
 import Mensagens from './pages/Mensagens';
 import News from './pages/News';
 import NewsDetail from './pages/NewsDetail';
@@ -79,7 +77,8 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import ReativarVagas from './pages/ReativarVagas';
+import EnviarParaTodos from './pages/EnviarParaTodos';
+import MapaVagas from './pages/MapaVagas';
 import __Layout from './Layout.jsx';
 
 
@@ -100,7 +99,6 @@ export const PAGES = {
     "Configuracoes": Configuracoes,
     "Contact": Contact,
     "Cookies": Cookies,
-    "EnviarParaTodos": EnviarParaTodos,
     "ExcluirVagasSemContato": ExcluirVagasSemContato,
     "FAQ": FAQ,
     "Favoritos": Favoritos,
@@ -127,7 +125,6 @@ export const PAGES = {
     "Jobs": Jobs,
     "LGPD": LGPD,
     "ListaTransmissao": ListaTransmissao,
-    "MapaVagas": MapaVagas,
     "Mensagens": Mensagens,
     "News": News,
     "NewsDetail": NewsDetail,
@@ -165,7 +162,8 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "ReativarVagas": ReativarVagas,
+    "EnviarParaTodos": EnviarParaTodos,
+    "MapaVagas": MapaVagas,
 }
 
 export const pagesConfig = {
