@@ -43,46 +43,40 @@ export default function PostsEmMassa() {
     const files = Array.from(e.target.files).slice(0, 50);
     if (files.length === 0) return;
     
-    // Validar arquivos
-    const validFiles = files.filter(f => {
-      if (!f.type.startsWith('image/')) {
-        alert(`❌ ${f.name} não é uma imagem válida`);
-        return false;
-      }
-      if (f.size > 10 * 1024 * 1024) { // 10MB
-        alert(`❌ ${f.name} é muito grande (máx 10MB)`);
-        return false;
-      }
-      return true;
-    });
-    
-    if (validFiles.length === 0) return;
-    
     setUploading(true);
     const uploaded = [];
     let errorCount = 0;
     
     try {
-      for (const file of validFiles) {
+      for (const file of files) {
         try {
-          const { file_url } = await base44.integrations.Core.UploadFile({ file });
-          uploaded.push({ id: Date.now() + Math.random(), url: file_url, status: 'pending' });
+          // Validação básica
+          if (file.size > 15 * 1024 * 1024) { // 15MB
+            console.warn(`${file.name} muito grande`);
+            errorCount++;
+            continue;
+          }
+          
+          // Tentar fazer upload
+          const result = await base44.integrations.Core.UploadFile({ file });
+          if (result?.file_url) {
+            uploaded.push({ id: Date.now() + Math.random(), url: result.file_url, status: 'pending' });
+          } else {
+            errorCount++;
+          }
         } catch (fileErr) {
           errorCount++;
-          console.error(`Erro ao fazer upload de ${file.name}:`, fileErr);
+          console.error(`Upload falhou para ${file.name}:`, fileErr.message);
         }
       }
       
-      if (uploaded.length === 0) {
-        alert('❌ Nenhuma imagem foi carregada. Tente novamente.');
-      } else if (errorCount > 0) {
-        alert(`⚠️ ${uploaded.length} imagens carregadas (${errorCount} falharam)`);
+      if (uploaded.length > 0) {
         setImages(prev => [...prev, ...uploaded]);
       } else {
-        setImages(prev => [...prev, ...uploaded]);
+        alert('❌ Nenhuma imagem foi carregada. Verifique o arquivo e tente novamente.');
       }
     } catch (err) {
-      alert(`❌ Erro no upload: ${err.message || 'Tente novamente'}`);
+      alert(`❌ Erro geral: ${err.message}`);
     } finally {
       setUploading(false);
     }
