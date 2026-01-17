@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Briefcase, Users, MapPin, Heart, Mail, Phone, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 export default function About() {
   const handleWhatsApp = () => {
@@ -124,6 +126,36 @@ export default function About() {
                 <span>Painel para recrutadores com publicação ilimitada, gerenciamento de candidatos e análise de visualizações</span>
               </li>
             </ul>
+          </CardContent>
+        </Card>
+
+        {/* Mapa de Vagas */}
+        <Card className="shadow-xl rounded-2xl overflow-hidden">
+          <CardContent className="p-0">
+            <div className="h-[400px] w-full">
+              <MapContainer
+                center={[-14.235, -51.925]}
+                zoom={4}
+                style={{ height: '100%', width: '100%' }}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <Marker position={[-7.1195, -34.845]}>
+                  <Popup>
+                    <div className="text-center">
+                      <p className="font-bold">João Pessoa, PB</p>
+                      <p className="text-sm">Sede do Emprega Brasil+</p>
+                    </div>
+                  </Popup>
+                </Marker>
+              </MapContainer>
+            </div>
+            <div className="p-6 bg-gradient-to-r from-[#0056ff] to-[#0044cc]">
+              <h3 className="text-lg font-bold text-white mb-2">Vagas em Todo o Brasil</h3>
+              <p className="text-white/90 text-sm">Conectando candidatos e empresas de norte a sul do país</p>
+            </div>
           </CardContent>
         </Card>
 
