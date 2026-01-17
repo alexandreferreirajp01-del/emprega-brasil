@@ -330,7 +330,7 @@ export default function Home() {
                                 )}
                               </div>
                               <a 
-                                href={`${createPageUrl('Jobs')}?jobId=${job.id}`}
+                                href={`${createPageUrl('JobDetail')}?id=${job.id}`}
                                 className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
                               >
                                 Saiba mais →
