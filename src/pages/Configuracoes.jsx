@@ -50,10 +50,7 @@ const menuItems = [
   { id: 'recruiter-area', name: 'Painel do Recrutador', icon: Briefcase, color: 'blue', page: 'RecruiterArea', description: 'Ferramentas exclusivas para recrutadores', roles: ['recruiter', 'admin', 'dono'], permissionId: 'recruiter_area' },
   { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores', roles: ['admin', 'dono'], permissionId: 'solicitacoes' },
   
-  // Assistente IA
-  { id: 'dividerAssistente', type: 'divider', label: 'Assistente IA', roles: ['admin', 'dono'] },
-  { id: 'agentes', name: 'Agentes de IA', icon: Bot, color: 'purple', page: 'Agentes', description: 'Chat com assistentes inteligentes (Dev, Público e Validador)', roles: ['admin', 'dono'] },
-  { id: 'banco-dados-assistente', name: 'Banco de Dados do Assistente', icon: MessageCircle, color: 'cyan', page: 'BancoDadosAssistente', description: 'Histórico completo de conversas da IA', roles: ['admin', 'dono'] },
+
 
   // Interações
   { id: 'dividerInteracoes', type: 'divider', label: 'Interações' },
