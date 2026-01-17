@@ -120,12 +120,12 @@ export default function Home() {
   const handleRefreshMap = async () => {
     setRefreshingMap(true);
     try {
-      const jobsResult = await fetchWithRetry(() => 
-        base44.entities.Job.list('-created_date', 10000)
-      );
+      const jobsResult = await base44.entities.Job.list('-created_date', 10000);
       setJobs(jobsResult);
+      console.log('Mapa atualizado com', jobsResult.filter(j => j.latitude && j.longitude && j.exibir_no_mapa !== false).length, 'vagas');
     } catch (error) {
       console.error('Erro ao atualizar mapa:', error);
+      alert('Erro ao atualizar: ' + error.message);
     } finally {
       setRefreshingMap(false);
     }

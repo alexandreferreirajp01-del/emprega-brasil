@@ -9,7 +9,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Acesso negado' }, { status: 403 });
     }
 
-    const { jobIds } = await req.json();
+    let jobIds = null;
+    try {
+      const body = await req.json();
+      jobIds = body?.jobIds;
+    } catch {
+      // Sem body, processar todas
+    }
+
     const jobs = jobIds 
       ? await Promise.all(jobIds.map(id => base44.asServiceRole.entities.Job.filter({ id })))
       : await base44.asServiceRole.entities.Job.list('', 10000);

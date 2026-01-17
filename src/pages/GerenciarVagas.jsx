@@ -195,10 +195,12 @@ export default function GerenciarVagas() {
       const response = await base44.functions.invoke('geocodeJobs', {
         jobIds: selectedJobs
       });
+      console.log('Resposta geocode:', response);
       await loadData();
       setSelectedJobs([]);
-      alert(response.data.message || 'Geocodificação concluída!');
+      alert(response.data?.message || 'Geocodificação concluída!');
     } catch (err) {
+      console.error('Erro geocode:', err);
       alert('Erro: ' + err.message);
     } finally {
       setLoading(false);
@@ -497,29 +499,40 @@ export default function GerenciarVagas() {
                             )}
                           </td>
                           <td className="p-3">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0"
-                              onClick={async () => {
-                                try {
-                                  const newValue = !job.exibir_no_mapa;
-                                  await base44.entities.Job.update(job.id, {
-                                    exibir_no_mapa: newValue
-                                  });
-                                  await loadData();
-                                } catch (err) {
-                                  alert('Erro ao atualizar: ' + err.message);
-                                }
-                              }}
-                              title={job.exibir_no_mapa ? "Ocultar do mapa" : "Exibir no mapa"}
-                            >
-                              {job.exibir_no_mapa ? (
-                                <Eye className="w-4 h-4 text-green-600" />
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 w-7 p-0"
+                                onClick={async () => {
+                                  try {
+                                    const newValue = !job.exibir_no_mapa;
+                                    await base44.entities.Job.update(job.id, {
+                                      exibir_no_mapa: newValue
+                                    });
+                                    await loadData();
+                                  } catch (err) {
+                                    alert('Erro ao atualizar: ' + err.message);
+                                  }
+                                }}
+                                title={job.exibir_no_mapa ? "Ocultar do mapa" : "Exibir no mapa"}
+                              >
+                                {job.exibir_no_mapa ? (
+                                  <Eye className="w-4 h-4 text-green-600" />
+                                ) : (
+                                  <EyeOff className="w-4 h-4 text-slate-400" />
+                                )}
+                              </Button>
+                              {job.latitude && job.longitude ? (
+                                <span className="text-xs text-green-600" title={`Lat: ${job.latitude}, Lng: ${job.longitude}`}>
+                                  ✓
+                                </span>
                               ) : (
-                                <EyeOff className="w-4 h-4 text-slate-400" />
+                                <span className="text-xs text-red-600" title="Sem coordenadas">
+                                  ✗
+                                </span>
                               )}
-                            </Button>
+                            </div>
                           </td>
                           <td className="p-3">
                             <div className="flex gap-1">
