@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Search, Briefcase, MessageCircle, Newspaper, Crown, ArrowRight, 
   MapPin, Calendar, Users, Star, TrendingUp, Building2, Eye,
-  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake, Sparkles, Moon, Sun
+  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake, Sparkles, Moon, Sun, RefreshCw
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -52,6 +52,7 @@ export default function Home() {
   const [news, setNews] = useState([]);
   const [posts, setPosts] = useState([]);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [refreshingMap, setRefreshingMap] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -114,6 +115,21 @@ export default function Home() {
 
   // Filtrar apenas vagas em destaque
   const featuredJobs = jobs.filter(job => job.is_featured);
+
+  // Função para atualizar vagas manualmente
+  const handleRefreshMap = async () => {
+    setRefreshingMap(true);
+    try {
+      const jobsResult = await fetchWithRetry(() => 
+        base44.entities.Job.list('-created_date', 10000)
+      );
+      setJobs(jobsResult);
+    } catch (error) {
+      console.error('Erro ao atualizar mapa:', error);
+    } finally {
+      setRefreshingMap(false);
+    }
+  };
 
 
 
@@ -290,6 +306,27 @@ export default function Home() {
 
             {/* Mapa de Vagas */}
             <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden bg-white dark:bg-slate-800 transition-colors" style={{ position: 'relative', zIndex: 1, isolation: 'isolate' }}>
+              <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-3 sm:p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-white text-sm sm:text-lg">Mapa de Vagas</h2>
+                    <p className="text-white/70 text-xs sm:text-sm">{jobs.filter(job => job.latitude && job.longitude && job.exibir_no_mapa !== false).length} vagas disponíveis</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleRefreshMap}
+                  disabled={refreshingMap}
+                  className="text-white hover:bg-white/10 rounded-lg sm:rounded-xl text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4"
+                >
+                  <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 ${refreshingMap ? 'animate-spin' : ''}`} />
+                  {refreshingMap ? 'Atualizando...' : 'Atualizar'}
+                </Button>
+              </div>
               <CardContent className="p-0">
                 <div className="h-[400px] w-full" style={{ position: 'relative', zIndex: 1 }}>
                   <MapContainer
@@ -365,13 +402,7 @@ export default function Home() {
                         </Marker>
                       ))}
                   </MapContainer>
-                </div>
-                <div className="p-4 bg-gradient-to-r from-[#0A66C2] to-[#004182]">
-                  <h3 className="text-base sm:text-lg font-bold text-white mb-1">
-                    {jobs.filter(job => job.latitude && job.longitude && job.exibir_no_mapa !== false).length} Vagas no Mapa
-                  </h3>
-                  <p className="text-white/90 text-xs sm:text-sm">Conectando candidatos e empresas de norte a sul do país</p>
-                </div>
+                  </div>
               </CardContent>
             </Card>
 
