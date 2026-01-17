@@ -295,10 +295,6 @@ export default function Home() {
                   <MapContainer
                     center={[-14.235, -51.925]}
                     zoom={4}
-                    minZoom={4}
-                    maxZoom={18}
-                    maxBounds={[[-33.75, -73.99], [5.27, -34.79]]}
-                    maxBoundsViscosity={1.0}
                     style={{ height: '100%', width: '100%', position: 'relative', zIndex: 1 }}
                   >
                     <TileLayer
