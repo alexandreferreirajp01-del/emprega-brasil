@@ -330,13 +330,8 @@ export default function Home() {
                                 )}
                               </div>
                               <a 
-                                href={`#/JobDetail?id=${job.id}`}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  window.location.hash = `/JobDetail?id=${job.id}`;
-                                  window.location.reload();
-                                }}
-                                className="block w-full text-center bg-green-600 hover:bg-green-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition-colors cursor-pointer"
+                                href={`${createPageUrl('Jobs')}?jobId=${job.id}`}
+                                className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
                               >
                                 Saiba mais →
                               </a>
