@@ -329,12 +329,17 @@ export default function Home() {
                                   </p>
                                 )}
                               </div>
-                              <button
-                                onClick={() => window.location.href = `${createPageUrl('JobDetail')}?id=${job.id}`}
+                              <a 
+                                href={`#/JobDetail?id=${job.id}`}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  window.location.hash = `/JobDetail?id=${job.id}`;
+                                  window.location.reload();
+                                }}
                                 className="block w-full text-center bg-green-600 hover:bg-green-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition-colors cursor-pointer"
                               >
                                 Saiba mais →
-                              </button>
+                              </a>
                             </div>
                           </Popup>
                         </Marker>
