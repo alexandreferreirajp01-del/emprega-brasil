@@ -292,18 +292,34 @@ export default function Home() {
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
-                    <Marker position={[-7.1195, -34.845]}>
-                      <Popup>
-                        <div className="text-center">
-                          <p className="font-bold">João Pessoa, PB</p>
-                          <p className="text-sm">Sede do Emprega Brasil+</p>
-                        </div>
-                      </Popup>
-                    </Marker>
+                    {jobs
+                      .filter(job => job.latitude && job.longitude && job.exibir_no_mapa !== false)
+                      .map(job => (
+                        <Marker key={job.id} position={[job.latitude, job.longitude]}>
+                          <Popup>
+                            <div className="min-w-[200px]">
+                              <h3 className="font-bold text-sm mb-1">{job.title}</h3>
+                              <p className="text-xs text-slate-600 mb-1">{job.company}</p>
+                              <p className="text-xs text-slate-500 mb-2">
+                                <MapPin className="w-3 h-3 inline mr-1" />
+                                {job.city}, {job.state}
+                              </p>
+                              <a 
+                                href={createPageUrl('JobDetail') + `?id=${job.id}`}
+                                className="text-xs text-[#0A66C2] hover:underline font-medium"
+                              >
+                                Ver detalhes →
+                              </a>
+                            </div>
+                          </Popup>
+                        </Marker>
+                      ))}
                   </MapContainer>
                 </div>
                 <div className="p-4 bg-gradient-to-r from-[#0A66C2] to-[#004182]">
-                  <h3 className="text-base sm:text-lg font-bold text-white mb-1">Vagas em Todo o Brasil</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-white mb-1">
+                    {jobs.filter(job => job.latitude && job.longitude && job.exibir_no_mapa !== false).length} Vagas no Mapa
+                  </h3>
                   <p className="text-white/90 text-xs sm:text-sm">Conectando candidatos e empresas de norte a sul do país</p>
                 </div>
               </CardContent>
