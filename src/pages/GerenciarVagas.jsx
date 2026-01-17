@@ -472,13 +472,29 @@ export default function GerenciarVagas() {
                             )}
                           </td>
                           <td className="p-3">
-                            {job.geocode_status === 'ok' ? (
-                              <MapPin className="w-4 h-4 text-green-600" />
-                            ) : job.is_remote ? (
-                              <span className="text-xs text-purple-600">Remoto</span>
-                            ) : (
-                              <AlertCircle className="w-4 h-4 text-slate-400" />
-                            )}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0"
+                              onClick={async () => {
+                                try {
+                                  const newValue = !job.exibir_no_mapa;
+                                  await base44.entities.Job.update(job.id, {
+                                    exibir_no_mapa: newValue
+                                  });
+                                  await loadData();
+                                } catch (err) {
+                                  alert('Erro ao atualizar: ' + err.message);
+                                }
+                              }}
+                              title={job.exibir_no_mapa ? "Ocultar do mapa" : "Exibir no mapa"}
+                            >
+                              {job.exibir_no_mapa ? (
+                                <Eye className="w-4 h-4 text-green-600" />
+                              ) : (
+                                <EyeOff className="w-4 h-4 text-slate-400" />
+                              )}
+                            </Button>
                           </td>
                           <td className="p-3">
                             <div className="flex gap-1">

@@ -121,6 +121,7 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
         contract_types: job.contract_types || [],
         is_premium: job.is_premium || false,
         is_featured: job.is_featured || false,
+        exibir_no_mapa: job.exibir_no_mapa !== false,
       });
     }
   }, [job]);
@@ -477,6 +478,17 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
                     id="is_featured"
                     checked={editedJob.is_featured}
                     onCheckedChange={(checked) => handleSwitchChange('is_featured', checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="exibir_no_mapa" className="font-medium">Exibir no Mapa</Label>
+                    <p className="text-xs text-slate-500">Mostrar essa vaga no mapa interativo</p>
+                  </div>
+                  <Switch
+                    id="exibir_no_mapa"
+                    checked={editedJob.exibir_no_mapa}
+                    onCheckedChange={(checked) => handleSwitchChange('exibir_no_mapa', checked)}
                   />
                 </div>
               </div>
