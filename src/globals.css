@@ -224,6 +224,43 @@ html {
   animation: slideUp 0.3s ease-out;
 }
 
+/* Leaflet Map z-index fix - sempre abaixo do menu */
+.leaflet-container {
+  z-index: 1 !important;
+  position: relative !important;
+}
+
+.leaflet-pane,
+.leaflet-tile-pane,
+.leaflet-overlay-pane,
+.leaflet-shadow-pane,
+.leaflet-marker-pane,
+.leaflet-tooltip-pane,
+.leaflet-popup-pane {
+  z-index: 1 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 2 !important;
+}
+
+.leaflet-control {
+  z-index: 3 !important;
+}
+
+/* Header/Menu sempre no topo */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 9999 !important;
+  background: white !important;
+}
+
+header.dark\:bg-slate-800 {
+  background: rgb(30 41 59) !important;
+}
+
 /* Ad container styles */
 .ad-container {
   min-height: 90px;
