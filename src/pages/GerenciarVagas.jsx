@@ -170,9 +170,34 @@ export default function GerenciarVagas() {
 
     setLoading(true);
     try {
-      await base44.functions.invoke('reprocessJobsLocation');
+      const response = await base44.functions.invoke('geocodeJobs', {});
       await loadData();
-      alert('Localização reprocessada com sucesso!');
+      alert(response.data.message || 'Localização reprocessada com sucesso!');
+    } catch (err) {
+      alert('Erro: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGeocodeSelected = async () => {
+    if (selectedJobs.length === 0) {
+      alert('Selecione ao menos uma vaga');
+      return;
+    }
+
+    if (!confirm(`Geocodificar ${selectedJobs.length} vaga(s) selecionada(s)? Isso pode levar alguns minutos.`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await base44.functions.invoke('geocodeJobs', {
+        jobIds: selectedJobs
+      });
+      await loadData();
+      setSelectedJobs([]);
+      alert(response.data.message || 'Geocodificação concluída!');
     } catch (err) {
       alert('Erro: ' + err.message);
     } finally {
@@ -391,9 +416,9 @@ export default function GerenciarVagas() {
                         <Eye className="w-4 h-4 mr-1" />
                         Ativar
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleBulkAction('reprocess')}>
-                        <RefreshCw className="w-4 h-4 mr-1" />
-                        Reprocessar
+                      <Button size="sm" variant="outline" onClick={handleGeocodeSelected}>
+                        <MapPin className="w-4 h-4 mr-1" />
+                        Geocodificar
                       </Button>
                       <Button size="sm" variant="destructive" onClick={() => handleBulkAction('delete')}>
                         <Trash2 className="w-4 h-4 mr-1" />
@@ -580,8 +605,18 @@ export default function GerenciarVagas() {
                   variant="outline"
                 >
                   <MapPin className="w-4 h-4 mr-2" />
-                  Reprocessar Localização de Todas as Vagas
+                  Geocodificar Todas as Vagas (Obter Coordenadas)
                 </Button>
+
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-900 font-medium mb-2">ℹ️ Como funciona o Mapa</p>
+                  <ul className="text-xs text-blue-800 space-y-1">
+                    <li>• Vagas precisam ter cidade e estado preenchidos</li>
+                    <li>• Use "Geocodificar" para obter coordenadas automaticamente</li>
+                    <li>• Clique no ícone da coluna "Mapa" para habilitar/desabilitar vaga no mapa</li>
+                    <li>• Vagas remotas não aparecem no mapa</li>
+                  </ul>
+                </div>
 
                 <Button
                   onClick={() => handleDeleteOld(30)}
