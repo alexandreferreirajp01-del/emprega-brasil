@@ -224,10 +224,29 @@ html {
   animation: slideUp 0.3s ease-out;
 }
 
-/* Leaflet Map z-index fix - sempre abaixo do menu */
-.leaflet-container {
+/* CRITICAL FIX: Header/Menu sempre visível acima de tudo */
+header,
+nav,
+[class*="header"],
+[class*="navbar"] {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 99999 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark mode header */
+.dark header,
+.dark nav,
+header.dark\:bg-slate-800 {
+  background-color: #1e293b !important;
+}
+
+/* Leaflet Map - sempre abaixo do header */
+.leaflet-container,
+.leaflet-container * {
   z-index: 1 !important;
-  position: relative !important;
 }
 
 .leaflet-pane,
@@ -235,30 +254,29 @@ html {
 .leaflet-overlay-pane,
 .leaflet-shadow-pane,
 .leaflet-marker-pane,
-.leaflet-tooltip-pane,
-.leaflet-popup-pane {
+.leaflet-tooltip-pane {
   z-index: 1 !important;
+}
+
+.leaflet-popup-pane {
+  z-index: 10 !important;
 }
 
 .leaflet-top,
 .leaflet-bottom {
-  z-index: 2 !important;
+  z-index: 5 !important;
 }
 
 .leaflet-control {
-  z-index: 3 !important;
+  z-index: 10 !important;
 }
 
-/* Header/Menu sempre no topo */
-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 9999 !important;
-  background: white !important;
-}
-
-header.dark\:bg-slate-800 {
-  background: rgb(30 41 59) !important;
+/* Container do mapa - isolado */
+[class*="MapContainer"],
+.leaflet-container {
+  position: relative !important;
+  z-index: 1 !important;
+  isolation: isolate !important;
 }
 
 /* Ad container styles */
