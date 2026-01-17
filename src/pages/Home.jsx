@@ -295,6 +295,10 @@ export default function Home() {
                   <MapContainer
                     center={[-14.235, -51.925]}
                     zoom={4}
+                    minZoom={4}
+                    maxZoom={18}
+                    maxBounds={[[-33.75, -73.99], [5.27, -34.79]]}
+                    maxBoundsViscosity={1.0}
                     style={{ height: '100%', width: '100%', position: 'relative', zIndex: 1 }}
                   >
                     <TileLayer
@@ -352,6 +356,7 @@ export default function Home() {
                               <Link 
                                 to={`${createPageUrl('JobDetail')}?id=${job.id}`}
                                 className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm hover:shadow-md no-underline"
+                                style={{ color: 'white', textDecoration: 'none' }}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   console.log('Navegando para vaga:', job.id);
