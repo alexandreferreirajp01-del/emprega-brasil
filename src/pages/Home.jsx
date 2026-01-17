@@ -26,6 +26,21 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+// Ícone amarelo para a sede
+const sedeIcon = new L.Icon({
+  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
+      <path fill="#FFD700" stroke="#000" stroke-width="1" d="M12.5 0C5.596 0 0 5.596 0 12.5c0 9.688 12.5 28.5 12.5 28.5S25 22.188 25 12.5C25 5.596 19.404 0 12.5 0z"/>
+      <circle cx="12.5" cy="12.5" r="6" fill="#FFF"/>
+    </svg>
+  `),
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
 // Função de fetch com retry robusto
 async function fetchWithRetry(fetchFn, maxRetries = 5) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -338,6 +353,40 @@ export default function Home() {
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
+
+                    {/* Marcador da Sede - Amarelo */}
+                    <Marker 
+                      position={[-7.1352, -34.8634]} 
+                      icon={sedeIcon}
+                    >
+                      <Popup maxWidth={280} closeButton={true}>
+                        <div className="p-2" style={{ minWidth: '240px' }}>
+                          <h3 className="font-bold text-base mb-3 text-slate-900 leading-tight">
+                            🏢 Sede Emprega Brasil+
+                          </h3>
+
+                          <div className="space-y-2 mb-4">
+                            <div className="flex items-start gap-2">
+                              <MapPin className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-slate-700">
+                                Rua Rosalva Nepomuceno do Nascimento, 75<br/>
+                                Planalto Boa Esperança<br/>
+                                João Pessoa - PB<br/>
+                                CEP: 58065-065
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 pt-3 border-t border-slate-200">
+                            <p className="text-xs text-center text-slate-600 font-medium">
+                              Central de Oportunidades de Emprego
+                            </p>
+                          </div>
+                        </div>
+                      </Popup>
+                    </Marker>
+
+                    {/* Marcadores das Vagas */}
                     {jobs
                       .filter(job => job.latitude && job.longitude && job.exibir_no_mapa !== false)
                       .map(job => (
