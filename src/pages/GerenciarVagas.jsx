@@ -1,184 +1,611 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Briefcase, MapPin, Trash2, Loader2, CheckCircle, Search, Building2, Crown, Edit } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { 
+  Briefcase, Loader2, Search, Filter, MapPin, AlertCircle, 
+  CheckCircle2, Eye, EyeOff, Edit, Trash2, RefreshCw, Copy,
+  Settings, ChevronDown, ChevronUp, Download, ArrowLeft
+} from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import EditJobModal from "@/components/admin/EditJobModal";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function GerenciarVagas() {
-  const [user, setUser] = useState(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState(null);
-  const [search, setSearch] = useState('');
-  const [editingJob, setEditingJob] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const queryClient = useQueryClient();
-
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
-  };
+  const [jobs, setJobs] = useState([]);
+  const [stats, setStats] = useState({});
+  const [selectedJobs, setSelectedJobs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    status: 'all',
+    contactStatus: 'all',
+    mapStatus: 'all',
+    workMode: 'all',
+    city: '',
+    state: '',
+    period: '30'
+  });
+  const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
 
   useEffect(() => {
-    const checkAdmin = async () => {
+    const init = async () => {
       try {
-        const currentUser = await base44.auth.me();
-        const isAdmin = currentUser.email === 'alexandreferreirajp01@gmail.com' || 
-                        currentUser.role === 'admin' || 
-                        currentUser.subscription_type === 'admin';
+        const user = await base44.auth.me();
+        const isAdmin = user.role === 'admin' || user.subscription_type === 'admin';
         if (!isAdmin) {
           window.location.href = createPageUrl('Home');
           return;
         }
-        setUser(currentUser);
-      } catch {
+        setIsAuthorized(true);
+        await loadData();
+      } catch (e) {
         window.location.href = createPageUrl('Splash');
-      } finally {
-        setLoading(false);
       }
     };
-    checkAdmin();
+    init();
   }, []);
 
-  const { data: jobs = [] } = useQuery({
-    queryKey: ['admin-jobs'],
-    queryFn: () => base44.entities.Job.list('-created_date', 500),
-    staleTime: 60000,
-  });
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const allJobs = await base44.entities.Job.list('-created_date', 10000);
+      setJobs(allJobs);
+      calculateStats(allJobs);
+    } catch (err) {
+      console.error('Erro ao carregar vagas:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const deleteJobMutation = useMutation({
-    mutationFn: (id) => base44.entities.Job.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-jobs'] });
-      showToast('Vaga excluída!');
-    },
-    onError: () => showToast('Erro ao excluir', 'error')
-  });
+  const calculateStats = (jobList) => {
+    const now = new Date();
+    const stats = {
+      total: jobList.length,
+      active: jobList.filter(j => j.status === 'ativa').length,
+      expired: jobList.filter(j => j.status === 'expirada').length,
+      hidden: jobList.filter(j => j.status === 'hidden').length,
+      needsReview: jobList.filter(j => j.needs_review).length,
+      noContact: jobList.filter(j => j.contact_status === 'missing').length,
+      withContact: jobList.filter(j => j.contact_status === 'ok').length,
+      mapReady: jobList.filter(j => j.geocode_status === 'ok' && j.exibir_no_mapa).length,
+      mapFailed: jobList.filter(j => j.geocode_status === 'failed').length,
+      remote: jobList.filter(j => j.is_remote || j.work_mode === 'Remoto').length,
+      noCity: jobList.filter(j => !j.city || j.city.trim() === '').length,
+      noState: jobList.filter(j => !j.state || j.state.trim() === '').length
+    };
+    setStats(stats);
+  };
 
-  const filteredJobs = jobs.filter(job => 
-    job.title?.toLowerCase().includes(search.toLowerCase()) ||
-    job.company?.toLowerCase().includes(search.toLowerCase()) ||
-    job.city?.toLowerCase().includes(search.toLowerCase())
+  const getFilteredJobs = () => {
+    let filtered = jobs;
+
+    // Search
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(j => 
+        j.title?.toLowerCase().includes(term) ||
+        j.company?.toLowerCase().includes(term) ||
+        j.city?.toLowerCase().includes(term)
+      );
+    }
+
+    // Filters
+    if (filters.status !== 'all') {
+      filtered = filtered.filter(j => j.status === filters.status);
+    }
+    if (filters.contactStatus !== 'all') {
+      filtered = filtered.filter(j => j.contact_status === filters.contactStatus);
+    }
+    if (filters.mapStatus !== 'all') {
+      if (filters.mapStatus === 'ready') {
+        filtered = filtered.filter(j => j.geocode_status === 'ok');
+      } else if (filters.mapStatus === 'failed') {
+        filtered = filtered.filter(j => j.geocode_status === 'failed');
+      } else if (filters.mapStatus === 'pending') {
+        filtered = filtered.filter(j => j.geocode_status === 'pending');
+      }
+    }
+    if (filters.workMode !== 'all') {
+      filtered = filtered.filter(j => j.work_mode === filters.workMode);
+    }
+    if (filters.city) {
+      filtered = filtered.filter(j => j.city?.toLowerCase().includes(filters.city.toLowerCase()));
+    }
+    if (filters.state) {
+      filtered = filtered.filter(j => j.state?.toLowerCase().includes(filters.state.toLowerCase()));
+    }
+    if (filters.period !== 'all') {
+      const days = parseInt(filters.period);
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      filtered = filtered.filter(j => new Date(j.created_date) >= cutoff);
+    }
+
+    return filtered;
+  };
+
+  const handleBulkAction = async (action) => {
+    if (selectedJobs.length === 0) {
+      alert('Selecione ao menos uma vaga');
+      return;
+    }
+
+    if (!confirm(`Aplicar "${action}" em ${selectedJobs.length} vaga(s)?`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await base44.functions.invoke('bulkJobActions', {
+        jobIds: selectedJobs,
+        action: action
+      });
+      
+      await loadData();
+      setSelectedJobs([]);
+      alert(`Ação "${action}" aplicada com sucesso!`);
+    } catch (err) {
+      alert('Erro: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReprocessLocation = async () => {
+    if (!confirm('Reprocessar localização de todas as vagas? Pode levar alguns minutos.')) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await base44.functions.invoke('reprocessJobsLocation');
+      await loadData();
+      alert('Localização reprocessada com sucesso!');
+    } catch (err) {
+      alert('Erro: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteOld = async (days) => {
+    if (!confirm(`Excluir vagas publicadas há mais de ${days} dias?`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await base44.functions.invoke('deleteOldJobs', { days });
+      await loadData();
+      alert('Vagas antigas excluídas!');
+    } catch (err) {
+      alert('Erro: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredJobs = getFilteredJobs();
+  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
+  const paginatedJobs = filteredJobs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
-  if (loading) {
+  if (!isAuthorized || loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0056ff]" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      {toast && (
-        <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'} text-white`}>
-          <div className="flex items-center gap-3">
-            <CheckCircle className="w-5 h-5" />
-            <span>{toast.message}</span>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 pt-6 pb-8 px-4">
-        <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 pt-6 pb-8 px-4">
+        <div className="max-w-7xl mx-auto">
           <Link to={createPageUrl('Configuracoes')}>
-            <Button variant="ghost" className="text-white hover:bg-white/20 mb-2 -ml-2">
-              <ArrowLeft className="w-5 h-5 mr-2" />Voltar
+            <Button variant="ghost" className="text-white hover:bg-white/20 mb-3 -ml-2">
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Voltar
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Briefcase className="w-6 h-6" />
-            Gerenciar Vagas
-          </h1>
-          <p className="text-white/70 text-sm">{jobs.length} vagas cadastradas</p>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <Briefcase className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">Gerenciador de Vagas</h1>
+              <p className="text-white/70 text-sm">Central única de controle e manutenção</p>
+            </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mt-6">
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+              <CardContent className="p-3 text-center">
+                <p className="text-white/70 text-xs">Total</p>
+                <p className="text-2xl font-bold text-white">{stats.total || 0}</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-green-500/20 backdrop-blur-sm border-green-300/30">
+              <CardContent className="p-3 text-center">
+                <p className="text-white/70 text-xs">Ativas</p>
+                <p className="text-2xl font-bold text-white">{stats.active || 0}</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-red-500/20 backdrop-blur-sm border-red-300/30">
+              <CardContent className="p-3 text-center">
+                <p className="text-white/70 text-xs">Expiradas</p>
+                <p className="text-2xl font-bold text-white">{stats.expired || 0}</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-orange-500/20 backdrop-blur-sm border-orange-300/30">
+              <CardContent className="p-3 text-center">
+                <p className="text-white/70 text-xs">Sem Contato</p>
+                <p className="text-2xl font-bold text-white">{stats.noContact || 0}</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-purple-500/20 backdrop-blur-sm border-purple-300/30">
+              <CardContent className="p-3 text-center">
+                <p className="text-white/70 text-xs">Mapa OK</p>
+                <p className="text-2xl font-bold text-white">{stats.mapReady || 0}</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-yellow-500/20 backdrop-blur-sm border-yellow-300/30">
+              <CardContent className="p-3 text-center">
+                <p className="text-white/70 text-xs">Revisão</p>
+                <p className="text-2xl font-bold text-white">{stats.needsReview || 0}</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <Input
-            placeholder="Buscar vaga..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 rounded-xl"
-          />
-        </div>
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <Tabs defaultValue="list" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="list">Lista de Vagas</TabsTrigger>
+            <TabsTrigger value="maintenance">Manutenção</TabsTrigger>
+            <TabsTrigger value="health">Saúde do Sistema</TabsTrigger>
+          </TabsList>
 
-        <ScrollArea className="h-[calc(100vh-280px)]">
-          <div className="space-y-3">
-            {filteredJobs.map((job) => (
-              <Card key={job.id} className="rounded-xl">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h4 className="font-semibold text-slate-800">{job.title || 'Não informado'}</h4>
-                        {job.is_premium && (
-                          <Badge className="bg-purple-100 text-purple-700 border-0 text-xs">
-                            <Crown className="w-3 h-3 mr-1" />Premium
-                          </Badge>
-                        )}
-                        {job.is_featured && (
-                          <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs">Destaque</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-slate-500 flex items-center gap-2">
-                        <Building2 className="w-4 h-4" />
-                        {job.company || 'Não informado'}
-                        <span className="mx-1">•</span>
-                        <MapPin className="w-4 h-4" />
-                        {job.city || 'Não informado'}
-                      </p>
+          {/* Lista de Vagas */}
+          <TabsContent value="list" className="space-y-4">
+            {/* Search and Filters */}
+            <Card>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Buscar por título, empresa ou cidade..."
+                      className="pl-10"
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="gap-2"
+                  >
+                    <Filter className="w-4 h-4" />
+                    Filtros
+                    {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </Button>
+                </div>
+
+                {showFilters && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t">
+                    <div>
+                      <Label className="text-xs">Status</Label>
+                      <Select value={filters.status} onValueChange={(v) => setFilters(prev => ({ ...prev, status: v }))}>
+                        <SelectTrigger className="h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos</SelectItem>
+                          <SelectItem value="ativa">Ativas</SelectItem>
+                          <SelectItem value="expirada">Expiradas</SelectItem>
+                          <SelectItem value="hidden">Ocultas</SelectItem>
+                          <SelectItem value="pending_review">Pendentes</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
+
+                    <div>
+                      <Label className="text-xs">Contato</Label>
+                      <Select value={filters.contactStatus} onValueChange={(v) => setFilters(prev => ({ ...prev, contactStatus: v }))}>
+                        <SelectTrigger className="h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos</SelectItem>
+                          <SelectItem value="ok">Com Contato</SelectItem>
+                          <SelectItem value="missing">Sem Contato</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs">Mapa</Label>
+                      <Select value={filters.mapStatus} onValueChange={(v) => setFilters(prev => ({ ...prev, mapStatus: v }))}>
+                        <SelectTrigger className="h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos</SelectItem>
+                          <SelectItem value="ready">Mapa OK</SelectItem>
+                          <SelectItem value="failed">Falha</SelectItem>
+                          <SelectItem value="pending">Pendente</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs">Período</Label>
+                      <Select value={filters.period} onValueChange={(v) => setFilters(prev => ({ ...prev, period: v }))}>
+                        <SelectTrigger className="h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos</SelectItem>
+                          <SelectItem value="3">Últimos 3 dias</SelectItem>
+                          <SelectItem value="7">Últimos 7 dias</SelectItem>
+                          <SelectItem value="15">Últimos 15 dias</SelectItem>
+                          <SelectItem value="30">Últimos 30 dias</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Bulk Actions */}
+            {selectedJobs.length > 0 && (
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">{selectedJobs.length} vaga(s) selecionada(s)</p>
                     <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => {
-                          setEditingJob(job);
-                          setIsEditModalOpen(true);
-                        }}
-                        className="rounded-lg text-blue-600 hover:bg-blue-50 border-blue-300 hover:border-blue-400"
-                      >
-                        <Edit className="w-4 h-4" />
+                      <Button size="sm" variant="outline" onClick={() => handleBulkAction('hide')}>
+                        <EyeOff className="w-4 h-4 mr-1" />
+                        Ocultar
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => {
-                          if (confirm(`Tem certeza que deseja excluir a vaga "${job.title}"?\n\nEsta ação não pode ser desfeita.`)) {
-                            deleteJobMutation.mutate(job.id);
-                          }
-                        }}
-                        className="rounded-lg text-red-600 hover:bg-red-50 border-red-300 hover:border-red-400 font-medium"
-                      >
-                        <Trash2 className="w-4 h-4" />
+                      <Button size="sm" variant="outline" onClick={() => handleBulkAction('activate')}>
+                        <Eye className="w-4 h-4 mr-1" />
+                        Ativar
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleBulkAction('reprocess')}>
+                        <RefreshCw className="w-4 h-4 mr-1" />
+                        Reprocessar
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleBulkAction('delete')}>
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Excluir
                       </Button>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </ScrollArea>
+            )}
 
-        <EditJobModal
-          job={editingJob}
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setEditingJob(null);
-          }}
-          onUpdateSuccess={() => showToast('Vaga atualizada com sucesso!')}
-        />
+            {/* Jobs Table */}
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-slate-50 border-b">
+                      <tr>
+                        <th className="p-3 text-left">
+                          <Checkbox
+                            checked={selectedJobs.length === paginatedJobs.length && paginatedJobs.length > 0}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedJobs(paginatedJobs.map(j => j.id));
+                              } else {
+                                setSelectedJobs([]);
+                              }
+                            }}
+                          />
+                        </th>
+                        <th className="p-3 text-left text-xs font-medium text-slate-600">Vaga</th>
+                        <th className="p-3 text-left text-xs font-medium text-slate-600">Localização</th>
+                        <th className="p-3 text-left text-xs font-medium text-slate-600">Status</th>
+                        <th className="p-3 text-left text-xs font-medium text-slate-600">Contato</th>
+                        <th className="p-3 text-left text-xs font-medium text-slate-600">Mapa</th>
+                        <th className="p-3 text-left text-xs font-medium text-slate-600">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedJobs.map(job => (
+                        <tr key={job.id} className="border-b hover:bg-slate-50">
+                          <td className="p-3">
+                            <Checkbox
+                              checked={selectedJobs.includes(job.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedJobs([...selectedJobs, job.id]);
+                                } else {
+                                  setSelectedJobs(selectedJobs.filter(id => id !== job.id));
+                                }
+                              }}
+                            />
+                          </td>
+                          <td className="p-3">
+                            <p className="font-medium text-sm">{job.title}</p>
+                            <p className="text-xs text-slate-500">{job.company}</p>
+                          </td>
+                          <td className="p-3">
+                            <p className="text-xs">{job.city || '-'}, {job.state || '-'}</p>
+                            {job.neighborhood && <p className="text-xs text-slate-500">{job.neighborhood}</p>}
+                          </td>
+                          <td className="p-3">
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
+                              job.status === 'ativa' ? 'bg-green-100 text-green-700' :
+                              job.status === 'expirada' ? 'bg-red-100 text-red-700' :
+                              'bg-slate-100 text-slate-700'
+                            }`}>
+                              {job.status}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            {job.contact_status === 'ok' ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-orange-600" />
+                            )}
+                          </td>
+                          <td className="p-3">
+                            {job.geocode_status === 'ok' ? (
+                              <MapPin className="w-4 h-4 text-green-600" />
+                            ) : job.is_remote ? (
+                              <span className="text-xs text-purple-600">Remoto</span>
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-slate-400" />
+                            )}
+                          </td>
+                          <td className="p-3">
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0">
+                                <Edit className="w-3 h-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0">
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex items-center justify-between p-4 border-t">
+                  <p className="text-sm text-slate-600">
+                    Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, filteredJobs.length)} de {filteredJobs.length}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(p => p - 1)}
+                    >
+                      Anterior
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(p => p + 1)}
+                    >
+                      Próxima
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Manutenção */}
+          <TabsContent value="maintenance" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Ferramentas de Manutenção
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button
+                  onClick={handleReprocessLocation}
+                  className="w-full justify-start"
+                  variant="outline"
+                >
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Reprocessar Localização de Todas as Vagas
+                </Button>
+
+                <Button
+                  onClick={() => handleDeleteOld(30)}
+                  className="w-full justify-start"
+                  variant="outline"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Excluir Vagas com Mais de 30 Dias
+                </Button>
+
+                <Button
+                  onClick={() => handleDeleteOld(60)}
+                  className="w-full justify-start"
+                  variant="outline"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Excluir Vagas com Mais de 60 Dias
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Saúde do Sistema */}
+          <TabsContent value="health" className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Alertas de Qualidade</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                    <span className="text-sm">Vagas sem contato</span>
+                    <span className="font-bold text-orange-600">{stats.noContact || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                    <span className="text-sm">Vagas sem cidade</span>
+                    <span className="font-bold text-red-600">{stats.noCity || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                    <span className="text-sm">Falhas no mapa</span>
+                    <span className="font-bold text-yellow-600">{stats.mapFailed || 0}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Status Positivos</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <span className="text-sm">Com contato válido</span>
+                    <span className="font-bold text-green-600">{stats.withContact || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <span className="text-sm">Prontas para mapa</span>
+                    <span className="font-bold text-blue-600">{stats.mapReady || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                    <span className="text-sm">Vagas remotas</span>
+                    <span className="font-bold text-purple-600">{stats.remote || 0}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
