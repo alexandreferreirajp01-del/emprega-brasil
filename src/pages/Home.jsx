@@ -41,6 +41,34 @@ const sedeIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
+// Ícone verde para subsedes estaduais
+const subsedeIcon = new L.Icon({
+  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
+      <path fill="#10B981" stroke="#000" stroke-width="1" d="M12.5 0C5.596 0 0 5.596 0 12.5c0 9.688 12.5 28.5 12.5 28.5S25 22.188 25 12.5C25 5.596 19.404 0 12.5 0z"/>
+      <circle cx="12.5" cy="12.5" r="6" fill="#FFF"/>
+    </svg>
+  `),
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+// Coordenadas centrais dos estados brasileiros
+const STATE_CENTERS = {
+  'AC': [-8.77, -70.55], 'AL': [-9.71, -35.73], 'AP': [1.41, -51.77],
+  'AM': [-3.47, -65.10], 'BA': [-12.96, -38.51], 'CE': [-3.71, -38.54],
+  'DF': [-15.83, -47.86], 'ES': [-19.19, -40.34], 'GO': [-16.64, -49.31],
+  'MA': [-2.55, -44.30], 'MT': [-12.64, -55.42], 'MS': [-20.51, -54.54],
+  'MG': [-18.10, -44.38], 'PA': [-5.53, -52.29], 'PB': [-7.06, -35.55],
+  'PR': [-24.89, -51.55], 'PE': [-8.28, -35.07], 'PI': [-8.28, -43.68],
+  'RJ': [-22.84, -43.15], 'RN': [-5.22, -36.52], 'RS': [-30.01, -51.22],
+  'RO': [-11.22, -62.80], 'RR': [1.99, -61.33], 'SC': [-27.33, -49.44],
+  'SP': [-23.55, -46.64], 'SE': [-10.90, -37.07], 'TO': [-10.25, -48.25]
+};
+
 // Função de fetch com retry robusto
 async function fetchWithRetry(fetchFn, maxRetries = 5) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -130,6 +158,17 @@ export default function Home() {
 
   // Filtrar apenas vagas em destaque
   const featuredJobs = jobs.filter(job => job.is_featured);
+
+  // Agrupar vagas por estado (vagas que têm estado mas não têm cidade)
+  const jobsByState = {};
+  jobs.forEach(job => {
+    if (job.state && (!job.city || job.city.trim() === '')) {
+      if (!jobsByState[job.state]) {
+        jobsByState[job.state] = [];
+      }
+      jobsByState[job.state].push(job);
+    }
+  });
 
   // Função para atualizar vagas manualmente
   const handleRefreshMap = async () => {
@@ -385,6 +424,56 @@ export default function Home() {
                         </div>
                       </Popup>
                     </Marker>
+
+                    {/* Subsedes Estaduais (vagas com estado mas sem cidade) */}
+                    {Object.entries(jobsByState).map(([state, stateJobs]) => {
+                      const coords = STATE_CENTERS[state];
+                      if (!coords) return null;
+                      
+                      return (
+                        <Marker key={`subsede-${state}`} position={coords} icon={subsedeIcon}>
+                          <Popup maxWidth={320} closeButton={true}>
+                            <div className="p-2" style={{ minWidth: '280px' }}>
+                              <h3 className="font-bold text-base mb-3 text-slate-900 leading-tight">
+                                🏢 Subsede {state}
+                              </h3>
+                              <p className="text-sm text-slate-600 mb-3">
+                                {stateJobs.length} {stateJobs.length === 1 ? 'vaga disponível' : 'vagas disponíveis'}
+                              </p>
+                              
+                              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                                {stateJobs.slice(0, 10).map(job => (
+                                  <div key={job.id} className="p-2 bg-slate-50 rounded-lg hover:bg-slate-100">
+                                    <Link 
+                                      to={`${createPageUrl('JobDetail')}?id=${job.id}`}
+                                      className="text-sm font-medium text-slate-900 hover:text-blue-600 block"
+                                    >
+                                      {job.title}
+                                    </Link>
+                                    {job.company && (
+                                      <p className="text-xs text-slate-500">{job.company}</p>
+                                    )}
+                                  </div>
+                                ))}
+                                {stateJobs.length > 10 && (
+                                  <p className="text-xs text-slate-500 text-center pt-2">
+                                    + {stateJobs.length - 10} vagas
+                                  </p>
+                                )}
+                              </div>
+
+                              <Link 
+                                to={createPageUrl('Jobs')}
+                                className="block w-full text-center bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition-all shadow-sm hover:shadow-md no-underline mt-3"
+                                style={{ color: 'white', textDecoration: 'none' }}
+                              >
+                                Ver todas as vagas
+                              </Link>
+                            </div>
+                          </Popup>
+                        </Marker>
+                      );
+                    })}
 
                     {/* Marcadores das Vagas */}
                     {jobs

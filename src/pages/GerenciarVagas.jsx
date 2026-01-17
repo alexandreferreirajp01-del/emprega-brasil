@@ -30,7 +30,8 @@ export default function GerenciarVagas() {
     workMode: 'all',
     city: '',
     state: '',
-    period: '30'
+    period: '30',
+    locationStatus: 'all'
   });
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -131,6 +132,15 @@ export default function GerenciarVagas() {
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - days);
       filtered = filtered.filter(j => new Date(j.created_date) >= cutoff);
+    }
+    if (filters.locationStatus === 'no_city') {
+      filtered = filtered.filter(j => !j.city || j.city.trim() === '');
+    } else if (filters.locationStatus === 'no_state') {
+      filtered = filtered.filter(j => !j.state || j.state.trim() === '');
+    } else if (filters.locationStatus === 'incomplete') {
+      filtered = filtered.filter(j => !j.city || !j.state || j.city.trim() === '' || j.state.trim() === '');
+    } else if (filters.locationStatus === 'complete') {
+      filtered = filtered.filter(j => j.city && j.state && j.city.trim() !== '' && j.state.trim() !== '');
     }
 
     return filtered;
@@ -398,10 +408,26 @@ export default function GerenciarVagas() {
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+
+                    <div>
+                      <Label className="text-xs">Localização</Label>
+                      <Select value={filters.locationStatus || 'all'} onValueChange={(v) => setFilters(prev => ({ ...prev, locationStatus: v }))}>
+                        <SelectTrigger className="h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todas</SelectItem>
+                          <SelectItem value="no_city">🔴 Sem Cidade</SelectItem>
+                          <SelectItem value="no_state">🔴 Sem Estado</SelectItem>
+                          <SelectItem value="incomplete">🟡 Incompleto</SelectItem>
+                          <SelectItem value="complete">✅ Completo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    </div>
+                    )}
+                    </CardContent>
+                    </Card>
 
             {/* Bulk Actions */}
             {selectedJobs.length > 0 && (
