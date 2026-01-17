@@ -14,6 +14,7 @@ import ChatIA from './pages/ChatIA';
 import Configuracoes from './pages/Configuracoes';
 import Contact from './pages/Contact';
 import Cookies from './pages/Cookies';
+import EnviarParaTodos from './pages/EnviarParaTodos';
 import ExcluirVagasSemContato from './pages/ExcluirVagasSemContato';
 import FAQ from './pages/FAQ';
 import Favoritos from './pages/Favoritos';
@@ -77,7 +78,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import EnviarParaTodos from './pages/EnviarParaTodos';
 import __Layout from './Layout.jsx';
 
 
@@ -98,6 +98,7 @@ export const PAGES = {
     "Configuracoes": Configuracoes,
     "Contact": Contact,
     "Cookies": Cookies,
+    "EnviarParaTodos": EnviarParaTodos,
     "ExcluirVagasSemContato": ExcluirVagasSemContato,
     "FAQ": FAQ,
     "Favoritos": Favoritos,
@@ -161,7 +162,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "EnviarParaTodos": EnviarParaTodos,
 }
 
 export const pagesConfig = {

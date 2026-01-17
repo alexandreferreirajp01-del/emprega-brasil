@@ -25,10 +25,7 @@ const menuItems = [
   { id: 'anuncios', name: 'Gerenciar Anúncios', icon: Settings, color: 'orange', page: 'GerenciarAnuncios', description: 'Configurar anúncios do AdsTerra', roles: ['admin', 'dono'] },
   { id: 'notificacoes-admin', name: 'Notificações de Admin', icon: AlertCircle, color: 'amber', page: 'NotificacoesAdmin', description: 'Habilitar/desabilitar notificações do sininho', roles: ['admin', 'dono'] },
   { id: 'enviar-todos', name: 'Enviar para Todos', icon: Users, color: 'purple', page: 'EnviarParaTodos', description: 'Notificação + Push + Email em massa', roles: ['admin', 'dono'] },
-  { id: 'vagas', name: 'Gerenciar Vagas', icon: Briefcase, color: 'indigo', page: 'GerenciarVagas', description: 'Visualizar e excluir vagas', permissionId: 'gerenciar_vagas' },
-  { id: 'apagar-vagas-periodo', name: 'Apagar Vagas por Período', icon: Trash2, color: 'red', page: 'ApagarVagasPorPeriodo', description: 'Remover vagas antigas do sistema', roles: ['admin', 'dono'] },
-  { id: 'delete-no-contact', name: 'Excluir Vagas Sem Contato', icon: Trash2, color: 'orange', page: 'ExcluirVagasSemContato', description: 'Remove vagas sem informação de contato', roles: ['admin', 'dono'] },
-  { id: 'pending-jobs', name: 'Vagas Pendentes', icon: AlertTriangle, color: 'amber', page: 'VagasPendentes', description: 'Vagas aguardando informação de contato', roles: ['admin', 'dono'] },
+
   { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'blue', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários', permissionId: 'gerenciar_usuarios' },
   { id: 'noticias', name: 'Notícias', icon: Newspaper, color: 'rose', page: 'GerenciarNoticias', description: 'Criar e gerenciar notícias', permissionId: 'noticias' },
   { id: 'feed', name: 'Feed', icon: MessageSquare, color: 'pink', page: 'GerenciarComunidade', description: 'Posts, comentários e chat', permissionId: 'gerenciar_comunidade' },
@@ -73,10 +70,7 @@ const menuItems = [
   { id: 'divider-links', type: 'divider', label: 'Links & Automação' },
   { id: 'links-especiais', name: 'Links Especiais', icon: LinkIcon, color: 'purple', page: 'GerenciarLinksEspeciais', description: 'Gerencie links que habilitam planos automaticamente', roles: ['admin', 'dono'] },
 
-  // Manutenção
-  { id: 'divider-manutencao', type: 'divider', label: 'Manutenção', roles: ['admin', 'dono'] },
-  { id: 'update-jobs-location', name: 'Atualizar Localização de Vagas', icon: MapPin, color: 'blue', action: 'updateJobs', description: 'Atualizar cidade/UF de vagas antigas', roles: ['admin', 'dono'] },
-  { id: 'migrate-notifications', name: 'Migrar Notificações', icon: Database, color: 'amber', action: 'migrate', description: 'Atualizar notificações antigas (executar 1x)', roles: ['admin', 'dono'] },
+
   
 
 ];
