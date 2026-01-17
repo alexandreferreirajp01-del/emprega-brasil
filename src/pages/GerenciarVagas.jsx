@@ -479,10 +479,33 @@ export default function GerenciarVagas() {
                           </td>
                           <td className="p-3">
                             <div className="flex gap-1">
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="h-7 w-7 p-0"
+                                onClick={() => {
+                                  window.location.href = createPageUrl('JobDetail') + `?id=${job.id}`;
+                                }}
+                                title="Editar vaga"
+                              >
                                 <Edit className="w-3 h-3" />
                               </Button>
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                onClick={async () => {
+                                  if (!confirm(`Excluir a vaga "${job.title}"?`)) return;
+                                  try {
+                                    await base44.entities.Job.delete(job.id);
+                                    await loadData();
+                                    alert('Vaga excluída com sucesso!');
+                                  } catch (err) {
+                                    alert('Erro ao excluir: ' + err.message);
+                                  }
+                                }}
+                                title="Excluir vaga"
+                              >
                                 <Trash2 className="w-3 h-3" />
                               </Button>
                             </div>
