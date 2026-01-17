@@ -435,7 +435,7 @@ export default function Home() {
                           <Popup maxWidth={320} closeButton={true}>
                             <div className="p-2" style={{ minWidth: '280px' }}>
                               <h3 className="font-bold text-base mb-3 text-slate-900 leading-tight">
-                                🏢 Subsede {state}
+                                🏢 Emprega Brasil+ - {state}
                               </h3>
                               <p className="text-sm text-slate-600 mb-3">
                                 {stateJobs.length} {stateJobs.length === 1 ? 'vaga disponível' : 'vagas disponíveis'}
