@@ -321,6 +321,31 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="cep">CEP</Label>
+                    <Input
+                      id="cep"
+                      name="cep"
+                      value={editedJob.cep || ''}
+                      onChange={handleInputChange}
+                      placeholder="00000-000"
+                      maxLength={9}
+                    />
+                    <p className="text-xs text-slate-500">Para localização exata</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="numero">Número</Label>
+                    <Input
+                      id="numero"
+                      name="numero"
+                      value={editedJob.numero || ''}
+                      onChange={handleInputChange}
+                      placeholder="123"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <Label htmlFor="category">Categoria Profissional</Label>
                   <Select value={editedJob.category} onValueChange={(val) => handleSelectChange('category', val)}>
