@@ -306,18 +306,34 @@ export default function Home() {
                       .map(job => (
                         <Marker key={job.id} position={[job.latitude, job.longitude]}>
                           <Popup>
-                            <div className="min-w-[200px]">
-                              <h3 className="font-bold text-sm mb-1">{job.title}</h3>
-                              <p className="text-xs text-slate-600 mb-1">{job.company}</p>
-                              <p className="text-xs text-slate-500 mb-2">
-                                <MapPin className="w-3 h-3 inline mr-1" />
-                                {job.city}, {job.state}
-                              </p>
+                            <div className="min-w-[220px] p-2">
+                              <h3 className="font-bold text-sm mb-2 text-slate-800">{job.title}</h3>
+                              <div className="space-y-1 mb-3">
+                                <p className="text-xs text-slate-600 flex items-center gap-1">
+                                  <Building2 className="w-3 h-3" />
+                                  {job.company || 'Empresa'}
+                                </p>
+                                <p className="text-xs text-slate-500 flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {job.city}, {job.state}
+                                </p>
+                                {job.job_type && (
+                                  <p className="text-xs text-slate-500 flex items-center gap-1">
+                                    <Briefcase className="w-3 h-3" />
+                                    {job.job_type}
+                                  </p>
+                                )}
+                                {job.salary_range && (
+                                  <p className="text-xs text-green-600 font-semibold">
+                                    💰 {job.salary_range}
+                                  </p>
+                                )}
+                              </div>
                               <a 
                                 href={createPageUrl('JobDetail') + `?id=${job.id}`}
-                                className="text-xs text-[#0A66C2] hover:underline font-medium"
+                                className="block w-full text-center bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-semibold py-2 px-3 rounded-lg transition-colors"
                               >
-                                Ver detalhes →
+                                Saiba mais →
                               </a>
                             </div>
                           </Popup>
