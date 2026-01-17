@@ -14,6 +14,8 @@ import TimeAgo from "@/components/common/TimeAgo";
 import VisitTracker from "@/components/common/VisitTracker";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import PlansBanner from "@/components/common/PlansBanner";
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 // Função de fetch com retry robusto
 async function fetchWithRetry(fetchFn, maxRetries = 5) {
@@ -277,6 +279,35 @@ export default function Home() {
               </CardContent>
             </Card>
 
+            {/* Mapa de Vagas */}
+            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden bg-white dark:bg-slate-800 transition-colors">
+              <CardContent className="p-0">
+                <div className="h-[400px] w-full">
+                  <MapContainer
+                    center={[-14.235, -51.925]}
+                    zoom={4}
+                    style={{ height: '100%', width: '100%' }}
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <Marker position={[-7.1195, -34.845]}>
+                      <Popup>
+                        <div className="text-center">
+                          <p className="font-bold">João Pessoa, PB</p>
+                          <p className="text-sm">Sede do Emprega Brasil+</p>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  </MapContainer>
+                </div>
+                <div className="p-4 bg-gradient-to-r from-[#0A66C2] to-[#004182]">
+                  <h3 className="text-base sm:text-lg font-bold text-white mb-1">Vagas em Todo o Brasil</h3>
+                  <p className="text-white/90 text-xs sm:text-sm">Conectando candidatos e empresas de norte a sul do país</p>
+                </div>
+              </CardContent>
+            </Card>
 
           </div>
 
