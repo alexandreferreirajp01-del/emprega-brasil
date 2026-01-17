@@ -280,13 +280,13 @@ export default function Home() {
             </Card>
 
             {/* Mapa de Vagas */}
-            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden bg-white dark:bg-slate-800 transition-colors">
+            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden bg-white dark:bg-slate-800 transition-colors" style={{ position: 'relative', zIndex: 1, isolation: 'isolate' }}>
               <CardContent className="p-0">
-                <div className="h-[400px] w-full">
+                <div className="h-[400px] w-full" style={{ position: 'relative', zIndex: 1 }}>
                   <MapContainer
                     center={[-14.235, -51.925]}
                     zoom={4}
-                    style={{ height: '100%', width: '100%' }}
+                    style={{ height: '100%', width: '100%', position: 'relative', zIndex: 1 }}
                   >
                     <TileLayer
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
