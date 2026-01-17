@@ -92,6 +92,7 @@ Deno.serve(async (req) => {
 
         const cidade = job.city?.trim();
         const uf = job.state?.trim()?.toUpperCase();
+        const cep = job.cep?.replace(/\D/g, '');
 
         if (!cidade || !uf) {
           errors++;
@@ -100,25 +101,58 @@ Deno.serve(async (req) => {
 
         let lat, lng;
         let nivel = 'estado';
+        let fonte = 'banco_interno';
 
-        // Tentar buscar coordenadas da cidade
-        if (CITY_COORDS[uf] && CITY_COORDS[uf][cidade]) {
-          [lat, lng] = CITY_COORDS[uf][cidade];
-          nivel = 'cidade';
-        } else if (CITY_COORDS[job.state] && CITY_COORDS[job.state][cidade]) {
-          [lat, lng] = CITY_COORDS[job.state][cidade];
-          nivel = 'cidade';
-        } else if (STATE_CENTERS[uf]) {
-          [lat, lng] = STATE_CENTERS[uf];
-          nivel = 'estado';
-        } else {
-          errors++;
-          continue;
+        // 1. Tentar buscar por CEP (mais preciso)
+        if (cep && cep.length === 8) {
+          try {
+            const cepResponse = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const cepData = await cepResponse.json();
+            
+            if (cepData && !cepData.erro) {
+              // Buscar coordenadas do CEP via Nominatim
+              const address = `${cepData.logradouro}, ${job.numero || ''}, ${cepData.localidade}, ${cepData.uf}, Brasil`;
+              const nomUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`;
+              
+              const nomResponse = await fetch(nomUrl, {
+                headers: { 'User-Agent': 'VagasApp/1.0' }
+              });
+              const nomData = await nomResponse.json();
+              
+              if (nomData && nomData.length > 0) {
+                lat = parseFloat(nomData[0].lat);
+                lng = parseFloat(nomData[0].lon);
+                nivel = 'precisa';
+                fonte = 'cep_nominatim';
+              }
+              
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          } catch (err) {
+            console.log(`CEP falhou para job ${job.id}, tentando cidade`);
+          }
         }
 
-        // Adicionar offset aleatório para não empilhar vagas
-        lat += getRandomOffset();
-        lng += getRandomOffset();
+        // 2. Fallback: usar coordenadas da cidade
+        if (!lat || !lng) {
+          if (CITY_COORDS[uf] && CITY_COORDS[uf][cidade]) {
+            [lat, lng] = CITY_COORDS[uf][cidade];
+            nivel = 'cidade';
+          } else if (CITY_COORDS[job.state] && CITY_COORDS[job.state][cidade]) {
+            [lat, lng] = CITY_COORDS[job.state][cidade];
+            nivel = 'cidade';
+          } else if (STATE_CENTERS[uf]) {
+            [lat, lng] = STATE_CENTERS[uf];
+            nivel = 'estado';
+          } else {
+            errors++;
+            continue;
+          }
+
+          // Adicionar offset aleatório para não empilhar vagas
+          lat += getRandomOffset();
+          lng += getRandomOffset();
+        }
 
         await base44.asServiceRole.entities.Job.update(job.id, {
           latitude: lat,
@@ -126,7 +160,7 @@ Deno.serve(async (req) => {
           geocode_status: 'ok',
           nivel_localizacao: nivel,
           exibir_no_mapa: true,
-          fonte_geocode: 'banco_interno'
+          fonte_geocode: fonte
         });
         processed++;
 

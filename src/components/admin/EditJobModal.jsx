@@ -110,6 +110,8 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
         company: job.company || '',
         state: job.state || '',
         city: job.city || '',
+        cep: job.cep || '',
+        numero: job.numero || '',
         salary_range: job.salary_range || '',
         job_type: job.job_type || '',
         job_function: job.job_function || '',
