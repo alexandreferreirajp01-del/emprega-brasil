@@ -329,12 +329,14 @@ export default function Home() {
                                   </p>
                                 )}
                               </div>
-                              <a 
-                                href={`${createPageUrl('JobDetail')}?id=${job.id}`}
-                                className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                              <button
+                                onClick={() => {
+                                  window.location.href = `${createPageUrl('JobDetail')}?id=${job.id}`;
+                                }}
+                                className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors cursor-pointer border-0"
                               >
                                 Saiba mais →
-                              </a>
+                              </button>
                             </div>
                           </Popup>
                         </Marker>
