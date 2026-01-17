@@ -303,44 +303,71 @@ export default function Home() {
                     />
                     {jobs
                       .filter(job => job.latitude && job.longitude && job.exibir_no_mapa !== false)
-                      .map(job => (
-                        <Marker key={job.id} position={[job.latitude, job.longitude]}>
-                          <Popup>
-                            <div className="min-w-[220px] p-2">
-                              <h3 className="font-bold text-sm mb-2 text-slate-800">{job.title}</h3>
-                              <div className="space-y-1 mb-3">
-                                <p className="text-xs text-slate-600 flex items-center gap-1">
-                                  <Building2 className="w-3 h-3" />
-                                  {job.company || 'Empresa'}
-                                </p>
-                                <p className="text-xs text-slate-500 flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" />
-                                  {job.city}, {job.state}
-                                </p>
-                                {job.job_type && (
-                                  <p className="text-xs text-slate-500 flex items-center gap-1">
-                                    <Briefcase className="w-3 h-3" />
-                                    {job.job_type}
-                                  </p>
-                                )}
-                                {job.salary_range && (
-                                  <p className="text-xs text-green-600 font-semibold">
-                                    💰 {job.salary_range}
-                                  </p>
-                                )}
+                      .map(job => {
+                        const jobUrl = `${window.location.origin}${createPageUrl('JobDetail')}?id=${job.id}`;
+
+                        return (
+                          <Marker key={job.id} position={[job.latitude, job.longitude]}>
+                            <Popup maxWidth={280} closeButton={true}>
+                              <div className="p-2" style={{ minWidth: '240px' }}>
+                                <h3 className="font-bold text-base mb-3 text-slate-900 leading-tight">
+                                  {job.title || 'Vaga sem título'}
+                                </h3>
+
+                                <div className="space-y-2 mb-4">
+                                  <div className="flex items-start gap-2">
+                                    <Building2 className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm text-slate-700">
+                                      {job.company || 'Não informado'}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-start gap-2">
+                                    <MapPin className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm text-slate-700">
+                                      {job.neighborhood ? `${job.neighborhood} - ` : ''}{job.city || 'Não informado'}, {job.state || ''}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-start gap-2">
+                                    <Calendar className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm text-slate-700">
+                                      <TimeAgo date={job.published_at || job.created_date} />
+                                    </span>
+                                  </div>
+
+                                  {job.job_type && (
+                                    <div className="flex items-start gap-2">
+                                      <Briefcase className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-sm text-slate-700">{job.job_type}</span>
+                                    </div>
+                                  )}
+
+                                  {job.salary_range && (
+                                    <div className="mt-2 pt-2 border-t border-slate-200">
+                                      <span className="text-sm font-semibold text-green-600">
+                                        💰 {job.salary_range}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                <a
+                                  href={jobUrl}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    window.location.href = jobUrl;
+                                  }}
+                                  className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm hover:shadow-md"
+                                  style={{ textDecoration: 'none' }}
+                                >
+                                  Saiba mais →
+                                </a>
                               </div>
-                              <button
-                                onClick={() => {
-                                  window.location.href = `${createPageUrl('JobDetail')}?id=${job.id}`;
-                                }}
-                                className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors cursor-pointer border-0"
-                              >
-                                Saiba mais →
-                              </button>
-                            </div>
-                          </Popup>
-                        </Marker>
-                      ))}
+                            </Popup>
+                          </Marker>
+                        );
+                      })}
                   </MapContainer>
                 </div>
                 <div className="p-4 bg-gradient-to-r from-[#0A66C2] to-[#004182]">
