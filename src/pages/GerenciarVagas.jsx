@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import EditJobModal from "@/components/admin/EditJobModal";
 
 export default function GerenciarVagas() {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -34,6 +35,8 @@ export default function GerenciarVagas() {
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
+  const [editingJob, setEditingJob] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -484,7 +487,8 @@ export default function GerenciarVagas() {
                                 variant="ghost" 
                                 className="h-7 w-7 p-0"
                                 onClick={() => {
-                                  window.location.href = createPageUrl('JobDetail') + `?id=${job.id}`;
+                                  setEditingJob(job);
+                                  setShowEditModal(true);
                                 }}
                                 title="Editar vaga"
                               >
@@ -630,6 +634,19 @@ export default function GerenciarVagas() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Edit Job Modal */}
+      <EditJobModal
+        job={editingJob}
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingJob(null);
+        }}
+        onUpdateSuccess={() => {
+          loadData();
+        }}
+      />
     </div>
   );
 }
