@@ -349,15 +349,16 @@ export default function Home() {
                                 )}
                               </div>
 
-                              <button
-                                onClick={() => {
-                                  const url = `${createPageUrl('JobDetail')}?id=${job.id}`;
-                                  window.location.href = url;
+                              <Link 
+                                to={`${createPageUrl('JobDetail')}?id=${job.id}`}
+                                className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm hover:shadow-md no-underline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  console.log('Navegando para vaga:', job.id);
                                 }}
-                                className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm hover:shadow-md border-0 cursor-pointer"
                               >
                                 Saiba mais →
-                              </button>
+                              </Link>
                             </div>
                           </Popup>
                         </Marker>
