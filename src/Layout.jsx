@@ -311,8 +311,8 @@ export default function Layout({ children, currentPageName }) {
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#FFFFFF" />
       <meta name="msapplication-navbutton-color" content="#FFFFFF" />
       <meta name="msapplication-TileColor" content="#FFFFFF" />
-      <meta name="application-name" content="Vagas Abertas PB" />
-      <meta name="apple-mobile-web-app-title" content="Vagas Abertas PB" />
+      <meta name="application-name" content="web Vagas" />
+      <meta name="apple-mobile-web-app-title" content="web Vagas" />
       {/* Bloqueio total de tradução - todos os navegadores */}
       <meta name="google" content="notranslate" />
       <meta name="googlebot" content="notranslate" />
@@ -322,11 +322,11 @@ export default function Layout({ children, currentPageName }) {
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8605408842983455" crossOrigin="anonymous"></script>
 
       {/* SEO Meta Tags */}
-      <meta name="description" content="Emprega Brasil+ - A maior plataforma de empregos do Brasil com mais de 5.000 vagas ativas. Encontre oportunidades em todas as áreas e estados. Cadastro gratuito." />
+      <meta name="description" content="web Vagas - A maior plataforma de empregos do Brasil com vagas atualizadas diariamente. Encontre oportunidades em todas as áreas e estados. Cadastro gratuito." />
       <meta name="keywords" content="vagas de emprego, empregos brasil, oportunidades de trabalho, recrutamento, currículos, busca de emprego" />
-      <meta name="author" content="Emprega Brasil+ - Alexandre Ferreira" />
+      <meta name="author" content="web Vagas - Alexandre Ferreira" />
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-      <link rel="canonical" href="https://empregabrasil.app" />
+      <link rel="canonical" href="https://webvagas.com.br" />
       <style>{`
         /* Safe area para notch de celulares */
         :root {
@@ -406,10 +406,10 @@ export default function Layout({ children, currentPageName }) {
               </div>
               <div className="flex flex-col">
                 <span className="text-lg md:text-xl font-bold text-[#1D2226] dark:text-white leading-tight transition-colors">
-                  Emprega Brasil+
+                  web Vagas
                 </span>
-                <span className="text-xs md:text-sm text-[#0A66C2] dark:text-blue-400 font-medium transition-colors">
-                  Oportunidades em Todo o País
+                <span className="text-xs md:text-sm text-[#1E6FB6] dark:text-blue-400 font-medium transition-colors">
+                  Encontre oportunidades com mais rapidez
                 </span>
               </div>
             </Link>
@@ -562,8 +562,8 @@ export default function Layout({ children, currentPageName }) {
             <p className="text-slate-300 text-sm mb-1">Criador & Desenvolvedor</p>
             <p className="text-slate-400 text-sm">CNPJ: 62.874.724/0001-11</p>
             <div className="flex items-center justify-center gap-4 mt-3">
-              <a href="mailto:rhvagasabertasparaiba@gmail.com" className="text-slate-300 hover:text-white transition-colors text-sm">
-                rhvagasabertasparaiba@gmail.com
+              <a href="mailto:contato@webvagas.com.br" className="text-slate-300 hover:text-white transition-colors text-sm">
+                contato@webvagas.com.br
               </a>
               <span className="text-slate-600">•</span>
               <a 
@@ -623,7 +623,7 @@ export default function Layout({ children, currentPageName }) {
           {/* Bottom Bar */}
           <div className="border-t border-slate-700 pt-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
-              <p>© {new Date().getFullYear()} Emprega Brasil+. Todos os direitos reservados.</p>
+              <p>© {new Date().getFullYear()} web Vagas. Todos os direitos reservados.</p>
               <div className="flex items-center gap-4">
                 <span>Made with ❤️ no Brasil</span>
               </div>

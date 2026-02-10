@@ -190,8 +190,8 @@ export default function Home() {
 
 
   const quickActions = [
-    { label: 'Buscar Vagas', icon: Search, page: 'Jobs', color: 'bg-white', iconColor: 'text-[#0A66C2]', desc: 'Encontre oportunidades' },
-    { label: 'Feed', icon: MessageCircle, page: 'Feed', color: 'bg-[#0A66C2]', desc: 'Conecte-se' },
+    { label: 'Buscar Vagas', icon: Search, page: 'Jobs', color: 'bg-white', iconColor: 'text-[#1E6FB6]', desc: 'Encontre oportunidades' },
+    { label: 'Feed', icon: MessageCircle, page: 'Feed', color: 'bg-[#1E6FB6]', desc: 'Conecte-se' },
     { label: 'Notícias', icon: Newspaper, page: 'News', color: 'bg-[#057642]', desc: 'Fique informado' },
     { label: 'Grupos', icon: Users, page: 'Groups', color: 'bg-[#F9C846]', desc: 'WhatsApp' },
   ];
@@ -207,7 +207,7 @@ export default function Home() {
       <VisitTracker pageName="Home" user={user} />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden transition-colors duration-300">
+      <div className="bg-gradient-to-br from-[#1E6FB6] via-[#0B2F5B] to-[#0B2F5B] dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 pt-6 sm:pt-8 pb-24 sm:pb-20 px-3 sm:px-4 relative overflow-hidden transition-colors duration-300">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-40 h-40 bg-white dark:bg-slate-600 rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-60 h-60 bg-white dark:bg-slate-600 rounded-full blur-3xl"></div>
@@ -223,12 +223,12 @@ export default function Home() {
                     Encontre Sua Próxima<br />Oportunidade
                   </h1>
                   <p className="text-white/80 text-sm sm:text-lg max-w-2xl mx-auto mb-5 sm:mb-8 px-2">
-                    A maior plataforma de empregos do País.
+                    Vagas atualizadas diariamente em todo o Brasil
                   </p>
 
                   <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
                     <Link to={createPageUrl('Jobs')}>
-                      <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl shadow-lg w-full sm:w-auto">
+                      <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-white text-[#1E6FB6] hover:bg-white/90 rounded-xl shadow-lg w-full sm:w-auto">
                         <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                         Buscar Vagas
                       </Button>
@@ -239,7 +239,7 @@ export default function Home() {
                           sessionStorage.setItem('needs_login', 'true');
                           window.location.href = createPageUrl('Splash');
                         }}
-                        className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-[#0A66C2] text-white hover:bg-[#004182] rounded-xl w-full sm:w-auto font-bold shadow-lg"
+                        className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg bg-[#1E6FB6] text-white hover:bg-[#0B2F5B] rounded-xl w-full sm:w-auto font-bold shadow-lg"
                       >
                         Entrar / Cadastrar
                       </Button>
@@ -258,7 +258,7 @@ export default function Home() {
                     <Link key={i} to={createPageUrl(action.page)}>
                       <Card className="bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl sm:rounded-2xl border-0 overflow-hidden h-full">
                         <CardContent className="p-3 sm:p-5">
-                          <div className={`w-10 h-10 sm:w-12 sm:h-12 ${action.color} rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform ${action.color === 'bg-white' ? 'border-2 border-[#0A66C2] dark:border-blue-400' : ''}`}>
+                          <div className={`w-10 h-10 sm:w-12 sm:h-12 ${action.color} rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform ${action.color === 'bg-white' ? 'border-2 border-[#1E6FB6] dark:border-blue-400' : ''}`}>
                             <action.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${action.iconColor || 'text-white'}`} />
                           </div>
                           <h3 className="font-semibold text-slate-800 dark:text-white text-sm sm:text-base leading-tight transition-colors">{action.label}</h3>
@@ -277,7 +277,7 @@ export default function Home() {
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Featured Jobs */}
             <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden bg-white dark:bg-slate-800 transition-colors" style={{ minHeight: '400px' }}>
-              <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-3 sm:p-4 flex items-center justify-between">
+              <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] p-3 sm:p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
                     <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" />
@@ -300,7 +300,7 @@ export default function Home() {
                       <div className="flex flex-col gap-3">
                         {/* Título e Badge */}
                         <div className="flex items-start gap-2">
-                          <h3 className="font-semibold text-slate-800 dark:text-white group-hover:text-[#0A66C2] dark:group-hover:text-blue-400 transition-colors flex-1 text-sm sm:text-base line-clamp-2">
+                          <h3 className="font-semibold text-slate-800 dark:text-white group-hover:text-[#1E6FB6] dark:group-hover:text-blue-400 transition-colors flex-1 text-sm sm:text-base line-clamp-2">
                             {job.title}
                           </h3>
                           <Badge className="bg-yellow-100 text-yellow-700 border-0 text-[10px] sm:text-xs shrink-0 whitespace-nowrap">
@@ -360,7 +360,7 @@ export default function Home() {
 
             {/* Mapa de Vagas */}
             <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden bg-white dark:bg-slate-800 transition-colors" style={{ position: 'relative', zIndex: 1, isolation: 'isolate' }}>
-              <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-3 sm:p-4 flex items-center justify-between">
+              <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] p-3 sm:p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
                     <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -401,7 +401,7 @@ export default function Home() {
                       <Popup maxWidth={280} closeButton={true}>
                         <div className="p-2" style={{ minWidth: '240px' }}>
                           <h3 className="font-bold text-base mb-3 text-slate-900 leading-tight">
-                            🏢 Sede Emprega Brasil+
+                            🏢 Sede web Vagas
                           </h3>
 
                           <div className="space-y-2 mb-4">
@@ -418,7 +418,7 @@ export default function Home() {
 
                           <div className="mt-3 pt-3 border-t border-slate-200">
                             <p className="text-xs text-center text-slate-600 font-medium">
-                              Central de Oportunidades de Emprego
+                              web Vagas - Central de Oportunidades
                             </p>
                           </div>
                         </div>
@@ -435,7 +435,7 @@ export default function Home() {
                           <Popup maxWidth={320} closeButton={true}>
                             <div className="p-2" style={{ minWidth: '280px' }}>
                               <h3 className="font-bold text-base mb-3 text-slate-900 leading-tight">
-                                🏢 Emprega Brasil+ - {state}
+                                🏢 web Vagas - {state}
                               </h3>
                               <p className="text-sm text-slate-600 mb-3">
                                 {stateJobs.length} {stateJobs.length === 1 ? 'vaga disponível' : 'vagas disponíveis'}
@@ -554,7 +554,7 @@ export default function Home() {
 
             {/* Banner Parcerias */}
             <Card 
-              className="rounded-2xl border-0 shadow-lg bg-gradient-to-r from-[#0A66C2] to-[#004182] cursor-pointer hover:shadow-xl transition-all"
+              className="rounded-2xl border-0 shadow-lg bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] cursor-pointer hover:shadow-xl transition-all"
               onClick={() => window.location.href = createPageUrl('Parcerias')}
             >
               <CardContent className="p-6 flex items-center justify-between">
@@ -573,7 +573,7 @@ export default function Home() {
 
             {/* Premium CTA - apenas para não-premium */}
             {user && user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.role !== 'admin' && (
-              <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#0A66C2] to-[#004182] text-white overflow-hidden">
+              <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#1E6FB6] to-[#0B2F5B] text-white overflow-hidden">
                 <CardContent className="p-6 text-center relative">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
                   <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
@@ -587,7 +587,7 @@ export default function Home() {
                   </div>
                   <Button 
                     onClick={() => setShowPremiumModal(true)}
-                    className="w-full bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl"
+                    className="w-full bg-white text-[#1E6FB6] hover:bg-white/90 rounded-xl"
                   >
                     Assinar Agora
                   </Button>
