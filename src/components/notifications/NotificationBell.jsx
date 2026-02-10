@@ -113,7 +113,7 @@ export default function NotificationBell({ user }) {
   const getIconStyle = (type) => {
     switch (type) {
       case 'news': return 'bg-[#057642]/10 text-[#057642]';
-      case 'promo': return 'bg-[#0A66C2]/10 text-[#0A66C2]';
+      case 'promo': return 'bg-[#1E6FB6]/10 text-[#1E6FB6]';
       case 'user': return 'bg-purple-100 text-purple-600';
       case 'feed': return 'bg-blue-100 text-blue-600';
       case 'admin': return 'bg-orange-100 text-orange-600';
@@ -229,7 +229,7 @@ export default function NotificationBell({ user }) {
               variant="ghost" 
               size="sm" 
               onClick={markAllAsRead}
-              className="text-xs text-[#0A66C2] hover:text-[#004182]"
+              className="text-xs text-[#1E6FB6] hover:text-[#0B2F5B]"
             >
               <Check className="w-3 h-3 mr-1" />
               Marcar todas
@@ -276,7 +276,7 @@ export default function NotificationBell({ user }) {
                       </div>
                       <div className="flex items-center gap-1">
                         {!notification.is_read && (
-                          <div className="w-2 h-2 bg-[#0A66C2] rounded-full flex-shrink-0" />
+                          <div className="w-2 h-2 bg-[#1E6FB6] rounded-full flex-shrink-0" />
                         )}
                         <button
                           onClick={(e) => deleteNotification(e, notification.id)}
@@ -297,7 +297,7 @@ export default function NotificationBell({ user }) {
           <div className="p-2 border-t dark:border-slate-700 bg-white dark:bg-slate-800 sticky bottom-0 rounded-b-2xl">
             <Button 
               variant="ghost" 
-              className="w-full text-[#0A66C2] dark:text-blue-400 text-sm"
+              className="w-full text-[#1E6FB6] dark:text-blue-400 text-sm"
               onClick={() => {
                 navigate(createPageUrl('Notifications'));
                 setOpen(false);

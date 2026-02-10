@@ -43,8 +43,8 @@ export default function CookieConsent() {
             </button>
             
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#0A66C2]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Cookie className="w-5 h-5 text-[#0A66C2]" />
+              <div className="w-10 h-10 bg-[#1E6FB6]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Cookie className="w-5 h-5 text-[#1E6FB6]" />
               </div>
               <div className="flex-1 pr-4">
                 <h3 className="font-semibold text-slate-800 text-sm mb-1">
@@ -56,7 +56,7 @@ export default function CookieConsent() {
                 <div className="flex gap-2">
                   <Button
                     onClick={handleAccept}
-                    className="h-8 px-3 bg-[#0A66C2] hover:bg-[#004182] rounded-lg text-xs"
+                    className="h-8 px-3 bg-[#1E6FB6] hover:bg-[#0B2F5B] rounded-lg text-xs"
                   >
                     Aceitar
                   </Button>
