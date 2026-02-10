@@ -10,8 +10,8 @@ const faqs = [
     category: "Geral",
     questions: [
       {
-        q: "O que é o Vagas Abertas Paraíba?",
-        a: "É a maior plataforma de empregos da Paraíba, conectando candidatos e empresas através de vagas, networking e ferramentas profissionais."
+        q: "O que é o web Vagas?",
+        a: "É a maior plataforma de empregos do Brasil, conectando candidatos e empresas através de vagas, networking e ferramentas profissionais."
       },
       {
         q: "O aplicativo é gratuito?",
@@ -96,7 +96,7 @@ const faqs = [
     questions: [
       {
         q: "Como entrar em contato com o suporte?",
-        a: "WhatsApp: (83) 99197-1320 ou E-mail: rhvagasabertasparaiba@gmail.com. Respondemos em até 24 horas."
+        a: "WhatsApp: (83) 99197-1320 ou E-mail: contato@webvagas.com.br. Respondemos em até 24 horas."
       },
       {
         q: "Encontrei um erro no aplicativo. O que fazer?",
@@ -120,7 +120,7 @@ export default function FAQ() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-8 px-4">
+      <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] pt-6 pb-8 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to={createPageUrl('Home')}>
             <Button variant="ghost" className="text-white hover:bg-white/20 mb-2 -ml-2">
@@ -131,7 +131,7 @@ export default function FAQ() {
             <HelpCircle className="w-8 h-8 text-white" />
             <h1 className="text-2xl font-bold text-white">Perguntas Frequentes</h1>
           </div>
-          <p className="text-white/80 mt-2">Tire suas dúvidas sobre o Vagas Abertas Paraíba</p>
+          <p className="text-white/80 mt-2">Tire suas dúvidas sobre o web Vagas</p>
         </div>
       </div>
 
@@ -147,7 +147,7 @@ export default function FAQ() {
                     <div key={questionIndex} className="border-b last:border-b-0 pb-3 last:pb-0">
                       <button
                         onClick={() => toggleQuestion(categoryIndex, questionIndex)}
-                        className="w-full flex items-center justify-between gap-3 text-left py-2 hover:text-[#0056ff] transition-colors"
+                        className="w-full flex items-center justify-between gap-3 text-left py-2 hover:text-[#1E6FB6] transition-colors"
                       >
                         <span className="font-medium text-slate-700">{item.q}</span>
                         {isOpen ? (
@@ -167,18 +167,18 @@ export default function FAQ() {
           </Card>
         ))}
 
-        <Card className="rounded-2xl bg-[#0056ff] text-white">
+        <Card className="rounded-2xl bg-[#1E6FB6] text-white">
           <CardContent className="p-6 text-center">
             <HelpCircle className="w-12 h-12 mx-auto mb-3 opacity-80" />
             <h3 className="text-xl font-bold mb-2">Não encontrou sua resposta?</h3>
             <p className="text-white/80 mb-4">Entre em contato conosco. Estamos aqui para ajudar!</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <a href="https://wa.me/5583991971320" target="_blank" rel="noopener noreferrer">
-                <Button className="bg-white text-[#0056ff] hover:bg-white/90">
+                <Button className="bg-white text-[#1E6FB6] hover:bg-white/90">
                   WhatsApp
                 </Button>
               </a>
-              <a href="mailto:rhvagasabertasparaiba@gmail.com">
+              <a href="mailto:contato@webvagas.com.br">
                 <Button variant="outline" className="bg-transparent border-white text-white hover:bg-white/10">
                   E-mail
                 </Button>

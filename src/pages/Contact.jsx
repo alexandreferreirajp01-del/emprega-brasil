@@ -8,7 +8,7 @@ import { createPageUrl } from "@/utils";
 export default function Contact() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-8 px-4">
+      <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] pt-6 pb-8 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to={createPageUrl('Home')}>
             <Button variant="ghost" className="text-white hover:bg-white/20 mb-2 -ml-2">
@@ -33,7 +33,7 @@ export default function Contact() {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-800 mb-2">WhatsApp</h3>
                 <p className="text-slate-600 mb-3">Fale conosco pelo WhatsApp para respostas rápidas</p>
-                <p className="text-[#0056ff] font-medium">(83) 99197-1320</p>
+                <p className="text-[#1E6FB6] font-medium">(83) 99197-1320</p>
               </CardContent>
             </Card>
           </a>
@@ -46,7 +46,7 @@ export default function Contact() {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-800 mb-2">E-mail</h3>
                 <p className="text-slate-600 mb-3">Envie-nos um e-mail para dúvidas e suporte</p>
-                <p className="text-[#0056ff] font-medium break-all">rhvagasabertasparaiba@gmail.com</p>
+                <p className="text-[#1E6FB6] font-medium break-all">contato@webvagas.com.br</p>
               </CardContent>
             </Card>
           </a>
@@ -76,7 +76,7 @@ export default function Contact() {
                 <Mail className="w-5 h-5 text-slate-400 flex-shrink-0 mt-1" />
                 <div>
                   <p className="font-medium text-slate-700">E-mail</p>
-                  <p className="text-slate-600">rhvagasabertasparaiba@gmail.com</p>
+                  <p className="text-slate-600">contato@webvagas.com.br</p>
                 </div>
               </div>
 
@@ -97,7 +97,7 @@ export default function Contact() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl bg-gradient-to-br from-[#0056ff] to-[#0044cc] text-white">
+        <Card className="rounded-2xl bg-gradient-to-br from-[#1E6FB6] to-[#0B2F5B] text-white">
           <CardContent className="p-6 md:p-8 text-center">
             <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-90" />
             <h2 className="text-xl font-bold mb-2">Precisa de ajuda?</h2>
@@ -106,11 +106,11 @@ export default function Contact() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <a href="https://wa.me/5583991971320" target="_blank" rel="noopener noreferrer">
-                <Button className="bg-white text-[#0056ff] hover:bg-white/90">
+                <Button className="bg-white text-[#1E6FB6] hover:bg-white/90">
                   Abrir WhatsApp
                 </Button>
               </a>
-              <a href="mailto:rhvagasabertasparaiba@gmail.com">
+              <a href="mailto:contato@webvagas.com.br">
                 <Button variant="outline" className="bg-transparent border-white text-white hover:bg-white/10">
                   Enviar E-mail
                 </Button>

@@ -14,7 +14,7 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-16 px-4">
+      <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] pt-6 pb-16 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to={createPageUrl('Home')} className="inline-flex items-center text-white/80 hover:text-white mb-4">
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -22,11 +22,11 @@ export default function About() {
           </Link>
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center">
-              <Briefcase className="w-8 h-8 text-[#0056ff]" />
+              <Briefcase className="w-8 h-8 text-[#1E6FB6]" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Emprega Brasil+</h1>
-              <p className="text-white/80">A maior plataforma de empregos do Brasil</p>
+              <h1 className="text-2xl font-bold text-white">web Vagas</h1>
+              <p className="text-white/80">Encontre oportunidades com mais rapidez</p>
             </div>
           </div>
         </div>
@@ -38,7 +38,7 @@ export default function About() {
           <CardContent className="p-6 md:p-8">
             <h2 className="text-xl font-bold text-slate-800 mb-4">Nossa Missão</h2>
             <p className="text-slate-600 leading-relaxed mb-4">
-              O Emprega Brasil+ é a maior plataforma de oportunidades de emprego do Brasil, conectando milhares de candidatos qualificados às melhores empresas do país. Nossa missão é democratizar o acesso ao mercado de trabalho, oferecendo uma experiência completa e intuitiva tanto para candidatos quanto para recrutadores.
+              O web Vagas é a maior plataforma de oportunidades de emprego do Brasil, conectando milhares de candidatos qualificados às melhores empresas do país. Nossa missão é democratizar o acesso ao mercado de trabalho, oferecendo uma experiência completa e intuitiva tanto para candidatos quanto para recrutadores.
             </p>
             <p className="text-slate-600 leading-relaxed">
               Fundada em 2024, atendemos profissionais de todos os estados brasileiros com vagas nas áreas de tecnologia, administração, vendas, saúde, educação, engenharia e muito mais. Oferecemos ferramentas modernas de busca, notificações em tempo real, análise de perfil profissional e conexão direta com recrutadores verificados.
@@ -50,28 +50,28 @@ export default function About() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="rounded-xl">
             <CardContent className="p-4 text-center">
-              <Briefcase className="w-8 h-8 text-[#0056ff] mx-auto mb-2" />
+              <Briefcase className="w-8 h-8 text-[#1E6FB6] mx-auto mb-2" />
               <p className="text-2xl font-bold text-slate-800">5.000+</p>
               <p className="text-sm text-slate-500">Vagas Ativas</p>
             </CardContent>
           </Card>
           <Card className="rounded-xl">
             <CardContent className="p-4 text-center">
-              <Users className="w-8 h-8 text-[#0056ff] mx-auto mb-2" />
+              <Users className="w-8 h-8 text-[#1E6FB6] mx-auto mb-2" />
               <p className="text-2xl font-bold text-slate-800">50.000+</p>
               <p className="text-sm text-slate-500">Usuários Ativos</p>
             </CardContent>
           </Card>
           <Card className="rounded-xl">
             <CardContent className="p-4 text-center">
-              <MapPin className="w-8 h-8 text-[#0056ff] mx-auto mb-2" />
+              <MapPin className="w-8 h-8 text-[#1E6FB6] mx-auto mb-2" />
               <p className="text-2xl font-bold text-slate-800">27</p>
               <p className="text-sm text-slate-500">Estados Atendidos</p>
             </CardContent>
           </Card>
           <Card className="rounded-xl">
             <CardContent className="p-4 text-center">
-              <Heart className="w-8 h-8 text-[#0056ff] mx-auto mb-2" />
+              <Heart className="w-8 h-8 text-[#1E6FB6] mx-auto mb-2" />
               <p className="text-2xl font-bold text-slate-800">1.200+</p>
               <p className="text-sm text-slate-500">Empresas Parceiras</p>
             </CardContent>
@@ -146,13 +146,13 @@ export default function About() {
                   <Popup>
                     <div className="text-center">
                       <p className="font-bold">João Pessoa, PB</p>
-                      <p className="text-sm">Sede do Emprega Brasil+</p>
+                      <p className="text-sm">Sede do web Vagas</p>
                     </div>
                   </Popup>
                 </Marker>
               </MapContainer>
             </div>
-            <div className="p-6 bg-gradient-to-r from-[#0056ff] to-[#0044cc]">
+            <div className="p-6 bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B]">
               <h3 className="text-lg font-bold text-white mb-2">Vagas em Todo o Brasil</h3>
               <p className="text-white/90 text-sm">Conectando candidatos e empresas de norte a sul do país</p>
             </div>
@@ -165,17 +165,17 @@ export default function About() {
             <h2 className="text-xl font-bold text-slate-800 mb-4">Entre em Contato</h2>
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#0056ff]/10 rounded-xl flex items-center justify-center">
-                  <Mail className="w-6 h-6 text-[#0056ff]" />
+                <div className="w-12 h-12 bg-[#1E6FB6]/10 rounded-xl flex items-center justify-center">
+                  <Mail className="w-6 h-6 text-[#1E6FB6]" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">E-mail</p>
-                  <a href="mailto:rhvagasabertasparaiba@gmail.com" className="font-medium text-[#0A66C2] hover:underline">rhvagasabertasparaiba@gmail.com</a>
+                  <a href="mailto:contato@webvagas.com.br" className="font-medium text-[#1E6FB6] hover:underline">contato@webvagas.com.br</a>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#0056ff]/10 rounded-xl flex items-center justify-center">
-                  <Phone className="w-6 h-6 text-[#0056ff]" />
+                <div className="w-12 h-12 bg-[#1E6FB6]/10 rounded-xl flex items-center justify-center">
+                  <Phone className="w-6 h-6 text-[#1E6FB6]" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">WhatsApp</p>
@@ -195,11 +195,11 @@ export default function About() {
 
         {/* Links */}
         <div className="flex flex-wrap gap-4 justify-center text-sm">
-          <Link to={createPageUrl('Terms')} className="text-[#0056ff] hover:underline">
+          <Link to={createPageUrl('Terms')} className="text-[#1E6FB6] hover:underline">
             Termos de Uso
           </Link>
           <span className="text-slate-300">|</span>
-          <Link to={createPageUrl('Privacy')} className="text-[#0056ff] hover:underline">
+          <Link to={createPageUrl('Privacy')} className="text-[#1E6FB6] hover:underline">
             Política de Privacidade
           </Link>
         </div>

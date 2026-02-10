@@ -7,7 +7,7 @@ import { createPageUrl } from "@/utils";
 export default function Terms() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-12 px-4">
+      <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] pt-6 pb-12 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to={createPageUrl('Home')} className="inline-flex items-center text-white/80 hover:text-white mb-4">
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -27,13 +27,13 @@ export default function Terms() {
 
             <h2 className="text-xl font-semibold text-slate-800 mb-4">1. Aceitação dos Termos</h2>
             <p className="text-slate-600 mb-6">
-              Ao acessar e usar o Vagas Abertas Paraíba, você concorda com estes Termos de Uso. 
+              Ao acessar e usar o web Vagas, você concorda com estes Termos de Uso. 
               Se não concordar, não use nossos serviços.
             </p>
 
             <h2 className="text-xl font-semibold text-slate-800 mb-4">2. Descrição do Serviço</h2>
             <p className="text-slate-600 mb-6">
-              O Emprega Brasil+ é uma plataforma digital de recrutamento e divulgação de vagas de emprego em todo o território nacional brasileiro. Oferecemos acesso gratuito a milhares de vagas públicas, ferramentas de preparação profissional, notícias do mercado de trabalho e planos premium com vagas exclusivas de grandes empresas parceiras. Nossa plataforma conecta candidatos qualificados a recrutadores verificados através de tecnologia avançada de matching e inteligência artificial.
+              O web Vagas é uma plataforma digital de recrutamento e divulgação de vagas de emprego em todo o território nacional brasileiro. Oferecemos acesso gratuito a milhares de vagas públicas, ferramentas de preparação profissional, notícias do mercado de trabalho e planos premium com vagas exclusivas de grandes empresas parceiras. Nossa plataforma conecta candidatos qualificados a recrutadores verificados através de tecnologia avançada de matching e inteligência artificial.
             </p>
 
             <h2 className="text-xl font-semibold text-slate-800 mb-4">3. Cadastro e Conta</h2>
@@ -64,12 +64,12 @@ export default function Terms() {
 
             <h2 className="text-xl font-semibold text-slate-800 mb-4">6. Vagas de Emprego</h2>
             <p className="text-slate-600 mb-6">
-              O Emprega Brasil+ atua como intermediário na divulgação de vagas de emprego. Realizamos moderação de conteúdo, mas não garantimos a veracidade absoluta de todas as vagas publicadas por terceiros. O Emprega Brasil+ não é empregador nem responsável por relações de trabalho estabelecidas entre usuários e empresas anunciantes. Recomendamos fortemente que os candidatos verifiquem a legitimidade das ofertas, pesquisem sobre as empresas e nunca paguem taxas para participar de processos seletivos. Em caso de suspeita de fraude, disponibilizamos canal direto de denúncia.
+              O web Vagas atua como intermediário na divulgação de vagas de emprego. Realizamos moderação de conteúdo, mas não garantimos a veracidade absoluta de todas as vagas publicadas por terceiros. O web Vagas não é empregador nem responsável por relações de trabalho estabelecidas entre usuários e empresas anunciantes. Recomendamos fortemente que os candidatos verifiquem a legitimidade das ofertas, pesquisem sobre as empresas e nunca paguem taxas para participar de processos seletivos. Em caso de suspeita de fraude, disponibilizamos canal direto de denúncia.
             </p>
 
             <h2 className="text-xl font-semibold text-slate-800 mb-4">7. Propriedade Intelectual</h2>
             <p className="text-slate-600 mb-6">
-              Todo o conteúdo da plataforma, incluindo mas não limitado a design, interface, logotipos, marcas, textos, imagens, código-fonte, estrutura de dados e funcionalidades, é de propriedade exclusiva do Emprega Brasil+ (Alexandre Ferreira - CNPJ 62.874.724/0001-11) ou licenciado por terceiros autorizados. É proibida a reprodução, distribuição, modificação ou uso comercial sem autorização expressa por escrito.
+              Todo o conteúdo da plataforma, incluindo mas não limitado a design, interface, logotipos, marcas, textos, imagens, código-fonte, estrutura de dados e funcionalidades, é de propriedade exclusiva do web Vagas (Alexandre Ferreira - CNPJ 62.874.724/0001-11) ou licenciado por terceiros autorizados. É proibida a reprodução, distribuição, modificação ou uso comercial sem autorização expressa por escrito.
             </p>
 
             <h2 className="text-xl font-semibold text-slate-800 mb-4">8. Publicidade</h2>
@@ -100,7 +100,7 @@ export default function Terms() {
               <strong>Razão Social:</strong> Alexandre Ferreira<br />
               <strong>CNPJ:</strong> 62.874.724/0001-11<br />
               <strong>WhatsApp:</strong> (83) 99197-1320<br />
-              <strong>E-mail:</strong> rhvagasabertasparaiba@gmail.com<br />
+              <strong>E-mail:</strong> contato@webvagas.com.br<br />
               <strong>Endereço:</strong> Paraíba, Brasil
             </p>
           </CardContent>

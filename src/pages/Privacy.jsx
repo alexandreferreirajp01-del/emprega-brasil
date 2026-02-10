@@ -7,7 +7,7 @@ import { createPageUrl } from "@/utils";
 export default function Privacy() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] pt-6 pb-12 px-4">
+      <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] pt-6 pb-12 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to={createPageUrl('Home')} className="inline-flex items-center text-white/80 hover:text-white mb-4">
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -27,7 +27,7 @@ export default function Privacy() {
 
             <h2 className="text-xl font-semibold text-slate-800 mb-4">1. Informações que Coletamos</h2>
             <p className="text-slate-600 mb-4">
-              O Emprega Brasil+ coleta as seguintes informações de forma transparente e em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018):
+              O web Vagas coleta as seguintes informações de forma transparente e em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018):
             </p>
             <ul className="list-disc pl-6 text-slate-600 mb-6">
               <li><strong>Dados de cadastro:</strong> nome completo, endereço de e-mail, telefone (opcional), foto de perfil, dados profissionais como experiência e formação acadêmica</li>
@@ -68,7 +68,7 @@ export default function Privacy() {
               <li><strong>Cookies de desempenho:</strong> para análise de velocidade e otimização</li>
             </ul>
             <p className="text-slate-600 mb-6">
-              Você pode gerenciar suas preferências de cookies nas <a href={createPageUrl('Cookies')} className="text-[#0A66C2] hover:underline">Configurações de Cookies</a> ou desativar anúncios personalizados nas <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" className="text-[#0A66C2] hover:underline">Configurações de Anúncios do Google</a>.
+              Você pode gerenciar suas preferências de cookies nas <a href={createPageUrl('Cookies')} className="text-[#1E6FB6] hover:underline">Configurações de Cookies</a> ou desativar anúncios personalizados nas <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" className="text-[#1E6FB6] hover:underline">Configurações de Anúncios do Google</a>.
             </p>
 
             <h2 className="text-xl font-semibold text-slate-800 mb-4">5. Seus Direitos (LGPD)</h2>
@@ -83,7 +83,7 @@ export default function Privacy() {
               <li><strong>Oposição:</strong> opor-se ao tratamento de dados realizado com base em uma das hipóteses de dispensa de consentimento</li>
             </ul>
             <p className="text-slate-600 mb-6">
-              Para exercer qualquer destes direitos, entre em contato através do e-mail rhvagasabertasparaiba@gmail.com ou WhatsApp (83) 99197-1320. Responderemos sua solicitação em até 15 dias úteis.
+              Para exercer qualquer destes direitos, entre em contato através do e-mail contato@webvagas.com.br ou WhatsApp (83) 99197-1320. Responderemos sua solicitação em até 15 dias úteis.
             </p>
 
             <h2 className="text-xl font-semibold text-slate-800 mb-4">6. Segurança</h2>
@@ -105,7 +105,7 @@ export default function Privacy() {
             <h2 className="text-xl font-semibold text-slate-800 mb-4">9. Encarregado de Dados (DPO)</h2>
             <p className="text-slate-600 mb-6">
               Nosso encarregado de proteção de dados está disponível para esclarecer dúvidas e atender solicitações relacionadas ao tratamento de dados pessoais:<br />
-              <strong>E-mail:</strong> rhvagasabertasparaiba@gmail.com<br />
+              <strong>E-mail:</strong> contato@webvagas.com.br<br />
               <strong>WhatsApp:</strong> (83) 99197-1320
             </p>
 
@@ -113,7 +113,7 @@ export default function Privacy() {
             <p className="text-slate-600">
               <strong>Razão Social:</strong> Alexandre Ferreira<br />
               <strong>CNPJ:</strong> 62.874.724/0001-11<br />
-              <strong>E-mail:</strong> rhvagasabertasparaiba@gmail.com<br />
+              <strong>E-mail:</strong> contato@webvagas.com.br<br />
               <strong>WhatsApp:</strong> (83) 99197-1320<br />
               <strong>Endereço:</strong> Paraíba, Brasil
             </p>
