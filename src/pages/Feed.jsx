@@ -18,6 +18,7 @@ export default function Feed() {
   const [imagens, setImagens] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [isPulling, setIsPulling] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -61,11 +62,45 @@ export default function Feed() {
                      user?.subscription_type === 'recruiter' ||
                      user?.role === 'admin';
 
-  const { data: posts = [], isLoading: loadingPosts } = useQuery({
+  const { data: posts = [], isLoading: loadingPosts, refetch } = useQuery({
     queryKey: ['feed-posts'],
     queryFn: () => base44.entities.FeedPost.list('-created_date', 50),
     enabled: !!user && hasPremium
   });
+
+  useEffect(() => {
+    // Pull to refresh
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e) => {
+      touchEndY = e.touches[0].clientY;
+      if (window.scrollY === 0 && touchEndY - touchStartY > 100) {
+        setIsPulling(true);
+      }
+    };
+
+    const handleTouchEnd = async () => {
+      if (isPulling && window.scrollY === 0) {
+        refetch();
+      }
+      setIsPulling(false);
+    };
+
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isPulling, refetch]);
 
   const { data: salvos = [] } = useQuery({
     queryKey: ['feed-salvos', user?.email],
@@ -159,7 +194,7 @@ export default function Feed() {
 
   return (
     <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-6 pb-4 px-4 transition-colors">
+      <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-6 pb-4 px-4 transition-colors">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold text-white">Feed</h1>
           <p className="text-white/70 dark:text-slate-300 text-sm">Compartilhe e conecte-se</p>
@@ -173,7 +208,7 @@ export default function Feed() {
             <div className="flex gap-3">
               <Avatar className="w-10 h-10">
                 <AvatarImage src={user?.profile_photo} />
-                <AvatarFallback className="bg-[#0A66C2]/10 dark:bg-blue-900/30 text-[#0A66C2] dark:text-blue-400">
+                <AvatarFallback className="bg-[#1E6FB6]/10 dark:bg-blue-900/30 text-[#1E6FB6] dark:text-blue-400">
                   {user?.full_name?.[0] || 'U'}
                 </AvatarFallback>
               </Avatar>
@@ -220,7 +255,7 @@ export default function Feed() {
                   <Button
                     onClick={handlePublicar}
                     disabled={criarPostMutation.isPending || (!novoPost.trim() && !imagens.length)}
-                    className="bg-[#0A66C2] hover:bg-[#004182] rounded-lg"
+                    className="bg-[#1E6FB6] hover:bg-[#0B2F5B] rounded-lg"
                   >
                     {criarPostMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
                     Publicar
@@ -234,7 +269,7 @@ export default function Feed() {
         {/* Lista de Posts */}
         {loadingPosts ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-[#0A66C2]" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#1E6FB6]" />
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-12 text-slate-500 dark:text-slate-400">
