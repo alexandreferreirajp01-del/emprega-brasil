@@ -251,7 +251,7 @@ export default function ModernCheckoutModal({ isOpen, onClose, user, onSuccess, 
             <Button
               onClick={handleSubscribe}
               disabled={loading}
-              className={`w-full h-14 text-lg font-semibold rounded-xl bg-${currentPlan.color}-600 hover:bg-${currentPlan.color}-700`}
+              className="w-full h-14 text-lg font-semibold rounded-xl bg-[#1E6FB6] hover:bg-[#0B2F5B]"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

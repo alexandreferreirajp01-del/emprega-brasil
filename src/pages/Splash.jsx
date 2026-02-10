@@ -135,12 +135,12 @@ export default function Splash() {
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
         <div className="w-32 h-32 mb-6 animate-pulse">
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png"
-            alt="Emprega Brasil+"
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/f334fd478_217913-removebg-preview.png"
+            alt="web Vagas"
             className="w-full h-full object-contain"
           />
         </div>
-        <Loader2 className="w-12 h-12 text-[#0A66C2] animate-spin mb-4" />
+        <Loader2 className="w-12 h-12 text-[#1E6FB6] animate-spin mb-4" />
         <p className="text-slate-600 text-sm font-medium">Carregando...</p>
       </div>
     );
@@ -165,13 +165,13 @@ export default function Splash() {
       <div className="text-center mb-8">
         <div className="w-32 h-32 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-6 p-4">
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png" 
-            alt="Emprega Brasil+" 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/f334fd478_217913-removebg-preview.png" 
+            alt="web Vagas" 
             className="w-full h-full object-contain"
           />
         </div>
-        <h1 className="text-4xl font-bold text-[#0A66C2] mb-2">Emprega Brasil+</h1>
-        <p className="text-slate-600 text-lg">Oportunidades em Todo o País</p>
+        <h1 className="text-4xl font-bold text-[#1E6FB6] mb-2">web Vagas</h1>
+        <p className="text-slate-600 text-lg">Encontre oportunidades com mais rapidez</p>
       </div>
 
       <Card className="w-full max-w-md rounded-2xl shadow-2xl border-0">
@@ -211,7 +211,7 @@ export default function Splash() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl font-semibold"
+              className="w-full h-12 bg-[#1E6FB6] hover:bg-[#0B2F5B] text-white rounded-xl font-semibold"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Entrar'}
             </Button>
@@ -277,7 +277,7 @@ export default function Splash() {
           </div>
 
           <Link to={createPageUrl('Register')}>
-            <Button className="w-full h-12 rounded-xl bg-slate-100 text-[#0A66C2] hover:bg-slate-200 font-semibold">
+            <Button className="w-full h-12 rounded-xl bg-slate-100 text-[#1E6FB6] hover:bg-slate-200 font-semibold">
               Criar Cadastro
             </Button>
           </Link>
@@ -292,7 +292,7 @@ export default function Splash() {
       </Card>
 
       <p className="text-slate-500 text-xs mt-8 text-center">
-        © {new Date().getFullYear()} Emprega Brasil+
+        © {new Date().getFullYear()} web Vagas
       </p>
     </div>
   );

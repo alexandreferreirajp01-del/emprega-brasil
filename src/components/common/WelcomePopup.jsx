@@ -52,9 +52,9 @@ export default function WelcomePopup() {
               <svg className="absolute inset-0 w-full h-full pointer-events-none rounded-2xl" style={{ filter: 'drop-shadow(0 0 8px rgba(10, 102, 194, 0.6))' }}>
                 <defs>
                   <linearGradient id="ledGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#0A66C2" stopOpacity="1" />
-                    <stop offset="50%" stopColor="#378FE9" stopOpacity="1" />
-                    <stop offset="100%" stopColor="#0A66C2" stopOpacity="0.3" />
+                    <stop offset="0%" stopColor="#1E6FB6" stopOpacity="1" />
+                    <stop offset="50%" stopColor="#2B86D1" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#1E6FB6" stopOpacity="0.3" />
                   </linearGradient>
                 </defs>
                 <motion.rect
@@ -106,7 +106,7 @@ export default function WelcomePopup() {
                   className="space-y-3 my-4"
                 >
                   <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Bem-vindo ao Emprega Brasil+
+                    Bem-vindo ao web Vagas
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                     Sua jornada para encontrar a vaga perfeita começa aqui. Boa sorte! 🚀
@@ -123,7 +123,7 @@ export default function WelcomePopup() {
                 >
                   <Button
                     onClick={handleClose}
-                    className="w-full bg-gradient-to-r from-[#0A66C2] to-blue-600 hover:from-[#004182] hover:to-[#0A66C2] text-white font-semibold py-2 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm"
+                    className="w-full bg-gradient-to-r from-[#1E6FB6] to-[#2B86D1] hover:from-[#0B2F5B] hover:to-[#1E6FB6] text-white font-semibold py-2 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm"
                   >
                     Começar Agora
                   </Button>

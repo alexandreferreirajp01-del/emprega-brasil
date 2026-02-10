@@ -112,7 +112,7 @@ export default function PopupManager() {
         <div className="flex justify-center pt-4">
           <Button
             onClick={handleClose}
-            className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl px-8"
+            className="bg-[#1E6FB6] hover:bg-[#0B2F5B] rounded-xl px-8"
           >
             {currentPopup.button_text || 'Entendi'}
           </Button>
