@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Edit, Save, X,
-  Lock, Briefcase, Settings, MapPin, Eye, EyeOff
+  Lock, Briefcase, Settings, MapPin, Eye, EyeOff, Trash2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -18,9 +18,11 @@ import { Link } from "react-router-dom";
 import PasswordInput from "@/components/common/PasswordInput";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import OnlineUsersCounter from "@/components/admin/OnlineUsersCounter";
+import DeleteAccountDialog from "@/components/profile/DeleteAccountDialog";
 
 export default function Profile() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [toast, setToast] = useState(null);
@@ -527,6 +529,13 @@ export default function Profile() {
               <Button variant="outline" className="w-full h-12 rounded-xl text-[#C30000] dark:text-red-400 border-red-200 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/20" onClick={handleLogout}>
                 <LogOut className="w-5 h-5 mr-2" />Sair da Conta
               </Button>
+              <Button 
+                variant="outline" 
+                className="w-full h-12 rounded-xl text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-900/20" 
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash2 className="w-5 h-5 mr-2" />Deletar Conta
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -541,6 +550,13 @@ export default function Profile() {
           refetch();
           showToast('🎉 Bem-vindo ao Premium!');
         }}
+      />
+
+      {/* Modal Deletar Conta */}
+      <DeleteAccountDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        user={displayUser}
       />
     </div>
   );

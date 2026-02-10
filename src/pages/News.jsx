@@ -13,8 +13,9 @@ import TimeAgo from "@/components/common/TimeAgo";
 export default function News() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isPulling, setIsPulling] = useState(false);
 
-  const { data: news = [], isLoading } = useQuery({
+  const { data: news = [], isLoading, refetch } = useQuery({
     queryKey: ['news'],
     queryFn: async () => {
       const result = await base44.entities.News.filter({ status: 'published' }, '-created_date', 100);
@@ -22,6 +23,40 @@ export default function News() {
     },
     staleTime: 60000,
   });
+
+  useEffect(() => {
+    // Pull to refresh
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e) => {
+      touchEndY = e.touches[0].clientY;
+      if (window.scrollY === 0 && touchEndY - touchStartY > 100) {
+        setIsPulling(true);
+      }
+    };
+
+    const handleTouchEnd = async () => {
+      if (isPulling && window.scrollY === 0) {
+        refetch();
+      }
+      setIsPulling(false);
+    };
+
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isPulling, refetch]);
 
   const categories = ['Mercado de Trabalho', 'Dicas de Emprego', 'Economia', 'Cursos', 'Eventos', 'Geral'];
 

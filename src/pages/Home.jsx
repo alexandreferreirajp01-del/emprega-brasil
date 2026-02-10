@@ -96,6 +96,7 @@ export default function Home() {
   const [posts, setPosts] = useState([]);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [refreshingMap, setRefreshingMap] = useState(false);
+  const [isPulling, setIsPulling] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -112,7 +113,39 @@ export default function Home() {
       }
     };
     checkAuth();
-  }, []);
+
+    // Pull to refresh
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e) => {
+      touchEndY = e.touches[0].clientY;
+      if (window.scrollY === 0 && touchEndY - touchStartY > 100) {
+        setIsPulling(true);
+      }
+    };
+
+    const handleTouchEnd = async () => {
+      if (isPulling && window.scrollY === 0) {
+        window.location.reload();
+      }
+      setIsPulling(false);
+    };
+
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isPulling]);
 
   // Carregar dados com retry robusto
   useEffect(() => {

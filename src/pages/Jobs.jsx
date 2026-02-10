@@ -74,6 +74,7 @@ export default function Jobs() {
   const [shareJob, setShareJob] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [reportJob, setReportJob] = useState(null);
+  const [isPulling, setIsPulling] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -170,7 +171,39 @@ export default function Jobs() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+
+    // Pull to refresh
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e) => {
+      touchEndY = e.touches[0].clientY;
+      if (window.scrollY === 0 && touchEndY - touchStartY > 100) {
+        setIsPulling(true);
+      }
+    };
+
+    const handleTouchEnd = async () => {
+      if (isPulling && window.scrollY === 0) {
+        handleRefresh();
+      }
+      setIsPulling(false);
+    };
+
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isPulling]);
 
   useEffect(() => {
     const checkAuth = async () => {
