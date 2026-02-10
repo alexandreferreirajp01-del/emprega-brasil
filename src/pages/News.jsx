@@ -37,7 +37,7 @@ export default function News() {
 
   return (
     <div className="min-h-screen bg-[#F3F2EF] pb-20">
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] py-6 px-4">
+      <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] py-6 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <Newspaper className="w-8 h-8 text-white" />
@@ -67,7 +67,7 @@ export default function News() {
             variant={selectedCategory === 'all' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setSelectedCategory('all')}
-            className={`rounded-full ${selectedCategory === 'all' ? 'bg-[#0A66C2]' : ''}`}
+            className={`rounded-full ${selectedCategory === 'all' ? 'bg-[#1E6FB6]' : ''}`}
           >
             Todas
           </Button>
@@ -77,7 +77,7 @@ export default function News() {
               variant={selectedCategory === cat ? 'default' : 'outline'}
               size="sm"
               onClick={() => setSelectedCategory(cat)}
-              className={`rounded-full whitespace-nowrap ${selectedCategory === cat ? 'bg-[#0A66C2]' : ''}`}
+              className={`rounded-full whitespace-nowrap ${selectedCategory === cat ? 'bg-[#1E6FB6]' : ''}`}
             >
               {cat}
             </Button>
@@ -115,7 +115,7 @@ export default function News() {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-6 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white">
+                  <div className="p-6 bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] text-white">
                     <Badge className="bg-white/20 mb-3">Destaque</Badge>
                     <h2 className="text-2xl md:text-3xl font-bold mb-2">{featuredNews.title}</h2>
                     {featuredNews.subtitle && <p className="text-white/80">{featuredNews.subtitle}</p>}
@@ -158,7 +158,7 @@ export default function News() {
                       )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <Badge className="bg-[#0A66C2] text-white text-xs">
+                          <Badge className="bg-[#1E6FB6] text-white text-xs">
                             {item.category}
                           </Badge>
                           <span className="text-xs text-slate-400">
