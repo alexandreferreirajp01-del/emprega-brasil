@@ -399,8 +399,8 @@ export default function Layout({ children, currentPageName }) {
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
               <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center flex-shrink-0">
                 <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png" 
-                  alt="Emprega Brasil+" 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/f334fd478_217913-removebg-preview.png" 
+                  alt="web Vagas" 
                   className="w-full h-full object-contain"
                 />
               </div>
