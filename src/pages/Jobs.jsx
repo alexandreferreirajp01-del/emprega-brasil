@@ -318,7 +318,7 @@ export default function Jobs() {
   return (
     <div className="min-h-screen bg-white pb-20">
       {/* Header - Estilo G1 */}
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] py-3 px-4 sticky top-0 z-10">
+      <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] py-3 px-4 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <h1 className="text-xl font-bold text-white">Vagas</h1>
           <Button
@@ -500,7 +500,7 @@ export default function Jobs() {
         {/* Featured Jobs - Estilo G1 */}
         {featuredJobs.length > 0 && !searchTerm && (
           <div className="mb-6">
-            <h2 className="text-sm font-bold text-[#0A66C2] uppercase tracking-wide mb-3 border-l-4 border-[#0A66C2] pl-2">
+            <h2 className="text-sm font-bold text-[#1E6FB6] uppercase tracking-wide mb-3 border-l-4 border-[#1E6FB6] pl-2">
               Destaques
             </h2>
             <div className="space-y-3">
@@ -517,7 +517,7 @@ export default function Jobs() {
                       <Link to={canView ? createPageUrl('JobDetail') + `?id=${job.id}` : '#'}>
                         <div className="group flex gap-3">
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-slate-900 group-hover:text-[#0A66C2] transition-colors text-base line-clamp-2 mb-1">
+                            <h3 className="font-bold text-slate-900 group-hover:text-[#1E6FB6] transition-colors text-base line-clamp-2 mb-1">
                               {job.title}
                             </h3>
                             <p className="text-sm text-slate-600 mb-2">{job.company}</p>
@@ -585,7 +585,7 @@ export default function Jobs() {
                             </Badge>
                           )}
                           {job.category && (
-                            <Badge className="bg-[#0A66C2]/10 text-[#0A66C2] border-0 text-xs rounded-sm px-2 py-0.5">
+                            <Badge className="bg-[#1E6FB6]/10 text-[#1E6FB6] border-0 text-xs rounded-sm px-2 py-0.5">
                               {job.category}
                             </Badge>
                           )}
@@ -593,7 +593,7 @@ export default function Jobs() {
                             <TimeAgo date={job.created_date} />
                           </span>
                         </div>
-                        <h3 className="font-bold text-slate-900 group-hover:text-[#0A66C2] transition-colors text-base sm:text-lg line-clamp-2 mb-1">
+                        <h3 className="font-bold text-slate-900 group-hover:text-[#1E6FB6] transition-colors text-base sm:text-lg line-clamp-2 mb-1">
                           {job.title}
                         </h3>
                         <p className="text-sm text-slate-600 mb-2 line-clamp-1">{job.company}</p>
