@@ -199,7 +199,7 @@ export default function Profile() {
   if (!displayUser && isLoading) {
     return (
       <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
-        <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-8 pb-20 px-4 transition-colors">
+        <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-8 pb-20 px-4 transition-colors">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
           </div>
@@ -207,7 +207,7 @@ export default function Profile() {
         <div className="max-w-2xl mx-auto px-4 -mt-12">
           <Card className="shadow-xl rounded-3xl overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors">
             <CardContent className="p-6 sm:p-8 flex items-center justify-center min-h-[400px]">
-              <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2] dark:text-blue-400" />
+              <Loader2 className="w-8 h-8 animate-spin text-[#1E6FB6] dark:text-blue-400" />
             </CardContent>
           </Card>
         </div>
@@ -231,7 +231,7 @@ export default function Profile() {
                   sessionStorage.setItem('redirect_after_login', 'Profile');
                   window.location.href = createPageUrl('Splash');
                 }}
-                className="w-full bg-[#0A66C2] hover:bg-[#004182]"
+                className="w-full bg-[#1E6FB6] hover:bg-[#0B2F5B]"
               >
                 Fazer Login
               </Button>
@@ -337,7 +337,7 @@ export default function Profile() {
                   </AvatarFallback>
                 </Avatar>
                 {canEdit && (
-                  <label className="absolute bottom-0 right-0 w-9 h-9 sm:w-10 sm:h-10 bg-[#0A66C2] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#004182]">
+                  <label className="absolute bottom-0 right-0 w-9 h-9 sm:w-10 sm:h-10 bg-[#1E6FB6] rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#0B2F5B]">
                     <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={updatePhotoMutation.isPending} />
                   </label>
@@ -437,7 +437,7 @@ export default function Profile() {
                   <Button 
                     onClick={handleSaveProfile} 
                     disabled={updateProfileMutation.isPending || !hasChanges} 
-                    className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl flex-1 h-11 disabled:opacity-50"
+                    className="bg-[#1E6FB6] hover:bg-[#0B2F5B] rounded-xl flex-1 h-11 disabled:opacity-50"
                   >
                     {updateProfileMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                     Salvar
