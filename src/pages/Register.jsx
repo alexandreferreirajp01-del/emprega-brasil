@@ -193,12 +193,12 @@ export default function Register() {
         <div className="text-center mb-8">
           <div className="w-32 h-32 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-6 p-4">
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png" 
-              alt="Emprega Brasil+" 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/f334fd478_217913-removebg-preview.png" 
+              alt="web Vagas" 
               className="w-full h-full object-contain"
             />
           </div>
-          <h1 className="text-4xl font-bold text-[#0A66C2] mb-2">Criar Conta</h1>
+          <h1 className="text-4xl font-bold text-[#1E6FB6] mb-2">Criar Conta</h1>
           <p className="text-slate-600 text-lg">Escolha como deseja se cadastrar</p>
         </div>
 
@@ -206,7 +206,7 @@ export default function Register() {
           <CardContent className="p-6 space-y-4">
             <Button
               onClick={() => setStep(2)}
-              className="w-full h-14 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-base font-semibold"
+              className="w-full h-14 rounded-xl bg-[#1E6FB6] hover:bg-[#0B2F5B] text-white text-base font-semibold"
             >
               📧 Cadastrar com Email e Senha
             </Button>
@@ -281,8 +281,8 @@ export default function Register() {
       </div>
 
       <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-[#0A66C2] mb-2">Criar Conta</h1>
-        <p className="text-slate-600">Preencha seus dados</p>
+      <h1 className="text-3xl font-bold text-[#1E6FB6] mb-2">Criar Conta</h1>
+      <p className="text-slate-600">Preencha seus dados</p>
       </div>
 
       <Card className="w-full max-w-md rounded-2xl shadow-2xl border-0">
@@ -410,7 +410,7 @@ export default function Register() {
             <Button
               type="submit"
               disabled={loading || !usernameAvailable}
-              className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl font-semibold"
+              className="w-full h-12 bg-[#1E6FB6] hover:bg-[#0B2F5B] text-white rounded-xl font-semibold"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -421,7 +421,7 @@ export default function Register() {
 
             <p className="text-center text-xs text-slate-500">
               Já tem conta?{' '}
-              <Link to={createPageUrl('Splash')} className="text-[#0A66C2] hover:underline font-medium">
+              <Link to={createPageUrl('Splash')} className="text-[#1E6FB6] hover:underline font-medium">
                 Fazer login
               </Link>
             </p>

@@ -98,7 +98,7 @@ export default function Subscription() {
   return (
     <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 transition-colors">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#004182] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-8 pb-20 px-4 transition-colors">
+      <div className="bg-gradient-to-br from-[#1E6FB6] via-[#0B2F5B] to-[#0B2F5B] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-8 pb-20 px-4 transition-colors">
         <div className="max-w-6xl mx-auto text-center">
           <Badge className="bg-white/20 text-white border-0 mb-3 px-3 py-1.5 text-sm">
             <Crown className="w-3.5 h-3.5 mr-1.5" />

@@ -41,7 +41,7 @@ export default function Parcerias() {
   return (
     <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#0056ff] via-[#0044cc] to-[#003399] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-6 pb-16 px-4 relative overflow-hidden transition-colors">
+      <div className="bg-gradient-to-br from-[#1E6FB6] via-[#0B2F5B] to-[#0B2F5B] dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 pt-6 pb-16 px-4 relative overflow-hidden transition-colors">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-60 h-60 bg-white rounded-full blur-3xl"></div>
@@ -92,7 +92,7 @@ export default function Parcerias() {
                   >
                     {plano.popular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <Badge className="bg-gradient-to-r from-[#0056ff] to-[#0044cc] text-white border-0 px-5 py-1.5 text-xs font-bold shadow-lg">
+                        <Badge className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] text-white border-0 px-5 py-1.5 text-xs font-bold shadow-lg">
                           ⭐ MAIS ESCOLHIDO
                         </Badge>
                       </div>
@@ -100,20 +100,20 @@ export default function Parcerias() {
                     
                     <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                       <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        plano.popular ? 'bg-[#0056ff]' : 'bg-slate-100 group-hover:bg-blue-50'
+                        plano.popular ? 'bg-[#1E6FB6]' : 'bg-slate-100 group-hover:bg-blue-50'
                       } transition-colors`}>
-                        <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${plano.popular ? 'text-white' : 'text-slate-600 group-hover:text-[#0056ff]'}`} />
+                        <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${plano.popular ? 'text-white' : 'text-slate-600 group-hover:text-[#1E6FB6]'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className="text-base sm:text-lg md:text-xl font-bold text-slate-800 dark:text-white">{plano.dias}</span>
                           {plano.popular && (
-                            <Badge variant="outline" className="border-[#0056ff] dark:border-blue-400 text-[#0056ff] dark:text-blue-400 text-[10px] sm:text-xs px-2 py-0">
+                            <Badge variant="outline" className="border-[#1E6FB6] dark:border-blue-400 text-[#1E6FB6] dark:text-blue-400 text-[10px] sm:text-xs px-2 py-0">
                               Destaque
                             </Badge>
                           )}
                         </div>
-                        <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${plano.popular ? 'text-[#0056ff] dark:text-blue-400' : 'text-slate-800 dark:text-white'}`}>
+                        <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${plano.popular ? 'text-[#1E6FB6] dark:text-blue-400' : 'text-slate-800 dark:text-white'}`}>
                           {plano.valor}
                         </div>
                       </div>
@@ -123,8 +123,8 @@ export default function Parcerias() {
                       onClick={() => handleWhatsApp(plano)}
                       className={`w-full h-11 sm:h-12 md:h-14 rounded-xl font-semibold text-sm sm:text-base shadow-lg ${
                         plano.popular 
-                          ? 'bg-gradient-to-r from-[#0056ff] to-[#0044cc] hover:from-[#0044cc] hover:to-[#003399] text-white' 
-                          : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-[#0056ff] hover:text-[#0056ff] hover:bg-blue-50'
+                          ? 'bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] hover:from-[#0B2F5B] hover:to-[#1E6FB6] text-white' 
+                          : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-[#1E6FB6] hover:text-[#1E6FB6] hover:bg-blue-50'
                       } transition-all`}
                     >
                       <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
@@ -142,7 +142,7 @@ export default function Parcerias() {
         <Card className="mb-6 shadow-xl border-0 rounded-2xl overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors">
           <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-700 p-4 border-b dark:border-slate-600 transition-colors">
             <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white text-center flex items-center justify-center gap-2">
-              <Users className="w-5 h-5 text-[#0056ff] dark:text-blue-400" />
+              <Users className="w-5 h-5 text-[#1E6FB6] dark:text-blue-400" />
               Nosso Alcance nas Redes
             </h3>
           </div>
@@ -212,26 +212,26 @@ export default function Parcerias() {
         <Card className="shadow-xl border-0 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-blue-800/30 transition-colors">
           <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-700 p-4 border-b dark:border-slate-600 transition-colors">
             <h3 className="text-xl font-bold text-slate-800 dark:text-white text-center flex items-center justify-center gap-2">
-              <CreditCard className="w-5 h-5 text-[#0056ff] dark:text-blue-400" />
+              <CreditCard className="w-5 h-5 text-[#1E6FB6] dark:text-blue-400" />
               Formas de Pagamento
             </h3>
           </div>
           <CardContent className="p-8">
             <div className="grid grid-cols-3 gap-6">
               <div className="flex flex-col items-center gap-3 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#0056ff] to-[#0044cc] dark:from-blue-600 dark:to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#1E6FB6] to-[#0B2F5B] dark:from-blue-600 dark:to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <Smartphone className="w-8 h-8 text-white" />
                 </div>
                 <span className="text-slate-800 dark:text-white text-sm font-semibold">PIX</span>
               </div>
               <div className="flex flex-col items-center gap-3 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#0056ff] to-[#0044cc] dark:from-blue-600 dark:to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#1E6FB6] to-[#0B2F5B] dark:from-blue-600 dark:to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <CreditCard className="w-8 h-8 text-white" />
                 </div>
                 <span className="text-slate-800 dark:text-white text-sm font-semibold">Cartão</span>
               </div>
               <div className="flex flex-col items-center gap-3 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#0056ff] to-[#0044cc] dark:from-blue-600 dark:to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#1E6FB6] to-[#0B2F5B] dark:from-blue-600 dark:to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <rect x="3" y="7" width="18" height="10" rx="2" strokeWidth="2"/>
                     <path d="M3 11h18M7 15h4" strokeWidth="2" strokeLinecap="round"/>
