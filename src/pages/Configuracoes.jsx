@@ -43,6 +43,10 @@ const menuItems = [
   { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
   { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'teal', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
 
+  // Automação N8N
+  { id: 'dividerN8N', type: 'divider', label: 'Automação & Integrações', roles: ['admin', 'dono'] },
+  { id: 'n8n-config', name: 'Configuração N8N', icon: Plug, color: 'emerald', page: 'N8NConfig', description: 'Conectar N8N para posts automáticos', roles: ['admin', 'dono'] },
+
 
   
   // Área do Recrutador
