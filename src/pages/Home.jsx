@@ -189,19 +189,8 @@ export default function Home() {
     viewsCountMap[v.job_id] = (viewsCountMap[v.job_id] || 0) + 1;
   });
 
-  // Filtrar apenas vagas em destaque
-  const featuredJobs = jobs.filter(job => job.is_featured);
-
-  // Agrupar vagas por estado (vagas que têm estado mas não têm cidade)
-  const jobsByState = {};
-  jobs.forEach(job => {
-    if (job.state && (!job.city || job.city.trim() === '')) {
-      if (!jobsByState[job.state]) {
-        jobsByState[job.state] = [];
-      }
-      jobsByState[job.state].push(job);
-    }
-  });
+  // Filtrar apenas vagas em destaque da Paraíba
+  const featuredJobs = jobs.filter(job => job.is_featured && job.state === 'PB');
 
   // Função para atualizar vagas manualmente
   const handleRefreshMap = async () => {
@@ -399,8 +388,8 @@ export default function Home() {
                     <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="font-bold text-white text-sm sm:text-lg">Mapa de Vagas</h2>
-                    <p className="text-white/70 text-xs sm:text-sm">{jobs.filter(job => job.latitude && job.longitude && job.exibir_no_mapa !== false).length} vagas disponíveis</p>
+                    <h2 className="font-bold text-white text-sm sm:text-lg">Mapa de Vagas na PB</h2>
+                    <p className="text-white/70 text-xs sm:text-sm">{jobs.filter(job => job.state === 'PB' && job.latitude && job.longitude && job.exibir_no_mapa !== false).length} vagas na Paraíba</p>
                   </div>
                 </div>
                 <Button 
@@ -418,7 +407,10 @@ export default function Home() {
                 <div className="h-[400px] w-full" style={{ position: 'relative', zIndex: 1 }}>
                   <MapContainer
                     center={[-7.12, -36.72]}
-                    zoom={7}
+                    zoom={8}
+                    minZoom={7}
+                    maxZoom={12}
+                    maxBounds={[[-8.5, -39], [-6, -34.5]]}
                     style={{ height: '100%', width: '100%', position: 'relative', zIndex: 1 }}
                   >
                     <TileLayer
@@ -426,7 +418,7 @@ export default function Home() {
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
 
-                    {/* Marcador da Sede - Amarelo */}
+                    {/* Marcador da Sede em João Pessoa */}
                     <Marker 
                       position={[-7.1352, -34.8634]} 
                       icon={sedeIcon}
@@ -434,7 +426,7 @@ export default function Home() {
                       <Popup maxWidth={280} closeButton={true}>
                         <div className="p-2" style={{ minWidth: '240px' }}>
                           <h3 className="font-bold text-base mb-3 text-slate-900 leading-tight">
-                            🏢 Sede web Vagas
+                            🏢 Sede Vagas Abertas PB
                           </h3>
 
                           <div className="space-y-2 mb-4">
@@ -451,66 +443,21 @@ export default function Home() {
 
                           <div className="mt-3 pt-3 border-t border-slate-200">
                             <p className="text-xs text-center text-slate-600 font-medium">
-                              web Vagas - Central de Oportunidades
+                              Vagas Abertas PB - Empregos na Paraíba
                             </p>
                           </div>
                         </div>
                       </Popup>
                     </Marker>
 
-                    {/* Subsedes Estaduais (vagas com estado mas sem cidade) */}
-                    {Object.entries(jobsByState).map(([state, stateJobs]) => {
-                      const coords = STATE_CENTERS[state];
-                      if (!coords) return null;
-                      
-                      return (
-                        <Marker key={`subsede-${state}`} position={coords} icon={subsedeIcon}>
-                          <Popup maxWidth={320} closeButton={true}>
-                            <div className="p-2" style={{ minWidth: '280px' }}>
-                              <h3 className="font-bold text-base mb-3 text-slate-900 leading-tight">
-                                🏢 web Vagas - {state}
-                              </h3>
-                              <p className="text-sm text-slate-600 mb-3">
-                                {stateJobs.length} {stateJobs.length === 1 ? 'vaga disponível' : 'vagas disponíveis'}
-                              </p>
-                              
-                              <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                                {stateJobs.slice(0, 10).map(job => (
-                                  <div key={job.id} className="p-2 bg-slate-50 rounded-lg hover:bg-slate-100">
-                                    <Link 
-                                      to={`${createPageUrl('JobDetail')}?id=${job.id}`}
-                                      className="text-sm font-medium text-slate-900 hover:text-blue-600 block"
-                                    >
-                                      {job.title}
-                                    </Link>
-                                    {job.company && (
-                                      <p className="text-xs text-slate-500">{job.company}</p>
-                                    )}
-                                  </div>
-                                ))}
-                                {stateJobs.length > 10 && (
-                                  <p className="text-xs text-slate-500 text-center pt-2">
-                                    + {stateJobs.length - 10} vagas
-                                  </p>
-                                )}
-                              </div>
-
-                              <Link 
-                                to={createPageUrl('Jobs')}
-                                className="block w-full text-center bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition-all shadow-sm hover:shadow-md no-underline mt-3"
-                                style={{ color: 'white', textDecoration: 'none' }}
-                              >
-                                Ver todas as vagas
-                              </Link>
-                            </div>
-                          </Popup>
-                        </Marker>
-                      );
-                    })}
-
-                    {/* Marcadores das Vagas */}
+                    {/* Marcadores das Vagas na Paraíba */}
                     {jobs
-                      .filter(job => job.latitude && job.longitude && job.exibir_no_mapa !== false)
+                      .filter(job => 
+                        job.state === 'PB' && 
+                        job.latitude && 
+                        job.longitude && 
+                        job.exibir_no_mapa !== false
+                      )
                       .map(job => (
                         <Marker key={job.id} position={[job.latitude, job.longitude]}>
                           <Popup maxWidth={280} closeButton={true}>
@@ -530,7 +477,7 @@ export default function Home() {
                                 <div className="flex items-start gap-2">
                                   <MapPin className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
                                   <span className="text-sm text-slate-700">
-                                    {job.neighborhood ? `${job.neighborhood} - ` : ''}{job.city || 'Não informado'}, {job.state || ''}
+                                    {job.neighborhood ? `${job.neighborhood} - ` : ''}{job.city || 'Não informado'}, PB
                                   </span>
                                 </div>
 
@@ -559,14 +506,10 @@ export default function Home() {
 
                               <Link 
                                 to={`${createPageUrl('JobDetail')}?id=${job.id}`}
-                                className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm hover:shadow-md no-underline"
+                                className="block w-full text-center bg-[#1D4371] hover:bg-[#0F2744] text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm hover:shadow-md no-underline"
                                 style={{ color: 'white', textDecoration: 'none' }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  console.log('Navegando para vaga:', job.id);
-                                }}
                               >
-                                Saiba mais →
+                                Ver vaga →
                               </Link>
                             </div>
                           </Popup>
@@ -587,7 +530,7 @@ export default function Home() {
 
             {/* Banner Parcerias */}
             <Card 
-              className="rounded-2xl border-0 shadow-lg bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] cursor-pointer hover:shadow-xl transition-all"
+              className="rounded-2xl border-0 shadow-lg bg-gradient-to-r from-[#1D4371] to-[#2B5A8F] cursor-pointer hover:shadow-xl transition-all"
               onClick={() => window.location.href = createPageUrl('Parcerias')}
             >
               <CardContent className="p-6 flex items-center justify-between">
@@ -606,7 +549,7 @@ export default function Home() {
 
             {/* Premium CTA - apenas para não-premium */}
             {user && user?.subscription_type !== 'premium' && user?.subscription_type !== 'admin' && user?.role !== 'admin' && (
-              <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#1E6FB6] to-[#0B2F5B] text-white overflow-hidden">
+              <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#1D4371] to-[#2B5A8F] text-white overflow-hidden">
                 <CardContent className="p-6 text-center relative">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
                   <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
@@ -620,7 +563,7 @@ export default function Home() {
                   </div>
                   <Button 
                     onClick={() => setShowPremiumModal(true)}
-                    className="w-full bg-white text-[#1E6FB6] hover:bg-white/90 rounded-xl"
+                    className="w-full bg-white text-[#1D4371] hover:bg-white/90 rounded-xl"
                   >
                     Assinar Agora
                   </Button>
