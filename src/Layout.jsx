@@ -455,15 +455,23 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                 </>
               ) : (
-                <Button 
-                  onClick={() => {
-                    sessionStorage.setItem('needs_login', 'true');
-                    window.location.href = createPageUrl('Splash');
-                  }}
-                  className="bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl text-sm px-6 font-semibold"
-                >
-                  Entrar
-                </Button>
+                <>
+                  <Button 
+                    onClick={() => {
+                      sessionStorage.setItem('needs_login', 'true');
+                      window.location.href = createPageUrl('Splash');
+                    }}
+                    className="bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl text-sm px-6 font-semibold"
+                  >
+                    Entrar
+                  </Button>
+                  <img 
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
+                    alt="Criador"
+                    className="w-8 h-8 rounded-full border-2 border-[#1D4371] ml-2"
+                    title="Criado por Alexandre Ferreira"
+                  />
+                </>
               )}
             </div>
 
@@ -529,11 +537,24 @@ export default function Layout({ children, currentPageName }) {
                     </Button>
                   </>
                 ) : (
-                  <Link to={createPageUrl('Splash')} onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl font-semibold">
-                      Entrar / Cadastrar
-                    </Button>
-                  </Link>
+                  <>
+                    <Link to={createPageUrl('Splash')} onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl font-semibold mb-2">
+                        Entrar / Cadastrar
+                      </Button>
+                    </Link>
+                    <div className="flex items-center justify-center gap-3 pt-2">
+                      <img 
+                        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
+                        alt="Alexandre Ferreira"
+                        className="w-10 h-10 rounded-full border-2 border-[#1D4371]"
+                      />
+                      <div className="text-left">
+                        <p className="text-xs font-bold text-slate-800 dark:text-white">Alexandre Ferreira</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Criador</p>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             </nav>

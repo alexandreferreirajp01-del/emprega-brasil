@@ -309,11 +309,19 @@ export default function Home() {
                     <p className="text-white/70 text-xs sm:text-sm">{featuredJobs.length} vagas selecionadas</p>
                   </div>
                 </div>
-                <Link to={createPageUrl('Jobs')}>
-                  <Button variant="ghost" className="text-white hover:bg-white/10 rounded-lg sm:rounded-xl text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4">
-                    Ver Todas <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
-                  </Button>
-                </Link>
+                <div className="flex items-center gap-2">
+                  <img 
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
+                    alt="Criador"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white/30 hidden sm:block"
+                    title="Criado por Alexandre Ferreira"
+                  />
+                  <Link to={createPageUrl('Jobs')}>
+                    <Button variant="ghost" className="text-white hover:bg-white/10 rounded-lg sm:rounded-xl text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4">
+                      Ver Todas <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
               <CardContent className="p-3 sm:p-4 space-y-3">
                 {featuredJobs.slice(0, 5).map((job) => (
