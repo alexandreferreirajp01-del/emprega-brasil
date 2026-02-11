@@ -41,7 +41,7 @@ export default function N8NConfig() {
     setTimeout(() => setCopied(''), 2000);
   };
 
-  const baseUrl = window.location.origin;
+  const baseUrl = 'https://vagasabertaspb.com.br';
   const textEndpoint = `${baseUrl}/api/functions/autoPostN8NText`;
   const imageEndpoint = `${baseUrl}/api/functions/autoPostN8NImage`;
 
@@ -56,14 +56,15 @@ export default function N8NConfig() {
       description: 'Para vagas em formato de texto',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': '{{SEU_API_KEY_N8N}}'
+        'X-API-Key': 'VAGASPB_{{SUA_CHAVE_API}}'
       },
       body: {
         texto: "VAGA: Vendedor\nEmpresa: Loja XYZ\nCidade: João Pessoa - PB\nSalário: R$ 1.500\nContato: (83) 99999-9999",
-        origem: "n8n",
+        origem: "n8n_vagaspb",
         metadados: {
-          grupo: "WhatsApp Vagas PB",
-          canal: "whatsapp"
+          grupo: "WhatsApp Vagas Abertas PB",
+          canal: "whatsapp",
+          dominio: "vagasabertaspb.com.br"
         }
       }
     },
@@ -77,14 +78,15 @@ export default function N8NConfig() {
       description: 'Para vagas em imagem',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': '{{SEU_API_KEY_N8N}}'
+        'X-API-Key': 'VAGASPB_{{SUA_CHAVE_API}}'
       },
       body: {
         imagem_url: "https://exemplo.com/vaga.jpg",
         texto_adicional: "Vaga urgente",
-        origem: "n8n",
+        origem: "n8n_vagaspb",
         metadados: {
-          grupo: "WhatsApp Vagas PB"
+          grupo: "WhatsApp Vagas Abertas PB",
+          dominio: "vagasabertaspb.com.br"
         }
       }
     }
@@ -146,10 +148,13 @@ export default function N8NConfig() {
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-slate-600">
-              Sua API Key já está configurada no sistema como <code className="bg-slate-100 px-2 py-1 rounded text-xs">API_KEY_N8N</code>
+              Domínio oficial: <code className="bg-slate-100 px-2 py-1 rounded text-xs font-bold">vagasabertaspb.com.br</code>
             </p>
-            <p className="text-sm text-slate-600">
-              Use <code className="bg-slate-100 px-2 py-1 rounded text-xs">X-API-Key: [valor da API_KEY_N8N]</code> no header das requisições do N8N
+            <p className="text-sm text-slate-600 mt-2">
+              Sua API Key está configurada no sistema. Use o formato: <code className="bg-slate-100 px-2 py-1 rounded text-xs">VAGASPB_[sua_chave]</code>
+            </p>
+            <p className="text-sm text-slate-600 mt-2">
+              No N8N, adicione header: <code className="bg-slate-100 px-2 py-1 rounded text-xs">X-API-Key: VAGASPB_[valor da API_KEY_N8N]</code>
             </p>
           </CardContent>
         </Card>
@@ -248,7 +253,7 @@ export default function N8NConfig() {
                     <pre className="text-xs text-yellow-400 font-mono overflow-x-auto whitespace-pre-wrap break-all">
 {`curl -X POST '${endpoint.endpoint}' \\
   -H 'Content-Type: application/json' \\
-  -H 'X-API-Key: {{SEU_API_KEY_N8N}}' \\
+  -H 'X-API-Key: VAGASPB_{{SUA_CHAVE_API}}' \\
   -d '${JSON.stringify(endpoint.body, null, 2)}'`}
                     </pre>
                   </div>
@@ -298,7 +303,7 @@ export default function N8NConfig() {
                   <p className="text-slate-600 text-xs">Em "Headers" → Add Header:</p>
                   <ul className="text-xs text-slate-600 ml-4 mt-1 space-y-1">
                     <li>• <code className="bg-slate-100 px-1 rounded">Content-Type: application/json</code></li>
-                    <li>• <code className="bg-slate-100 px-1 rounded">X-API-Key: [sua API_KEY_N8N]</code></li>
+                    <li>• <code className="bg-slate-100 px-1 rounded">X-API-Key: VAGASPB_[sua_chave]</code></li>
                   </ul>
                 </div>
               </div>

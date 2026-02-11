@@ -397,9 +397,9 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-24">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
-              <div className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center flex-shrink-0">
+              <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center flex-shrink-0">
                 <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/70128af31_222578-removebg-preview.png" 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
                   alt="Vagas Abertas PB" 
                   className="w-full h-full object-contain"
                 />
@@ -554,9 +554,9 @@ export default function Layout({ children, currentPageName }) {
           {/* Criador e Foto */}
           <div className="text-center mb-10">
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/60fbd7fb5_Screenshot_20251104-2348032.png"
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
               alt="Alexandre Ferreira"
-              className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-white/10 shadow-xl"
+              className="w-28 h-28 rounded-full mx-auto mb-4 object-cover border-4 border-[#1D4371] shadow-xl bg-white p-1"
             />
             <h3 className="text-xl font-bold text-white mb-2">Alexandre Ferreira</h3>
             <p className="text-slate-300 text-sm mb-1">Criador & Desenvolvedor</p>

@@ -133,14 +133,16 @@ export default function Splash() {
   if (status === 'checking') {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-        <div className="w-32 h-32 mb-6 animate-pulse">
+        <div className="w-48 h-48 mb-6 animate-pulse">
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/f334fd478_217913-removebg-preview.png"
-            alt="web Vagas"
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png"
+            alt="Vagas Abertas PB"
             className="w-full h-full object-contain"
           />
         </div>
-        <Loader2 className="w-12 h-12 text-[#1E6FB6] animate-spin mb-4" />
+        <div className="w-64 h-1.5 bg-slate-200 rounded-full overflow-hidden mb-4">
+          <div className="h-full w-full bg-gradient-to-r from-[#00D4FF] via-[#0099FF] to-[#0066FF] animate-pulse shadow-[0_0_10px_rgba(0,150,255,0.8)]" />
+        </div>
         <p className="text-slate-600 text-sm font-medium">Carregando...</p>
       </div>
     );
@@ -163,15 +165,15 @@ export default function Splash() {
       </div>
 
       <div className="text-center mb-8">
-        <div className="w-32 h-32 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-6 p-4">
+        <div className="w-40 h-40 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-6 p-4">
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/f334fd478_217913-removebg-preview.png" 
-            alt="web Vagas" 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
+            alt="Vagas Abertas PB" 
             className="w-full h-full object-contain"
           />
         </div>
-        <h1 className="text-4xl font-bold text-[#1E6FB6] mb-2">web Vagas</h1>
-        <p className="text-slate-600 text-lg">Encontre oportunidades com mais rapidez</p>
+        <h1 className="text-4xl font-bold text-[#1D4371] mb-2">Vagas Abertas PB</h1>
+        <p className="text-slate-600 text-lg">Empregos na Paraíba</p>
       </div>
 
       <Card className="w-full max-w-md rounded-2xl shadow-2xl border-0">
@@ -211,7 +213,7 @@ export default function Splash() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-[#1E6FB6] hover:bg-[#0B2F5B] text-white rounded-xl font-semibold"
+              className="w-full h-12 bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl font-semibold"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Entrar'}
             </Button>
@@ -277,7 +279,7 @@ export default function Splash() {
           </div>
 
           <Link to={createPageUrl('Register')}>
-            <Button className="w-full h-12 rounded-xl bg-slate-100 text-[#1E6FB6] hover:bg-slate-200 font-semibold">
+            <Button className="w-full h-12 rounded-xl bg-slate-100 text-[#1D4371] hover:bg-slate-200 font-semibold">
               Criar Cadastro
             </Button>
           </Link>
@@ -291,8 +293,21 @@ export default function Splash() {
         </CardContent>
       </Card>
 
-      <p className="text-slate-500 text-xs mt-8 text-center">
-        © {new Date().getFullYear()} web Vagas
+      {/* Avatar do Criador */}
+      <div className="flex items-center justify-center gap-3 mt-8">
+        <img 
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
+          alt="Alexandre Ferreira"
+          className="w-12 h-12 rounded-full border-2 border-[#1D4371]"
+        />
+        <div className="text-left">
+          <p className="text-sm font-bold text-slate-800">Alexandre Ferreira</p>
+          <p className="text-xs text-slate-500">Criador & Desenvolvedor</p>
+        </div>
+      </div>
+
+      <p className="text-slate-500 text-xs mt-4 text-center">
+        © {new Date().getFullYear()} Vagas Abertas PB
       </p>
     </div>
   );

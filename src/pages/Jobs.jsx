@@ -400,18 +400,10 @@ export default function Jobs() {
       <div className="bg-slate-50 border-b sticky top-[52px] z-10">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex overflow-x-auto gap-2 py-3 hide-scrollbar">
-            <Select value={selectedState} onValueChange={setSelectedState}>
-              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
-                <SelectValue placeholder="Estado" />
+            <Select value="PB" onValueChange={() => {}} disabled>
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap bg-[#1D4371] text-white border-[#1D4371]">
+                <SelectValue>PB</SelectValue>
               </SelectTrigger>
-              <SelectContent>
-                <ScrollArea className="h-[200px]">
-                  <SelectItem value="all">Todos</SelectItem>
-                  {availableStates.map((state) => (
-                    <SelectItem key={state} value={state}>{state}</SelectItem>
-                  ))}
-                </ScrollArea>
-              </SelectContent>
             </Select>
 
             <Popover open={cityOpen} onOpenChange={setCityOpen}>
