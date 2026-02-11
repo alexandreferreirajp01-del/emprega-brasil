@@ -397,7 +397,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-24">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
-              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center flex-shrink-0">
+              <div className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center flex-shrink-0">
                 <img 
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/70128af31_222578-removebg-preview.png" 
                   alt="Vagas Abertas PB" 
@@ -405,10 +405,10 @@ export default function Layout({ children, currentPageName }) {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-lg md:text-xl font-bold text-[#1D4371] dark:text-white leading-tight transition-colors">
+                <span className="text-xl md:text-2xl font-bold text-[#1D4371] dark:text-white leading-tight transition-colors">
                   Vagas Abertas PB
                 </span>
-                <span className="text-xs md:text-sm text-[#2B5A8F] dark:text-blue-400 font-medium transition-colors">
+                <span className="text-sm md:text-base text-[#2B5A8F] dark:text-blue-400 font-medium transition-colors">
                   Empregos na Paraíba
                 </span>
               </div>
