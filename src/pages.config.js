@@ -91,6 +91,7 @@ import Jobs from './pages/Jobs';
 import LGPD from './pages/LGPD';
 import ListaTransmissao from './pages/ListaTransmissao';
 import Mensagens from './pages/Mensagens';
+import N8NConfig from './pages/N8NConfig';
 import News from './pages/News';
 import NewsDetail from './pages/NewsDetail';
 import NotificacoesAdmin from './pages/NotificacoesAdmin';
@@ -127,7 +128,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import N8NConfig from './pages/N8NConfig';
 import __Layout from './Layout.jsx';
 
 
@@ -176,6 +176,7 @@ export const PAGES = {
     "LGPD": LGPD,
     "ListaTransmissao": ListaTransmissao,
     "Mensagens": Mensagens,
+    "N8NConfig": N8NConfig,
     "News": News,
     "NewsDetail": NewsDetail,
     "NotificacoesAdmin": NotificacoesAdmin,
@@ -212,7 +213,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "N8NConfig": N8NConfig,
 }
 
 export const pagesConfig = {

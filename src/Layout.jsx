@@ -311,8 +311,8 @@ export default function Layout({ children, currentPageName }) {
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#FFFFFF" />
       <meta name="msapplication-navbutton-color" content="#FFFFFF" />
       <meta name="msapplication-TileColor" content="#FFFFFF" />
-      <meta name="application-name" content="web Vagas" />
-      <meta name="apple-mobile-web-app-title" content="web Vagas" />
+      <meta name="application-name" content="Vagas Abertas PB" />
+      <meta name="apple-mobile-web-app-title" content="Vagas Abertas PB" />
       {/* Bloqueio total de tradução - todos os navegadores */}
       <meta name="google" content="notranslate" />
       <meta name="googlebot" content="notranslate" />
@@ -322,11 +322,11 @@ export default function Layout({ children, currentPageName }) {
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8605408842983455" crossOrigin="anonymous"></script>
 
       {/* SEO Meta Tags */}
-      <meta name="description" content="web Vagas - A maior plataforma de empregos do Brasil com vagas atualizadas diariamente. Encontre oportunidades em todas as áreas e estados. Cadastro gratuito." />
-      <meta name="keywords" content="vagas de emprego, empregos brasil, oportunidades de trabalho, recrutamento, currículos, busca de emprego" />
-      <meta name="author" content="web Vagas - Alexandre Ferreira" />
+      <meta name="description" content="Vagas Abertas PB - O maior portal de empregos da Paraíba com vagas atualizadas diariamente em João Pessoa, Campina Grande e todas as cidades paraibanas. Cadastro gratuito." />
+      <meta name="keywords" content="vagas paraíba, empregos pb, vagas joão pessoa, empregos campina grande, vagas paraiba, oportunidades paraíba, trabalho pb, currículos paraíba" />
+      <meta name="author" content="Vagas Abertas PB - Alexandre Ferreira" />
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-      <link rel="canonical" href="https://webvagas.com.br" />
+      <link rel="canonical" href="https://vagasabertaspb.com.br" />
       <style>{`
         /* Safe area para notch de celulares */
         :root {
@@ -399,17 +399,17 @@ export default function Layout({ children, currentPageName }) {
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
               <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center flex-shrink-0">
                 <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/f334fd478_217913-removebg-preview.png" 
-                  alt="web Vagas" 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/70128af31_222578-removebg-preview.png" 
+                  alt="Vagas Abertas PB" 
                   className="w-full h-full object-contain"
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-lg md:text-xl font-bold text-[#1D2226] dark:text-white leading-tight transition-colors">
-                  web Vagas
+                <span className="text-lg md:text-xl font-bold text-[#1D4371] dark:text-white leading-tight transition-colors">
+                  Vagas Abertas PB
                 </span>
-                <span className="text-xs md:text-sm text-[#1E6FB6] dark:text-blue-400 font-medium transition-colors">
-                  Encontre oportunidades com mais rapidez
+                <span className="text-xs md:text-sm text-[#2B5A8F] dark:text-blue-400 font-medium transition-colors">
+                  Empregos na Paraíba
                 </span>
               </div>
             </Link>
@@ -562,8 +562,8 @@ export default function Layout({ children, currentPageName }) {
             <p className="text-slate-300 text-sm mb-1">Criador & Desenvolvedor</p>
             <p className="text-slate-400 text-sm">CNPJ: 62.874.724/0001-11</p>
             <div className="flex items-center justify-center gap-4 mt-3">
-              <a href="mailto:contato@webvagas.com.br" className="text-slate-300 hover:text-white transition-colors text-sm">
-                contato@webvagas.com.br
+              <a href="mailto:contato@vagasabertaspb.com.br" className="text-slate-300 hover:text-white transition-colors text-sm">
+                contato@vagasabertaspb.com.br
               </a>
               <span className="text-slate-600">•</span>
               <a 
@@ -623,7 +623,7 @@ export default function Layout({ children, currentPageName }) {
           {/* Bottom Bar */}
           <div className="border-t border-slate-700 pt-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
-              <p>© {new Date().getFullYear()} web Vagas. Todos os direitos reservados.</p>
+              <p>© {new Date().getFullYear()} Vagas Abertas PB. Todos os direitos reservados.</p>
               <div className="flex items-center gap-4">
                 <span>Made with ❤️ no Brasil</span>
               </div>
