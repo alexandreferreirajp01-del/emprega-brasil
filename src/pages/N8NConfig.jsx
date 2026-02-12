@@ -15,6 +15,7 @@ export default function N8NConfig() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState('');
+  const [apiKey, setApiKey] = useState('');
 
   useEffect(() => {
     const init = async () => {
@@ -26,6 +27,16 @@ export default function N8NConfig() {
           return;
         }
         setUser(currentUser);
+        
+        // Buscar a API Key real
+        try {
+          const response = await base44.functions.invoke('getApiKeyN8N');
+          if (response.data.apiKey) {
+            setApiKey(response.data.apiKey);
+          }
+        } catch (e) {
+          console.error('Erro ao buscar API Key:', e);
+        }
       } catch {
         window.location.href = createPageUrl('Splash');
       } finally {
@@ -138,24 +149,73 @@ export default function N8NConfig() {
           </CardContent>
         </Card>
 
-        {/* API Key Info */}
-        <Card className="rounded-2xl">
+        {/* API Key Info - CHAVE REAL */}
+        <Card className="rounded-2xl border-l-4 border-amber-500 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Key className="w-5 h-5 text-amber-600" />
-              API Key
+              🔑 API Key - Configuração Real
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-slate-600">
-              Domínio oficial: <code className="bg-slate-100 px-2 py-1 rounded text-xs font-bold">vagasabertaspb.com.br</code>
-            </p>
-            <p className="text-sm text-slate-600 mt-2">
-              Sua API Key está configurada no sistema. Use o formato: <code className="bg-slate-100 px-2 py-1 rounded text-xs">VAGASPB_[sua_chave]</code>
-            </p>
-            <p className="text-sm text-slate-600 mt-2">
-              No N8N, adicione header: <code className="bg-slate-100 px-2 py-1 rounded text-xs">X-API-Key: VAGASPB_[valor da API_KEY_N8N]</code>
-            </p>
+          <CardContent className="space-y-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <p className="text-sm font-bold text-amber-900 mb-2">Domínio oficial:</p>
+              <code className="bg-white px-3 py-2 rounded text-sm font-bold text-amber-900 block">
+                vagasabertaspb.com.br
+              </code>
+            </div>
+
+            {apiKey ? (
+              <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4">
+                <p className="text-sm font-bold text-green-900 mb-3 flex items-center gap-2">
+                  ✅ Sua API Key (Valor Real - Copie e Use no N8N)
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    value={apiKey}
+                    readOnly
+                    className="font-mono text-sm font-bold text-green-900 bg-white border-green-300"
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => copyToClipboard(apiKey, 'api-key-real')}
+                    className="border-green-300 hover:bg-green-100"
+                    title="Copiar API Key"
+                  >
+                    {copied === 'api-key-real' ? (
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-green-600" />
+                    )}
+                  </Button>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded p-3 mt-3">
+                  <p className="text-xs font-bold text-blue-900 mb-1">💡 Como usar no N8N:</p>
+                  <p className="text-xs text-blue-800">
+                    1. Copie o valor acima (clique no ícone de copiar)<br/>
+                    2. No N8N, adicione Header: <code className="bg-white px-2 py-1 rounded">X-API-Key</code><br/>
+                    3. Cole exatamente o valor copiado (sem modificar)
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-red-50 border border-red-300 rounded-lg p-4">
+                <p className="text-sm font-bold text-red-900 mb-2">⚠️ API Key não encontrada</p>
+                <p className="text-xs text-red-800">
+                  Configure a secret <code className="bg-white px-2 py-1 rounded font-mono">API_KEY_N8N</code> no Dashboard Base44
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open('https://app.base44.com', '_blank')}
+                  className="mt-3 gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Abrir Dashboard
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -202,26 +262,35 @@ export default function N8NConfig() {
                   </div>
                 </div>
 
-                {/* Headers */}
+                {/* Headers COM CHAVE REAL */}
                 <div>
-                  <label className="text-xs font-medium text-slate-600 mb-1 block">Headers</label>
+                  <label className="text-xs font-medium text-slate-600 mb-1 block">Headers (Valores Reais)</label>
                   <div className="bg-slate-900 rounded-lg p-4">
                     <pre className="text-xs text-green-400 font-mono">
-{JSON.stringify(endpoint.headers, null, 2)}
+{JSON.stringify({
+  'Content-Type': 'application/json',
+  'X-API-Key': apiKey || '{{CONFIGURE_API_KEY_N8N_NO_DASHBOARD}}'
+}, null, 2)}
                     </pre>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => copyToClipboard(JSON.stringify(endpoint.headers, null, 2), `${endpoint.id}-headers`)}
+                    onClick={() => copyToClipboard(JSON.stringify({
+                      'Content-Type': 'application/json',
+                      'X-API-Key': apiKey || '{{CONFIGURE_API_KEY_N8N}}'
+                    }, null, 2), `${endpoint.id}-headers`)}
                     className="mt-2 w-full"
                   >
                     {copied === `${endpoint.id}-headers` ? (
                       <><CheckCircle className="w-4 h-4 mr-2 text-green-600" />Copiado!</>
                     ) : (
-                      <><Copy className="w-4 h-4 mr-2" />Copiar Headers</>
+                      <><Copy className="w-4 h-4 mr-2" />Copiar Headers com API Key Real</>
                     )}
                   </Button>
+                  {apiKey && (
+                    <p className="text-xs text-green-600 mt-2">✅ Headers incluem sua API Key real e podem ser copiados diretamente</p>
+                  )}
                 </div>
 
                 {/* Body Example */}
@@ -246,86 +315,197 @@ export default function N8NConfig() {
                   </Button>
                 </div>
 
-                {/* cURL Example */}
+                {/* cURL Example COM CHAVE REAL */}
                 <div>
-                  <label className="text-xs font-medium text-slate-600 mb-1 block">Exemplo cURL</label>
+                  <label className="text-xs font-medium text-slate-600 mb-1 block">Exemplo cURL (Com Chave Real)</label>
                   <div className="bg-slate-900 rounded-lg p-4">
                     <pre className="text-xs text-yellow-400 font-mono overflow-x-auto whitespace-pre-wrap break-all">
 {`curl -X POST '${endpoint.endpoint}' \\
   -H 'Content-Type: application/json' \\
-  -H 'X-API-Key: VAGASPB_{{SUA_CHAVE_API}}' \\
+  -H 'X-API-Key: ${apiKey || '{{CONFIGURE_API_KEY_N8N}}'}' \\
   -d '${JSON.stringify(endpoint.body, null, 2)}'`}
                     </pre>
                   </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(`curl -X POST '${endpoint.endpoint}' \\\n  -H 'Content-Type: application/json' \\\n  -H 'X-API-Key: ${apiKey}' \\\n  -d '${JSON.stringify(endpoint.body, null, 2)}'`, `${endpoint.id}-curl`)}
+                    className="mt-2 w-full"
+                  >
+                    {copied === `${endpoint.id}-curl` ? (
+                      <><CheckCircle className="w-4 h-4 mr-2 text-green-600" />Copiado!</>
+                    ) : (
+                      <><Copy className="w-4 h-4 mr-2" />Copiar cURL Completo</>
+                    )}
+                  </Button>
+                  {apiKey && (
+                    <p className="text-xs text-green-600 mt-2">✅ Este cURL já inclui sua API Key real e pode ser testado diretamente</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
           );
         })}
 
-        {/* Instruções N8N */}
-        <Card className="rounded-2xl border-l-4 border-green-500">
+        {/* Instruções N8N - PASSO A PASSO COMPLETO */}
+        <Card className="rounded-2xl border-l-4 border-green-500 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Code className="w-5 h-5 text-green-600" />
-              Como Configurar no N8N
+              📚 Guia Completo: Passo a Passo N8N
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-3 text-sm">
-              <div className="flex gap-3">
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-bold text-xs">
+            <div className="space-y-4">
+              {/* Passo 1 */}
+              <div className="flex gap-3 border-b pb-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-bold">
                   1
                 </div>
-                <div>
-                  <p className="font-semibold text-slate-800">Adicione um nó HTTP Request</p>
-                  <p className="text-slate-600 text-xs">No seu workflow N8N, adicione um nó "HTTP Request"</p>
+                <div className="flex-1">
+                  <p className="font-bold text-slate-800 mb-1">Crie/Abra seu Workflow no N8N</p>
+                  <p className="text-slate-600 text-xs">Acesse https://app.n8n.cloud ou sua instância N8N</p>
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-bold text-xs">
+              {/* Passo 2 */}
+              <div className="flex gap-3 border-b pb-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-bold">
                   2
                 </div>
-                <div>
-                  <p className="font-semibold text-slate-800">Configure o Método e URL</p>
-                  <p className="text-slate-600 text-xs">Method: <code className="bg-slate-100 px-1 rounded">POST</code></p>
-                  <p className="text-slate-600 text-xs">URL: Cole o endpoint acima (texto ou imagem)</p>
+                <div className="flex-1">
+                  <p className="font-bold text-slate-800 mb-1">Adicione um Nó "HTTP Request"</p>
+                  <p className="text-slate-600 text-xs mb-2">Clique no + e busque "HTTP Request"</p>
+                  <div className="bg-slate-50 border rounded p-2 text-xs">
+                    <p><strong>Authentication:</strong> None</p>
+                    <p><strong>Request Method:</strong> POST</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-bold text-xs">
+              {/* Passo 3 - URL */}
+              <div className="flex gap-3 border-b pb-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-bold">
                   3
                 </div>
-                <div>
-                  <p className="font-semibold text-slate-800">Adicione os Headers</p>
-                  <p className="text-slate-600 text-xs">Em "Headers" → Add Header:</p>
-                  <ul className="text-xs text-slate-600 ml-4 mt-1 space-y-1">
-                    <li>• <code className="bg-slate-100 px-1 rounded">Content-Type: application/json</code></li>
-                    <li>• <code className="bg-slate-100 px-1 rounded">X-API-Key: VAGASPB_[sua_chave]</code></li>
-                  </ul>
+                <div className="flex-1">
+                  <p className="font-bold text-slate-800 mb-1">Configure a URL</p>
+                  <p className="text-slate-600 text-xs mb-2">Cole um dos endpoints:</p>
+                  <div className="space-y-2">
+                    <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                      <p className="text-xs font-bold text-blue-900 mb-1">Para vagas em TEXTO:</p>
+                      <code className="text-xs text-blue-800 break-all block">{textEndpoint}</code>
+                    </div>
+                    <div className="bg-purple-50 border border-purple-200 rounded p-2">
+                      <p className="text-xs font-bold text-purple-900 mb-1">Para vagas em IMAGEM:</p>
+                      <code className="text-xs text-purple-800 break-all block">{imageEndpoint}</code>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-bold text-xs">
+              {/* Passo 4 - Headers COM CHAVE REAL */}
+              <div className="flex gap-3 border-b pb-3">
+                <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 text-amber-700 font-bold">
                   4
                 </div>
-                <div>
-                  <p className="font-semibold text-slate-800">Configure o Body</p>
-                  <p className="text-slate-600 text-xs">Body Type: <code className="bg-slate-100 px-1 rounded">JSON</code></p>
-                  <p className="text-slate-600 text-xs mt-1">Use os exemplos de body acima</p>
+                <div className="flex-1">
+                  <p className="font-bold text-slate-800 mb-2">⚡ Configure os Headers (IMPORTANTE)</p>
+                  <p className="text-slate-600 text-xs mb-3">No N8N, vá em "Headers" e adicione 2 headers:</p>
+                  
+                  <div className="space-y-3">
+                    <div className="bg-slate-50 border rounded p-3">
+                      <p className="text-xs font-bold text-slate-700 mb-1">Header 1:</p>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <p className="text-slate-500">Name:</p>
+                          <code className="bg-white px-2 py-1 rounded block mt-1">Content-Type</code>
+                        </div>
+                        <div>
+                          <p className="text-slate-500">Value:</p>
+                          <code className="bg-white px-2 py-1 rounded block mt-1">application/json</code>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-green-50 border-2 border-green-300 rounded p-3">
+                      <p className="text-xs font-bold text-green-900 mb-2">Header 2 (SUA API KEY REAL):</p>
+                      <div className="grid grid-cols-1 gap-2 text-xs">
+                        <div>
+                          <p className="text-green-700 font-medium mb-1">Name:</p>
+                          <code className="bg-white px-2 py-1 rounded block border border-green-300">X-API-Key</code>
+                        </div>
+                        <div>
+                          <p className="text-green-700 font-medium mb-1">Value (COPIE ESTE VALOR):</p>
+                          {apiKey ? (
+                            <div className="flex gap-1">
+                              <code className="bg-white px-2 py-1 rounded flex-1 border-2 border-green-400 font-bold text-green-900 break-all">
+                                {apiKey}
+                              </code>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-green-300 hover:bg-green-100"
+                                onClick={() => copyToClipboard(apiKey, `${endpoint.id}-api-key`)}
+                              >
+                                {copied === `${endpoint.id}-api-key` ? (
+                                  <CheckCircle className="w-4 h-4 text-green-600" />
+                                ) : (
+                                  <Copy className="w-4 h-4 text-green-600" />
+                                )}
+                              </Button>
+                            </div>
+                          ) : (
+                            <code className="bg-red-50 px-2 py-1 rounded block border border-red-300 text-red-700">
+                              Configure API_KEY_N8N no Dashboard
+                            </code>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-bold text-xs">
+              {/* Passo 5 - Body */}
+              <div className="flex gap-3 border-b pb-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-bold">
                   5
                 </div>
-                <div>
-                  <p className="font-semibold text-slate-800">Teste a Conexão</p>
-                  <p className="text-slate-600 text-xs">Execute o workflow e verifique se a vaga foi criada</p>
+                <div className="flex-1">
+                  <p className="font-bold text-slate-800 mb-1">Configure o Body</p>
+                  <p className="text-slate-600 text-xs mb-2">No N8N, em "Body":</p>
+                  <div className="bg-slate-50 border rounded p-2 text-xs space-y-1">
+                    <p>• Selecione <code className="bg-white px-2 py-1 rounded">JSON</code></p>
+                    <p>• Cole o exemplo de body mostrado acima</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Passo 6 */}
+              <div className="flex gap-3 border-b pb-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-bold">
+                  6
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-slate-800 mb-1">Teste a Conexão</p>
+                  <p className="text-slate-600 text-xs mb-2">No N8N, clique em "Test workflow"</p>
+                  <div className="bg-green-50 border border-green-200 rounded p-2 text-xs">
+                    <p className="text-green-800">✅ Resposta esperada: Status 200</p>
+                    <p className="text-green-800">✅ Vagas criadas com sucesso</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Passo 7 */}
+              <div className="flex gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 text-blue-700 font-bold">
+                  7
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-slate-800 mb-1">Ative o Workflow</p>
+                  <p className="text-slate-600 text-xs">Após testar com sucesso, ative o workflow no N8N</p>
+                  <p className="text-xs text-blue-700 mt-1">🎉 Pronto! Vagas serão criadas automaticamente</p>
                 </div>
               </div>
             </div>
