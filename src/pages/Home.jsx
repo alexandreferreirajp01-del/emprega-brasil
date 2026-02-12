@@ -418,6 +418,7 @@ export default function Home() {
                     zoom={8}
                     minZoom={7}
                     maxZoom={12}
+                    bounds={[[-8.5, -39], [-6, -34.5]]}
                     maxBounds={[[-8.5, -39], [-6, -34.5]]}
                     style={{ height: '100%', width: '100%', position: 'relative', zIndex: 1 }}
                   >

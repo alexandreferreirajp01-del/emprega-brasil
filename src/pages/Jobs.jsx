@@ -63,6 +63,7 @@ export default function Jobs() {
   const [funcOpen, setFuncOpen] = useState(false);
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
+  const [showHomeOfficeOnly, setShowHomeOfficeOnly] = useState(false);
   
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
@@ -294,8 +295,9 @@ export default function Jobs() {
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     const matchesPremium = !showPremiumOnly || job.is_premium;
     const matchesFeatured = !showFeaturedOnly || job.is_featured;
+    const matchesHomeOffice = !showHomeOfficeOnly || job.work_mode === 'Remoto' || job.job_type === 'Home Office';
     
-    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured;
+    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice;
   });
 
   const filteredCities = availableCities.filter(city =>
@@ -493,30 +495,42 @@ export default function Jobs() {
             )}
           </div>
 
-          {/* Filtros Premium e Destaque */}
-          {userIsPremium && (
-            <div className="flex gap-3 pb-3 px-1">
-              <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap">
-                <Switch
-                  checked={showPremiumOnly}
-                  onCheckedChange={setShowPremiumOnly}
-                  className="data-[state=checked]:bg-purple-600"
-                />
-                <Lock className="w-3.5 h-3.5 text-purple-600" />
-                <span className="text-xs font-medium text-slate-700">Premium</span>
-              </div>
+          {/* Filtros Premium, Destaque e Home Office */}
+          <div className="flex gap-3 pb-3 px-1 overflow-x-auto hide-scrollbar">
+            {userIsPremium && (
+              <>
+                <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap">
+                  <Switch
+                    checked={showPremiumOnly}
+                    onCheckedChange={setShowPremiumOnly}
+                    className="data-[state=checked]:bg-purple-600"
+                  />
+                  <Lock className="w-3.5 h-3.5 text-purple-600" />
+                  <span className="text-xs font-medium text-slate-700">Premium</span>
+                </div>
 
-              <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap">
-                <Switch
-                  checked={showFeaturedOnly}
-                  onCheckedChange={setShowFeaturedOnly}
-                  className="data-[state=checked]:bg-yellow-500"
-                />
-                <Star className="w-3.5 h-3.5 text-yellow-500" />
-                <span className="text-xs font-medium text-slate-700">Destaque</span>
-              </div>
+                <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap">
+                  <Switch
+                    checked={showFeaturedOnly}
+                    onCheckedChange={setShowFeaturedOnly}
+                    className="data-[state=checked]:bg-yellow-500"
+                  />
+                  <Star className="w-3.5 h-3.5 text-yellow-500" />
+                  <span className="text-xs font-medium text-slate-700">Destaque</span>
+                </div>
+              </>
+            )}
+
+            <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap">
+              <Switch
+                checked={showHomeOfficeOnly}
+                onCheckedChange={setShowHomeOfficeOnly}
+                className="data-[state=checked]:bg-blue-600"
+              />
+              <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+              <span className="text-xs font-medium text-slate-700">Home Office</span>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
