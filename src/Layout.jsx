@@ -255,12 +255,7 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col notranslate" translate="no" lang="pt-BR" style={{ 
-        WebkitTapHighlightColor: 'transparent',
-        WebkitTouchCallout: 'none',
-        WebkitUserSelect: 'none',
-        userSelect: 'none'
-      }}>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col notranslate" translate="no" lang="pt-BR">
   {/* AdsTerra Ads */}
   <PopunderAd pageName={currentPageName} />
   <SocialBarAd pageName={currentPageName} />
