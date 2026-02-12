@@ -62,10 +62,8 @@ export default function Layout({ children, currentPageName }) {
       }
     };
 
-    // Carregar inicialmente
     loadItems();
     
-    // Listener para atualizações
     const handleUpdate = () => {
       loadItems();
     };
@@ -92,9 +90,7 @@ export default function Layout({ children, currentPageName }) {
     }
   }, []);
 
-  // Função para atualizar a cor da barra de endereços
   const updateThemeColor = (color) => {
-    // Atualizar ou criar meta tag theme-color
     let metaTheme = document.querySelector('meta[name="theme-color"]');
     if (!metaTheme) {
       metaTheme = document.createElement('meta');
@@ -103,7 +99,6 @@ export default function Layout({ children, currentPageName }) {
     }
     metaTheme.setAttribute('content', color);
 
-    // Atualizar meta tags para diferentes modos
     let metaThemeLight = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]');
     if (!metaThemeLight) {
       metaThemeLight = document.createElement('meta');
@@ -129,14 +124,13 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  // Alternar tema
   const toggleTheme = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
     if (newMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
-      updateThemeColor('#0f172a'); // slate-900
+      updateThemeColor('#0f172a');
     } else {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
@@ -144,14 +138,10 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  // Pages that don't need layout
   const noLayoutPages = ['Splash', 'Login', 'Register'];
-  const publicPages = ['Home', 'Jobs', 'JobDetail', 'News', 'NewsDetail', 'Groups', 'Subscription', 'About', 'Contact', 'FAQ', 'Terms', 'Privacy', 'Cookies', 'Security', 'LGPD', 'Advertise', 'Careers', 'Parcerias'];
 
-  // Esconder botão Base44 edit no modo produção/APK - FORÇADO
   useEffect(() => {
     const hideBase44Button = () => {
-      // Buscar TODOS os elementos que possam ser do Base44
       const selectors = [
         '[data-base44-edit]',
         '.base44-edit-button',
@@ -166,7 +156,6 @@ export default function Layout({ children, currentPageName }) {
         });
       });
       
-      // Buscar por texto "Edit with Base44"
       document.querySelectorAll('button, div, span, a').forEach(el => {
         if (el.textContent?.includes('Edit') && el.textContent?.includes('Base44')) {
           el.style.cssText = 'display: none !important; visibility: hidden !important;';
@@ -176,7 +165,6 @@ export default function Layout({ children, currentPageName }) {
         }
       });
       
-      // Esconder botões fixos no bottom que não são do app
       document.querySelectorAll('div[style*="position: fixed"]').forEach(el => {
         if (el.textContent?.includes('Base44') || el.textContent?.includes('Edit with')) {
           el.style.cssText = 'display: none !important;';
@@ -184,19 +172,14 @@ export default function Layout({ children, currentPageName }) {
       });
     };
     
-    // Executar imediatamente
     hideBase44Button();
-    
-    // Executar após um delay para pegar elementos carregados depois
     setTimeout(hideBase44Button, 500);
     setTimeout(hideBase44Button, 1000);
     setTimeout(hideBase44Button, 2000);
     
-    // Observer para mudanças no DOM
     const observer = new MutationObserver(hideBase44Button);
     observer.observe(document.body, { childList: true, subtree: true, attributes: true });
     
-    // Interval como backup
     const interval = setInterval(hideBase44Button, 3000);
     
     return () => {
@@ -226,15 +209,6 @@ export default function Layout({ children, currentPageName }) {
   }
 
   const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
-  
-  // Verificar acesso premium (para mensagens)
-  const hasPremiumAccess = user?.subscription_type === 'premium' || 
-    user?.subscription_type === 'admin' || 
-    user?.subscription_type === 'recruiter' ||
-    user?.role === 'admin';
-  
-  // Verificar se pode usar currículo (apenas Premium)
-  const canUseResume = user?.subscription_type === 'premium';
 
   const handleLogout = () => {
     localStorage.clear();
@@ -242,454 +216,363 @@ export default function Layout({ children, currentPageName }) {
     window.location.href = createPageUrl('Splash');
   };
 
-  // Bloquear tradução no HTML root
-    useEffect(() => {
-      // Aplicar atributos anti-tradução no HTML e body
-      document.documentElement.setAttribute('translate', 'no');
-      document.documentElement.setAttribute('lang', 'pt-BR');
-      document.documentElement.classList.add('notranslate');
-      document.body.setAttribute('translate', 'no');
-      document.body.classList.add('notranslate');
+  useEffect(() => {
+    document.documentElement.setAttribute('translate', 'no');
+    document.documentElement.setAttribute('lang', 'pt-BR');
+    document.documentElement.classList.add('notranslate');
+    document.body.setAttribute('translate', 'no');
+    document.body.classList.add('notranslate');
 
-      // Criar meta tags de bloqueio se não existirem
-      const metaTags = [
-        { name: 'google', content: 'notranslate' },
-        { name: 'googlebot', content: 'notranslate' },
-        { httpEquiv: 'Content-Language', content: 'pt-BR' },
-      ];
+    const metaTags = [
+      { name: 'google', content: 'notranslate' },
+      { name: 'googlebot', content: 'notranslate' },
+      { httpEquiv: 'Content-Language', content: 'pt-BR' },
+    ];
 
-      metaTags.forEach(meta => {
-        const selector = meta.name ? `meta[name="${meta.name}"]` : `meta[http-equiv="${meta.httpEquiv}"]`;
-        if (!document.querySelector(selector)) {
-          const tag = document.createElement('meta');
-          if (meta.name) tag.setAttribute('name', meta.name);
-          if (meta.httpEquiv) tag.setAttribute('http-equiv', meta.httpEquiv);
-          tag.setAttribute('content', meta.content);
-          document.head.appendChild(tag);
-        }
-      });
+    metaTags.forEach(meta => {
+      const selector = meta.name ? `meta[name="${meta.name}"]` : `meta[http-equiv="${meta.httpEquiv}"]`;
+      if (!document.querySelector(selector)) {
+        const tag = document.createElement('meta');
+        if (meta.name) tag.setAttribute('name', meta.name);
+        if (meta.httpEquiv) tag.setAttribute('http-equiv', meta.httpEquiv);
+        tag.setAttribute('content', meta.content);
+        document.head.appendChild(tag);
+      }
+    });
 
-      // Bloquear eventos de tradução
-      const blockTranslation = (e) => {
-        if (e.type === 'DOMNodeInserted' && e.target.nodeName === 'FONT') {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      };
+    const blockTranslation = (e) => {
+      if (e.type === 'DOMNodeInserted' && e.target.nodeName === 'FONT') {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
 
-      document.addEventListener('DOMNodeInserted', blockTranslation, true);
+    document.addEventListener('DOMNodeInserted', blockTranslation, true);
 
-      return () => {
-        document.removeEventListener('DOMNodeInserted', blockTranslation, true);
-      };
-    }, []);
+    return () => {
+      document.removeEventListener('DOMNodeInserted', blockTranslation, true);
+    };
+  }, []);
 
-    return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col notranslate transition-colors duration-300" translate="no" lang="pt-BR">
-      {/* AdsTerra Ads */}
-      <PopunderAd pageName={currentPageName} />
-      <SocialBarAd pageName={currentPageName} />
+  return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col notranslate" translate="no" lang="pt-BR" style={{ 
+        WebkitTapHighlightColor: 'transparent',
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        userSelect: 'none'
+      }}>
+  {/* AdsTerra Ads */}
+  <PopunderAd pageName={currentPageName} />
+  <SocialBarAd pageName={currentPageName} />
 
-      {/* Fallback de navegação anti-tela-branca */}
-      <NavigationFallback />
+  <NavigationFallback />
+  <ServiceWorkerManager />
+  <NativePermissionModal />
+  <ApplyBasicPermissions user={user} />
 
-      {/* Service Worker Manager - registra SW inline */}
-      <ServiceWorkerManager />
-
-      {/* Modal Nativo de Permissões */}
-      <NativePermissionModal />
-
-      {/* Aplicar permissões básicas automaticamente */}
-      <ApplyBasicPermissions user={user} />
-
-      {/* PWA/APK Meta Tags - Injeta no head */}
-      <meta name="mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      <meta name="theme-color" content="#FFFFFF" />
-      <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FFFFFF" />
-      <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#FFFFFF" />
-      <meta name="msapplication-navbutton-color" content="#FFFFFF" />
-      <meta name="msapplication-TileColor" content="#FFFFFF" />
-      <meta name="application-name" content="Vagas Abertas PB" />
-      <meta name="apple-mobile-web-app-title" content="Vagas Abertas PB" />
-      {/* Bloqueio total de tradução - todos os navegadores */}
-      <meta name="google" content="notranslate" />
-      <meta name="googlebot" content="notranslate" />
-      <meta httpEquiv="Content-Language" content="pt-BR" />
-      {/* Google AdSense */}
-      <meta name="google-adsense-account" content="ca-pub-8605408842983455" />
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8605408842983455" crossOrigin="anonymous"></script>
-
-      {/* SEO Meta Tags */}
-      <meta name="description" content="Vagas Abertas PB - O maior portal de empregos da Paraíba com vagas atualizadas diariamente em João Pessoa, Campina Grande e todas as cidades paraibanas. Cadastro gratuito." />
-      <meta name="keywords" content="vagas paraíba, empregos pb, vagas joão pessoa, empregos campina grande, vagas paraiba, oportunidades paraíba, trabalho pb, currículos paraíba" />
-      <meta name="author" content="Vagas Abertas PB - Alexandre Ferreira" />
-      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-      <link rel="canonical" href="https://vagasabertaspb.com.br" />
-      <style>{`
-        /* Safe area para notch de celulares */
-        :root {
-          --sat: env(safe-area-inset-top, 0px);
-          --sar: env(safe-area-inset-right, 0px);
-          --sab: env(safe-area-inset-bottom, 0px);
-          --sal: env(safe-area-inset-left, 0px);
-          --primary-color: #0A66C2;
-        }
-
-        /* Force primary color consistency */
-        .bg-primary,
-        [class*="bg-blue"],
-        [class*="bg-indigo"],
-        [style*="background: blue"],
-        [style*="background: rgb(0, 86, 255)"] {
-          background-color: #0A66C2 !important;
-          background-image: none !important;
-        }
-        
-        .safe-area-top { padding-top: var(--sat); }
-        .safe-area-bottom { padding-bottom: var(--sab); }
-        .pb-safe { padding-bottom: max(1rem, var(--sab)); }
-        .pb-nav { padding-bottom: calc(4rem + var(--sab)); }
-        
-/* Esconder elementos Base44 */
-        [data-base44-edit],
-        .base44-edit-button,
-        #base44-widget,
-        .base44-floating-button {
-          display: none !important;
-          visibility: hidden !important;
-        }
-        
-        /* Mobile optimizations */
-        * {
-          -webkit-tap-highlight-color: transparent;
-          -webkit-touch-callout: none;
-        }
-        
-        input, textarea, select {
-          font-size: 16px !important; /* Previne zoom no iOS */
-        }
-        
-        /* Smooth scrolling */
-        html {
-          scroll-behavior: smooth;
-        }
-        
-        /* Remove scrollbar em mobile */
-        @media (max-width: 768px) {
-          ::-webkit-scrollbar {
-            width: 0;
-            height: 0;
-          }
-        }
-        
-        /* Status bar style for PWA */
-        @media (display-mode: standalone) {
-          body {
-            padding-top: var(--sat);
-          }
-        }
-      `}</style>
-      {/* Top Navigation */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-40 transition-colors duration-300" translate="no">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-28">
-            {/* Logo */}
-            <Link to={createPageUrl('Home')} className="flex items-center gap-3">
-              <div className="w-32 h-32 md:w-40 md:h-40 flex items-center justify-center flex-shrink-0">
-                <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
-                  alt="Vagas Abertas PB" 
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-bold text-black dark:text-white leading-tight transition-colors">
-                  Vagas Abertas PB
-                </span>
-                <span className="text-sm md:text-base text-[#2B5A8F] dark:text-blue-400 font-medium transition-colors">
-                  Empregos na Paraíba
-                </span>
-              </div>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1 flex-wrap max-w-[60%]">
-              {navItems.map((item) => (
-                <Link key={item.page} to={createPageUrl(item.page)}>
-                  <Button 
-                    variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap transition-colors ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'text-[#1D2226] dark:text-slate-200'}`}
-                  >
-                    <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                    <span>{item.name}</span>
-                  </Button>
-                </Link>
-              ))}
-                  </nav>
-
-                  {/* AdsTerra Banner 728x90 - Desktop Header */}
-                  <div className="hidden lg:block">
-                    <BannerAd size="728x90" pageName={currentPageName} location="header" />
-                  </div>
-
-                  {/* User Actions */}
-            <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={toggleTheme}
-                className="text-[#1D2226] dark:text-white rounded-xl"
-              >
-                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </Button>
-              {user ? (
-                <>
-                  <NotificationBell user={user} />
-                  <Link to={createPageUrl('Profile')}>
-                    <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] dark:text-white border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                      <User className="w-4 h-4 mr-1.5" />
-                      Perfil
-                    </Button>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Button 
-                    onClick={() => {
-                      sessionStorage.setItem('needs_login', 'true');
-                      window.location.href = createPageUrl('Splash');
-                    }}
-                    className="bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl text-sm px-6 font-semibold"
-                  >
-                    Entrar
-                  </Button>
-                  <img 
-                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
-                    alt="Criador"
-                    className="w-8 h-8 rounded-full border-2 border-[#1D4371] ml-2"
-                    title="Criado por Alexandre Ferreira"
-                  />
-                </>
-              )}
-            </div>
-
-            {/* Mobile/Tablet Menu Button */}
-            <div className="lg:hidden flex items-center gap-1">
-              {user && <NotificationBell user={user} />}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={toggleTheme}
-                className="text-[#1D2226] dark:text-white"
-              >
-                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-[#1D2226] dark:text-white"
-              >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile/Tablet Menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden border-t bg-white dark:bg-slate-800 dark:border-slate-700 transition-colors">
-            <nav className="p-4 space-y-2">
-              {navItems.filter(item => item.page !== 'Profile').map((item) => (
-                <Link 
-                  key={item.page} 
-                  to={createPageUrl(item.page)}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button 
-                    variant={currentPageName === item.page ? "secondary" : "ghost"}
-                    className={`w-full justify-start rounded-xl transition-colors ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'dark:text-slate-200'}`}
-                  >
-                    <item.icon className="w-5 h-5 mr-3" />
-                    {item.name}
-                  </Button>
-                </Link>
-              ))}
-
-              <div className="pt-2 border-t dark:border-slate-700">
-                {user ? (
-                  <>
-                    <Link to={createPageUrl('Profile')} onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full rounded-xl mb-2 dark:border-slate-600 dark:text-white">
-                        <User className="w-5 h-5 mr-3" />
-                        Meu Perfil
-                      </Button>
-                    </Link>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full text-red-600 dark:text-red-400 rounded-xl"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="w-5 h-5 mr-3" />
-                      Sair
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Link to={createPageUrl('Splash')} onClick={() => setMobileMenuOpen(false)}>
-                      <Button className="w-full bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl font-semibold mb-2">
-                        Entrar / Cadastrar
-                      </Button>
-                    </Link>
-                    <div className="flex items-center justify-center gap-3 pt-2">
-                      <img 
-                        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
-                        alt="Alexandre Ferreira"
-                        className="w-10 h-10 rounded-full border-2 border-[#1D4371]"
-                      />
-                      <div className="text-left">
-                        <p className="text-xs font-bold text-slate-800 dark:text-white">Alexandre Ferreira</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Criador</p>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </nav>
-          </div>
-        )}
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 pb-nav">
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
-      </main>
-
-      {/* Footer - Completo e AdSense Ready */}
-      <footer className="bg-slate-800 dark:bg-slate-950 text-white py-12 hidden md:block transition-colors" translate="no">
-        <div className="max-w-7xl mx-auto px-4">
-          {/* Criador e Foto */}
-          <div className="text-center mb-10">
+  {/* Top Navigation - Fixed com z-index máximo */}
+  <header className="bg-white dark:bg-slate-800 shadow-sm fixed top-0 left-0 right-0 z-[9999]" translate="no" style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 9999,
+    paddingTop: 'env(safe-area-inset-top, 0px)'
+  }}>
+    <div className="max-w-7xl mx-auto px-4">
+      <div className="flex items-center justify-between h-28">
+        <Link to={createPageUrl('Home')} className="flex items-center gap-3 flex-shrink-0">
+          <div className="w-32 h-32 md:w-40 md:h-40 flex items-center justify-center flex-shrink-0">
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
-              alt="Alexandre Ferreira"
-              className="w-28 h-28 rounded-full mx-auto mb-4 object-cover border-4 border-[#1D4371] shadow-xl bg-white p-1"
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
+              alt="Vagas Abertas PB" 
+              className="w-full h-full object-contain"
             />
-            <h3 className="text-xl font-bold text-white mb-2">Alexandre Ferreira</h3>
-            <p className="text-slate-300 text-sm mb-1">Criador & Desenvolvedor</p>
-            <p className="text-slate-400 text-sm">CNPJ: 62.874.724/0001-11</p>
-            <div className="flex items-center justify-center gap-4 mt-3">
-              <a href="mailto:contato@vagasabertaspb.com.br" className="text-slate-300 hover:text-white transition-colors text-sm">
-                contato@vagasabertaspb.com.br
-              </a>
-              <span className="text-slate-600">•</span>
-              <a 
-                href="https://wa.me/5583991971320" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-green-400 hover:text-green-300 transition-colors text-sm font-medium flex items-center gap-1"
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xl md:text-2xl font-bold text-black dark:text-white leading-tight">
+              Vagas Abertas PB
+            </span>
+            <span className="text-sm md:text-base text-[#2B5A8F] dark:text-blue-400 font-medium">
+              Empregos na Paraíba
+            </span>
+          </div>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center gap-1 flex-wrap max-w-[60%]">
+          {navItems.map((item) => (
+            <Link key={item.page} to={createPageUrl(item.page)}>
+              <Button 
+                variant={currentPageName === item.page ? "secondary" : "ghost"}
+                className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'text-[#1D2226] dark:text-slate-200'}`}
               >
-                <MessageCircle className="w-4 h-4" />
-                (83) 99197-1320
-              </a>
-            </div>
-          </div>
+                <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                <span>{item.name}</span>
+              </Button>
+            </Link>
+          ))}
+              </nav>
 
-          {/* Links Organizados */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10 max-w-5xl mx-auto">
-            <div>
-              <h4 className="font-semibold mb-3 text-white">Legal</h4>
-              <div className="space-y-2 text-sm">
-                <Link to={createPageUrl('Privacy')} className="block text-slate-400 hover:text-white transition-colors">Política de Privacidade</Link>
-                <Link to={createPageUrl('Terms')} className="block text-slate-400 hover:text-white transition-colors">Termos de Uso</Link>
-                <Link to={createPageUrl('Cookies')} className="block text-slate-400 hover:text-white transition-colors">Política de Cookies</Link>
-                <Link to={createPageUrl('Security')} className="block text-slate-400 hover:text-white transition-colors">Política de Segurança</Link>
+              <div className="hidden lg:block">
+                <BannerAd size="728x90" pageName={currentPageName} location="header" />
               </div>
-            </div>
 
-            <div>
-              <h4 className="font-semibold mb-3 text-white">Empresa</h4>
-              <div className="space-y-2 text-sm">
-                <Link to={createPageUrl('About')} className="block text-slate-400 hover:text-white transition-colors">Sobre Nós</Link>
-                <Link to={createPageUrl('Contact')} className="block text-slate-400 hover:text-white transition-colors">Contato</Link>
-                <Link to={createPageUrl('Careers')} className="block text-slate-400 hover:text-white transition-colors">Trabalhe Conosco</Link>
-                <Link to={createPageUrl('Parcerias')} className="block text-slate-400 hover:text-white transition-colors">Parcerias</Link>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-3 text-white">Recursos</h4>
-              <div className="space-y-2 text-sm">
-                <Link to={createPageUrl('FAQ')} className="block text-slate-400 hover:text-white transition-colors">FAQ</Link>
-                <Link to={createPageUrl('LGPD')} className="block text-slate-400 hover:text-white transition-colors">LGPD – Seus Direitos</Link>
-                <Link to={createPageUrl('Groups')} className="block text-slate-400 hover:text-white transition-colors">Grupos WhatsApp</Link>
-                <Link to={createPageUrl('News')} className="block text-slate-400 hover:text-white transition-colors">Notícias</Link>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-3 text-white">Anuncie</h4>
-              <div className="space-y-2 text-sm">
-                <Link to={createPageUrl('Advertise')} className="block text-slate-400 hover:text-white transition-colors">Anunciar Conosco</Link>
-                <Link to={createPageUrl('Subscription')} className="block text-slate-400 hover:text-white transition-colors">Planos</Link>
-                <a href="mailto:rhvagasabertasparaiba@gmail.com" className="block text-slate-400 hover:text-white transition-colors">Suporte</a>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <div className="border-t border-slate-700 pt-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
-              <p>© {new Date().getFullYear()} Vagas Abertas PB. Todos os direitos reservados.</p>
-              <div className="flex items-center gap-4">
-                <span>Made with ❤️ no Brasil</span>
-              </div>
-            </div>
-          </div>
+        <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleTheme}
+            className="text-[#1D2226] dark:text-white rounded-xl"
+          >
+            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
+          {user ? (
+            <>
+              <NotificationBell user={user} />
+              <Link to={createPageUrl('Profile')}>
+                <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] dark:text-white border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <User className="w-4 h-4 mr-1.5" />
+                  Perfil
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Button 
+                onClick={() => {
+                  sessionStorage.setItem('needs_login', 'true');
+                  window.location.href = createPageUrl('Splash');
+                }}
+                className="bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl text-sm px-6 font-semibold"
+              >
+                Entrar
+              </Button>
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
+                alt="Criador"
+                className="w-8 h-8 rounded-full border-2 border-[#1D4371] ml-2"
+                title="Criado por Alexandre Ferreira"
+              />
+            </>
+          )}
         </div>
-      </footer>
 
-      {/* Bottom Navigation (Mobile) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 shadow-lg z-40 safe-area-bottom transition-colors" translate="no">
-        <div className="flex items-center justify-around h-16 pb-safe">
-          {navItems.slice(0, 5).map((item) => (
+        {/* Mobile/Tablet Menu Button */}
+        <div className="lg:hidden flex items-center gap-1">
+          {user && <NotificationBell user={user} />}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleTheme}
+            className="text-[#1D2226] dark:text-white"
+          >
+            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="text-[#1D2226] dark:text-white"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </Button>
+        </div>
+      </div>
+    </div>
+
+    {/* Mobile/Tablet Menu */}
+    {mobileMenuOpen && (
+      <div className="lg:hidden border-t bg-white dark:bg-slate-800 dark:border-slate-700">
+        <nav className="p-4 space-y-2">
+          {navItems.filter(item => item.page !== 'Profile').map((item) => (
             <Link 
               key={item.page} 
               to={createPageUrl(item.page)}
-              className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 transition-colors ${
-                currentPageName === item.page ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'
-              }`}
+              onClick={() => setMobileMenuOpen(false)}
             >
-              <item.icon className="w-5 h-5 mb-0.5 flex-shrink-0" />
-              <span className="text-[10px] truncate max-w-full">{item.name}</span>
+              <Button 
+                variant={currentPageName === item.page ? "secondary" : "ghost"}
+                className={`w-full justify-start rounded-xl ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'dark:text-slate-200'}`}
+              >
+                <item.icon className="w-5 h-5 mr-3" />
+                {item.name}
+              </Button>
             </Link>
           ))}
+
+          <div className="pt-2 border-t dark:border-slate-700">
+            {user ? (
+              <>
+                <Link to={createPageUrl('Profile')} onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="outline" className="w-full rounded-xl mb-2 dark:border-slate-600 dark:text-white">
+                    <User className="w-5 h-5 mr-3" />
+                    Meu Perfil
+                  </Button>
+                </Link>
+                <Button 
+                  variant="ghost" 
+                  className="w-full text-red-600 dark:text-red-400 rounded-xl"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="w-5 h-5 mr-3" />
+                  Sair
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to={createPageUrl('Splash')} onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl font-semibold mb-2">
+                    Entrar / Cadastrar
+                  </Button>
+                </Link>
+                <div className="flex items-center justify-center gap-3 pt-2">
+                  <img 
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
+                    alt="Alexandre Ferreira"
+                    className="w-10 h-10 rounded-full border-2 border-[#1D4371]"
+                  />
+                  <div className="text-left">
+                    <p className="text-xs font-bold text-slate-800 dark:text-white">Alexandre Ferreira</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Criador</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </nav>
+      </div>
+    )}
+  </header>
+
+  {/* Main Content com padding-top para o header fixo */}
+  <main className="flex-1" style={{ paddingTop: '7rem', paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
+    <ErrorBoundary>
+      {children}
+    </ErrorBoundary>
+  </main>
+
+  {/* Footer */}
+  <footer className="bg-slate-800 dark:bg-slate-950 text-white py-12 hidden md:block" translate="no">
+    <div className="max-w-7xl mx-auto px-4">
+      <div className="text-center mb-10">
+        <img 
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
+          alt="Alexandre Ferreira"
+          className="w-28 h-28 rounded-full mx-auto mb-4 object-cover border-4 border-[#1D4371] shadow-xl bg-white p-1"
+        />
+        <h3 className="text-xl font-bold text-white mb-2">Alexandre Ferreira</h3>
+        <p className="text-slate-300 text-sm mb-1">Criador & Desenvolvedor</p>
+        <p className="text-slate-400 text-sm">CNPJ: 62.874.724/0001-11</p>
+        <div className="flex items-center justify-center gap-4 mt-3">
+          <a href="mailto:contato@vagasabertaspb.com.br" className="text-slate-300 hover:text-white text-sm">
+            contato@vagasabertaspb.com.br
+          </a>
+          <span className="text-slate-600">•</span>
+          <a 
+            href="https://wa.me/5583991971320" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-green-400 hover:text-green-300 text-sm font-medium flex items-center gap-1"
+          >
+            <MessageCircle className="w-4 h-4" />
+            (83) 99197-1320
+          </a>
         </div>
-      </nav>
-
-      {/* AdsTerra Banner 320x50 - Mobile Footer */}
-      <div className="md:hidden fixed bottom-16 left-0 right-0 z-30 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-1 safe-area-bottom">
-        <BannerAd size="320x50" pageName={currentPageName} location="footer" className="mx-auto" />
       </div>
 
-      {/* Floating Buttons */}
-      <FloatingButtons />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10 max-w-5xl mx-auto">
+        <div>
+          <h4 className="font-semibold mb-3 text-white">Legal</h4>
+          <div className="space-y-2 text-sm">
+            <Link to={createPageUrl('Privacy')} className="block text-slate-400 hover:text-white">Política de Privacidade</Link>
+            <Link to={createPageUrl('Terms')} className="block text-slate-400 hover:text-white">Termos de Uso</Link>
+            <Link to={createPageUrl('Cookies')} className="block text-slate-400 hover:text-white">Política de Cookies</Link>
+            <Link to={createPageUrl('Security')} className="block text-slate-400 hover:text-white">Política de Segurança</Link>
+          </div>
+        </div>
 
-      {/* Floating Chat IA */}
-      <FloatingChatButton />
+        <div>
+          <h4 className="font-semibold mb-3 text-white">Empresa</h4>
+          <div className="space-y-2 text-sm">
+            <Link to={createPageUrl('About')} className="block text-slate-400 hover:text-white">Sobre Nós</Link>
+            <Link to={createPageUrl('Contact')} className="block text-slate-400 hover:text-white">Contato</Link>
+            <Link to={createPageUrl('Careers')} className="block text-slate-400 hover:text-white">Trabalhe Conosco</Link>
+            <Link to={createPageUrl('Parcerias')} className="block text-slate-400 hover:text-white">Parcerias</Link>
+          </div>
+        </div>
 
-      {/* Cookie Consent */}
-      <CookieConsent />
+        <div>
+          <h4 className="font-semibold mb-3 text-white">Recursos</h4>
+          <div className="space-y-2 text-sm">
+            <Link to={createPageUrl('FAQ')} className="block text-slate-400 hover:text-white">FAQ</Link>
+            <Link to={createPageUrl('LGPD')} className="block text-slate-400 hover:text-white">LGPD – Seus Direitos</Link>
+            <Link to={createPageUrl('Groups')} className="block text-slate-400 hover:text-white">Grupos WhatsApp</Link>
+            <Link to={createPageUrl('News')} className="block text-slate-400 hover:text-white">Notícias</Link>
+          </div>
+        </div>
 
-      {/* Popup Manager */}
-      <PopupManager />
-
-      {/* Welcome Popup */}
-      <WelcomePopup />
+        <div>
+          <h4 className="font-semibold mb-3 text-white">Anuncie</h4>
+          <div className="space-y-2 text-sm">
+            <Link to={createPageUrl('Advertise')} className="block text-slate-400 hover:text-white">Anunciar Conosco</Link>
+            <Link to={createPageUrl('Subscription')} className="block text-slate-400 hover:text-white">Planos</Link>
+            <a href="mailto:rhvagasabertasparaiba@gmail.com" className="block text-slate-400 hover:text-white">Suporte</a>
+          </div>
+        </div>
       </div>
-      );
-      }
+
+      <div className="border-t border-slate-700 pt-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
+          <p>© {new Date().getFullYear()} Vagas Abertas PB. Todos os direitos reservados.</p>
+          <div className="flex items-center gap-4">
+            <span>Made with ❤️ no Brasil</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  {/* Bottom Navigation (Mobile) - Fixed com z-index alto */}
+  <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 shadow-lg z-[9998]" translate="no" style={{
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 9998,
+    paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+  }}>
+    <div className="flex items-center justify-around h-16">
+      {navItems.slice(0, 5).map((item) => (
+        <Link 
+          key={item.page} 
+          to={createPageUrl(item.page)}
+          className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 ${
+            currentPageName === item.page ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'
+          }`}
+        >
+          <item.icon className="w-5 h-5 mb-0.5 flex-shrink-0" />
+          <span className="text-[10px] truncate max-w-full">{item.name}</span>
+        </Link>
+      ))}
+    </div>
+  </nav>
+
+  {/* AdsTerra Banner 320x50 - Mobile Footer */}
+  <div className="md:hidden fixed z-[9997] bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-1" style={{
+    bottom: '64px',
+    left: 0,
+    right: 0,
+    zIndex: 9997
+  }}>
+    <BannerAd size="320x50" pageName={currentPageName} location="footer" className="mx-auto" />
+  </div>
+
+  <FloatingButtons />
+  <FloatingChatButton />
+  <CookieConsent />
+  <PopupManager />
+  <WelcomePopup />
+  </div>
+  );
+  }
