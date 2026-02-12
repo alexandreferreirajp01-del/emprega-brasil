@@ -113,47 +113,14 @@ export default function ApagarVagasPorPeriodo() {
       
       let deleted = 0;
 
-      // Apagar TODOS os dados relacionados ANTES de apagar as vagas
-      for (const jobId of jobIds) {
-        try {
-          // Apagar favoritos
-          const favorites = await base44.entities.FavoriteJob.filter({ job_id: jobId });
-          for (const fav of favorites) {
-            await base44.entities.FavoriteJob.delete(fav.id);
-          }
-        } catch (e) {
-          console.warn('Erro ao apagar favoritos:', e);
-        }
+      // Usar função backend para garantir exclusão completa
+      const response = await base44.functions.invoke('bulkJobActions', {
+        jobIds: jobIds,
+        action: 'delete'
+      });
 
-        try {
-          // Apagar views
-          const views = await base44.entities.JobView.filter({ job_id: jobId });
-          for (const view of views) {
-            await base44.entities.JobView.delete(view.id);
-          }
-        } catch (e) {
-          console.warn('Erro ao apagar views:', e);
-        }
-
-        try {
-          // Apagar do histórico
-          const history = await base44.entities.ViewHistory.filter({ job_id: jobId });
-          for (const h of history) {
-            await base44.entities.ViewHistory.delete(h.id);
-          }
-        } catch (e) {
-          console.warn('Erro ao apagar histórico:', e);
-        }
-
-        // Finalmente apagar a vaga
-        try {
-          await base44.entities.Job.delete(jobId);
-          deleted++;
-          setDeleteProgress(Math.floor((deleted / total) * 100));
-        } catch (e) {
-          console.error('Erro ao apagar vaga:', jobId, e);
-        }
-      }
+      deleted = response.data.updated || 0;
+      setDeleteProgress(100);
 
       // Criar log de segurança
       try {
