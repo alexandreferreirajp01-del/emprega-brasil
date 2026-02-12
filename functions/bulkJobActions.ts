@@ -32,6 +32,37 @@ Deno.serve(async (req) => {
             updateData = { status: 'ativa', exibir_no_mapa: true };
             break;
           case 'delete':
+            // Apagar favoritos relacionados à vaga
+            try {
+              const favoriteJobs = await base44.asServiceRole.entities.FavoriteJob.filter({ job_id: jobId });
+              for (const fav of favoriteJobs) {
+                await base44.asServiceRole.entities.FavoriteJob.delete(fav.id);
+              }
+            } catch (e) {
+              console.log(`Aviso ao apagar favoritos da vaga ${jobId}:`, e.message);
+            }
+            
+            // Apagar visualizações relacionadas à vaga
+            try {
+              const jobViews = await base44.asServiceRole.entities.JobView.filter({ job_id: jobId });
+              for (const view of jobViews) {
+                await base44.asServiceRole.entities.JobView.delete(view.id);
+              }
+            } catch (e) {
+              console.log(`Aviso ao apagar visualizações da vaga ${jobId}:`, e.message);
+            }
+
+            // Apagar histórico de visualizações relacionado à vaga
+            try {
+              const viewHistory = await base44.asServiceRole.entities.ViewHistory.filter({ job_id: jobId });
+              for (const historyItem of viewHistory) {
+                await base44.asServiceRole.entities.ViewHistory.delete(historyItem.id);
+              }
+            } catch (e) {
+              console.log(`Aviso ao apagar histórico da vaga ${jobId}:`, e.message);
+            }
+
+            // Finalmente, apagar a vaga em si
             await base44.asServiceRole.entities.Job.delete(jobId);
             updated++;
             continue;
