@@ -496,39 +496,39 @@ export default function Jobs() {
           </div>
 
           {/* Filtros Premium, Destaque e Home Office */}
-          <div className="flex gap-3 pb-3 px-1 overflow-x-auto hide-scrollbar">
+          <div className="flex gap-2 pb-3 px-1 overflow-x-auto hide-scrollbar">
             {userIsPremium && (
               <>
-                <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap">
+                <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
                   <Switch
                     checked={showPremiumOnly}
                     onCheckedChange={setShowPremiumOnly}
-                    className="data-[state=checked]:bg-purple-600"
+                    className="data-[state=checked]:bg-purple-600 scale-90"
                   />
-                  <Lock className="w-3.5 h-3.5 text-purple-600" />
-                  <span className="text-xs font-medium text-slate-700">Premium</span>
+                  <Lock className="w-3 h-3 text-purple-600" />
+                  <span className="text-[11px] font-medium text-slate-700">Premium</span>
                 </div>
 
-                <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap">
+                <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
                   <Switch
                     checked={showFeaturedOnly}
                     onCheckedChange={setShowFeaturedOnly}
-                    className="data-[state=checked]:bg-yellow-500"
+                    className="data-[state=checked]:bg-yellow-500 scale-90"
                   />
-                  <Star className="w-3.5 h-3.5 text-yellow-500" />
-                  <span className="text-xs font-medium text-slate-700">Destaque</span>
+                  <Star className="w-3 h-3 text-yellow-500" />
+                  <span className="text-[11px] font-medium text-slate-700">Destaque</span>
                 </div>
               </>
             )}
 
-            <div className="flex items-center gap-2 px-3 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap">
+            <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
               <Switch
                 checked={showHomeOfficeOnly}
                 onCheckedChange={setShowHomeOfficeOnly}
-                className="data-[state=checked]:bg-blue-600"
+                className="data-[state=checked]:bg-blue-600 scale-90"
               />
-              <Briefcase className="w-3.5 h-3.5 text-blue-600" />
-              <span className="text-xs font-medium text-slate-700">Home Office</span>
+              <Briefcase className="w-3 h-3 text-blue-600" />
+              <span className="text-[11px] font-medium text-slate-700">Home Office</span>
             </div>
           </div>
         </div>
