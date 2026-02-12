@@ -208,9 +208,15 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
 
   if (!job) return null;
 
-  const filteredCities = availableCities.filter(c => c.toLowerCase().includes(citySearch.toLowerCase()));
-  const filteredFunctions = allJobFunctions.filter(f => f.toLowerCase().includes(funcSearch.toLowerCase()));
-  const filteredCategories = categories.filter(c => c.category_name.toLowerCase().includes(categorySearch.toLowerCase()));
+  const filteredCities = Array.isArray(availableCities) 
+    ? availableCities.filter(c => c?.toLowerCase().includes(citySearch.toLowerCase())) 
+    : [];
+  const filteredFunctions = Array.isArray(allJobFunctions) 
+    ? allJobFunctions.filter(f => f?.toLowerCase().includes(funcSearch.toLowerCase())) 
+    : [];
+  const filteredCategories = Array.isArray(categories) 
+    ? categories.filter(c => c?.category_name?.toLowerCase().includes(categorySearch.toLowerCase())) 
+    : [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
