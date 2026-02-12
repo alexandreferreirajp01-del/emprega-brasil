@@ -430,33 +430,88 @@ export default function GerenciarVagas() {
                     </Card>
 
             {/* Bulk Actions */}
-            {selectedJobs.length > 0 && (
-              <Card className="bg-blue-50 border-blue-200">
-                <CardContent className="p-4">
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="p-4">
+                <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">{selectedJobs.length} vaga(s) selecionada(s)</p>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleBulkAction('hide')}>
-                        <EyeOff className="w-4 h-4 mr-1" />
-                        Ocultar
+                    <p className="text-sm font-medium">
+                      {selectedJobs.length > 0 ? `${selectedJobs.length} vaga(s) selecionada(s)` : 'Selecione vagas para ações em massa'}
+                    </p>
+                    {selectedJobs.length > 0 && (
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => setSelectedJobs([])}
+                        className="text-slate-600"
+                      >
+                        Limpar seleção
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleBulkAction('activate')}>
-                        <Eye className="w-4 h-4 mr-1" />
-                        Ativar
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={handleGeocodeSelected}>
-                        <MapPin className="w-4 h-4 mr-1" />
-                        Geocodificar
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleBulkAction('delete')}>
-                        <Trash2 className="w-4 h-4 mr-1" />
-                        Excluir
-                      </Button>
-                    </div>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {selectedJobs.length > 0 ? (
+                      <>
+                        <Button size="sm" variant="outline" onClick={() => handleBulkAction('hide')}>
+                          <EyeOff className="w-4 h-4 mr-1" />
+                          Ocultar
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleBulkAction('activate')}>
+                          <Eye className="w-4 h-4 mr-1" />
+                          Ativar
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={handleGeocodeSelected}>
+                          <MapPin className="w-4 h-4 mr-1" />
+                          Geocodificar
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleBulkAction('delete')}>
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Excluir
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => setSelectedJobs(filteredJobs.map(j => j.id))}
+                        >
+                          Selecionar Todas ({filteredJobs.length})
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          onClick={async () => {
+                            if (!confirm(`ATENÇÃO: Apagar TODAS as ${filteredJobs.length} vagas exibidas? Esta ação não pode ser desfeita!`)) {
+                              return;
+                            }
+                            if (!confirm(`Tem certeza ABSOLUTA? Isso irá deletar ${filteredJobs.length} vagas permanentemente!`)) {
+                              return;
+                            }
+                            setLoading(true);
+                            try {
+                              await base44.functions.invoke('bulkJobActions', {
+                                jobIds: filteredJobs.map(j => j.id),
+                                action: 'delete'
+                              });
+                              await loadData();
+                              alert('Todas as vagas foram deletadas com sucesso!');
+                            } catch (err) {
+                              alert('Erro: ' + err.message);
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Apagar TODAS ({filteredJobs.length})
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Jobs Table */}
             <Card>

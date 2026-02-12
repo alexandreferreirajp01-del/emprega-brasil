@@ -402,7 +402,7 @@ export default function Jobs() {
           <div className="flex overflow-x-auto gap-2 py-3 hide-scrollbar">
             <Select value="PB" onValueChange={() => {}} disabled>
               <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap bg-[#1D4371] text-white border-[#1D4371]">
-                <SelectValue>PB</SelectValue>
+                <SelectValue>PB - Paraíba</SelectValue>
               </SelectTrigger>
             </Select>
 
@@ -411,7 +411,6 @@ export default function Jobs() {
                 <Button 
                   variant="outline" 
                   className="h-9 rounded-full text-xs whitespace-nowrap"
-                  disabled={selectedState === 'all'}
                 >
                   {selectedCity === 'all' ? 'Cidade' : selectedCity}
                 </Button>
