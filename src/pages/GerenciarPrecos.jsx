@@ -328,6 +328,8 @@ export default function GerenciarPrecos() {
                           <p className="text-xl font-bold text-green-600">R$ {plan.price.toFixed(2)}</p>
                           <p className="text-xs text-slate-500">
                             {plan.billing_cycle === 'monthly' ? 'por mês' : 
+                             plan.billing_cycle === 'quarterly' ? 'a cada 3 meses' :
+                             plan.billing_cycle === 'semiannual' ? 'a cada 6 meses' :
                              plan.billing_cycle === 'lifetime' ? 'pagamento único' : 'grátis'}
                           </p>
                         </div>
@@ -335,6 +337,8 @@ export default function GerenciarPrecos() {
                           <p className="text-xs text-slate-500 mb-1">Ciclo</p>
                           <Badge variant="outline">
                             {plan.billing_cycle === 'monthly' ? 'Mensal' : 
+                             plan.billing_cycle === 'quarterly' ? 'Trimestral' :
+                             plan.billing_cycle === 'semiannual' ? 'Semestral' :
                              plan.billing_cycle === 'lifetime' ? 'Vitalício' : 'Gratuito'}
                           </Badge>
                         </div>
@@ -415,6 +419,8 @@ export default function GerenciarPrecos() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="monthly">Mensal</SelectItem>
+                    <SelectItem value="quarterly">Trimestral</SelectItem>
+                    <SelectItem value="semiannual">Semestral</SelectItem>
                     <SelectItem value="lifetime">Vitalício</SelectItem>
                     <SelectItem value="free">Gratuito</SelectItem>
                   </SelectContent>
