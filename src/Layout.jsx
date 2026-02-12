@@ -394,7 +394,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Top Navigation */}
       <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-40 transition-colors duration-300" translate="no">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-24">
+          <div className="flex items-center justify-between h-28">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-3">
               <div className="w-32 h-32 md:w-40 md:h-40 flex items-center justify-center flex-shrink-0">

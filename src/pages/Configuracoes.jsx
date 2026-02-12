@@ -45,6 +45,7 @@ const menuItems = [
 
   // Automação N8N
   { id: 'dividerN8N', type: 'divider', label: 'Automação & Integrações', roles: ['admin', 'dono'] },
+  { id: 'api-keys', name: 'API Keys & Secrets', icon: Shield, color: 'amber', page: 'GerenciarAPIKeys', description: 'Gerenciar chaves de API e secrets', roles: ['admin', 'dono'] },
   { id: 'n8n-config', name: 'Configuração N8N', icon: Plug, color: 'emerald', page: 'N8NConfig', description: 'Conectar N8N para posts automáticos', roles: ['admin', 'dono'] },
 
 
