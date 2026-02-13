@@ -53,6 +53,17 @@ Deno.serve(async (req) => {
       access_status: 'approved'
     });
 
+    // Ativar plano básico automaticamente
+    await base44.asServiceRole.entities.Subscription.create({
+      user_email: email.toLowerCase(),
+      plan_type: 'basic',
+      status: 'active',
+      start_date: new Date().toISOString(),
+      billing_cycle: 'monthly',
+      auto_renew: true,
+      amount: 0
+    });
+
     // Enviar e-mail de boas-vindas
     try {
       await base44.integrations.Core.SendEmail({
