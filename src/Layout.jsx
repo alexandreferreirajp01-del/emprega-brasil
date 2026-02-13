@@ -44,7 +44,6 @@ export default function Layout({ children, currentPageName }) {
         { name: 'Notícias', icon: Newspaper, page: 'News' },
         { name: 'Ferramentas', icon: Settings, page: 'Utilidades' },
         { name: 'Feed', icon: MessageCircle, page: 'Feed' },
-        { name: 'Perfil', icon: User, page: 'Profile' },
       ];
       
       try {
