@@ -113,11 +113,69 @@ ${texto}`,
           work_mode: job.work_mode || 'Presencial',
           category: job.category || 'Geral',
           job_function: job.job_function || '',
-          is_premium: false, // Admin pode mudar depois
-          is_featured: false, // Admin pode mudar depois
-          status: hasContact ? 'ativa' : 'pending_review',
-          published_at: new Date().toISOString()
+          is_premium: false,
+          is_featured: false,
+          status: hasContact ? 'ativa' : 'pending_contact',
+          contact_status: hasContact ? 'ok' : 'missing',
+          needs_review: !hasContact,
+          published_at: new Date().toISOString(),
+          origem: 'n8n_text'
         });
+        
+        // Se não tiver contato, tentar reprocessar até 2x
+        if (!hasContact) {
+          for (let attempt = 0; attempt < 2; attempt++) {
+            try {
+              const reprocessResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
+                prompt: `🔍 BUSCA PROFUNDA - TENTATIVA ${attempt + 1}/2:
+                
+ANALISE NOVAMENTE com MÁXIMA ATENÇÃO para encontrar contatos:
+- Telefones, WhatsApp, celular
+- Emails 
+- Instagram, Facebook
+- Sites, formulários
+- Qualquer outro contato
+
+TEXTO:
+${texto}`,
+                response_json_schema: {
+                  type: "object",
+                  properties: {
+                    contact_phone: { type: "string" },
+                    contact_email: { type: "string" },
+                    application_link: { type: "string" },
+                    contact_whatsapp: { type: "string" }
+                  }
+                }
+              });
+
+              const foundContact = reprocessResult.contact_phone || 
+                                 reprocessResult.contact_email || 
+                                 reprocessResult.contact_whatsapp ||
+                                 reprocessResult.application_link;
+
+              if (foundContact) {
+                await base44.asServiceRole.entities.Job.update(vagaCriada.id, {
+                  contact_phone: reprocessResult.contact_phone || vagaCriada.contact_phone,
+                  contact_email: reprocessResult.contact_email || vagaCriada.contact_email,
+                  contact_whatsapp: reprocessResult.contact_whatsapp || vagaCriada.contact_whatsapp,
+                  application_link: reprocessResult.application_link || vagaCriada.application_link,
+                  status: 'ativa',
+                  contact_status: 'ok',
+                  needs_review: false,
+                  reprocess_attempts: attempt + 1
+                });
+                break;
+              } else {
+                await base44.asServiceRole.entities.Job.update(vagaCriada.id, {
+                  reprocess_attempts: attempt + 1
+                });
+              }
+            } catch (e) {
+              console.error(`Erro na tentativa ${attempt + 1}:`, e);
+            }
+          }
+        }
 
         vagasCriadas.push(vagaCriada);
       } catch (error) {
