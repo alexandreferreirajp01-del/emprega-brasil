@@ -101,6 +101,7 @@ import Ocorrencias from './pages/Ocorrencias';
 import Parcerias from './pages/Parcerias';
 import Payment from './pages/Payment';
 import PaymentsPage from './pages/PaymentsPage';
+import Pendencias from './pages/Pendencias';
 import PendingAccess from './pages/PendingAccess';
 import Permissoes from './pages/Permissoes';
 import PostarNoticia from './pages/PostarNoticia';
@@ -129,7 +130,7 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import Pendencias from './pages/Pendencias';
+import CentralPromocoes from './pages/CentralPromocoes';
 import __Layout from './Layout.jsx';
 
 
@@ -188,6 +189,7 @@ export const PAGES = {
     "Parcerias": Parcerias,
     "Payment": Payment,
     "PaymentsPage": PaymentsPage,
+    "Pendencias": Pendencias,
     "PendingAccess": PendingAccess,
     "Permissoes": Permissoes,
     "PostarNoticia": PostarNoticia,
@@ -216,7 +218,7 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "Pendencias": Pendencias,
+    "CentralPromocoes": CentralPromocoes,
 }
 
 export const pagesConfig = {
