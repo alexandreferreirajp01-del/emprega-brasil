@@ -339,10 +339,49 @@ header.dark\:bg-slate-800 {
   100% { background-position: -200% 0; }
 }
 
-/* Touch feedback */
+/* Touch feedback - Enhanced */
+.touch-feedback {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
 .touch-feedback:active {
-  transform: scale(0.98);
-  opacity: 0.9;
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+/* Minimum tap target size (44px) */
+button, a, [role="button"], input[type="checkbox"], input[type="radio"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Button active states */
+button:active, .button:active {
+  transform: scale(0.97);
+}
+
+/* Smooth page transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
 }
 
 /* Prevent text selection on mobile nav */

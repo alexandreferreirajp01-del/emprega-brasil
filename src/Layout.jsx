@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
         Home, Briefcase, User, Menu, X, 
-        LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings, Bot
+        LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings, Bot, ArrowLeft
       } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
+import { motion, AnimatePresence } from "framer-motion";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingButtons from "@/components/common/FloatingButtons";
 import FloatingChatButton from "@/components/chat/FloatingChatButton";
@@ -29,6 +30,14 @@ export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [navItems, setNavItems] = useState([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Rotas que são consideradas "filhas" e devem mostrar botão voltar
+  const childRoutes = ['JobDetail', 'NewsDetail', 'Profile', 'Configuracoes', 'PostarVaga', 
+    'GerenciarVagas', 'GerenciarUsuarios', 'PaymentsPage', 'GerenciarPlanos', 'BibliotecaAdmin',
+    'RecruiterArea', 'Favoritos', 'Historico', 'ProfessionalResume', 'AnalyticsPage'];
+  const isChildRoute = childRoutes.includes(currentPageName);
 
   // Scroll para o topo ao mudar de página
   useEffect(() => {
@@ -275,23 +284,33 @@ export default function Layout({ children, currentPageName }) {
   }}>
     <div className="max-w-7xl mx-auto px-4">
       <div className="flex items-center justify-between h-28">
-        <Link to={createPageUrl('Home')} className="flex items-center gap-3 flex-shrink-0">
-          <div className="w-32 h-32 md:w-40 md:h-40 flex items-center justify-center flex-shrink-0">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
-              alt="Vagas Abertas PB" 
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-bold text-black dark:text-white leading-tight">
-              Vagas Abertas PB
-            </span>
-            <span className="text-sm md:text-base text-[#2B5A8F] dark:text-blue-400 font-medium">
-              Empregos na Paraíba
-            </span>
-          </div>
-        </Link>
+        {isChildRoute ? (
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition-colors active:scale-95 touch-feedback"
+          >
+            <ArrowLeft className="w-6 h-6" />
+            <span className="font-medium text-base">Voltar</span>
+          </button>
+        ) : (
+          <Link to={createPageUrl('Home')} className="flex items-center gap-3 flex-shrink-0">
+            <div className="w-32 h-32 md:w-40 md:h-40 flex items-center justify-center flex-shrink-0">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
+                alt="Vagas Abertas PB" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xl md:text-2xl font-bold text-black dark:text-white leading-tight">
+                Vagas Abertas PB
+              </span>
+              <span className="text-sm md:text-base text-[#2B5A8F] dark:text-blue-400 font-medium">
+                Empregos na Paraíba
+              </span>
+            </div>
+          </Link>
+        )}
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-1 flex-wrap max-w-[60%]">
@@ -442,7 +461,17 @@ export default function Layout({ children, currentPageName }) {
   {/* Main Content com padding-top para o header fixo */}
   <main className="flex-1" style={{ paddingTop: '7rem', paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
     <ErrorBoundary>
-      {children}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
     </ErrorBoundary>
   </main>
 
