@@ -284,28 +284,16 @@ export default function Layout({ children, currentPageName }) {
   }}>
     <div className="max-w-7xl mx-auto px-4">
       <div className="flex items-center h-20 relative">
-        {/* Theme Button - Left (Mobile) */}
-        <div className="lg:hidden absolute left-0">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleTheme}
-            className="text-[#1D2226] dark:text-white"
-          >
-            {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-          </Button>
-        </div>
-
-        {/* Logo Centralizado - Mobile */}
-        <Link to={createPageUrl('Home')} className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2 lg:relative lg:left-0 lg:translate-x-0">
-          <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+        {/* Logo - Left (Mobile) */}
+        <Link to={createPageUrl('Home')} className="flex items-center gap-2 absolute left-0 lg:relative">
+          <div className="w-16 h-16 lg:w-12 lg:h-12 flex items-center justify-center flex-shrink-0">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
               alt="Vagas Abertas PB" 
               className="w-full h-full object-contain"
             />
           </div>
-          <div className="flex flex-col">
+          <div className="hidden lg:flex flex-col">
             <span className="text-base md:text-xl font-bold text-black dark:text-white leading-tight">
               Vagas Abertas PB
             </span>
@@ -314,6 +302,16 @@ export default function Layout({ children, currentPageName }) {
             </span>
           </div>
         </Link>
+
+        {/* Nome Centralizado - Mobile Only */}
+        <div className="lg:hidden absolute left-1/2 -translate-x-1/2 text-center">
+          <div className="text-sm font-bold text-black dark:text-white whitespace-nowrap">
+            Vagas Abertas PB
+          </div>
+          <div className="text-[10px] text-[#2B5A8F] dark:text-blue-400 whitespace-nowrap">
+            Empregos na Paraíba
+          </div>
+        </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-1 flex-wrap max-w-[60%]">
@@ -338,6 +336,16 @@ export default function Layout({ children, currentPageName }) {
         <div className="flex items-center gap-1 absolute right-0 lg:relative">
           {user && <NotificationBell user={user} />}
           
+          {/* Theme Button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleTheme}
+            className="text-[#1D2226] dark:text-white"
+          >
+            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
+          
           {/* Menu Button - Right (Mobile) */}
           <div className="lg:hidden">
             <Button 
@@ -349,16 +357,6 @@ export default function Layout({ children, currentPageName }) {
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </Button>
           </div>
-          
-          {/* Theme Button - Desktop */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleTheme}
-            className="text-[#1D2226] dark:text-white hidden lg:block"
-          >
-            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </Button>
           {user ? (
             <Link to={createPageUrl('Profile')} className="hidden lg:block">
               <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] dark:text-white border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700">
