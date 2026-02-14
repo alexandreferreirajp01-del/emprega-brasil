@@ -284,33 +284,36 @@ export default function Layout({ children, currentPageName }) {
   }}>
     <div className="max-w-7xl mx-auto px-4">
       <div className="flex items-center justify-between h-28">
-        {isChildRoute ? (
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition-colors active:scale-95 touch-feedback"
+        {/* Mobile/Tablet Menu Button - Left */}
+        <div className="lg:hidden">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="text-[#1D2226] dark:text-white"
           >
-            <ArrowLeft className="w-6 h-6" />
-            <span className="font-medium text-base">Voltar</span>
-          </button>
-        ) : (
-          <Link to={createPageUrl('Home')} className="flex items-center gap-3 flex-shrink-0">
-            <div className="w-32 h-32 md:w-40 md:h-40 flex items-center justify-center flex-shrink-0">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
-                alt="Vagas Abertas PB" 
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl md:text-2xl font-bold text-black dark:text-white leading-tight">
-                Vagas Abertas PB
-              </span>
-              <span className="text-sm md:text-base text-[#2B5A8F] dark:text-blue-400 font-medium">
-                Empregos na Paraíba
-              </span>
-            </div>
-          </Link>
-        )}
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </Button>
+        </div>
+
+        {/* Logo - Center on mobile, left on desktop */}
+        <Link to={createPageUrl('Home')} className="flex items-center gap-3 flex-shrink-0 absolute left-1/2 -translate-x-1/2 lg:relative lg:left-0 lg:translate-x-0">
+          <div className="w-32 h-32 md:w-40 md:h-40 flex items-center justify-center flex-shrink-0">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
+              alt="Vagas Abertas PB" 
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xl md:text-2xl font-bold text-black dark:text-white leading-tight">
+              Vagas Abertas PB
+            </span>
+            <span className="text-sm md:text-base text-[#2B5A8F] dark:text-blue-400 font-medium">
+              Empregos na Paraíba
+            </span>
+          </div>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-1 flex-wrap max-w-[60%]">
@@ -331,7 +334,7 @@ export default function Layout({ children, currentPageName }) {
                 <BannerAd size="728x90" pageName={currentPageName} location="header" />
               </div>
 
-        <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -343,7 +346,7 @@ export default function Layout({ children, currentPageName }) {
           {user ? (
             <>
               <NotificationBell user={user} />
-              <Link to={createPageUrl('Profile')}>
+              <Link to={createPageUrl('Profile')} className="hidden lg:block">
                 <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] dark:text-white border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700">
                   <User className="w-4 h-4 mr-1.5" />
                   Perfil
@@ -357,40 +360,19 @@ export default function Layout({ children, currentPageName }) {
                   sessionStorage.setItem('needs_login', 'true');
                   window.location.href = createPageUrl('Splash');
                 }}
-                className="bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl text-sm px-6 font-semibold"
+                className="bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl text-sm px-6 font-semibold hidden lg:block"
               >
                 Entrar
               </Button>
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
                 alt="Criador"
-                className="w-8 h-8 rounded-full border-2 border-[#1D4371] ml-2"
+                className="w-8 h-8 rounded-full border-2 border-[#1D4371] ml-2 hidden lg:block"
                 title="Criado por Alexandre Ferreira"
               />
             </>
           )}
-        </div>
-
-        {/* Mobile/Tablet Menu Button */}
-        <div className="lg:hidden flex items-center gap-1">
-          {user && <NotificationBell user={user} />}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleTheme}
-            className="text-[#1D2226] dark:text-white"
-          >
-            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-[#1D2226] dark:text-white"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </Button>
-        </div>
+          </div>
       </div>
     </div>
 
