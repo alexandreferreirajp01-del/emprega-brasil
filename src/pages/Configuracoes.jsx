@@ -48,6 +48,7 @@ const menuItems = [
   { id: 'api-keys', name: 'API Keys & Secrets', icon: Shield, color: 'amber', page: 'GerenciarAPIKeys', description: 'Gerenciar chaves de API e secrets', roles: ['admin', 'dono'] },
   { id: 'n8n-config', name: 'Configuração N8N', icon: Plug, color: 'emerald', page: 'N8NConfig', description: 'Conectar N8N para posts automáticos', roles: ['admin', 'dono'] },
   { id: 'pendencias', name: 'Pendências de Vagas', icon: AlertTriangle, color: 'orange', page: 'Pendencias', description: 'Vagas sem contato que precisam revisão', roles: ['admin', 'dono'] },
+  { id: 'central-promocoes', name: 'Central de Promoções', icon: MessageSquare, color: 'purple', page: 'CentralPromocoes', description: 'Enviar campanhas de email e WhatsApp', roles: ['admin', 'dono'] },
 
 
   
