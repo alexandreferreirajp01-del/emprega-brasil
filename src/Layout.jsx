@@ -274,7 +274,7 @@ export default function Layout({ children, currentPageName }) {
   <ApplyBasicPermissions user={user} />
 
   {/* Top Navigation - Fixed com z-index máximo */}
-  <header className="bg-white dark:bg-slate-800 shadow-sm fixed top-0 left-0 right-0 z-[9999]" translate="no" style={{
+  <header className="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 fixed top-0 left-0 right-0 z-[9999]" translate="no" style={{
     position: 'fixed',
     top: 0,
     left: 0,
@@ -283,9 +283,9 @@ export default function Layout({ children, currentPageName }) {
     paddingTop: 'env(safe-area-inset-top, 0px)'
   }}>
     <div className="max-w-7xl mx-auto px-4">
-      <div className="flex items-center justify-between h-28">
-        {/* Mobile/Tablet Menu Button - Left */}
-        <div className="lg:hidden">
+      <div className="flex items-center h-20 relative">
+        {/* Mobile Menu Button - Left */}
+        <div className="lg:hidden absolute left-0">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -296,9 +296,9 @@ export default function Layout({ children, currentPageName }) {
           </Button>
         </div>
 
-        {/* Logo - Center on mobile, left on desktop */}
-        <Link to={createPageUrl('Home')} className="flex items-center gap-3 flex-shrink-0 absolute left-1/2 -translate-x-1/2 lg:relative lg:left-0 lg:translate-x-0">
-          <div className="w-32 h-32 md:w-40 md:h-40 flex items-center justify-center flex-shrink-0">
+        {/* Logo Centralizado - Mobile */}
+        <Link to={createPageUrl('Home')} className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2 lg:relative lg:left-0 lg:translate-x-0">
+          <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
               alt="Vagas Abertas PB" 
@@ -306,10 +306,10 @@ export default function Layout({ children, currentPageName }) {
             />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-bold text-black dark:text-white leading-tight">
+            <span className="text-base md:text-xl font-bold text-black dark:text-white leading-tight">
               Vagas Abertas PB
             </span>
-            <span className="text-sm md:text-base text-[#2B5A8F] dark:text-blue-400 font-medium">
+            <span className="text-xs md:text-sm text-[#2B5A8F] dark:text-blue-400 font-medium">
               Empregos na Paraíba
             </span>
           </div>
@@ -334,25 +334,24 @@ export default function Layout({ children, currentPageName }) {
                 <BannerAd size="728x90" pageName={currentPageName} location="header" />
               </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        {/* Right side actions */}
+        <div className="flex items-center gap-1 absolute right-0 lg:relative">
+          {user && <NotificationBell user={user} />}
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={toggleTheme}
-            className="text-[#1D2226] dark:text-white rounded-xl"
+            className="text-[#1D2226] dark:text-white"
           >
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
           {user ? (
-            <>
-              <NotificationBell user={user} />
-              <Link to={createPageUrl('Profile')} className="hidden lg:block">
-                <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] dark:text-white border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700">
-                  <User className="w-4 h-4 mr-1.5" />
-                  Perfil
-                </Button>
-              </Link>
-            </>
+            <Link to={createPageUrl('Profile')} className="hidden lg:block">
+              <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] dark:text-white border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700">
+                <User className="w-4 h-4 mr-1.5" />
+                Perfil
+              </Button>
+            </Link>
           ) : (
             <>
               <Button 
@@ -372,7 +371,7 @@ export default function Layout({ children, currentPageName }) {
               />
             </>
           )}
-          </div>
+        </div>
       </div>
     </div>
 
@@ -441,7 +440,7 @@ export default function Layout({ children, currentPageName }) {
   </header>
 
   {/* Main Content com padding-top para o header fixo */}
-  <main className="flex-1" style={{ paddingTop: '7rem', paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
+  <main className="flex-1" style={{ paddingTop: '5rem', paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
     <ErrorBoundary>
       <AnimatePresence mode="wait">
         <motion.div
