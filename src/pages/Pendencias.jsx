@@ -21,6 +21,7 @@ export default function Pendencias() {
   const [reprocessing, setReprocessing] = useState({});
   const [editingJob, setEditingJob] = useState(null);
   const [filter, setFilter] = useState('all'); // all, no_contact, needs_review
+  const [bulkProcessing, setBulkProcessing] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -102,6 +103,60 @@ export default function Pendencias() {
     } catch (error) {
       alert('❌ Erro: ' + error.message);
     }
+  };
+
+  const handleReprocessAll = async () => {
+    const count = filteredJobs.length;
+    if (!confirm(`⚠️ Reprocessar TODAS as ${count} vagas filtradas? Isso pode levar alguns minutos.`)) {
+      return;
+    }
+
+    setBulkProcessing(true);
+    let success = 0;
+    let failed = 0;
+
+    for (const job of filteredJobs) {
+      try {
+        const response = await base44.functions.invoke('reprocessContactExtraction', { job_id: job.id });
+        if (response.data.success && response.data.found_contact) {
+          success++;
+        }
+      } catch (error) {
+        failed++;
+        console.error('Erro ao reprocessar:', error);
+      }
+    }
+
+    setBulkProcessing(false);
+    alert(`✅ Reprocessamento concluído!\n\n${success} vagas com contato encontrado\n${failed} vagas sem contato`);
+    await loadPendingJobs();
+  };
+
+  const handleDeleteAll = async () => {
+    const count = filteredJobs.length;
+    if (!confirm(`⚠️ ATENÇÃO: Isso irá DELETAR TODAS as ${count} vagas filtradas!\n\nEsta ação NÃO pode ser desfeita. Tem certeza?`)) {
+      return;
+    }
+
+    if (!confirm('ÚLTIMA CONFIRMAÇÃO: Deletar todas essas vagas permanentemente?')) {
+      return;
+    }
+
+    setBulkProcessing(true);
+    let deleted = 0;
+
+    for (const job of filteredJobs) {
+      try {
+        await base44.entities.Job.delete(job.id);
+        deleted++;
+      } catch (error) {
+        console.error('Erro ao deletar:', error);
+      }
+    }
+
+    setBulkProcessing(false);
+    alert(`✅ ${deleted} vagas deletadas com sucesso!`);
+    await loadPendingJobs();
   };
 
   const filteredJobs = pendingJobs.filter(job => {
@@ -186,9 +241,9 @@ export default function Pendencias() {
           </Card>
         </div>
 
-        {/* Filtros */}
+        {/* Filtros e Ações em Massa */}
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-3">
             <div className="flex gap-2 flex-wrap">
               <Button
                 variant={filter === 'all' ? 'default' : 'outline'}
@@ -214,6 +269,49 @@ export default function Pendencias() {
                 Precisam Revisão ({pendingJobs.filter(j => j.needs_review).length})
               </Button>
             </div>
+
+            {filteredJobs.length > 0 && (
+              <div className="flex gap-2 pt-2 border-t">
+                <Button
+                  onClick={handleReprocessAll}
+                  disabled={bulkProcessing}
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {bulkProcessing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processando...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Reprocessar Todos ({filteredJobs.length})
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  onClick={handleDeleteAll}
+                  disabled={bulkProcessing}
+                  size="sm"
+                  variant="outline"
+                  className="border-red-600 text-red-600 hover:bg-red-50"
+                >
+                  {bulkProcessing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Deletando...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Deletar Todos ({filteredJobs.length})
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
