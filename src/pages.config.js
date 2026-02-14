@@ -58,6 +58,7 @@ import BancoDadosAssistente from './pages/BancoDadosAssistente';
 import BibliotecaAdmin from './pages/BibliotecaAdmin';
 import BibliotecaProfissional from './pages/BibliotecaProfissional';
 import Careers from './pages/Careers';
+import CentralPromocoes from './pages/CentralPromocoes';
 import ChangePassword from './pages/ChangePassword';
 import ChatIA from './pages/ChatIA';
 import Configuracoes from './pages/Configuracoes';
@@ -130,7 +131,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import CentralPromocoes from './pages/CentralPromocoes';
 import __Layout from './Layout.jsx';
 
 
@@ -146,6 +146,7 @@ export const PAGES = {
     "BibliotecaAdmin": BibliotecaAdmin,
     "BibliotecaProfissional": BibliotecaProfissional,
     "Careers": Careers,
+    "CentralPromocoes": CentralPromocoes,
     "ChangePassword": ChangePassword,
     "ChatIA": ChatIA,
     "Configuracoes": Configuracoes,
@@ -218,7 +219,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "CentralPromocoes": CentralPromocoes,
 }
 
 export const pagesConfig = {
