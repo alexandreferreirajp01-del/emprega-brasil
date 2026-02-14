@@ -284,15 +284,15 @@ export default function Layout({ children, currentPageName }) {
   }}>
     <div className="max-w-7xl mx-auto px-4">
       <div className="flex items-center h-20 relative">
-        {/* Mobile Menu Button - Left */}
+        {/* Theme Button - Left (Mobile) */}
         <div className="lg:hidden absolute left-0">
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={toggleTheme}
             className="text-[#1D2226] dark:text-white"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
           </Button>
         </div>
 
@@ -337,11 +337,25 @@ export default function Layout({ children, currentPageName }) {
         {/* Right side actions */}
         <div className="flex items-center gap-1 absolute right-0 lg:relative">
           {user && <NotificationBell user={user} />}
+          
+          {/* Menu Button - Right (Mobile) */}
+          <div className="lg:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-[#1D2226] dark:text-white"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </Button>
+          </div>
+          
+          {/* Theme Button - Desktop */}
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={toggleTheme}
-            className="text-[#1D2226] dark:text-white"
+            className="text-[#1D2226] dark:text-white hidden lg:block"
           >
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
