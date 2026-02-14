@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { 
   ArrowLeft, Copy, CheckCircle, ExternalLink, Code, 
-  FileText, Image, Zap, AlertCircle, Link as LinkIcon, Key
+  FileText, Image, Zap, AlertCircle, Link as LinkIcon, Key, RefreshCw
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -16,6 +16,7 @@ export default function N8NConfig() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState('');
   const [apiKey, setApiKey] = useState('');
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -50,6 +51,29 @@ export default function N8NConfig() {
     navigator.clipboard.writeText(text);
     setCopied(id);
     setTimeout(() => setCopied(''), 2000);
+  };
+
+  const generateApiKey = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let key = 'VAGASPB_';
+    for (let i = 0; i < 32; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
+  };
+
+  const handleGenerateKey = async () => {
+    setGenerating(true);
+    try {
+      const newKey = generateApiKey();
+      setApiKey(newKey);
+      alert(`🔑 Nova API Key gerada!\n\nCopie e configure no Dashboard Base44:\n\nSecret: API_KEY_N8N\nValor: ${newKey}\n\n⚠️ Importante: Salve essa chave! Configure ela no dashboard para que funcione.`);
+      copyToClipboard(newKey, 'new-key');
+    } catch (error) {
+      alert('❌ Erro ao gerar chave: ' + error.message);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const baseUrl = 'https://vagasabertaspb.com.br';
@@ -152,9 +176,28 @@ export default function N8NConfig() {
         {/* API Key Info - CHAVE REAL */}
         <Card className="rounded-2xl border-l-4 border-amber-500 shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Key className="w-5 h-5 text-amber-600" />
-              🔑 API Key - Configuração Real
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Key className="w-5 h-5 text-amber-600" />
+                🔑 API Key - Configuração Real
+              </div>
+              <Button
+                onClick={handleGenerateKey}
+                disabled={generating}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+              >
+                {generating ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  <>
+                    <Key className="w-4 h-4 mr-2" />
+                    Gerar Nova Chave
+                  </>
+                )}
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
