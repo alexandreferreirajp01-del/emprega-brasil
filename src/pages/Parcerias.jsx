@@ -152,7 +152,7 @@ export default function Parcerias() {
                 <div className="absolute inset-0 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
                 <div className="relative bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 text-white text-center">
                   <Instagram className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 mx-auto mb-1 sm:mb-2" />
-                  <div className="text-xl sm:text-2xl font-bold mb-0.5 sm:mb-1">8.2k</div>
+                  <div className="text-xl sm:text-2xl font-bold mb-0.5 sm:mb-1">40K</div>
                   <p className="text-[10px] sm:text-xs opacity-90">Instagram</p>
                 </div>
               </div>
