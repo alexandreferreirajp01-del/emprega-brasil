@@ -138,7 +138,11 @@ export default function Home() {
 
   // Filtrar vagas em destaque (atualização em tempo real)
   const featuredJobs = React.useMemo(() => 
-    jobs.filter(job => job.is_featured === true && job.status === 'ativa'),
+    jobs.filter(job => {
+      const isFeatured = job.is_featured === true || job.is_featured === 'true';
+      const isActive = job.status === 'ativa';
+      return isFeatured && isActive;
+    }),
     [jobs]
   );
 

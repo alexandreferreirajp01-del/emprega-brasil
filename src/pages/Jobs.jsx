@@ -294,7 +294,7 @@ export default function Jobs() {
     const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     const matchesPremium = !showPremiumOnly || job.is_premium;
-    const matchesFeatured = !showFeaturedOnly || job.is_featured;
+    const matchesFeatured = !showFeaturedOnly || job.is_featured === true || job.is_featured === 'true';
     const matchesHomeOffice = !showHomeOfficeOnly || job.work_mode === 'Remoto' || job.job_type === 'Home Office';
     
     return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice;
@@ -347,8 +347,20 @@ export default function Jobs() {
     }
   };
 
-  const featuredJobs = filteredJobs.filter(j => j.is_featured === true && j.status === 'ativa').slice(0, 3);
-  const regularJobs = filteredJobs.filter(j => j.is_featured !== true);
+  const featuredJobs = React.useMemo(() => {
+    return filteredJobs.filter(j => {
+      const isFeatured = j.is_featured === true || j.is_featured === 'true';
+      const isActive = j.status === 'ativa';
+      return isFeatured && isActive;
+    }).slice(0, 3);
+  }, [filteredJobs]);
+
+  const regularJobs = React.useMemo(() => {
+    return filteredJobs.filter(j => {
+      const isFeatured = j.is_featured === true || j.is_featured === 'true';
+      return !isFeatured;
+    });
+  }, [filteredJobs]);
 
   return (
     <div className="min-h-screen bg-white pb-20">
@@ -552,7 +564,7 @@ export default function Jobs() {
                       onClick={(e) => canView ? null : handleJobClick(job, e)}
                       className={`border-b border-slate-100 pb-3 ${!canView ? 'cursor-pointer' : ''}`}
                     >
-                      <Link to={canView ? createPageUrl('JobDetail') + `?id=${job.id}` : '#'}>
+                      <Link to={canView ? `${createPageUrl('JobDetail')}?id=${job.id}` : '#'}>
                         <div className="group flex gap-3">
                           <div className="flex-1 min-w-0">
                             <h3 className="font-bold text-slate-900 group-hover:text-[#1E6FB6] transition-colors text-base line-clamp-2 mb-1">
@@ -613,7 +625,7 @@ export default function Jobs() {
                   onClick={(e) => canView ? null : handleJobClick(job, e)}
                   className={`py-4 hover:bg-slate-50 transition-colors ${!canView ? 'cursor-pointer relative' : ''}`}
                 >
-                  <Link to={canView ? createPageUrl('JobDetail') + `?id=${job.id}` : '#'} className="block">
+                  <Link to={canView ? `${createPageUrl('JobDetail')}?id=${job.id}` : '#'} className="block">
                     <div className="group flex items-start gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
