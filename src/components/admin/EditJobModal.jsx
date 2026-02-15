@@ -139,16 +139,24 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
   }, [editedJob.state, availableCities, editedJob.city]);
 
   const updateJobMutation = useMutation({
-    mutationFn: (updatedJobData) => base44.entities.Job.update(job.id, updatedJobData),
+    mutationFn: async (updatedJobData) => {
+      const cleanedData = { ...updatedJobData };
+      if (!cleanedData.contract_types || cleanedData.contract_types.length === 0) {
+        delete cleanedData.contract_types;
+      }
+      return base44.entities.Job.update(job.id, cleanedData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-jobs'] });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      onUpdateSuccess();
+      if (onUpdateSuccess) {
+        onUpdateSuccess();
+      }
       onClose();
     },
     onError: (error) => {
       console.error("Erro ao atualizar vaga:", error);
-      alert('Erro ao atualizar vaga: ' + error.message);
+      alert('Erro ao atualizar vaga: ' + (error?.message || 'Erro desconhecido'));
     },
   });
 

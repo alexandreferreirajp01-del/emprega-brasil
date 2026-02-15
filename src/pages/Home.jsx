@@ -136,8 +136,11 @@ export default function Home() {
     viewsCountMap[v.job_id] = (viewsCountMap[v.job_id] || 0) + 1;
   });
 
-  // Filtrar apenas vagas em destaque da Paraíba
-  const featuredJobs = jobs.filter(job => job.is_featured && job.state === 'PB');
+  // Filtrar vagas em destaque (atualização em tempo real)
+  const featuredJobs = React.useMemo(() => 
+    jobs.filter(job => job.is_featured === true && job.status === 'ativa'),
+    [jobs]
+  );
 
 
 
