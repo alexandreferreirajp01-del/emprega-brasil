@@ -14,6 +14,7 @@ import TimeAgo from "@/components/common/TimeAgo";
 import VisitTracker from "@/components/common/VisitTracker";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import PlansBanner from "@/components/common/PlansBanner";
+import FeaturedJobsSection from "@/components/jobs/FeaturedJobsSection";
 
 
 // Função de fetch com retry robusto
@@ -224,6 +225,9 @@ export default function Home() {
                   ))}
                 </div>
               </div>
+
+      {/* Featured Jobs Section */}
+      <FeaturedJobsSection />
 
       {/* Main Content Grid */}
       <div className="max-w-6xl mx-auto px-3 sm:px-4 pb-6">

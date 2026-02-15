@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle
+  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -62,6 +62,7 @@ export default function Jobs() {
   const [cityOpen, setCityOpen] = useState(false);
   const [funcOpen, setFuncOpen] = useState(false);
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
+  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   const [showHomeOfficeOnly, setShowHomeOfficeOnly] = useState(false);
   
   const [user, setUser] = useState(null);
@@ -293,9 +294,10 @@ export default function Jobs() {
     const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     const matchesPremium = !showPremiumOnly || job.is_premium;
+    const matchesFeatured = !showFeaturedOnly || (job.is_featured === true && job.status === 'ativa');
     const matchesHomeOffice = !showHomeOfficeOnly || job.work_mode === 'Remoto' || job.job_type === 'Home Office';
     
-    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesHomeOffice;
+    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice;
   });
 
   const filteredCities = availableCities.filter(city =>
@@ -492,28 +494,38 @@ export default function Jobs() {
             )}
           </div>
 
-          {/* Filtros Premium e Home Office */}
+          {/* Filtros Premium, Destaque e Home Office */}
           <div className="flex gap-2 pb-3 px-1 overflow-x-auto hide-scrollbar">
             {userIsPremium && (
-              <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
+              <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
                 <Switch
                   checked={showPremiumOnly}
                   onCheckedChange={setShowPremiumOnly}
                   className="data-[state=checked]:bg-purple-600 scale-90"
                 />
                 <Lock className="w-3 h-3 text-purple-600" />
-                <span className="text-[11px] font-medium text-slate-700">Premium</span>
+                <span className="text-[11px] font-medium text-slate-700 dark:text-slate-300">Premium</span>
               </div>
             )}
 
-            <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
+            <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
+              <Switch
+                checked={showFeaturedOnly}
+                onCheckedChange={setShowFeaturedOnly}
+                className="data-[state=checked]:bg-yellow-500 scale-90"
+              />
+              <Star className={`w-3 h-3 transition-colors ${showFeaturedOnly ? 'text-yellow-500 fill-yellow-500' : 'text-yellow-500'}`} />
+              <span className="text-[11px] font-medium text-slate-700 dark:text-slate-300">Somente Destaque</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
               <Switch
                 checked={showHomeOfficeOnly}
                 onCheckedChange={setShowHomeOfficeOnly}
                 className="data-[state=checked]:bg-blue-600 scale-90"
               />
               <Briefcase className="w-3 h-3 text-blue-600" />
-              <span className="text-[11px] font-medium text-slate-700">Home Office</span>
+              <span className="text-[11px] font-medium text-slate-700 dark:text-slate-300">Home Office</span>
             </div>
           </div>
         </div>
