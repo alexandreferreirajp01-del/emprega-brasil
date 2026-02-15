@@ -62,7 +62,6 @@ export default function Jobs() {
   const [cityOpen, setCityOpen] = useState(false);
   const [funcOpen, setFuncOpen] = useState(false);
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
-  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   const [showHomeOfficeOnly, setShowHomeOfficeOnly] = useState(false);
   
   const [user, setUser] = useState(null);
@@ -294,10 +293,9 @@ export default function Jobs() {
     const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     const matchesPremium = !showPremiumOnly || job.is_premium;
-    const matchesFeatured = !showFeaturedOnly || job.is_featured === true;
     const matchesHomeOffice = !showHomeOfficeOnly || job.work_mode === 'Remoto' || job.job_type === 'Home Office';
     
-    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice;
+    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesHomeOffice;
   });
 
   const filteredCities = availableCities.filter(city =>
@@ -347,15 +345,7 @@ export default function Jobs() {
     }
   };
 
-  // Vagas em destaque - separar featured de regular
-  const featuredJobs = filteredJobs.filter(job => 
-    job.is_featured === true && 
-    job.status === 'ativa'
-  ).slice(0, 3);
 
-  const regularJobs = filteredJobs.filter(job => 
-    job.is_featured !== true
-  );
 
   return (
     <div className="min-h-screen bg-white pb-20">
@@ -502,30 +492,18 @@ export default function Jobs() {
             )}
           </div>
 
-          {/* Filtros Premium, Destaque e Home Office */}
+          {/* Filtros Premium e Home Office */}
           <div className="flex gap-2 pb-3 px-1 overflow-x-auto hide-scrollbar">
             {userIsPremium && (
-              <>
-                <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
-                  <Switch
-                    checked={showPremiumOnly}
-                    onCheckedChange={setShowPremiumOnly}
-                    className="data-[state=checked]:bg-purple-600 scale-90"
-                  />
-                  <Lock className="w-3 h-3 text-purple-600" />
-                  <span className="text-[11px] font-medium text-slate-700">Premium</span>
-                </div>
-
-                <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
-                  <Switch
-                    checked={showFeaturedOnly}
-                    onCheckedChange={setShowFeaturedOnly}
-                    className="data-[state=checked]:bg-yellow-500 scale-90"
-                  />
-                  <Star className="w-3 h-3 text-yellow-500" />
-                  <span className="text-[11px] font-medium text-slate-700">Destaque</span>
-                </div>
-              </>
+              <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
+                <Switch
+                  checked={showPremiumOnly}
+                  onCheckedChange={setShowPremiumOnly}
+                  className="data-[state=checked]:bg-purple-600 scale-90"
+                />
+                <Lock className="w-3 h-3 text-purple-600" />
+                <span className="text-[11px] font-medium text-slate-700">Premium</span>
+              </div>
             )}
 
             <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
@@ -542,61 +520,7 @@ export default function Jobs() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6">
-        {/* Featured Jobs - Estilo G1 */}
-        {featuredJobs.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-sm font-bold text-[#1E6FB6] uppercase tracking-wide mb-3 border-l-4 border-[#1E6FB6] pl-2">
-              Destaques
-            </h2>
-            <div className="space-y-3">
-              {featuredJobs.map((job, index) => {
-                const canView = canViewJob(job);
-                const viewCount = viewsCountMap[job.id] || 0;
-
-                return (
-                  <React.Fragment key={job.id}>
-                    <div 
-                      onClick={(e) => canView ? null : handleJobClick(job, e)}
-                      className={`border-b border-slate-100 pb-3 ${!canView ? 'cursor-pointer' : ''}`}
-                    >
-                      <Link to={canView ? `${createPageUrl('JobDetail')}?id=${job.id}` : '#'}>
-                        <div className="group flex gap-3">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-slate-900 group-hover:text-[#1E6FB6] transition-colors text-base line-clamp-2 mb-1">
-                              {job.title}
-                            </h3>
-                            <p className="text-sm text-slate-600 mb-2">{job.company}</p>
-                            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                              {job.city && job.state && (
-                                <span className="flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" />
-                                  {job.city} - {job.state}
-                                </span>
-                              )}
-                              <span className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                <TimeAgo date={job.created_date} />
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Eye className="w-3 h-3" />
-                                {viewCount}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
-                    {index === 2 && (
-                      <NativeBannerAd pageName="Jobs" location="content" className="py-4" />
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Regular Jobs List - Estilo G1 */}
+        {/* Lista de Vagas */}
         <div className="space-y-1 divide-y divide-slate-100">
           {isLoading ? (
             <>
@@ -609,7 +533,7 @@ export default function Jobs() {
               ))}
             </>
           ) : (
-            regularJobs.map((job) => {
+            filteredJobs.map((job) => {
               const canView = canViewJob(job);
               const isFavorite = favorites.some(f => f.job_id === job.id);
               const viewCount = viewsCountMap[job.id] || 0;
