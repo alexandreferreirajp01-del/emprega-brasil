@@ -347,8 +347,8 @@ export default function Jobs() {
     }
   };
 
-  const featuredJobs = filteredJobs.filter(j => j.is_featured).slice(0, 3);
-  const regularJobs = filteredJobs.filter(j => !j.is_featured);
+  const featuredJobs = filteredJobs.filter(j => j.is_featured === true && j.status === 'ativa').slice(0, 3);
+  const regularJobs = filteredJobs.filter(j => j.is_featured !== true);
 
   return (
     <div className="min-h-screen bg-white pb-20">
