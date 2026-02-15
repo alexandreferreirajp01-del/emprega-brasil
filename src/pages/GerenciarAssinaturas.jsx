@@ -351,26 +351,26 @@ export default function GerenciarAssinaturas() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <CreditCard className="w-8 h-8" />
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <CreditCard className="w-6 h-6 md:w-8 md:h-8" />
               Gerenciar Assinaturas
             </h1>
-            <p className="text-slate-600 dark:text-slate-400">Controle financeiro de Premium e Recrutadores</p>
+            <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">Controle financeiro de Premium e Recrutadores</p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setShowReportDialog(true)} variant="outline">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Relatório
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => setShowReportDialog(true)} variant="outline" size="sm" className="flex-1 min-w-[100px]">
+              <BarChart3 className="w-4 h-4 mr-1" />
+              <span className="text-xs md:text-sm">Relatório</span>
             </Button>
-            <Button onClick={handleSyncExistingUsers} variant="outline" disabled={loading}>
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Sincronizar
+            <Button onClick={handleSyncExistingUsers} variant="outline" size="sm" disabled={loading} className="flex-1 min-w-[100px]">
+              <RefreshCw className="w-4 h-4 mr-1" />
+              <span className="text-xs md:text-sm">Sincronizar</span>
             </Button>
-            <Button onClick={() => setShowAddDialog(true)} className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Assinatura
+            <Button onClick={() => setShowAddDialog(true)} className="bg-blue-600 hover:bg-blue-700 flex-1 min-w-[100px]" size="sm">
+              <Plus className="w-4 h-4 mr-1" />
+              <span className="text-xs md:text-sm">Nova Assinatura</span>
             </Button>
           </div>
         </div>
