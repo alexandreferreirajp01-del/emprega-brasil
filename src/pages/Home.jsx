@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Search, Briefcase, MessageCircle, Newspaper, Crown, ArrowRight, 
   MapPin, Calendar, Users, Star, TrendingUp, Building2, Eye,
-  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake, Sparkles, Moon, Sun, RefreshCw
+  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake, Sparkles, Moon, Sun
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -14,60 +14,7 @@ import TimeAgo from "@/components/common/TimeAgo";
 import VisitTracker from "@/components/common/VisitTracker";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import PlansBanner from "@/components/common/PlansBanner";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 
-// Fix para ícones do Leaflet
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-// Ícone amarelo para a sede
-const sedeIcon = new L.Icon({
-  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
-      <path fill="#FFD700" stroke="#000" stroke-width="1" d="M12.5 0C5.596 0 0 5.596 0 12.5c0 9.688 12.5 28.5 12.5 28.5S25 22.188 25 12.5C25 5.596 19.404 0 12.5 0z"/>
-      <circle cx="12.5" cy="12.5" r="6" fill="#FFF"/>
-    </svg>
-  `),
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-// Ícone verde para subsedes estaduais
-const subsedeIcon = new L.Icon({
-  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
-      <path fill="#10B981" stroke="#000" stroke-width="1" d="M12.5 0C5.596 0 0 5.596 0 12.5c0 9.688 12.5 28.5 12.5 28.5S25 22.188 25 12.5C25 5.596 19.404 0 12.5 0z"/>
-      <circle cx="12.5" cy="12.5" r="6" fill="#FFF"/>
-    </svg>
-  `),
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-// Coordenadas centrais dos estados brasileiros
-const STATE_CENTERS = {
-  'AC': [-8.77, -70.55], 'AL': [-9.71, -35.73], 'AP': [1.41, -51.77],
-  'AM': [-3.47, -65.10], 'BA': [-12.96, -38.51], 'CE': [-3.71, -38.54],
-  'DF': [-15.83, -47.86], 'ES': [-19.19, -40.34], 'GO': [-16.64, -49.31],
-  'MA': [-2.55, -44.30], 'MT': [-12.64, -55.42], 'MS': [-20.51, -54.54],
-  'MG': [-18.10, -44.38], 'PA': [-5.53, -52.29], 'PB': [-7.06, -35.55],
-  'PR': [-24.89, -51.55], 'PE': [-8.28, -35.07], 'PI': [-8.28, -43.68],
-  'RJ': [-22.84, -43.15], 'RN': [-5.22, -36.52], 'RS': [-30.01, -51.22],
-  'RO': [-11.22, -62.80], 'RR': [1.99, -61.33], 'SC': [-27.33, -49.44],
-  'SP': [-23.55, -46.64], 'SE': [-10.90, -37.07], 'TO': [-10.25, -48.25]
-};
 
 // Função de fetch com retry robusto
 async function fetchWithRetry(fetchFn, maxRetries = 5) {
@@ -95,7 +42,7 @@ export default function Home() {
   const [news, setNews] = useState([]);
   const [posts, setPosts] = useState([]);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [refreshingMap, setRefreshingMap] = useState(false);
+
   const [isPulling, setIsPulling] = useState(false);
 
   useEffect(() => {
@@ -192,20 +139,7 @@ export default function Home() {
   // Filtrar apenas vagas em destaque da Paraíba
   const featuredJobs = jobs.filter(job => job.is_featured && job.state === 'PB');
 
-  // Função para atualizar vagas manualmente
-  const handleRefreshMap = async () => {
-    setRefreshingMap(true);
-    try {
-      const jobsResult = await base44.entities.Job.list('-created_date', 10000);
-      setJobs(jobsResult);
-      console.log('Mapa atualizado com', jobsResult.filter(j => j.latitude && j.longitude && j.exibir_no_mapa !== false).length, 'vagas');
-    } catch (error) {
-      console.error('Erro ao atualizar mapa:', error);
-      alert('Erro ao atualizar: ' + error.message);
-    } finally {
-      setRefreshingMap(false);
-    }
-  };
+
 
 
 
@@ -388,146 +322,6 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {/* Mapa de Vagas */}
-            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden bg-white dark:bg-slate-800 transition-colors" style={{ position: 'relative', zIndex: 1, isolation: 'isolate' }}>
-              <div className="bg-gradient-to-r from-[#1D4371] to-[#2B5A8F] p-3 sm:p-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="font-bold text-white text-sm sm:text-lg">Mapa de Vagas na PB</h2>
-                    <p className="text-white/70 text-xs sm:text-sm">{jobs.filter(job => job.state === 'PB' && job.latitude && job.longitude && job.exibir_no_mapa !== false).length} vagas na Paraíba</p>
-                  </div>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleRefreshMap}
-                  disabled={refreshingMap}
-                  className="text-white hover:bg-white/10 rounded-lg sm:rounded-xl text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4"
-                >
-                  <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 ${refreshingMap ? 'animate-spin' : ''}`} />
-                  {refreshingMap ? 'Atualizando...' : 'Atualizar'}
-                </Button>
-              </div>
-              <CardContent className="p-0">
-                <div className="h-[400px] w-full" style={{ position: 'relative', zIndex: 1 }}>
-                  <MapContainer
-                    center={[-7.12, -36.72]}
-                    zoom={8}
-                    minZoom={7}
-                    maxZoom={12}
-                    bounds={[[-8.5, -39], [-6, -34.5]]}
-                    maxBounds={[[-8.5, -39], [-6, -34.5]]}
-                    style={{ height: '100%', width: '100%', position: 'relative', zIndex: 1 }}
-                  >
-                    <TileLayer
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-
-                    {/* Marcador da Sede em João Pessoa */}
-                    <Marker 
-                      position={[-7.1352, -34.8634]} 
-                      icon={sedeIcon}
-                    >
-                      <Popup maxWidth={280} closeButton={true}>
-                        <div className="p-2" style={{ minWidth: '240px' }}>
-                          <h3 className="font-bold text-base mb-3 text-slate-900 leading-tight">
-                            🏢 Sede Vagas Abertas PB
-                          </h3>
-
-                          <div className="space-y-2 mb-4">
-                            <div className="flex items-start gap-2">
-                              <MapPin className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-slate-700">
-                                Rua Rosalva Nepomuceno do Nascimento, 75<br/>
-                                Planalto Boa Esperança<br/>
-                                João Pessoa - PB<br/>
-                                CEP: 58065-065
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="mt-3 pt-3 border-t border-slate-200">
-                            <p className="text-xs text-center text-slate-600 font-medium">
-                              Vagas Abertas PB - Empregos na Paraíba
-                            </p>
-                          </div>
-                        </div>
-                      </Popup>
-                    </Marker>
-
-                    {/* Marcadores das Vagas na Paraíba */}
-                    {jobs
-                      .filter(job => 
-                        job.state === 'PB' && 
-                        job.latitude && 
-                        job.longitude && 
-                        job.exibir_no_mapa !== false
-                      )
-                      .map(job => (
-                        <Marker key={job.id} position={[job.latitude, job.longitude]}>
-                          <Popup maxWidth={280} closeButton={true}>
-                            <div className="p-2" style={{ minWidth: '240px' }}>
-                              <h3 className="font-bold text-base mb-3 text-slate-900 leading-tight">
-                                {job.title || 'Vaga sem título'}
-                              </h3>
-
-                              <div className="space-y-2 mb-4">
-                                <div className="flex items-start gap-2">
-                                  <Building2 className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                                  <span className="text-sm text-slate-700">
-                                    {job.company || 'Não informado'}
-                                  </span>
-                                </div>
-
-                                <div className="flex items-start gap-2">
-                                  <MapPin className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                                  <span className="text-sm text-slate-700">
-                                    {job.neighborhood ? `${job.neighborhood} - ` : ''}{job.city || 'Não informado'}, PB
-                                  </span>
-                                </div>
-
-                                <div className="flex items-start gap-2">
-                                  <Calendar className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                                  <span className="text-sm text-slate-700">
-                                    <TimeAgo date={job.published_at || job.created_date} />
-                                  </span>
-                                </div>
-
-                                {job.job_type && (
-                                  <div className="flex items-start gap-2">
-                                    <Briefcase className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                                    <span className="text-sm text-slate-700">{job.job_type}</span>
-                                  </div>
-                                )}
-
-                                {job.salary_range && (
-                                  <div className="mt-2 pt-2 border-t border-slate-200">
-                                    <span className="text-sm font-semibold text-green-600">
-                                      💰 {job.salary_range}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-
-                              <Link 
-                                to={`${createPageUrl('JobDetail')}?id=${job.id}`}
-                                className="block w-full text-center bg-[#1D4371] hover:bg-[#0F2744] text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm hover:shadow-md no-underline"
-                                style={{ color: 'white', textDecoration: 'none' }}
-                              >
-                                Ver vaga →
-                              </Link>
-                            </div>
-                          </Popup>
-                        </Marker>
-                      ))}
-                  </MapContainer>
-                  </div>
-              </CardContent>
-            </Card>
 
           </div>
 
