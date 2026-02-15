@@ -274,7 +274,7 @@ export default function Layout({ children, currentPageName }) {
   <ApplyBasicPermissions user={user} />
 
   {/* Top Navigation - Fixed com z-index máximo */}
-  <header className="bg-transparent lg:bg-white lg:dark:bg-slate-800 lg:border-b border-slate-100 dark:border-slate-700 fixed top-0 left-0 right-0 z-[9999]" translate="no" style={{
+  <header className="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 fixed top-0 left-0 right-0 z-[9999]" translate="no" style={{
     position: 'fixed',
     top: 0,
     left: 0,

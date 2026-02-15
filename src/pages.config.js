@@ -87,7 +87,6 @@ import GerenciarUsuarios from './pages/GerenciarUsuarios';
 import GerenciarVagas from './pages/GerenciarVagas';
 import Groups from './pages/Groups';
 import Historico from './pages/Historico';
-import Home from './pages/Home';
 import JobDetail from './pages/JobDetail';
 import Jobs from './pages/Jobs';
 import LGPD from './pages/LGPD';
@@ -131,6 +130,7 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
+import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
@@ -175,7 +175,6 @@ export const PAGES = {
     "GerenciarVagas": GerenciarVagas,
     "Groups": Groups,
     "Historico": Historico,
-    "Home": Home,
     "JobDetail": JobDetail,
     "Jobs": Jobs,
     "LGPD": LGPD,
@@ -219,6 +218,7 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
+    "Home": Home,
 }
 
 export const pagesConfig = {
