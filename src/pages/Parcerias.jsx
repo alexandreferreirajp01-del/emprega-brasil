@@ -29,13 +29,18 @@ export default function Parcerias() {
   ];
 
   const handleWhatsApp = (plano) => {
-    const mensagem = `🎯 *Interesse em Anúncio*\n\n` +
-      `📅 *Plano:* ${plano.dias}\n` +
-      `💰 *Valor:* ${plano.valor}\n\n` +
-      `Gostaria de mais informações sobre este pacote de anúncios.`;
+    const mercadoPagoLinks = {
+      'R$50,00': 'https://mpago.la/12Yt5nA',
+      'R$60,00': 'https://mpago.la/2TQ2PwF',
+      'R$80,00': 'https://mpago.la/2wHmouJ',
+      'R$140,00': 'https://mpago.la/1iiWuPN',
+      'R$180,00': 'https://mpago.la/2vXtnJu'
+    };
     
-    const whatsappURL = `https://wa.me/5583991971320?text=${encodeURIComponent(mensagem)}`;
-    window.open(whatsappURL, '_blank');
+    const link = mercadoPagoLinks[plano.valor];
+    if (link) {
+      window.open(link, '_blank');
+    }
   };
 
   return (
