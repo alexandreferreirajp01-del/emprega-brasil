@@ -284,6 +284,11 @@ export default function Layout({ children, currentPageName }) {
   }}>
     <div className="max-w-7xl mx-auto px-4">
       <div className="flex items-center h-16 lg:h-20 relative">
+        {/* Mobile: Notification Bell - Left */}
+        <div className="lg:hidden absolute left-0">
+          {user && <NotificationBell user={user} />}
+        </div>
+
         {/* Logo - Desktop only */}
         <Link to={createPageUrl('Home')} className="hidden lg:flex items-center gap-3">
           <div className="w-16 h-16 flex items-center justify-center flex-shrink-0">
