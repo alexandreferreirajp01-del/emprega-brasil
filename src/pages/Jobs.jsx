@@ -294,7 +294,7 @@ export default function Jobs() {
     const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     const matchesPremium = !showPremiumOnly || job.is_premium;
-    const matchesFeatured = !showFeaturedOnly || job.is_featured === true || job.is_featured === 'true';
+    const matchesFeatured = !showFeaturedOnly || job.is_featured === true;
     const matchesHomeOffice = !showHomeOfficeOnly || job.work_mode === 'Remoto' || job.job_type === 'Home Office';
     
     return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice;
@@ -347,20 +347,15 @@ export default function Jobs() {
     }
   };
 
-  const featuredJobs = React.useMemo(() => {
-    return filteredJobs.filter(j => {
-      const isFeatured = j.is_featured === true || j.is_featured === 'true';
-      const isActive = j.status === 'ativa';
-      return isFeatured && isActive;
-    }).slice(0, 3);
-  }, [filteredJobs]);
+  // Vagas em destaque - separar featured de regular
+  const featuredJobs = filteredJobs.filter(job => 
+    job.is_featured === true && 
+    job.status === 'ativa'
+  ).slice(0, 3);
 
-  const regularJobs = React.useMemo(() => {
-    return filteredJobs.filter(j => {
-      const isFeatured = j.is_featured === true || j.is_featured === 'true';
-      return !isFeatured;
-    });
-  }, [filteredJobs]);
+  const regularJobs = filteredJobs.filter(job => 
+    job.is_featured !== true
+  );
 
   return (
     <div className="min-h-screen bg-white pb-20">

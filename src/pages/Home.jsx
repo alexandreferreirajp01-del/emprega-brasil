@@ -136,15 +136,11 @@ export default function Home() {
     viewsCountMap[v.job_id] = (viewsCountMap[v.job_id] || 0) + 1;
   });
 
-  // Filtrar vagas em destaque (atualização em tempo real)
-  const featuredJobs = React.useMemo(() => 
-    jobs.filter(job => {
-      const isFeatured = job.is_featured === true || job.is_featured === 'true';
-      const isActive = job.status === 'ativa';
-      return isFeatured && isActive;
-    }),
-    [jobs]
-  );
+  // Vagas em destaque - lógica simplificada
+  const featuredJobs = jobs.filter(job => 
+    job.is_featured === true && 
+    job.status === 'ativa'
+  ).slice(0, 5);
 
 
 
