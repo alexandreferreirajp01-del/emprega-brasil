@@ -284,8 +284,9 @@ export default function Layout({ children, currentPageName }) {
   }}>
     <div className="max-w-7xl mx-auto px-4">
       <div className="flex items-center h-20 relative">
-        {/* Theme Button - Left (Mobile) */}
-        <div className="lg:hidden absolute left-0">
+        {/* Left side - Notification Bell (Mobile) / Theme (Desktop) */}
+        <div className="absolute left-0 flex items-center gap-1">
+          {user && <NotificationBell user={user} className="lg:hidden" />}
           <Button 
             variant="ghost" 
             size="icon" 
@@ -296,8 +297,8 @@ export default function Layout({ children, currentPageName }) {
           </Button>
         </div>
 
-        {/* Logo Centralizado - Mobile */}
-        <Link to={createPageUrl('Home')} className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2 lg:relative lg:left-0 lg:translate-x-0">
+        {/* Logo - Desktop only */}
+        <Link to={createPageUrl('Home')} className="hidden lg:flex items-center gap-2">
           <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
@@ -336,7 +337,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Right side actions */}
         <div className="flex items-center gap-1 absolute right-0 lg:relative">
-          {user && <NotificationBell user={user} />}
+          {user && <NotificationBell user={user} className="hidden lg:block" />}
           
           {/* Menu Button - Right (Mobile) */}
           <div className="lg:hidden">
@@ -349,16 +350,6 @@ export default function Layout({ children, currentPageName }) {
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </Button>
           </div>
-          
-          {/* Theme Button - Desktop */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleTheme}
-            className="text-[#1D2226] dark:text-white hidden lg:block"
-          >
-            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </Button>
           {user ? (
             <Link to={createPageUrl('Profile')} className="hidden lg:block">
               <Button variant="outline" className="rounded-xl text-sm px-3 text-[#1D2226] dark:text-white border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700">
