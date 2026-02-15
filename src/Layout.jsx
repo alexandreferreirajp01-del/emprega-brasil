@@ -283,23 +283,10 @@ export default function Layout({ children, currentPageName }) {
     paddingTop: 'env(safe-area-inset-top, 0px)'
   }}>
     <div className="max-w-7xl mx-auto px-4">
-      <div className="flex items-center h-20 relative">
-        {/* Left side - Notification Bell (Mobile) / Theme (Desktop) */}
-        <div className="absolute left-0 flex items-center gap-1">
-          {user && <NotificationBell user={user} className="lg:hidden" />}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleTheme}
-            className="text-[#1D2226] dark:text-white"
-          >
-            {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-          </Button>
-        </div>
-
+      <div className="flex items-center h-16 lg:h-20 relative">
         {/* Logo - Desktop only */}
-        <Link to={createPageUrl('Home')} className="hidden lg:flex items-center gap-2">
-          <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+        <Link to={createPageUrl('Home')} className="hidden lg:flex items-center gap-3">
+          <div className="w-16 h-16 flex items-center justify-center flex-shrink-0">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" 
               alt="Vagas Abertas PB" 
@@ -307,24 +294,24 @@ export default function Layout({ children, currentPageName }) {
             />
           </div>
           <div className="flex flex-col">
-            <span className="text-base md:text-xl font-bold text-black dark:text-white leading-tight">
+            <span className="text-xl font-bold text-black dark:text-white leading-tight">
               Vagas Abertas PB
             </span>
-            <span className="text-xs md:text-sm text-[#2B5A8F] dark:text-blue-400 font-medium">
+            <span className="text-sm text-[#2B5A8F] dark:text-blue-400 font-medium">
               Empregos na Paraíba
             </span>
           </div>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-1 flex-wrap max-w-[60%]">
+        <nav className="hidden lg:flex items-center gap-2 flex-wrap max-w-[50%] ml-4">
           {navItems.map((item) => (
             <Link key={item.page} to={createPageUrl(item.page)}>
               <Button 
                 variant={currentPageName === item.page ? "secondary" : "ghost"}
-                className={`rounded-xl text-sm px-3 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'text-[#1D2226] dark:text-slate-200'}`}
+                className={`rounded-xl text-sm px-4 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'text-[#1D2226] dark:text-slate-200'}`}
               >
-                <item.icon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                <item.icon className="w-4 h-4 mr-2 flex-shrink-0" />
                 <span>{item.name}</span>
               </Button>
             </Link>
@@ -336,18 +323,35 @@ export default function Layout({ children, currentPageName }) {
               </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-1 absolute right-0 lg:relative">
+        <div className="flex items-center gap-1 absolute right-0 lg:relative lg:ml-auto">
+          {/* Desktop: Notification Bell + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleTheme}
+            className="text-[#1D2226] dark:text-white hidden lg:block"
+          >
+            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
           
-          {/* Menu Button - Right (Mobile) */}
-          <div className="lg:hidden">
+          {/* Mobile: Theme + Menu */}
+          <div className="lg:hidden flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleTheme}
+              className="text-[#1D2226] dark:text-white"
+            >
+              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </Button>
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-[#1D2226] dark:text-white"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-6 h-6 stroke-[2.5]" /> : <Menu className="w-6 h-6 stroke-[2.5]" />}
             </Button>
           </div>
           {user ? (
@@ -445,7 +449,7 @@ export default function Layout({ children, currentPageName }) {
   </header>
 
   {/* Main Content com padding-top para o header fixo */}
-  <main className="flex-1" style={{ paddingTop: '5rem', paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
+  <main className="flex-1" style={{ paddingTop: '4rem', paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
     <ErrorBoundary>
       <AnimatePresence mode="wait">
         <motion.div

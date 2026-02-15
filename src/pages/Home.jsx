@@ -242,7 +242,7 @@ export default function Home() {
                     {jobs.length > 0 ? `+${jobs.length}` : '200+'} {jobs.length === 1 ? 'vaga disponível' : 'vagas disponíveis'}
                   </Badge>
                   <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-3 sm:mb-4 leading-tight">
-                    Sua Próxima Oportunidade<br />Está Aqui
+                    Sua próxima oportunidade está aqui
                   </h1>
                   <p className="text-white/80 text-sm sm:text-lg max-w-2xl mx-auto mb-5 sm:mb-8 px-2">
                     Vagas atualizadas diariamente em João Pessoa, Campina Grande e toda a Paraíba
