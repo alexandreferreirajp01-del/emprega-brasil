@@ -536,7 +536,7 @@ export default function Jobs() {
 
       <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Featured Jobs - Estilo G1 */}
-        {featuredJobs.length > 0 && !searchTerm && (
+        {featuredJobs.length > 0 && (
           <div className="mb-6">
             <h2 className="text-sm font-bold text-[#1E6FB6] uppercase tracking-wide mb-3 border-l-4 border-[#1E6FB6] pl-2">
               Destaques
