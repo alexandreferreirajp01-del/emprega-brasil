@@ -262,7 +262,7 @@ export default function Home() {
               </div>
               <CardContent className="p-3 sm:p-4 space-y-3">
                 {featuredJobs.slice(0, 5).map((job) => (
-                  <Link key={job.id} to={createPageUrl('JobDetail') + `?id=${job.id}`}>
+                  <Link key={job.id} to={`${createPageUrl('JobDetail')}?id=${job.id}`}>
                     <div className="p-3 sm:p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer group border border-transparent hover:border-[#0A66C2]/20 dark:hover:border-blue-400/20">
                       <div className="flex flex-col gap-3">
                         {/* Título e Badge */}
