@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle
+  Lock, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
