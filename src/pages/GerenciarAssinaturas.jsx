@@ -376,63 +376,63 @@ export default function GerenciarAssinaturas() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Total</p>
-                  <p className="text-2xl font-bold">{stats.total}</p>
+                  <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400">Total</p>
+                  <p className="text-xl md:text-2xl font-bold">{stats.total}</p>
                 </div>
-                <Users className="w-8 h-8 text-blue-600" />
+                <Users className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Ativas</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+                  <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400">Ativas</p>
+                  <p className="text-xl md:text-2xl font-bold text-green-600">{stats.active}</p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-600" />
+                <CheckCircle className="w-6 h-6 md:w-8 md:h-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Receita</p>
-                  <p className="text-2xl font-bold text-green-600">R$ {stats.revenue.toFixed(2)}</p>
+                <div className="min-w-0">
+                  <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400">Receita</p>
+                  <p className="text-lg md:text-2xl font-bold text-green-600 truncate">R$ {stats.revenue.toFixed(2)}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-green-600" />
+                <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-green-600 flex-shrink-0" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Pendentes</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                  <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400">Pendentes</p>
+                  <p className="text-xl md:text-2xl font-bold text-yellow-600">{stats.pending}</p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-600" />
+                <Clock className="w-6 h-6 md:w-8 md:h-8 text-yellow-600" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4">
+          <Card className="col-span-2 md:col-span-1">
+            <CardContent className="p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Vencendo</p>
-                  <p className="text-2xl font-bold text-orange-600">{stats.expiringSoon}</p>
+                  <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400">Vencendo</p>
+                  <p className="text-xl md:text-2xl font-bold text-orange-600">{stats.expiringSoon}</p>
                 </div>
-                <AlertCircle className="w-8 h-8 text-orange-600" />
+                <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-orange-600" />
               </div>
             </CardContent>
           </Card>
@@ -491,60 +491,64 @@ export default function GerenciarAssinaturas() {
             
             return (
               <Card key={sub.id} className={isExpiringSoon ? 'border-orange-500 dark:border-orange-600' : ''}>
-                <CardContent className="p-4">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <span className="font-semibold text-lg">{sub.user_name || sub.user_email}</span>
-                        <Badge variant="outline" className="capitalize">
+                <CardContent className="p-3 md:p-4">
+                  <div className="space-y-3">
+                    {/* Nome e Badges */}
+                    <div className="flex flex-col gap-2">
+                      <span className="font-semibold text-base md:text-lg truncate">{sub.user_name || sub.user_email}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline" className="capitalize text-xs">
                           {sub.subscription_type}
                         </Badge>
-                        <Badge variant="outline" className="capitalize">
+                        <Badge variant="outline" className="capitalize text-xs">
                           {sub.plan_duration}
                         </Badge>
                         {getStatusBadge(sub.status)}
                         {getPaymentBadge(sub.payment_status)}
                       </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-400">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          Início: {format(new Date(sub.start_date), 'dd/MM/yyyy')}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          Vencimento: {format(new Date(sub.end_date), 'dd/MM/yyyy')}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          {daysRemaining >= 0 ? (
-                            <span className={isExpiringSoon ? 'text-orange-600 font-semibold' : ''}>
-                              {daysRemaining} dias restantes
-                            </span>
-                          ) : (
-                            <span className="text-red-600 font-semibold">
-                              Vencida há {Math.abs(daysRemaining)} dias
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {sub.payment_amount > 0 && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <DollarSign className="w-4 h-4 text-green-600" />
-                          <span className="font-semibold text-green-600">
-                            R$ {sub.payment_amount.toFixed(2)}
-                          </span>
-                          {sub.payment_method && (
-                            <span className="text-slate-600 dark:text-slate-400">
-                              ({sub.payment_method})
-                            </span>
-                          )}
-                        </div>
-                      )}
                     </div>
 
-                    <div className="flex gap-2">
+                    {/* Datas */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs md:text-sm text-slate-600 dark:text-slate-400">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                        <span className="truncate">Início: {format(new Date(sub.start_date), 'dd/MM/yyyy')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                        <span className="truncate">Vencimento: {format(new Date(sub.end_date), 'dd/MM/yyyy')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                        {daysRemaining >= 0 ? (
+                          <span className={`truncate ${isExpiringSoon ? 'text-orange-600 font-semibold' : ''}`}>
+                            {daysRemaining} dias restantes
+                          </span>
+                        ) : (
+                          <span className="text-red-600 font-semibold truncate">
+                            Vencida há {Math.abs(daysRemaining)} dias
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Valor */}
+                    {sub.payment_amount > 0 && (
+                      <div className="flex items-center gap-2 text-xs md:text-sm">
+                        <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-green-600 flex-shrink-0" />
+                        <span className="font-semibold text-green-600">
+                          R$ {sub.payment_amount.toFixed(2)}
+                        </span>
+                        {sub.payment_method && (
+                          <span className="text-slate-600 dark:text-slate-400 truncate">
+                            ({sub.payment_method})
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Botões de Ação */}
+                    <div className="flex gap-2 pt-2 border-t dark:border-slate-700">
                       <Button
                         size="sm"
                         variant="outline"
@@ -552,29 +556,35 @@ export default function GerenciarAssinaturas() {
                           setSelectedSub(sub);
                           setShowEditDialog(true);
                         }}
+                        className="flex-1 text-xs"
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                        <span className="hidden sm:inline">Editar</span>
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleRenewSubscription(sub)}
+                        className="flex-1 text-xs"
                       >
-                        <RefreshCw className="w-4 h-4" />
+                        <RefreshCw className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                        <span className="hidden sm:inline">Renovar</span>
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-red-600 hover:text-red-700"
+                        className="text-red-600 hover:text-red-700 flex-1 text-xs"
                         onClick={() => handleDeleteSubscription(sub.id)}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                        <span className="hidden sm:inline">Excluir</span>
                       </Button>
                     </div>
                   </div>
 
+                  {/* Observações */}
                   {sub.notes && (
-                    <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg text-sm">
+                    <div className="mt-3 p-2 md:p-3 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs md:text-sm">
                       <strong>Observações:</strong> {sub.notes}
                     </div>
                   )}
@@ -594,7 +604,7 @@ export default function GerenciarAssinaturas() {
 
         {/* Dialog - Adicionar Assinatura */}
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
             <DialogHeader>
               <DialogTitle>Nova Assinatura</DialogTitle>
             </DialogHeader>
@@ -732,7 +742,7 @@ export default function GerenciarAssinaturas() {
 
         {/* Dialog - Editar Assinatura */}
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
             <DialogHeader>
               <DialogTitle>Editar Assinatura</DialogTitle>
             </DialogHeader>
@@ -858,7 +868,7 @@ export default function GerenciarAssinaturas() {
 
         {/* Dialog - Relatório */}
         <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <BarChart3 className="w-5 h-5" />
