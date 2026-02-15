@@ -177,6 +177,52 @@ export default function GerenciarAssinaturas() {
     }
   };
 
+  // Sincronizar usuários existentes
+  const handleSyncExistingUsers = async () => {
+    if (!confirm('Sincronizar todos os usuários Premium e Recrutador que ainda não têm assinatura registrada?')) return;
+    
+    try {
+      setLoading(true);
+      
+      // Filtrar usuários Premium e Recrutador
+      const premiumUsers = users.filter(u => 
+        (u.subscription_type === 'premium' || u.subscription_type === 'recruiter') &&
+        !subscriptions.some(s => s.user_email === u.email && s.status === 'active')
+      );
+
+      if (premiumUsers.length === 0) {
+        toast.success('Todos os usuários já estão sincronizados!');
+        return;
+      }
+
+      let created = 0;
+      for (const user of premiumUsers) {
+        const startDate = new Date();
+        const endDate = calculateEndDate(startDate, 'mensal');
+        
+        await base44.entities.Subscription.create({
+          user_email: user.email,
+          user_name: user.full_name || user.email,
+          subscription_type: user.subscription_type,
+          plan_duration: 'mensal',
+          start_date: startDate.toISOString(),
+          end_date: endDate.toISOString(),
+          payment_status: 'pending',
+          status: 'active',
+          notes: 'Sincronização automática de usuário existente'
+        });
+        created++;
+      }
+
+      toast.success(`${created} assinaturas criadas!`);
+      loadData();
+    } catch (error) {
+      toast.error('Erro ao sincronizar usuários');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       user_email: '',
@@ -317,6 +363,10 @@ export default function GerenciarAssinaturas() {
             <Button onClick={() => setShowReportDialog(true)} variant="outline">
               <BarChart3 className="w-4 h-4 mr-2" />
               Relatório
+            </Button>
+            <Button onClick={handleSyncExistingUsers} variant="outline" disabled={loading}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Sincronizar
             </Button>
             <Button onClick={() => setShowAddDialog(true)} className="bg-blue-600 hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" />
