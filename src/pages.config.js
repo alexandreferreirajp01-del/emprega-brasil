@@ -74,6 +74,7 @@ import GerenciadorFiltros from './pages/GerenciadorFiltros';
 import GerenciarAPIKeys from './pages/GerenciarAPIKeys';
 import GerenciarAcessos from './pages/GerenciarAcessos';
 import GerenciarAnuncios from './pages/GerenciarAnuncios';
+import GerenciarAssinaturas from './pages/GerenciarAssinaturas';
 import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarCores from './pages/GerenciarCores';
 import GerenciarFuncoes from './pages/GerenciarFuncoes';
@@ -131,7 +132,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import GerenciarAssinaturas from './pages/GerenciarAssinaturas';
 import __Layout from './Layout.jsx';
 
 
@@ -163,6 +163,7 @@ export const PAGES = {
     "GerenciarAPIKeys": GerenciarAPIKeys,
     "GerenciarAcessos": GerenciarAcessos,
     "GerenciarAnuncios": GerenciarAnuncios,
+    "GerenciarAssinaturas": GerenciarAssinaturas,
     "GerenciarComunidade": GerenciarComunidade,
     "GerenciarCores": GerenciarCores,
     "GerenciarFuncoes": GerenciarFuncoes,
@@ -220,7 +221,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "GerenciarAssinaturas": GerenciarAssinaturas,
 }
 
 export const pagesConfig = {

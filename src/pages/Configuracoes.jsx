@@ -28,6 +28,7 @@ const menuItems = [
 
   // Planos e Pagamentos
   { id: 'divider-planos', type: 'divider', label: 'Planos e Pagamentos', roles: ['admin', 'dono'] },
+  { id: 'assinaturas', name: 'Gerenciar Assinaturas', icon: CreditCard, color: 'blue', page: 'GerenciarAssinaturas', description: 'Controle de assinaturas Premium e Recrutador', roles: ['admin', 'dono'] },
   { id: 'planos', name: 'Gerenciar Planos', icon: Crown, color: 'purple', page: 'GerenciarPlanos', description: 'Controle de assinaturas e cobranças', roles: ['admin', 'dono'], permissionId: 'gerenciar_planos' },
   { id: 'precos', name: 'Gerenciar Preços', icon: CreditCard, color: 'emerald', page: 'GerenciarPrecos', description: 'Ajustar valores dos planos', roles: ['admin', 'dono'] },
   { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },
