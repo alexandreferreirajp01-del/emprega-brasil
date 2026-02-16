@@ -7,27 +7,23 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function LatestJobsToday({ jobs }) {
-  // Obter data de hoje em Brasília (GMT-3)
+  // Comparar datas em UTC para evitar problemas de timezone
   const now = new Date();
-  const brasiliaOffset = -3 * 60; // -3 horas em minutos
-  const localOffset = now.getTimezoneOffset();
-  const brasiliaTime = new Date(now.getTime() + (localOffset + brasiliaOffset) * 60000);
-  
-  const today = new Date(brasiliaTime);
-  today.setHours(0, 0, 0, 0);
-  
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  // Filtrar vagas publicadas hoje (horário de Brasília)
+  // Filtrar vagas publicadas hoje (aceita 'ativa', undefined, ou draft)
   const todayJobs = jobs
     .filter(job => {
       const jobDate = new Date(job.published_at || job.created_date);
-      // Converter para horário de Brasília
-      const jobBrasiliaTime = new Date(jobDate.getTime() + (localOffset + brasiliaOffset) * 60000);
-      jobBrasiliaTime.setHours(0, 0, 0, 0);
+      // Comparar apenas o dia/mês/ano
+      const jobDay = new Date(jobDate.getFullYear(), jobDate.getMonth(), jobDate.getDate());
       
-      return jobBrasiliaTime.getTime() === today.getTime() && job.status === 'ativa';
+      const isToday = jobDay.getTime() === today.getTime();
+      const isActive = !job.status || job.status === 'ativa' || job.status === 'draft';
+      
+      return isToday && isActive;
     })
     .sort((a, b) => new Date(b.published_at || b.created_date) - new Date(a.published_at || a.created_date))
     .slice(0, 4);
