@@ -22,6 +22,7 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editData, setEditData] = useState({ ...subscription });
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
