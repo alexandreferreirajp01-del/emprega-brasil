@@ -68,91 +68,61 @@ export default function LatestJobsToday({ jobs }) {
   return (
     <div>
       {/* Header */}
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-2 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
-            <Sparkles className="w-5 h-5 text-white" />
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             Últimas Vagas Publicadas Hoje
           </h2>
         </div>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Oportunidades atualizadas em tempo real para você
-        </p>
       </div>
 
       {/* Jobs Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
         {todayJobs.map((job) => (
           <Link
             key={job.id}
             to={createPageUrl('JobDetail') + `?id=${job.id}`}
             className="group"
           >
-            <Card className="h-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
-              <CardContent className="p-5">
-                {/* Header com Badge Novo */}
-                <div className="flex items-start justify-between mb-4">
-                  <Badge className="bg-green-500 text-white border-0">
-                    <Sparkles className="w-3 h-3 mr-1" />
+            <Card className="h-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+              <CardContent className="p-3">
+                {/* Title & Company */}
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1 line-clamp-2 group-hover:text-[#0A66C2] transition-colors">
+                  {job.title}
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mb-2 truncate">
+                  {job.company}
+                </p>
+
+                {/* Quick Info */}
+                <div className="space-y-1 mb-2 text-xs">
+                  <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                    <MapPin className="w-3 h-3 flex-shrink-0" />
+                    <span className="truncate">{job.city}, {job.state}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                    <Briefcase className="w-3 h-3 flex-shrink-0" />
+                    <span className="truncate">{job.job_type || 'CLT'}</span>
+                  </div>
+                  {job.salary_range && (
+                    <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300 font-medium">
+                      <DollarSign className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">{formatSalary(job.salary_range)}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Badge */}
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700">
+                  <Badge className="bg-green-500 text-white border-0 text-xs h-5">
                     Novo
                   </Badge>
-                  <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                    <Clock className="w-3 h-3" />
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">
                     {formatTimeAgo(job.published_at || job.created_date)}
-                  </div>
-                </div>
-
-                {/* Title & Company */}
-                <div className="mb-4">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 group-hover:text-[#0A66C2] dark:group-hover:text-blue-400 transition-colors">
-                    {job.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium truncate">
-                    {job.company}
-                  </p>
-                </div>
-
-                {/* Details */}
-                <div className="space-y-2.5 mb-4">
-                  <div className="flex items-start gap-2.5 text-sm">
-                    <MapPin className="w-4 h-4 text-[#0A66C2] flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">Local</p>
-                      <p className="text-slate-700 dark:text-slate-300 font-medium truncate">
-                        {job.city}, {job.state}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-2.5 text-sm">
-                    <Briefcase className="w-4 h-4 text-[#0A66C2] flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">Tipo</p>
-                      <p className="text-slate-700 dark:text-slate-300 font-medium truncate">
-                        {job.job_type || 'Não especificado'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-2.5 text-sm">
-                    <DollarSign className="w-4 h-4 text-[#0A66C2] flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">Salário</p>
-                      <p className="text-slate-700 dark:text-slate-300 font-semibold truncate">
-                        {formatSalary(job.salary_range)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
-                  <div className="text-sm font-semibold text-[#0A66C2] dark:text-blue-400 group-hover:underline flex items-center">
-                    Ver detalhes
-                    <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                  </div>
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -165,10 +135,10 @@ export default function LatestJobsToday({ jobs }) {
         <Link to={createPageUrl('Jobs')}>
           <Button 
             variant="outline"
-            className="rounded-xl px-6 py-2 font-semibold hover:bg-[#0A66C2] hover:text-white transition-all"
+            className="rounded-lg px-4 py-1 text-sm font-semibold hover:bg-[#0A66C2] hover:text-white transition-all"
           >
             Ver todas as vagas
-            <ArrowRight className="w-4 h-4 ml-2" />
+            <ArrowRight className="w-3 h-3 ml-1" />
           </Button>
         </Link>
       </div>
