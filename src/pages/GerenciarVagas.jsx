@@ -350,85 +350,88 @@ export default function GerenciarVagas() {
                 </div>
 
                 {showFilters && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t">
-                    <div>
-                      <Label className="text-xs">Status</Label>
-                      <Select value={filters.status} onValueChange={(v) => setFilters(prev => ({ ...prev, status: v }))}>
-                        <SelectTrigger className="h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Todos</SelectItem>
-                          <SelectItem value="ativa">Ativas</SelectItem>
-                          <SelectItem value="expirada">Expiradas</SelectItem>
-                          <SelectItem value="hidden">Ocultas</SelectItem>
-                          <SelectItem value="pending_review">Pendentes</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3 pt-3 border-t">
+                     <div>
+                       <Label className="text-xs">Status</Label>
+                       <Select value={filters.status} onValueChange={(v) => setFilters(prev => ({ ...prev, status: v }))}>
+                         <SelectTrigger className="h-9">
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="all">Todos</SelectItem>
+                           <SelectItem value="ativa">Ativas</SelectItem>
+                           <SelectItem value="expirada">Expiradas</SelectItem>
+                           <SelectItem value="hidden">Ocultas</SelectItem>
+                           <SelectItem value="pending_review">Pendentes</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
 
-                    <div>
-                      <Label className="text-xs">Contato</Label>
-                      <Select value={filters.contactStatus} onValueChange={(v) => setFilters(prev => ({ ...prev, contactStatus: v }))}>
-                        <SelectTrigger className="h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Todos</SelectItem>
-                          <SelectItem value="ok">Com Contato</SelectItem>
-                          <SelectItem value="missing">Sem Contato</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                     <div>
+                       <Label className="text-xs">Contato</Label>
+                       <Select value={filters.contactStatus} onValueChange={(v) => setFilters(prev => ({ ...prev, contactStatus: v }))}>
+                         <SelectTrigger className="h-9">
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="all">Todos</SelectItem>
+                           <SelectItem value="ok">✅ Com Contato</SelectItem>
+                           <SelectItem value="missing">❌ Sem Contato</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
 
-                    <div>
-                      <Label className="text-xs">Mapa</Label>
-                      <Select value={filters.mapStatus} onValueChange={(v) => setFilters(prev => ({ ...prev, mapStatus: v }))}>
-                        <SelectTrigger className="h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Todos</SelectItem>
-                          <SelectItem value="ready">Mapa OK</SelectItem>
-                          <SelectItem value="failed">Falha</SelectItem>
-                          <SelectItem value="pending">Pendente</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                     <div>
+                       <Label className="text-xs">Mapa</Label>
+                       <Select value={filters.mapStatus} onValueChange={(v) => setFilters(prev => ({ ...prev, mapStatus: v }))}>
+                         <SelectTrigger className="h-9">
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="all">Todos</SelectItem>
+                           <SelectItem value="ready">✅ Mapa OK</SelectItem>
+                           <SelectItem value="failed">❌ Falha</SelectItem>
+                           <SelectItem value="pending">⏳ Pendente</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
 
-                    <div>
-                      <Label className="text-xs">Período</Label>
-                      <Select value={filters.period} onValueChange={(v) => setFilters(prev => ({ ...prev, period: v }))}>
-                        <SelectTrigger className="h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Todos</SelectItem>
-                          <SelectItem value="3">Últimos 3 dias</SelectItem>
-                          <SelectItem value="7">Últimos 7 dias</SelectItem>
-                          <SelectItem value="15">Últimos 15 dias</SelectItem>
-                          <SelectItem value="30">Últimos 30 dias</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                     <div>
+                       <Label className="text-xs">Período</Label>
+                       <Select value={filters.period} onValueChange={(v) => setFilters(prev => ({ ...prev, period: v }))}>
+                         <SelectTrigger className="h-9">
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="all">Todos</SelectItem>
+                           <SelectItem value="1">Hoje</SelectItem>
+                           <SelectItem value="3">Últimos 3 dias</SelectItem>
+                           <SelectItem value="7">Últimos 7 dias</SelectItem>
+                           <SelectItem value="15">Últimos 15 dias</SelectItem>
+                           <SelectItem value="30">Últimos 30 dias</SelectItem>
+                           <SelectItem value="60">Últimos 60 dias</SelectItem>
+                           <SelectItem value="90">Últimos 90 dias</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
 
-                    <div>
-                      <Label className="text-xs">Localização</Label>
-                      <Select value={filters.locationStatus || 'all'} onValueChange={(v) => setFilters(prev => ({ ...prev, locationStatus: v }))}>
-                        <SelectTrigger className="h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Todas</SelectItem>
-                          <SelectItem value="no_city">🔴 Sem Cidade</SelectItem>
-                          <SelectItem value="no_state">🔴 Sem Estado</SelectItem>
-                          <SelectItem value="incomplete">🟡 Incompleto</SelectItem>
-                          <SelectItem value="complete">✅ Completo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    </div>
-                    )}
+                     <div>
+                       <Label className="text-xs">Localização</Label>
+                       <Select value={filters.locationStatus || 'all'} onValueChange={(v) => setFilters(prev => ({ ...prev, locationStatus: v }))}>
+                         <SelectTrigger className="h-9">
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="all">Todas</SelectItem>
+                           <SelectItem value="no_city">🔴 Sem Cidade</SelectItem>
+                           <SelectItem value="no_state">🔴 Sem Estado</SelectItem>
+                           <SelectItem value="incomplete">🟡 Incompleto</SelectItem>
+                           <SelectItem value="complete">✅ Completo</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
+                     </div>
+                     )}
                     </CardContent>
                     </Card>
 
