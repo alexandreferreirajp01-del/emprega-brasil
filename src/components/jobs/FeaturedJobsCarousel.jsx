@@ -117,13 +117,10 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
                   </div>
 
                   {/* Footer */}
-                   <div className="pt-2 border-t border-slate-200 dark:border-slate-600 flex items-center justify-between">
-                     <Badge className="bg-orange-500 text-white border-0 text-xs h-5 flex items-center gap-0.5">
-                       <Crown className="w-3 h-3" />
-                       Destaque
-                     </Badge>
+                   <div className="pt-2 border-t border-slate-200 dark:border-slate-600">
                      <p className="text-xs font-semibold text-orange-500 dark:text-orange-400 flex items-center group-hover:gap-1 transition-all">
-                       <ChevronRight className="w-3 h-3" />
+                       Saiba mais
+                       <ChevronRight className="w-3 h-3 ml-1" />
                      </p>
                    </div>
                 </div>
