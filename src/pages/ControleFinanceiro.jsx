@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { 
   ArrowLeft, Loader2, TrendingUp, Users, Clock, AlertCircle,
   Plus, Edit2, Eye, Download, Filter, Search,
-  DollarSign, CheckCircle, XCircle, AlertTriangle
+  DollarSign, CheckCircle, XCircle, AlertTriangle, FileText, BarChart3
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
