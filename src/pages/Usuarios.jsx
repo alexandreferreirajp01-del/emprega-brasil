@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { 
   Search, User, Mail, Lock, Activity, 
-  MessageCircle, Eye, Shield, Calendar
+  MessageCircle, Eye, Shield, Calendar, Phone
 } from 'lucide-react';
 import { toast } from 'sonner';
 import UserDetailsModal from '@/components/admin/UserDetailsModal';
