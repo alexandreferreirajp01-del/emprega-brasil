@@ -186,12 +186,12 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
                   </div>
 
                   {/* Footer */}
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                      <Eye className="w-3 h-3" />
-                      <span>{viewCounts[job.id] || 0} visualizações</span>
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between gap-2 min-w-0">
+                    <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
+                      <Eye className="w-3 h-3 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{viewCounts[job.id] || 0}</span>
                     </div>
-                    <div className="text-sm font-semibold text-[#0A66C2] dark:text-blue-400 group-hover:underline">
+                    <div className="text-xs md:text-sm font-semibold text-[#0A66C2] dark:text-blue-400 group-hover:underline whitespace-nowrap">
                       Ver detalhes →
                     </div>
                   </div>
