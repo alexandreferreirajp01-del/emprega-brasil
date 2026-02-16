@@ -63,6 +63,7 @@ import ChangePassword from './pages/ChangePassword';
 import ChatIA from './pages/ChatIA';
 import Configuracoes from './pages/Configuracoes';
 import Contact from './pages/Contact';
+import ControleFinanceiro from './pages/ControleFinanceiro';
 import Cookies from './pages/Cookies';
 import EnviarParaTodos from './pages/EnviarParaTodos';
 import ExcluirVagasSemContato from './pages/ExcluirVagasSemContato';
@@ -133,7 +134,7 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import ControleFinanceiro from './pages/ControleFinanceiro';
+import Extrato from './pages/Extrato';
 import __Layout from './Layout.jsx';
 
 
@@ -154,6 +155,7 @@ export const PAGES = {
     "ChatIA": ChatIA,
     "Configuracoes": Configuracoes,
     "Contact": Contact,
+    "ControleFinanceiro": ControleFinanceiro,
     "Cookies": Cookies,
     "EnviarParaTodos": EnviarParaTodos,
     "ExcluirVagasSemContato": ExcluirVagasSemContato,
@@ -224,7 +226,7 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "ControleFinanceiro": ControleFinanceiro,
+    "Extrato": Extrato,
 }
 
 export const pagesConfig = {
