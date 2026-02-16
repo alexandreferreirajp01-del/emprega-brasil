@@ -21,6 +21,8 @@ import { base44 } from "@/api/base44Client";
 export default function SubscriptionActionsMenu({ subscription, onEdit, onView, onRenew, onDelete }) {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editData, setEditData] = useState({ ...subscription });
+  const [renewModalOpen, setRenewModalOpen] = useState(false);
+  const [renewData, setRenewData] = useState({ amount: 0, days: 30 });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
