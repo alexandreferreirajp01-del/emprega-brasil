@@ -499,36 +499,36 @@ export default function Jobs() {
           <div className="flex gap-2 pb-3 px-1 overflow-x-auto hide-scrollbar">
             {userIsPremium && (
               <>
-                <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
+                <div className="flex items-center gap-1 px-2 h-8 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
                   <Switch
                     checked={showPremiumOnly}
                     onCheckedChange={setShowPremiumOnly}
-                    className="data-[state=checked]:bg-purple-600 scale-90"
+                    className="data-[state=checked]:bg-purple-600 scale-75"
                   />
                   <Lock className="w-3 h-3 text-purple-600" />
-                  <span className="text-[11px] font-medium text-slate-700">Premium</span>
+                  <span className="text-[10px] font-medium text-slate-700">Premium</span>
                 </div>
 
-                <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
+                <div className="flex items-center gap-1 px-2 h-8 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
                   <Switch
                     checked={showFeaturedOnly}
                     onCheckedChange={setShowFeaturedOnly}
-                    className="data-[state=checked]:bg-yellow-500 scale-90"
+                    className="data-[state=checked]:bg-yellow-500 scale-75"
                   />
                   <Star className="w-3 h-3 text-yellow-500" />
-                  <span className="text-[11px] font-medium text-slate-700">Destaque</span>
+                  <span className="text-[10px] font-medium text-slate-700">Destaque</span>
                 </div>
               </>
             )}
 
-            <div className="flex items-center gap-1.5 px-2.5 h-9 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
+            <div className="flex items-center gap-1 px-2 h-8 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
               <Switch
                 checked={showHomeOfficeOnly}
                 onCheckedChange={setShowHomeOfficeOnly}
-                className="data-[state=checked]:bg-blue-600 scale-90"
+                className="data-[state=checked]:bg-blue-600 scale-75"
               />
               <Briefcase className="w-3 h-3 text-blue-600" />
-              <span className="text-[11px] font-medium text-slate-700">Home Office</span>
+              <span className="text-[10px] font-medium text-slate-700">Home Office</span>
             </div>
           </div>
         </div>

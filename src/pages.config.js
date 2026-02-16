@@ -61,6 +61,7 @@ import Careers from './pages/Careers';
 import CentralPromocoes from './pages/CentralPromocoes';
 import ChangePassword from './pages/ChangePassword';
 import ChatIA from './pages/ChatIA';
+import Configuracoes from './pages/Configuracoes';
 import Contact from './pages/Contact';
 import Cookies from './pages/Cookies';
 import EnviarParaTodos from './pages/EnviarParaTodos';
@@ -82,9 +83,11 @@ import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPopups from './pages/GerenciarPopups';
 import GerenciarPrecos from './pages/GerenciarPrecos';
 import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
+import GerenciarUsuarios from './pages/GerenciarUsuarios';
 import GerenciarVagas from './pages/GerenciarVagas';
 import Groups from './pages/Groups';
 import Historico from './pages/Historico';
+import Home from './pages/Home';
 import JobDetail from './pages/JobDetail';
 import LGPD from './pages/LGPD';
 import ListaTransmissao from './pages/ListaTransmissao';
@@ -95,6 +98,7 @@ import NewsDetail from './pages/NewsDetail';
 import NotificacoesAdmin from './pages/NotificacoesAdmin';
 import Notifications from './pages/Notifications';
 import Ocorrencias from './pages/Ocorrencias';
+import Parcerias from './pages/Parcerias';
 import Payment from './pages/Payment';
 import PaymentsPage from './pages/PaymentsPage';
 import Pendencias from './pages/Pendencias';
@@ -117,6 +121,7 @@ import ResetPassword from './pages/ResetPassword';
 import ResponderChat from './pages/ResponderChat';
 import Security from './pages/Security';
 import Splash from './pages/Splash';
+import Subscription from './pages/Subscription';
 import Terms from './pages/Terms';
 import Utilidades from './pages/Utilidades';
 import VagasConverter from './pages/VagasConverter';
@@ -125,12 +130,7 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import Configuracoes from './pages/Configuracoes';
-import GerenciarUsuarios from './pages/GerenciarUsuarios';
-import Parcerias from './pages/Parcerias';
-import Subscription from './pages/Subscription';
 import Jobs from './pages/Jobs';
-import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
@@ -149,6 +149,7 @@ export const PAGES = {
     "CentralPromocoes": CentralPromocoes,
     "ChangePassword": ChangePassword,
     "ChatIA": ChatIA,
+    "Configuracoes": Configuracoes,
     "Contact": Contact,
     "Cookies": Cookies,
     "EnviarParaTodos": EnviarParaTodos,
@@ -170,9 +171,11 @@ export const PAGES = {
     "GerenciarPopups": GerenciarPopups,
     "GerenciarPrecos": GerenciarPrecos,
     "GerenciarSolicitacoes": GerenciarSolicitacoes,
+    "GerenciarUsuarios": GerenciarUsuarios,
     "GerenciarVagas": GerenciarVagas,
     "Groups": Groups,
     "Historico": Historico,
+    "Home": Home,
     "JobDetail": JobDetail,
     "LGPD": LGPD,
     "ListaTransmissao": ListaTransmissao,
@@ -183,6 +186,7 @@ export const PAGES = {
     "NotificacoesAdmin": NotificacoesAdmin,
     "Notifications": Notifications,
     "Ocorrencias": Ocorrencias,
+    "Parcerias": Parcerias,
     "Payment": Payment,
     "PaymentsPage": PaymentsPage,
     "Pendencias": Pendencias,
@@ -205,6 +209,7 @@ export const PAGES = {
     "ResponderChat": ResponderChat,
     "Security": Security,
     "Splash": Splash,
+    "Subscription": Subscription,
     "Terms": Terms,
     "Utilidades": Utilidades,
     "VagasConverter": VagasConverter,
@@ -213,12 +218,7 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "Configuracoes": Configuracoes,
-    "GerenciarUsuarios": GerenciarUsuarios,
-    "Parcerias": Parcerias,
-    "Subscription": Subscription,
     "Jobs": Jobs,
-    "Home": Home,
 }
 
 export const pagesConfig = {
