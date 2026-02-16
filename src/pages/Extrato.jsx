@@ -296,56 +296,47 @@ export default function Extrato() {
                     <th className="px-6 py-3 text-right text-sm font-semibold text-slate-900 dark:text-white">Saldo</th>
                   </tr>
                 </thead>
-            <TableBody>
-              {allEntries.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan="7" className="text-center py-6 text-slate-500">
-                    Nenhum lançamento encontrado
-                  </TableCell>
-                </TableRow>
-              ) : (
-                allEntries.map((entry) => (
-                  <TableRow key={`${entry.source}-${entry.id}`}>
-                    <TableCell className="text-sm">{new Date(entry.displayDate).toLocaleDateString('pt-BR')}</TableCell>
-                    <TableCell className="text-sm">{entry.description || entry.notes}</TableCell>
-                    <TableCell>
-                      <span className={`text-xs font-semibold px-2 py-1 rounded ${entry.displayAmount > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {entry.displayAmount > 0 ? 'Receita' : 'Despesa'}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-sm">{entry.category || 'N/A'}</TableCell>
-                    <TableCell className={`text-right font-semibold ${entry.displayAmount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      R$ {Math.abs(entry.displayAmount).toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-xs">{entry.source === 'manual' ? 'Manual' : 'Assinatura'}</TableCell>
-                    <TableCell className="flex gap-2">
-                      {entry.source === 'manual' && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(entry)}
-                            className="text-blue-600 hover:text-blue-700 h-8 w-8"
-                          >
-                            <FileText className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteMutation.mutate(entry.id)}
-                            className="text-red-600 hover:text-red-700 h-8 w-8"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                <tbody className="divide-y dark:divide-slate-700">
+                  {allEntries.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="px-6 py-8 text-center text-slate-500">
+                        Nenhum movimento encontrado
+                      </td>
+                    </tr>
+                  ) : (
+                    allEntries.map((entry, idx) => {
+                      const cumulativeSaldo = allEntries.slice(0, idx + 1).reduce((sum, e) => sum + e.displayAmount, 0);
+                      return (
+                        <tr key={`${entry.source}-${entry.id}`} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                          <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                            {new Date(entry.displayDate).toLocaleDateString('pt-BR')}
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
+                            {entry.description || entry.notes}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs">
+                              {entry.source === 'manual' ? (entry.agent === 'clientes' ? '👤 Clientes' : '🏢 Fornecedores') : '📊 Sistema'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm font-semibold text-green-600">
+                            {entry.displayAmount > 0 ? `R$ ${entry.displayAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '-'}
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm font-semibold text-red-600">
+                            {entry.displayAmount < 0 ? `R$ ${Math.abs(entry.displayAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '-'}
+                          </td>
+                          <td className={`px-6 py-4 text-right text-sm font-bold ${cumulativeSaldo >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            R$ {cumulativeSaldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Modal de novo/editar lançamento */}
