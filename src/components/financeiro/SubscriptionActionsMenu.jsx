@@ -85,6 +85,50 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
     }
   };
 
+  const handleRenew = async () => {
+    if (!renewData.amount || !renewData.days) {
+      alert('Preencha valor e dias para renovação');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // Calcular nova data de vencimento
+      const currentExpiration = new Date(subscription.expiration_date || new Date());
+      const newExpiration = new Date(currentExpiration.getTime() + renewData.days * 24 * 60 * 60 * 1000);
+      const newDaysRemaining = (subscription.days_remaining || 0) + renewData.days;
+
+      // Atualizar assinatura
+      await base44.entities.Subscription.update(subscription.id, {
+        expiration_date: newExpiration.toISOString(),
+        days_remaining: newDaysRemaining,
+        status: 'renewing'
+      });
+
+      // Registrar na história financeira
+      await base44.entities.FinancialHistory.create({
+        subscription_id: subscription.id,
+        user_email: subscription.user_email,
+        user_name: subscription.user_name,
+        event_type: 'renewal',
+        amount: renewData.amount,
+        cycle: subscription.cycle,
+        payment_method: subscription.payment_method,
+        notes: `Renovação: ${renewData.days} dias adicionados`,
+        timestamp: new Date().toISOString()
+      });
+
+      setRenewModalOpen(false);
+      setRenewData({ amount: 0, days: 30 });
+      onRenew?.({ ...subscription, days_remaining: newDaysRemaining });
+      window.location.reload();
+    } catch (error) {
+      alert('Erro ao renovar: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
