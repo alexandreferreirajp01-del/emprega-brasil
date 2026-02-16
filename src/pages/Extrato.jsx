@@ -98,12 +98,30 @@ export default function Extrato() {
     },
   });
 
-  const handleAdd = () => {
+  const handleSave = () => {
     if (!newEntry.description || newEntry.amount <= 0) {
       alert('Preencha todos os campos corretamente');
       return;
     }
-    addMutation.mutate();
+    saveMutation.mutate();
+  };
+
+  const handleEdit = (entry) => {
+    setEditingId(entry.id);
+    setNewEntry({
+      entry_date: entry.entry_date.split('T')[0],
+      description: entry.description,
+      amount: entry.amount,
+      type: entry.type,
+      category: entry.category || 'receita_extra',
+    });
+    setAddModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setAddModalOpen(false);
+    setEditingId(null);
+    setNewEntry({ entry_date: new Date().toISOString().split('T')[0], description: '', amount: 0, type: 'receita', category: 'receita_extra' });
   };
 
   const handleExportPDF = () => {
