@@ -258,9 +258,6 @@ export default function Home() {
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
-            
-            {/* Assistente IA */}
-            <AssistantChat user={user} isPremium={isPremium} inline={true} />
 
             {/* Banner Planos Premium - Dinâmico */}
             <PlansBanner />

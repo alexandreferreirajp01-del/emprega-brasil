@@ -36,7 +36,6 @@ import PremiumModal from "@/components/subscription/PremiumModal";
 import TimeAgo from "@/components/common/TimeAgo";
 import NativeBannerAd from "@/components/ads/NativeBannerAd";
 import ReportJobModal from "@/components/jobs/ReportJobModal";
-import AssistantChat from "@/components/chat/AssistantChat";
 
 async function safeFetch(fetchFn, fallback = []) {
   for (let i = 0; i < 3; i++) {
@@ -355,24 +354,21 @@ export default function Jobs() {
     <div className="min-h-screen bg-white pb-20">
       {/* Header - Estilo G1 */}
       <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] py-3 px-4 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <h1 className="text-xl font-bold text-white">Vagas</h1>
-          <div className="flex items-center gap-2">
-            <AssistantChat user={user} isPremium={userIsPremium} inline={false} />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
-              className="text-white hover:bg-white/20 h-8"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            className="text-white hover:bg-white/20 h-8"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+          </Button>
         </div>
       </div>
 
