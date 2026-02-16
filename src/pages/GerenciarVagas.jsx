@@ -128,11 +128,13 @@ export default function GerenciarVagas() {
     if (filters.state) {
       filtered = filtered.filter(j => j.state?.toLowerCase().includes(filters.state.toLowerCase()));
     }
-    if (filters.period !== 'all') {
+    if (filters.period !== 'all' && filters.periodType === 'days') {
       const days = parseInt(filters.period);
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - days);
-      filtered = filtered.filter(j => new Date(j.created_date) >= cutoff);
+      if (!isNaN(days)) {
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - days);
+        filtered = filtered.filter(j => new Date(j.created_date) >= cutoff);
+      }
     }
     if (filters.locationStatus === 'no_city') {
       filtered = filtered.filter(j => !j.city || j.city.trim() === '');
