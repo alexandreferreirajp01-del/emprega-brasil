@@ -139,6 +139,24 @@ export default function ControleFinanceiro() {
         </div>
       </div>
 
+      {/* Barra de Navegação */}
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-4">
+        <div className="max-w-6xl mx-auto flex items-center gap-2 flex-wrap">
+          <Link to={createPageUrl('Extrato')}>
+            <Button variant="outline" size="sm" className="gap-2">
+              <FileText className="w-4 h-4" />
+              Extrato Financeiro
+            </Button>
+          </Link>
+          <Link to={createPageUrl('DashboardFinanceiro')}>
+            <Button variant="outline" size="sm" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Dashboard
+            </Button>
+          </Link>
+        </div>
+      </div>
+
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Métricas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
