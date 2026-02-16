@@ -16,6 +16,7 @@ import PremiumModal from "@/components/subscription/PremiumModal";
 import PlansBanner from "@/components/common/PlansBanner";
 import FeaturedJobsCarousel from "@/components/jobs/FeaturedJobsCarousel";
 import SupportButton from "@/components/support/SupportButton";
+import LatestJobsToday from "@/components/jobs/LatestJobsToday";
 
 
 // Função de fetch com retry robusto
@@ -230,30 +231,31 @@ export default function Home() {
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Featured Jobs Carousel */}
-            {featuredJobs.length > 0 && (
-              <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 sm:p-6 shadow-lg">
+            <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 sm:p-6 shadow-lg">
+              {featuredJobs.length > 0 ? (
                 <FeaturedJobsCarousel jobs={featuredJobs} viewCounts={viewsCountMap} />
-              </div>
-            )}
-
-            {featuredJobs.length === 0 && (
-              <Card className="rounded-2xl border-0 shadow-lg">
-                <CardContent className="p-8 text-center">
+              ) : (
+                <div className="text-center py-12">
                   <Star className="w-16 h-16 mx-auto mb-4 text-slate-300 dark:text-slate-600" />
                   <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
                     Nenhuma vaga em destaque no momento
                   </h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
                     Confira todas as vagas disponíveis
                   </p>
                   <Link to={createPageUrl('Jobs')}>
-                    <Button className="mt-4 bg-[#0A66C2] hover:bg-[#004182]">
+                    <Button className="bg-[#0A66C2] hover:bg-[#004182]">
                       Ver Todas as Vagas
                     </Button>
                   </Link>
-                </CardContent>
-              </Card>
-            )}
+                </div>
+              )}
+            </div>
+
+            {/* Latest Jobs Today */}
+            <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 sm:p-6 shadow-lg">
+              <LatestJobsToday jobs={jobs} />
+            </div>
           </div>
 
           {/* Right Column - Sidebar */}

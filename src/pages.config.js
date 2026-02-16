@@ -61,7 +61,6 @@ import Careers from './pages/Careers';
 import CentralPromocoes from './pages/CentralPromocoes';
 import ChangePassword from './pages/ChangePassword';
 import ChatIA from './pages/ChatIA';
-import Configuracoes from './pages/Configuracoes';
 import Contact from './pages/Contact';
 import Cookies from './pages/Cookies';
 import EnviarParaTodos from './pages/EnviarParaTodos';
@@ -133,6 +132,7 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
+import Configuracoes from './pages/Configuracoes';
 import __Layout from './Layout.jsx';
 
 
@@ -151,7 +151,6 @@ export const PAGES = {
     "CentralPromocoes": CentralPromocoes,
     "ChangePassword": ChangePassword,
     "ChatIA": ChatIA,
-    "Configuracoes": Configuracoes,
     "Contact": Contact,
     "Cookies": Cookies,
     "EnviarParaTodos": EnviarParaTodos,
@@ -223,6 +222,7 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
+    "Configuracoes": Configuracoes,
 }
 
 export const pagesConfig = {
