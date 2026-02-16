@@ -337,9 +337,13 @@ export default function ControleFinanceiro() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
-                            <MoreVertical className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                          </button>
+                          <SubscriptionActionsMenu
+                            subscription={sub}
+                            onView={(s) => alert(`Detalhes de ${s.user_name}`)}
+                            onEdit={(s) => alert(`Editar ${s.user_name}`)}
+                            onRenew={(s) => alert(`Renovar ${s.user_name}`)}
+                            onDelete={(s) => alert(`Deletar ${s.user_name}`)}
+                          />
                         </td>
                       </tr>
                     ))
