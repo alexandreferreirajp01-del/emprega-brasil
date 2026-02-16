@@ -77,7 +77,7 @@ export default function Subscription() {
     // Redirecionar para Mercado Pago baseado no plano
     const mercadoPagoLinks = {
       '9.90': 'https://mpago.la/2R3P5Qb',
-      '19.90': 'https://mpago.la/2R3P5Qb',
+      '19.90': 'https://mpago.la/2QMKuFo',
       '27.00': 'https://mpago.la/1EwRFu9'
     };
 
