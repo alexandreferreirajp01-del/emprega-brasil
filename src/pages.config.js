@@ -135,6 +135,7 @@ import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
 import Extrato from './pages/Extrato';
+import DashboardFinanceiro from './pages/DashboardFinanceiro';
 import __Layout from './Layout.jsx';
 
 
@@ -227,6 +228,7 @@ export const PAGES = {
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
     "Extrato": Extrato,
+    "DashboardFinanceiro": DashboardFinanceiro,
 }
 
 export const pagesConfig = {
