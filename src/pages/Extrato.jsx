@@ -278,20 +278,24 @@ export default function Extrato() {
           </Card>
         </div>
 
-        {/* Tabela de lançamentos */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow overflow-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-                <TableHead>Origem</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
+        {/* Tabela de lançamentos - SOMENTE LEITURA */}
+        <Card className="dark:bg-slate-800 overflow-hidden">
+          <CardHeader>
+            <CardTitle>Histórico de Movimentações (Somente Leitura)</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-50 dark:bg-slate-700/50 border-b dark:border-slate-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900 dark:text-white">Data</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900 dark:text-white">Histórico/Descrição</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900 dark:text-white">Agente</th>
+                    <th className="px-6 py-3 text-right text-sm font-semibold text-slate-900 dark:text-white">Entrada</th>
+                    <th className="px-6 py-3 text-right text-sm font-semibold text-slate-900 dark:text-white">Saída</th>
+                    <th className="px-6 py-3 text-right text-sm font-semibold text-slate-900 dark:text-white">Saldo</th>
+                  </tr>
+                </thead>
             <TableBody>
               {allEntries.length === 0 ? (
                 <TableRow>
