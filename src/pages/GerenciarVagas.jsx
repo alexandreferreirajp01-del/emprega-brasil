@@ -374,7 +374,7 @@ export default function GerenciarVagas() {
                 </div>
 
                 {showFilters && (
-                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3 pt-3 border-t">
+                   <div className="grid grid-cols-2 md:grid-cols-6 gap-3 pt-3 border-t">
                      <div>
                        <Label className="text-xs">Status</Label>
                        <Select value={filters.status} onValueChange={(v) => setFilters(prev => ({ ...prev, status: v }))}>
@@ -406,16 +406,40 @@ export default function GerenciarVagas() {
                      </div>
 
                      <div>
-                       <Label className="text-xs">Mapa</Label>
-                       <Select value={filters.mapStatus} onValueChange={(v) => setFilters(prev => ({ ...prev, mapStatus: v }))}>
+                       <Label className="text-xs">Email/Link/Site</Label>
+                       <Select value={filters.missingContact} onValueChange={(v) => setFilters(prev => ({ ...prev, missingContact: v }))}>
                          <SelectTrigger className="h-9">
                            <SelectValue />
                          </SelectTrigger>
                          <SelectContent>
                            <SelectItem value="all">Todos</SelectItem>
-                           <SelectItem value="ready">✅ Mapa OK</SelectItem>
-                           <SelectItem value="failed">❌ Falha</SelectItem>
-                           <SelectItem value="pending">⏳ Pendente</SelectItem>
+                           <SelectItem value="missing">❌ Sem Email/Link/Site</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
+
+                     <div>
+                       <Label className="text-xs">Descrição</Label>
+                       <Select value={filters.missingDescription} onValueChange={(v) => setFilters(prev => ({ ...prev, missingDescription: v }))}>
+                         <SelectTrigger className="h-9">
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="all">Todos</SelectItem>
+                           <SelectItem value="missing">❌ Sem Descrição</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
+
+                     <div>
+                       <Label className="text-xs">Cidade</Label>
+                       <Select value={filters.missingCity} onValueChange={(v) => setFilters(prev => ({ ...prev, missingCity: v }))}>
+                         <SelectTrigger className="h-9">
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="all">Todos</SelectItem>
+                           <SelectItem value="missing">❌ Sem Cidade</SelectItem>
                          </SelectContent>
                        </Select>
                      </div>
@@ -435,22 +459,6 @@ export default function GerenciarVagas() {
                            <SelectItem value="30">Últimos 30 dias</SelectItem>
                            <SelectItem value="60">Últimos 60 dias</SelectItem>
                            <SelectItem value="90">Últimos 90 dias</SelectItem>
-                         </SelectContent>
-                       </Select>
-                     </div>
-
-                     <div>
-                       <Label className="text-xs">Localização</Label>
-                       <Select value={filters.locationStatus || 'all'} onValueChange={(v) => setFilters(prev => ({ ...prev, locationStatus: v }))}>
-                         <SelectTrigger className="h-9">
-                           <SelectValue />
-                         </SelectTrigger>
-                         <SelectContent>
-                           <SelectItem value="all">Todas</SelectItem>
-                           <SelectItem value="no_city">🔴 Sem Cidade</SelectItem>
-                           <SelectItem value="no_state">🔴 Sem Estado</SelectItem>
-                           <SelectItem value="incomplete">🟡 Incompleto</SelectItem>
-                           <SelectItem value="complete">✅ Completo</SelectItem>
                          </SelectContent>
                        </Select>
                      </div>
