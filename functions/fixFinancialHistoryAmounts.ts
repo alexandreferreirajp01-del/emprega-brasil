@@ -10,41 +10,59 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    // Buscar todos os registros de FinancialHistory
-    const financialHistory = await base44.asServiceRole.entities.FinancialHistory.list();
-    
     // Buscar todas as assinaturas
     const subscriptions = await base44.asServiceRole.entities.Subscription.list();
     
+    // Buscar todos os registros de FinancialHistory
+    const financialHistory = await base44.asServiceRole.entities.FinancialHistory.list('-timestamp', 1000);
+    
+    let createdCount = 0;
     let fixedCount = 0;
     const errors = [];
 
-    // Para cada registro de FinancialHistory com amount = 0
-    for (const record of financialHistory) {
-      if (record.amount === 0 || record.amount === null) {
-        try {
-          // Encontrar a assinatura relacionada
-          const subscription = subscriptions.find(s => s.id === record.subscription_id);
-          
-          if (subscription && subscription.amount > 0) {
-            // Atualizar o registro com o amount correto
-            await base44.asServiceRole.entities.FinancialHistory.update(record.id, {
-              amount: subscription.amount
-            });
-            fixedCount++;
-          }
-        } catch (error) {
-          errors.push({
-            recordId: record.id,
-            error: error.message
+    // Para cada assinatura, verificar se tem registro de payment em FinancialHistory
+    for (const sub of subscriptions) {
+      try {
+        // Procurar por um registro de payment para esta assinatura
+        const paymentRecord = financialHistory.find(
+          h => h.subscription_id === sub.id && 
+               (h.event_type === 'payment' || h.event_type === 'renewal')
+        );
+
+        if (!paymentRecord) {
+          // Criar registro de payment inicial se não existir
+          await base44.asServiceRole.entities.FinancialHistory.create({
+            subscription_id: sub.id,
+            user_email: sub.user_email,
+            user_name: sub.user_name,
+            event_type: 'payment',
+            amount: sub.amount,
+            cycle: sub.cycle,
+            payment_method: sub.payment_method,
+            notes: `Pagamento inicial - ${sub.account_type}`,
+            timestamp: sub.payment_date || new Date().toISOString()
           });
+          createdCount++;
+        } else if (paymentRecord.amount === 0 || paymentRecord.amount === null) {
+          // Corrigir registros com amount = 0
+          await base44.asServiceRole.entities.FinancialHistory.update(paymentRecord.id, {
+            amount: sub.amount
+          });
+          fixedCount++;
         }
+      } catch (error) {
+        errors.push({
+          subscriptionId: sub.id,
+          userEmail: sub.user_email,
+          error: error.message
+        });
       }
     }
 
     return Response.json({
       success: true,
-      message: `Corrigidos ${fixedCount} registros de FinancialHistory`,
+      message: `${createdCount} registros criados, ${fixedCount} corrigidos`,
+      createdCount,
       fixedCount,
       errors: errors.length > 0 ? errors : null
     });
