@@ -78,6 +78,7 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
       </div>
 
       {/* Carousel */}
+      <div className="relative">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-3">
           {jobs.map((job) => (
