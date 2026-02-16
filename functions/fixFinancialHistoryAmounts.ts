@@ -11,48 +11,55 @@ Deno.serve(async (req) => {
     }
 
     // Buscar todas as assinaturas
-    const subscriptions = await base44.asServiceRole.entities.Subscription.list();
+    const subscriptions = await base44.asServiceRole.entities.Subscription.list('', 1000);
     
     // Buscar todos os registros de FinancialHistory
-    const financialHistory = await base44.asServiceRole.entities.FinancialHistory.list('-timestamp', 1000);
+    const financialHistory = await base44.asServiceRole.entities.FinancialHistory.list('', 1000);
     
     let createdCount = 0;
     let fixedCount = 0;
+    const processed = [];
     const errors = [];
 
-    // Para cada assinatura, verificar se tem registro de payment em FinancialHistory
+    // Para cada assinatura, garantir que tem registro de payment correto
     for (const sub of subscriptions) {
       try {
-        // Procurar por um registro de payment para esta assinatura
-        const paymentRecord = financialHistory.find(
+        // Buscar TODOS os registros de payment/renewal para esta assinatura
+        const paymentRecords = financialHistory.filter(
           h => h.subscription_id === sub.id && 
                (h.event_type === 'payment' || h.event_type === 'renewal')
         );
 
-        if (!paymentRecord) {
-          // Criar registro de payment inicial se não existir
+        if (paymentRecords.length === 0) {
+          // Criar registro de payment se não existir nenhum
           await base44.asServiceRole.entities.FinancialHistory.create({
             subscription_id: sub.id,
             user_email: sub.user_email,
             user_name: sub.user_name,
             event_type: 'payment',
-            amount: sub.amount,
+            amount: parseFloat(sub.amount || 0),
             cycle: sub.cycle,
             payment_method: sub.payment_method,
-            notes: `Pagamento inicial - ${sub.account_type}`,
+            notes: `Pagamento inicial`,
             timestamp: sub.payment_date || new Date().toISOString()
           });
           createdCount++;
-        } else if (paymentRecord.amount === 0 || paymentRecord.amount === null) {
-          // Corrigir registros com amount = 0
-          await base44.asServiceRole.entities.FinancialHistory.update(paymentRecord.id, {
-            amount: sub.amount
-          });
-          fixedCount++;
+          processed.push({ action: 'created', subscription: sub.user_name, amount: sub.amount });
+        } else {
+          // Verificar e corrigir cada registro
+          for (const record of paymentRecords) {
+            if (!record.amount || record.amount === 0 || record.amount === null) {
+              await base44.asServiceRole.entities.FinancialHistory.update(record.id, {
+                amount: parseFloat(sub.amount || 0)
+              });
+              fixedCount++;
+              processed.push({ action: 'fixed', subscription: sub.user_name, amount: sub.amount });
+            }
+          }
         }
       } catch (error) {
         errors.push({
-          subscriptionId: sub.id,
+          subscription: sub.user_name,
           userEmail: sub.user_email,
           error: error.message
         });
@@ -61,13 +68,15 @@ Deno.serve(async (req) => {
 
     return Response.json({
       success: true,
-      message: `${createdCount} registros criados, ${fixedCount} corrigidos`,
+      message: `✅ ${createdCount} registros criados, ${fixedCount} corrigidos`,
       createdCount,
       fixedCount,
+      processed,
+      totalSubscriptions: subscriptions.length,
       errors: errors.length > 0 ? errors : null
     });
   } catch (error) {
-    console.error('Erro ao corrigir FinancialHistory:', error);
+    console.error('Erro:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
