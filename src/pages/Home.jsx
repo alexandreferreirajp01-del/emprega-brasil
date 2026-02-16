@@ -95,33 +95,31 @@ export default function Home() {
     };
   }, [isPulling]);
 
-  // Carregar dados com retry robusto
+  // Carregar dados - priorizar vagas em destaque
   useEffect(() => {
     let isMounted = true;
 
     const loadData = async () => {
-      // Carregar jobs em paralelo com views para otimizar
-      const [jobsResult, viewsResult] = await Promise.all([
-        fetchWithRetry(() => base44.entities.Job.list('-created_date', 10000)),
-        fetchWithRetry(() => base44.entities.JobView.list('-created_date', 5000))
-      ]);
-      
-      if (isMounted) {
-        setJobs(jobsResult);
-        setAllViews(viewsResult);
+      // Carregar vagas imediatamente (sem retry excessivo)
+      try {
+        const jobsResult = await base44.entities.Job.list('-created_date', 10000);
+        if (isMounted) setJobs(jobsResult);
+      } catch (e) {
+        console.warn('Erro ao carregar vagas:', e);
       }
 
-      // Carregar notícias e posts em paralelo (menos crítico)
-      const [newsResult, postsResult] = await Promise.all([
-        fetchWithRetry(() => base44.entities.News.list('-created_date', 50)),
-        fetchWithRetry(() => base44.entities.FeedPost.list('-created_date', 50))
-      ]);
-
-      if (isMounted) {
-        const publishedNews = newsResult.filter(n => n.status === 'published' || !n.status);
-        setNews(publishedNews);
-        setPosts(postsResult);
-      }
+      // Carregar views e outros dados em paralelo (background)
+      Promise.all([
+        fetchWithRetry(() => base44.entities.JobView.list('-created_date', 5000), 2),
+        fetchWithRetry(() => base44.entities.News.list('-created_date', 50), 2),
+        fetchWithRetry(() => base44.entities.FeedPost.list('-created_date', 50), 2)
+      ]).then(([viewsResult, newsResult, postsResult]) => {
+        if (isMounted) {
+          setAllViews(viewsResult);
+          setNews(newsResult.filter(n => n.status === 'published' || !n.status));
+          setPosts(postsResult);
+        }
+      }).catch(err => console.warn('Erro secundário:', err));
     };
 
     loadData();
