@@ -57,7 +57,7 @@ export default function FloatingChatButton() {
         
         setMessages([{
           role: 'assistant',
-          content: '👋 Olá! Sou o assistente virtual do **Emprega Brasil+**.\n\nComo posso ajudar você hoje?\n\n💼 Posso te ajudar a:\n- Encontrar vagas de emprego\n- Informar sobre notícias\n- Tirar dúvidas sobre o app\n- Sugerir vagas por categoria ou cidade\n\nO que você procura?'
+          content: '👋 Olá! Sou o assistente virtual do **Vagas Abertas Paraíba**.\n\nComo posso ajudar você hoje?\n\n💼 Posso te ajudar a:\n- Encontrar vagas de emprego\n- Informar sobre notícias\n- Tirar dúvidas sobre o app\n- Sugerir vagas por categoria ou cidade\n\nO que você procura?'
         }]);
       } catch (e) {
         console.error('Erro ao criar conversa:', e);
