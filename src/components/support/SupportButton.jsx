@@ -1,87 +1,170 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { MessageCircle, Send } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
-import { useMutation } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { MessageCircle, Loader2 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-export default function SupportButton({ user }) {
-  const [open, setOpen] = useState(false);
+export default function SupportButton({ user, inline = false, discrete = false }) {
+  const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
-      // Buscar email de admin
-      const users = await base44.entities.User.list();
-      const admin = users.find(u => u.role === 'admin' || u.subscription_type === 'admin');
-      
+      // Buscar admin
+      const allUsers = await base44.asServiceRole.entities.User.list();
+      const admin = allUsers.find(u => u.role === 'admin' || u.subscription_type === 'admin');
+
       if (!admin) {
         throw new Error('Admin não encontrado');
       }
 
-      return await base44.functions.invoke('sendMessage', {
+      // Enviar mensagem
+      await base44.functions.invoke('sendMessage', {
         destinatario_email: admin.email,
-        conteudo: content,
-        message_type: 'user_to_admin'
+        conteudo: content
       });
     },
     onSuccess: () => {
-      toast.success('Mensagem enviada! Responderemos em breve.');
+      toast.success('Mensagem enviada com sucesso!');
       setMessage('');
-      setOpen(false);
+      setIsOpen(false);
     },
-    onError: () => {
-      toast.error('Erro ao enviar mensagem. Tente novamente.');
+    onError: (error) => {
+      toast.error('Erro ao enviar mensagem: ' + error.message);
     }
   });
 
   const handleSend = () => {
-    if (!message.trim()) return;
+    if (!message.trim()) {
+      toast.error('Por favor, escreva uma mensagem');
+      return;
+    }
     sendMessageMutation.mutate(message);
   };
 
   if (!user) return null;
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button 
-          className="fixed bottom-20 right-4 md:bottom-6 md:right-6 rounded-full w-14 h-14 shadow-lg bg-blue-600 hover:bg-blue-700 z-50"
-          size="icon"
+  // Versão inline para Home
+  if (inline) {
+    return (
+      <>
+        <Card className="overflow-hidden">
+          <CardContent className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                <MessageCircle className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg text-slate-800 dark:text-white">Precisa de Ajuda?</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300">Fale diretamente com nossa equipe</p>
+              </div>
+            </div>
+            <p className="text-slate-600 dark:text-slate-300 text-sm mb-4">
+              Envie uma mensagem para nossos administradores e receba suporte personalizado.
+            </p>
+            <Button 
+              onClick={() => setIsOpen(true)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Enviar Mensagem
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Contatar Suporte</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Digite sua mensagem..."
+                className="min-h-[120px]"
+              />
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsOpen(false)}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleSend}
+                  disabled={sendMessageMutation.isPending}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  {sendMessageMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    'Enviar'
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+  // Versão discreta para outras páginas
+  if (discrete) {
+    return (
+      <>
+        <button
+          onClick={() => setIsOpen(true)}
+          className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+          title="Suporte"
         >
-          <MessageCircle className="w-6 h-6" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="dark:bg-slate-800">
-        <DialogHeader>
-          <DialogTitle className="dark:text-white">Fale com o Suporte</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <Textarea
-            placeholder="Descreva sua dúvida ou problema..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows={6}
-            className="dark:bg-slate-700 dark:border-slate-600"
-          />
-          <Button 
-            onClick={handleSend}
-            disabled={!message.trim() || sendMessageMutation.isPending}
-            className="w-full bg-blue-600 hover:bg-blue-700"
-          >
-            {sendMessageMutation.isPending ? (
-              'Enviando...'
-            ) : (
-              <>
-                <Send className="w-4 h-4 mr-2" />
-                Enviar Mensagem
-              </>
-            )}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+          Suporte
+        </button>
+
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Contatar Suporte</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Digite sua mensagem..."
+                className="min-h-[120px]"
+              />
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsOpen(false)}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleSend}
+                  disabled={sendMessageMutation.isPending}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  {sendMessageMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    'Enviar'
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+  return null;
 }
