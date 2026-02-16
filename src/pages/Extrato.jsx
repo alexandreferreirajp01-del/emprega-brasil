@@ -339,85 +339,14 @@ export default function Extrato() {
         </Card>
       </div>
 
-      {/* Modal de novo/editar lançamento */}
-      <Dialog open={addModalOpen} onOpenChange={handleCloseModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editingId ? 'Editar Lançamento' : 'Novo Lançamento Manual'}</DialogTitle>
-            <DialogClose />
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium block mb-1">Data</label>
-              <Input
-                type="date"
-                value={newEntry.entry_date}
-                onChange={(e) => setNewEntry({ ...newEntry, entry_date: e.target.value })}
-                className="w-full"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium block mb-1">Descrição/Histórico</label>
-              <Input
-                type="text"
-                placeholder="Ex: Pagamento de servidor"
-                value={newEntry.description}
-                onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })}
-                className="w-full"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium block mb-1">Valor (R$)</label>
-              <Input
-                type="number"
-                placeholder="0.00"
-                value={newEntry.amount}
-                onChange={(e) => setNewEntry({ ...newEntry, amount: parseFloat(e.target.value) })}
-                className="w-full"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium block mb-1">Tipo</label>
-              <select
-                value={newEntry.type}
-                onChange={(e) => setNewEntry({ ...newEntry, type: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
-              >
-                <option value="receita">Receita</option>
-                <option value="despesa">Despesa</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium block mb-1">Categoria</label>
-              <select
-                value={newEntry.category}
-                onChange={(e) => setNewEntry({ ...newEntry, category: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
-              >
-                <option value="receita_extra">Receita Extra</option>
-                <option value="despesa_operacional">Despesa Operacional</option>
-                <option value="despesa_marketing">Despesa Marketing</option>
-                <option value="despesa_infraestrutura">Despesa Infraestrutura</option>
-                <option value="outros">Outros</option>
-              </select>
-            </div>
-
-            <div className="flex gap-2 pt-4">
-              <Button variant="outline" className="flex-1" onClick={handleCloseModal}>
-                Cancelar
-              </Button>
-              <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={handleSave} disabled={saveMutation.isPending}>
-                {saveMutation.isPending ? (editingId ? 'Atualizando...' : 'Adicionando...') : (editingId ? 'Atualizar' : 'Adicionar')}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Aviso: Extrato é somente leitura */}
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <p className="text-sm text-blue-800 dark:text-blue-300">
+            ℹ️ <strong>Extrato é somente leitura.</strong> Para adicionar/editar lançamentos, use a página de <strong>Lançamentos Financeiros</strong> ou <strong>Controle Financeiro</strong>.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
