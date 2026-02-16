@@ -137,20 +137,20 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
         </div>
 
         {/* Navigation Buttons */}
-      <button
-        onClick={scrollPrev}
-        disabled={!prevBtnEnabled}
-        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 bg-white dark:bg-slate-800 rounded-full p-1.5 shadow-md hover:shadow-lg disabled:opacity-50 transition-all z-10"
-      >
-        <ChevronLeft className="w-4 h-4 text-slate-900 dark:text-white" />
-      </button>
-      <button
-        onClick={scrollNext}
-        disabled={!nextBtnEnabled}
-        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 bg-white dark:bg-slate-800 rounded-full p-1.5 shadow-md hover:shadow-lg disabled:opacity-50 transition-all z-10"
-      >
-        <ChevronRight className="w-4 h-4 text-slate-900 dark:text-white" />
-      </button>
+        <button
+          onClick={scrollPrev}
+          disabled={!prevBtnEnabled}
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 bg-white dark:bg-slate-800 rounded-full p-1.5 shadow-md hover:shadow-lg disabled:opacity-50 transition-all z-10"
+        >
+          <ChevronLeft className="w-4 h-4 text-slate-900 dark:text-white" />
+        </button>
+        <button
+          onClick={scrollNext}
+          disabled={!nextBtnEnabled}
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 bg-white dark:bg-slate-800 rounded-full p-1.5 shadow-md hover:shadow-lg disabled:opacity-50 transition-all z-10"
+        >
+          <ChevronRight className="w-4 h-4 text-slate-900 dark:text-white" />
+        </button>
       </div>
 
       {/* Navigation & Dots */}
