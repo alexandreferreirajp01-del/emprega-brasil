@@ -11,9 +11,10 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
     align: 'start',
     loop: false,
     slidesToScroll: 1,
+    skipSnaps: false,
     breakpoints: {
-      '(min-width: 768px)': { slidesToScroll: 2 },
-      '(min-width: 1024px)': { slidesToScroll: 3 },
+      '(min-width: 768px)': { slidesToScroll: 1 },
+      '(min-width: 1024px)': { slidesToScroll: 1 },
     }
   });
 
@@ -112,7 +113,7 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
             <Link
               key={job.id}
               to={createPageUrl('JobDetail') + `?id=${job.id}`}
-              className="flex-shrink-0 w-[85%] md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] group"
+              className="flex-shrink-0 w-[90%] sm:w-[70%] md:w-[48%] lg:w-[32%] group"
             >
               <div className="relative h-full bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-slate-100 dark:border-slate-700 group-hover:scale-[1.02]">
                 {/* Badge Premium no topo */}
@@ -146,39 +147,39 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
 
                   {/* Title & Company */}
                   <div className="mb-4">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 line-clamp-2 group-hover:text-[#0A66C2] dark:group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white mb-1 line-clamp-2 group-hover:text-[#0A66C2] dark:group-hover:text-blue-400 transition-colors break-words">
                       {job.title}
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 font-medium truncate">
                       {job.company}
                     </p>
                   </div>
 
                   {/* Details Grid */}
                   <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-4 h-4 text-[#0A66C2]" />
+                    <div className="flex items-center gap-2 text-sm min-w-0">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-3.5 h-3.5 text-[#0A66C2]" />
                       </div>
-                      <span className="text-slate-700 dark:text-slate-300 truncate">
+                      <span className="text-slate-700 dark:text-slate-300 truncate flex-1 min-w-0">
                         {job.city}, {job.state}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
-                        <Briefcase className="w-4 h-4 text-[#0A66C2]" />
+                    <div className="flex items-center gap-2 text-sm min-w-0">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                        <Briefcase className="w-3.5 h-3.5 text-[#0A66C2]" />
                       </div>
-                      <span className="text-slate-700 dark:text-slate-300 truncate">
+                      <span className="text-slate-700 dark:text-slate-300 truncate flex-1 min-w-0">
                         {job.job_type || 'Não especificado'}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
-                        <DollarSign className="w-4 h-4 text-[#0A66C2]" />
+                    <div className="flex items-center gap-2 text-sm min-w-0">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                        <DollarSign className="w-3.5 h-3.5 text-[#0A66C2]" />
                       </div>
-                      <span className="text-slate-700 dark:text-slate-300 font-semibold truncate">
+                      <span className="text-slate-700 dark:text-slate-300 font-semibold truncate flex-1 min-w-0">
                         {formatSalary(job.salary_range)}
                       </span>
                     </div>

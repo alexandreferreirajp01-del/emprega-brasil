@@ -100,30 +100,28 @@ export default function Home() {
     let isMounted = true;
 
     const loadData = async () => {
-      // Carregar TODAS as jobs (sem limite)
-      const jobsResult = await fetchWithRetry(() => 
-        base44.entities.Job.list('-created_date', 10000)
-      );
-      if (isMounted) setJobs(jobsResult);
+      // Carregar jobs em paralelo com views para otimizar
+      const [jobsResult, viewsResult] = await Promise.all([
+        fetchWithRetry(() => base44.entities.Job.list('-created_date', 10000)),
+        fetchWithRetry(() => base44.entities.JobView.list('-created_date', 5000))
+      ]);
+      
+      if (isMounted) {
+        setJobs(jobsResult);
+        setAllViews(viewsResult);
+      }
 
-      // Carregar views
-      const viewsResult = await fetchWithRetry(() => 
-        base44.entities.JobView.list('-created_date', 5000)
-      );
-      if (isMounted) setAllViews(viewsResult);
+      // Carregar notícias e posts em paralelo (menos crítico)
+      const [newsResult, postsResult] = await Promise.all([
+        fetchWithRetry(() => base44.entities.News.list('-created_date', 50)),
+        fetchWithRetry(() => base44.entities.FeedPost.list('-created_date', 50))
+      ]);
 
-      // Carregar notícias
-      const newsResult = await fetchWithRetry(() => 
-        base44.entities.News.list('-created_date', 50)
-      );
-      const publishedNews = newsResult.filter(n => n.status === 'published' || !n.status);
-      if (isMounted) setNews(publishedNews);
-
-      // Carregar posts do Feed
-      const postsResult = await fetchWithRetry(() => 
-        base44.entities.FeedPost.list('-created_date', 50)
-      );
-      if (isMounted) setPosts(postsResult);
+      if (isMounted) {
+        const publishedNews = newsResult.filter(n => n.status === 'published' || !n.status);
+        setNews(publishedNews);
+        setPosts(postsResult);
+      }
     };
 
     loadData();
