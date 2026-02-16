@@ -149,6 +149,27 @@ export default function GerenciarVagas() {
       filtered = filtered.filter(j => j.city && j.state && j.city.trim() !== '' && j.state.trim() !== '');
     }
 
+    // Filtro: Sem email/link/site
+    if (filters.missingContact === 'missing') {
+      filtered = filtered.filter(j => {
+        const hasEmail = j.contact_email && j.contact_email.trim() !== '';
+        const hasPhone = j.contact_phone && j.contact_phone.trim() !== '';
+        const hasWhatsapp = j.contact_whatsapp && j.contact_whatsapp.trim() !== '';
+        const hasLink = j.application_link && j.application_link.trim() !== '';
+        return !hasEmail && !hasPhone && !hasWhatsapp && !hasLink;
+      });
+    }
+
+    // Filtro: Sem descrição
+    if (filters.missingDescription === 'missing') {
+      filtered = filtered.filter(j => !j.description || j.description.trim() === '');
+    }
+
+    // Filtro: Sem cidade
+    if (filters.missingCity === 'missing') {
+      filtered = filtered.filter(j => !j.city || j.city.trim() === '');
+    }
+
     return filtered;
   };
 
