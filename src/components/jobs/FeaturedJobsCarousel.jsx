@@ -65,44 +65,40 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
 
   return (
     <div className="relative">
-      {/* Header com gradiente */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 flex items-center justify-center shadow-lg">
-              <Crown className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
-                Vagas em Destaque
-              </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Oportunidades selecionadas especialmente para você
-              </p>
-            </div>
+      {/* Header centralizado */}
+      <div className="mb-6 text-center">
+        <div className="inline-flex items-center gap-2 mb-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 flex items-center justify-center shadow-lg">
+            <Crown className="w-5 h-5 text-white" />
           </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+            Vagas em Destaque
+          </h2>
+        </div>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+          Oportunidades selecionadas especialmente para você
+        </p>
 
-          {/* Navigation Buttons - Desktop */}
-          <div className="hidden md:flex gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full"
-              onClick={scrollPrev}
-              disabled={!prevBtnEnabled}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full"
-              onClick={scrollNext}
-              disabled={!nextBtnEnabled}
-            >
-              <ChevronRight className="w-5 h-5" />
-            </Button>
-          </div>
+        {/* Navigation Buttons - Desktop */}
+        <div className="hidden md:flex gap-2 justify-center">
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-full"
+            onClick={scrollPrev}
+            disabled={!prevBtnEnabled}
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-full"
+            onClick={scrollNext}
+            disabled={!nextBtnEnabled}
+          >
+            <ChevronRight className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
