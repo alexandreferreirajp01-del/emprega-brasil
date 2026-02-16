@@ -210,6 +210,26 @@ export default function ControleFinanceiro() {
                   />
                 </div>
               </div>
+              <Button 
+                className="bg-green-600 hover:bg-green-700"
+                disabled={migrating}
+                onClick={async () => {
+                  if (!confirm('Migrar todos os usuários premium/recrutador do Gerenciador para o Controle Financeiro?')) return;
+                  setMigrating(true);
+                  try {
+                    const res = await base44.functions.invoke('migrateUsersToFinancial');
+                    alert(res.data.message);
+                    window.location.reload();
+                  } catch (e) {
+                    alert('Erro: ' + e.message);
+                  } finally {
+                    setMigrating(false);
+                  }
+                }}
+              >
+                {migrating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Users className="w-4 h-4 mr-2" />}
+                {migrating ? 'Migrando...' : 'Migrar Usuários'}
+              </Button>
               <Button className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Assinatura
