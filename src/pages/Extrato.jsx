@@ -39,6 +39,8 @@ export default function Extrato() {
 
   // Combinar e ordenar lançamentos
   const allEntries = useMemo(() => {
+    console.log('ManualEntries:', manualEntries);
+    console.log('FinancialHistory:', financialHistory);
     const combined = [
       ...manualEntries.map(e => ({
         ...e,
