@@ -131,6 +131,7 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
+import SuporteAdmin from './pages/SuporteAdmin';
 import __Layout from './Layout.jsx';
 
 
@@ -219,6 +220,7 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
+    "SuporteAdmin": SuporteAdmin,
 }
 
 export const pagesConfig = {
