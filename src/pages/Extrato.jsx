@@ -261,16 +261,26 @@ export default function Extrato() {
                       R$ {Math.abs(entry.displayAmount).toFixed(2)}
                     </TableCell>
                     <TableCell className="text-xs">{entry.source === 'manual' ? 'Manual' : 'Assinatura'}</TableCell>
-                    <TableCell>
+                    <TableCell className="flex gap-2">
                       {entry.source === 'manual' && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => deleteMutation.mutate(entry.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(entry)}
+                            className="text-blue-600 hover:text-blue-700 h-8 w-8"
+                          >
+                            <FileText className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => deleteMutation.mutate(entry.id)}
+                            className="text-red-600 hover:text-red-700 h-8 w-8"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </>
                       )}
                     </TableCell>
                   </TableRow>
