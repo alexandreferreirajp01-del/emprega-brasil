@@ -140,19 +140,16 @@ export default function ControleFinanceiro() {
       </div>
 
       {/* Barra de Navegação */}
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-4">
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-4 sticky top-16 z-40">
         <div className="max-w-6xl mx-auto flex items-center gap-2 flex-wrap">
+          <Link to={createPageUrl('LancamentosFinanceiros')}>
+            <Button variant="outline" size="sm">Lançamentos</Button>
+          </Link>
           <Link to={createPageUrl('Extrato')}>
-            <Button variant="outline" size="sm" className="gap-2">
-              <FileText className="w-4 h-4" />
-              Extrato Financeiro
-            </Button>
+            <Button variant="outline" size="sm">Extrato</Button>
           </Link>
           <Link to={createPageUrl('DashboardFinanceiro')}>
-            <Button variant="outline" size="sm" className="gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Dashboard
-            </Button>
+            <Button variant="outline" size="sm">Dashboard</Button>
           </Link>
         </div>
       </div>
