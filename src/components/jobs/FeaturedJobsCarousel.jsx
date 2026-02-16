@@ -87,7 +87,7 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
               to={createPageUrl('JobDetail') + `?id=${job.id}`}
               className="flex-shrink-0 w-[90%] sm:w-[70%] md:w-[48%] lg:w-[32%] group"
             >
-              <div className="relative h-full bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md transition-all border border-slate-100 dark:border-slate-700 flex flex-col">
+              <div className="relative min-h-56 bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md transition-all border border-slate-100 dark:border-slate-700 flex flex-col">
                 {/* Content */}
                 <div className="p-3 flex-1">
                   {/* Title & Company */}
