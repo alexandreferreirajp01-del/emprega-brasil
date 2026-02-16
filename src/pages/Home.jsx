@@ -231,16 +231,16 @@ export default function Home() {
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Featured Jobs Carousel */}
-            <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 sm:p-6 shadow-lg">
+            <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-3 sm:p-4 shadow-lg">
               {featuredJobs.length > 0 ? (
                 <FeaturedJobsCarousel jobs={featuredJobs} viewCounts={viewsCountMap} />
               ) : (
-                <div className="text-center py-12">
-                  <Star className="w-16 h-16 mx-auto mb-4 text-slate-300 dark:text-slate-600" />
-                  <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <div className="text-center py-8">
+                  <Star className="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
+                  <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-2">
                     Nenhuma vaga em destaque no momento
                   </h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-3">
                     Confira todas as vagas disponíveis
                   </p>
                   <Link to={createPageUrl('Jobs')}>
