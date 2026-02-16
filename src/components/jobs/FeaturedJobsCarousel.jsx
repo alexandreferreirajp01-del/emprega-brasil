@@ -134,9 +134,9 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
             </Link>
           ))}
         </div>
-      </div>
+        </div>
 
-      {/* Navigation Buttons */}
+        {/* Navigation Buttons */}
       <button
         onClick={scrollPrev}
         disabled={!prevBtnEnabled}
