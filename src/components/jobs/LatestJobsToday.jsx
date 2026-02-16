@@ -7,24 +7,23 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function LatestJobsToday({ jobs }) {
-  // Obter hoje em timestamp simples
+  // Obter hoje
   const now = new Date();
-  const todayString = now.toLocaleDateString('pt-BR');
+  const todayDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
 
-  // Filtrar vagas postadas hoje
+  // Filtrar vagas postadas hoje - sem restrição de status
   const todayJobs = jobs
     .filter(job => {
-      // Usar qualquer data disponível
-      const dateToCheck = new Date(job.published_at || job.created_date);
-      const jobDateString = dateToCheck.toLocaleDateString('pt-BR');
-      
-      // Comparar as datas em string (evita problemas de timezone)
-      const isToday = jobDateString === todayString;
-      
-      // Aceitar vagas sem status, ativa, draft ou pending_review
-      const isValidStatus = !job.status || ['ativa', 'draft', 'pending_review'].includes(job.status);
-      
-      return isToday && isValidStatus;
+      try {
+        // Usar qualquer data disponível
+        const dateToCheck = new Date(job.published_at || job.created_date);
+        const jobDate = dateToCheck.toISOString().split('T')[0]; // YYYY-MM-DD format
+        
+        // Comparar as datas em formato ISO (evita problemas de timezone)
+        return jobDate === todayDate;
+      } catch (e) {
+        return false;
+      }
     })
     .sort((a, b) => new Date(b.published_at || b.created_date) - new Date(a.published_at || a.created_date))
     .slice(0, 4);
