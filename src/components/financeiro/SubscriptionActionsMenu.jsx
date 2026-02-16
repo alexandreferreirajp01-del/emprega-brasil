@@ -26,9 +26,26 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await base44.entities.Subscription.update(subscription.id, editData);
+      // Garantir que todos os campos obrigatórios estão preenchidos
+      const updateData = {
+        user_email: editData.user_email,
+        user_name: editData.user_name,
+        account_type: editData.account_type || 'premium',
+        status: editData.status || 'active',
+        cycle: editData.cycle || 'monthly',
+        amount: editData.amount || 0,
+        payment_method: editData.payment_method || 'manual',
+        payment_date: editData.payment_date || new Date().toISOString(),
+        start_date: editData.start_date || new Date().toISOString(),
+        expiration_date: editData.expiration_date,
+        days_remaining: editData.days_remaining,
+        notes: editData.notes,
+        is_active: editData.is_active !== undefined ? editData.is_active : true,
+      };
+
+      await base44.entities.Subscription.update(subscription.id, updateData);
       setEditModalOpen(false);
-      onEdit?.(editData);
+      onEdit?.(updateData);
       window.location.reload();
     } catch (error) {
       alert('Erro ao salvar: ' + error.message);
