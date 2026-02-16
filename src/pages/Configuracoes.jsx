@@ -23,7 +23,7 @@ const menuItems = [
 
   // Gestão de Usuários
   { id: 'divider-usuarios', type: 'divider', label: 'Gestão de Usuários', roles: ['admin', 'dono'] },
-  { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'blue', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários', permissionId: 'gerenciar_usuarios' },
+  { id: 'usuarios', name: 'Assinantes', icon: Users, color: 'blue', page: 'Usuarios', description: 'Aprovar e gerenciar usuários', permissionId: 'gerenciar_usuarios' },
   { id: 'acessos', name: 'Gerenciar Acessos', icon: Key, color: 'purple', page: 'GerenciarAcessos', description: 'Links de ativação únicos', roles: ['admin', 'dono'] },
 
   // Planos e Pagamentos
