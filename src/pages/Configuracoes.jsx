@@ -21,10 +21,11 @@ const menuItems = [
   { id: 'popups', name: 'Gerenciar Popups', icon: AlertCircle, color: 'indigo', page: 'GerenciarPopups', description: 'Avisos e mensagens no app', roles: ['admin', 'dono'] },
   { id: 'anuncios', name: 'Gerenciar Anúncios', icon: Image, color: 'orange', page: 'GerenciarAnuncios', description: 'Configurar anúncios do AdsTerra', roles: ['admin', 'dono'] },
 
-  // Gestão de Usuários
-  { id: 'divider-usuarios', type: 'divider', label: 'Gestão de Usuários', roles: ['admin', 'dono'] },
-  { id: 'usuarios', name: 'Assinantes', icon: Users, color: 'blue', page: 'Usuarios', description: 'Aprovar e gerenciar usuários', permissionId: 'gerenciar_usuarios' },
-  { id: 'acessos', name: 'Gerenciar Acessos', icon: Key, color: 'purple', page: 'GerenciarAcessos', description: 'Links de ativação únicos', roles: ['admin', 'dono'] },
+  // Gestão de Usuários e Acessos
+  { id: 'divider-usuarios', type: 'divider', label: 'Usuários e Acessos', roles: ['admin', 'dono'] },
+  { id: 'usuarios', name: 'Gerenciador de Usuários', icon: Users, color: 'blue', page: 'Usuarios', description: 'Visualizar e gerenciar todos os usuários', permissionId: 'gerenciar_usuarios' },
+  { id: 'acessos', name: 'Assinantes', icon: Key, color: 'purple', page: 'GerenciarAcessos', description: 'Links de ativação e códigos premium', roles: ['admin', 'dono'] },
+  { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'amber', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'], permissionId: 'permissoes' },
 
   // Planos e Pagamentos
   { id: 'divider-planos', type: 'divider', label: 'Planos e Pagamentos', roles: ['admin', 'dono'] },
