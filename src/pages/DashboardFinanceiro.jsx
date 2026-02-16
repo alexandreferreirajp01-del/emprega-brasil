@@ -107,26 +107,49 @@ export default function DashboardFinanceiro() {
     };
   }, [chartData]);
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: ['manualEntries', 'financialHistory'] });
+    setRefreshing(false);
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Barra de Navegação */}
-        <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow mb-6 flex items-center gap-2">
-          <Link to={createPageUrl('ControleFinanceiro')}>
-            <Button variant="outline" size="sm" className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Controle de Assinaturas
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 dark:from-indigo-700 dark:to-indigo-800 pt-6 pb-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <Link to={createPageUrl('Configuracoes')}>
+            <Button variant="ghost" className="text-white hover:bg-white/20 mb-2 -ml-2">
+              <ArrowLeft className="w-5 h-5 mr-2" />Voltar
             </Button>
+          </Link>
+          <h1 className="text-3xl font-bold text-white">Dashboard Financeiro</h1>
+          <p className="text-white/80">Análise visual de receitas e despesas (Somente Leitura)</p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Barra de Navegação */}
+        <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-4 mb-6 rounded-t-lg flex items-center gap-2 flex-wrap sticky top-16 z-40">
+          <Link to={createPageUrl('LancamentosFinanceiros')}>
+            <Button variant="outline" size="sm">Lançamentos</Button>
+          </Link>
+          <Link to={createPageUrl('ControleFinanceiro')}>
+            <Button variant="outline" size="sm">Controle</Button>
           </Link>
           <Link to={createPageUrl('Extrato')}>
-            <Button variant="outline" size="sm" className="gap-2">
-              <FileText className="w-4 h-4" />
-              Extrato
-            </Button>
+            <Button variant="outline" size="sm">Extrato</Button>
           </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="ml-auto"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
-
-        <h1 className="text-3xl font-bold mb-8">Dashboard Financeiro</h1>
 
         {/* Filtros */}
         <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow mb-8">
