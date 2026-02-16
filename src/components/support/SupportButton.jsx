@@ -14,27 +14,26 @@ export default function SupportButton({ user, inline = false, discrete = false }
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
-      // Buscar admin
-      const allUsers = await base44.asServiceRole.entities.User.list();
-      const admin = allUsers.find(u => u.role === 'admin' || u.subscription_type === 'admin');
-
+      const users = await base44.entities.User.list();
+      const admin = users.find(u => u.role === 'admin' || u.subscription_type === 'admin');
+      
       if (!admin) {
         throw new Error('Admin não encontrado');
       }
 
-      // Enviar mensagem
-      await base44.functions.invoke('sendMessage', {
+      return await base44.functions.invoke('sendMessage', {
         destinatario_email: admin.email,
-        conteudo: content
+        conteudo: content,
+        message_type: 'user_to_admin'
       });
     },
     onSuccess: () => {
-      toast.success('Mensagem enviada com sucesso!');
+      toast.success('Mensagem enviada! Responderemos em breve.');
       setMessage('');
       setIsOpen(false);
     },
-    onError: (error) => {
-      toast.error('Erro ao enviar mensagem: ' + error.message);
+    onError: () => {
+      toast.error('Erro ao enviar mensagem. Tente novamente.');
     }
   });
 
