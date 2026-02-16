@@ -32,7 +32,10 @@ export default function GerenciarVagas() {
     state: '',
     period: 'all',
     periodType: 'days',
-    locationStatus: 'all'
+    locationStatus: 'all',
+    missingContact: 'all',
+    missingDescription: 'all',
+    missingCity: 'all'
   });
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
