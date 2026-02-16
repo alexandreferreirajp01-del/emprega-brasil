@@ -71,55 +71,7 @@ export default function Extrato() {
     return { total, monthRevenue, monthExpense, monthBalance };
   }, [allEntries]);
 
-  // Adicionar/Editar lançamento manual
-  const saveMutation = useMutation({
-    mutationFn: () => {
-      if (editingId) {
-        return base44.entities.ManualEntry.update(editingId, newEntry);
-      }
-      return base44.entities.ManualEntry.create(newEntry);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['manualEntries'] });
-      setAddModalOpen(false);
-      setEditingId(null);
-      setNewEntry({ entry_date: new Date().toISOString().split('T')[0], description: '', amount: 0, type: 'receita', category: 'receita_extra' });
-    },
-  });
 
-  // Deletar lançamento manual
-  const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.ManualEntry.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['manualEntries'] });
-    },
-  });
-
-  const handleSave = () => {
-    if (!newEntry.description || newEntry.amount <= 0) {
-      alert('Preencha todos os campos corretamente');
-      return;
-    }
-    saveMutation.mutate();
-  };
-
-  const handleEdit = (entry) => {
-    setEditingId(entry.id);
-    setNewEntry({
-      entry_date: entry.entry_date.split('T')[0],
-      description: entry.description,
-      amount: entry.amount,
-      type: entry.type,
-      category: entry.category || 'receita_extra',
-    });
-    setAddModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setAddModalOpen(false);
-    setEditingId(null);
-    setNewEntry({ entry_date: new Date().toISOString().split('T')[0], description: '', amount: 0, type: 'receita', category: 'receita_extra' });
-  };
 
   const handleExportPDF = () => {
     const now = new Date();
