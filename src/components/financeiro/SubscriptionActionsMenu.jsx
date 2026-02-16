@@ -70,6 +70,19 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
     }
   };
 
+  const handleToggleBlock = async () => {
+    const newStatus = subscription.status === 'blocked' ? 'active' : 'blocked';
+    setSaving(true);
+    try {
+      await base44.entities.Subscription.update(subscription.id, { status: newStatus });
+      window.location.reload();
+    } catch (error) {
+      alert('Erro ao atualizar status: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
