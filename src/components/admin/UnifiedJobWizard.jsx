@@ -96,7 +96,7 @@ export default function UnifiedJobWizard({
     const finalData = {
       jobs: jobsData.map(j => ({
         ...j,
-        is_premium: audienceType === 'premium' ? true : (isPremium || false),
+        is_premium: isPremium,
         is_featured: isFeatured
       })),
       notification: notificationData,
@@ -194,7 +194,7 @@ export default function UnifiedJobWizard({
                   <Star className="w-5 h-5 text-yellow-600" />
                   <div>
                     <p className="font-medium text-sm">Vaga em Destaque</p>
-                    <p className="text-xs text-slate-500">Aparece na seção de destaques da página inicial</p>
+                    <p className="text-xs text-slate-500">Aparece no topo das listas</p>
                   </div>
                 </div>
                 <Switch checked={isFeatured} onCheckedChange={setIsFeatured} />
@@ -517,7 +517,7 @@ export default function UnifiedJobWizard({
                   {audienceType === 'registered' && <><Users className="w-4 h-4" /><span className="text-sm">Usuários Cadastrados</span></>}
                   {audienceType === 'premium' && <><Crown className="w-4 h-4 text-purple-600" /><span className="text-sm">Apenas Premium</span></>}
                 </div>
-                {isFeatured && <Badge className="bg-yellow-100 text-yellow-700 mt-2 rounded-full">⭐ Destaque na Home</Badge>}
+                {isFeatured && <Badge className="bg-yellow-100 text-yellow-700 mt-2">⭐ Destaque</Badge>}
               </div>
 
               <div className="p-3 bg-slate-50 rounded-lg">

@@ -123,6 +123,7 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
         contract_types: job.contract_types || [],
         is_premium: job.is_premium || false,
         is_featured: job.is_featured || false,
+        exibir_no_mapa: job.exibir_no_mapa !== false,
       });
     }
   }, [job]);
@@ -138,24 +139,16 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
   }, [editedJob.state, availableCities, editedJob.city]);
 
   const updateJobMutation = useMutation({
-    mutationFn: async (updatedJobData) => {
-      const cleanedData = { ...updatedJobData };
-      if (!cleanedData.contract_types || cleanedData.contract_types.length === 0) {
-        delete cleanedData.contract_types;
-      }
-      return base44.entities.Job.update(job.id, cleanedData);
-    },
+    mutationFn: (updatedJobData) => base44.entities.Job.update(job.id, updatedJobData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-jobs'] });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      if (onUpdateSuccess) {
-        onUpdateSuccess();
-      }
+      onUpdateSuccess();
       onClose();
     },
     onError: (error) => {
       console.error("Erro ao atualizar vaga:", error);
-      alert('Erro ao atualizar vaga: ' + (error?.message || 'Erro desconhecido'));
+      alert('Erro ao atualizar vaga: ' + error.message);
     },
   });
 
@@ -512,12 +505,23 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="is_featured" className="font-medium">Vaga em Destaque</Label>
-                    <p className="text-xs text-slate-500">Aparece na seção de destaques da página inicial</p>
+                    <p className="text-xs text-slate-500">Aparece no topo da lista</p>
                   </div>
                   <Switch
                     id="is_featured"
                     checked={editedJob.is_featured}
                     onCheckedChange={(checked) => handleSwitchChange('is_featured', checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="exibir_no_mapa" className="font-medium">Exibir no Mapa</Label>
+                    <p className="text-xs text-slate-500">Mostrar essa vaga no mapa interativo</p>
+                  </div>
+                  <Switch
+                    id="exibir_no_mapa"
+                    checked={editedJob.exibir_no_mapa}
+                    onCheckedChange={(checked) => handleSwitchChange('exibir_no_mapa', checked)}
                   />
                 </div>
               </div>

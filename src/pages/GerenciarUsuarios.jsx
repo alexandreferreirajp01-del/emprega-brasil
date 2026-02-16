@@ -321,25 +321,10 @@ export default function GerenciarUsuarios() {
                       <p className="text-xs text-slate-500 truncate">{u.email}</p>
                     </div>
                   </div>
-                  <Select onValueChange={async (type) => {
-                    await updateUserMutation.mutateAsync({ 
-                      id: u.id, 
-                      data: { subscription_type: type, access_status: 'approved' } 
-                    });
-                    
-                    // Sincronizar com sistema de assinaturas
-                    if (type === 'premium' || type === 'recruiter') {
-                      try {
-                        await base44.functions.invoke('syncSubscription', {
-                          userEmail: u.email,
-                          subscriptionType: type,
-                          action: 'activate'
-                        });
-                      } catch (err) {
-                        console.error('Erro ao sincronizar assinatura:', err);
-                      }
-                    }
-                  }}>
+                  <Select onValueChange={(type) => updateUserMutation.mutate({ 
+                    id: u.id, 
+                    data: { subscription_type: type, access_status: 'approved' } 
+                  })}>
                     <SelectTrigger className="w-full sm:w-28 h-9 text-xs rounded-lg">
                       <SelectValue placeholder="Aprovar" />
                     </SelectTrigger>
@@ -468,34 +453,10 @@ export default function GerenciarUsuarios() {
                       <div className="flex items-center gap-2 ml-13 sm:ml-0">
                         <Select 
                           value={u.subscription_type || 'basic'}
-                          onValueChange={async (type) => {
-                            const oldType = u.subscription_type;
-                            
-                            await updateUserMutation.mutateAsync({ 
-                              id: u.id, 
-                              data: { subscription_type: type, access_status: 'approved' } 
-                            });
-                            
-                            // Sincronizar com sistema de assinaturas
-                            try {
-                              if (type === 'premium' || type === 'recruiter') {
-                                await base44.functions.invoke('syncSubscription', {
-                                  userEmail: u.email,
-                                  subscriptionType: type,
-                                  action: 'activate'
-                                });
-                              } else if ((oldType === 'premium' || oldType === 'recruiter') && 
-                                         (type === 'basic' || type === 'visitor')) {
-                                await base44.functions.invoke('syncSubscription', {
-                                  userEmail: u.email,
-                                  subscriptionType: oldType,
-                                  action: 'deactivate'
-                                });
-                              }
-                            } catch (err) {
-                              console.error('Erro ao sincronizar assinatura:', err);
-                            }
-                          }}
+                          onValueChange={(type) => updateUserMutation.mutate({ 
+                            id: u.id, 
+                            data: { subscription_type: type, access_status: 'approved' } 
+                          })}
                         >
                           <SelectTrigger className="w-24 h-8 text-xs rounded-lg">
                             <SelectValue />

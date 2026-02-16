@@ -14,7 +14,6 @@ import TimeAgo from "@/components/common/TimeAgo";
 import VisitTracker from "@/components/common/VisitTracker";
 import PremiumModal from "@/components/subscription/PremiumModal";
 import PlansBanner from "@/components/common/PlansBanner";
-import FeaturedJobsSection from "@/components/jobs/FeaturedJobsSection";
 
 
 // Função de fetch com retry robusto
@@ -137,7 +136,8 @@ export default function Home() {
     viewsCountMap[v.job_id] = (viewsCountMap[v.job_id] || 0) + 1;
   });
 
-
+  // Filtrar apenas vagas em destaque da Paraíba
+  const featuredJobs = jobs.filter(job => job.is_featured && job.state === 'PB');
 
 
 
@@ -226,14 +226,103 @@ export default function Home() {
                 </div>
               </div>
 
-      {/* Featured Jobs Section */}
-      <FeaturedJobsSection />
-
       {/* Main Content Grid */}
       <div className="max-w-6xl mx-auto px-3 sm:px-4 pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            {/* Featured Jobs */}
+            <Card className="rounded-xl sm:rounded-2xl border-0 shadow-lg overflow-hidden bg-white dark:bg-slate-800 transition-colors" style={{ minHeight: '400px' }}>
+              <div className="bg-gradient-to-r from-[#1D4371] to-[#2B5A8F] p-3 sm:p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-white text-sm sm:text-lg">Vagas em Destaque</h2>
+                    <p className="text-white/70 text-xs sm:text-sm">{featuredJobs.length} vagas selecionadas</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <img 
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
+                    alt="Criador"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white/30 hidden sm:block"
+                    title="Criado por Alexandre Ferreira"
+                  />
+                  <Link to={createPageUrl('Jobs')}>
+                    <Button variant="ghost" className="text-white hover:bg-white/10 rounded-lg sm:rounded-xl text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4">
+                      Ver Todas <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <CardContent className="p-3 sm:p-4 space-y-3">
+                {featuredJobs.slice(0, 5).map((job) => (
+                  <Link key={job.id} to={createPageUrl('JobDetail') + `?id=${job.id}`}>
+                    <div className="p-3 sm:p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer group border border-transparent hover:border-[#0A66C2]/20 dark:hover:border-blue-400/20">
+                      <div className="flex flex-col gap-3">
+                        {/* Título e Badge */}
+                        <div className="flex items-start gap-2">
+                          <h3 className="font-semibold text-slate-800 dark:text-white group-hover:text-[#1D4371] dark:group-hover:text-blue-400 transition-colors flex-1 text-sm sm:text-base line-clamp-2">
+                            {job.title}
+                          </h3>
+                          <Badge className="bg-yellow-100 text-yellow-700 border-0 text-[10px] sm:text-xs shrink-0 whitespace-nowrap">
+                            <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Destaque
+                          </Badge>
+                        </div>
+
+                        {/* Empresa */}
+                        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm flex items-center gap-1 transition-colors">
+                          <Building2 className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{job.company || 'Empresa'}</span>
+                        </p>
+
+                        {/* Badges e Informações */}
+                        <div className="flex flex-wrap items-center gap-2">
+                          {job.city && (
+                            <Badge variant="secondary" className="rounded-full text-[10px] sm:text-xs">
+                              <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
+                              {job.city}
+                            </Badge>
+                          )}
+                          {job.job_type && (
+                            <Badge variant="outline" className="rounded-full text-[10px] sm:text-xs">
+                              {job.job_type}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Rodapé com Stats */}
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700 transition-colors">
+                          <div className="flex items-center gap-3 text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 transition-colors">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              <TimeAgo date={job.created_date} />
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Eye className="w-3 h-3" />
+                              {viewsCountMap[job.id] || 0}
+                            </span>
+                          </div>
+                          {job.salary_range && (
+                            <p className="text-green-600 font-semibold text-xs sm:text-sm truncate max-w-[120px]">{job.salary_range}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+                {featuredJobs.length === 0 && (
+                  <div className="text-center py-8 text-slate-400">
+                    <Star className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>Nenhuma vaga em destaque</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+
           </div>
 
           {/* Right Column - Sidebar */}
