@@ -19,6 +19,7 @@ export default function ControleFinanceiro() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
+  const [migrating, setMigrating] = useState(false);
 
   // Fetch subscriptions
   const { data: subscriptions = [], isLoading: subsLoading } = useQuery({
