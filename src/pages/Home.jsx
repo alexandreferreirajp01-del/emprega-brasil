@@ -227,7 +227,7 @@ export default function Home() {
 
       {/* Main Content Grid */}
       <div className="max-w-6xl mx-auto px-3 sm:px-4 pb-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:items-start">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Featured Jobs Carousel */}
