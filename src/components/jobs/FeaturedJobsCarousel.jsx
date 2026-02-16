@@ -135,7 +135,7 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
                 {/* Content */}
                 <div className="p-5">
                   {/* Company Info */}
-                  <div className="flex items-start justify-between mb-3 -mt-6">
+                  <div className="flex items-start justify-between mb-3 -mt-3">
                     <div className="w-14 h-14 rounded-xl bg-white dark:bg-slate-700 shadow-lg flex items-center justify-center border-2 border-white dark:border-slate-600">
                       <Briefcase className="w-7 h-7 text-[#0A66C2]" />
                     </div>
