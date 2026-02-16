@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle
+  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle, SlidersHorizontal
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -64,6 +64,10 @@ export default function Jobs() {
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   const [showHomeOfficeOnly, setShowHomeOfficeOnly] = useState(false);
+  const [selectedWorkMode, setSelectedWorkMode] = useState('all');
+  const [selectedLevel, setSelectedLevel] = useState('all');
+  const [selectedSalaryRange, setSelectedSalaryRange] = useState('all');
+  const [sortBy, setSortBy] = useState('date');
   
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
@@ -275,30 +279,74 @@ export default function Jobs() {
     viewsCountMap[v.job_id] = (viewsCountMap[v.job_id] || 0) + 1;
   });
 
-  const filteredJobs = jobs.filter(job => {
-    const matchesSearch = !searchTerm || 
-      job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.job_function?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesState = selectedState === 'all' || job.state === selectedState;
-    const matchesCity = selectedCity === 'all' || job.city === selectedCity;
-    
-    const matchesType = selectedType === 'all' || 
-      job.job_type === selectedType ||
-      (job.contract_types && job.contract_types.includes(selectedType));
-    
-    const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
-    const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
-    const matchesPremium = !showPremiumOnly || job.is_premium;
-    const matchesFeatured = !showFeaturedOnly || job.is_featured;
-    const matchesHomeOffice = !showHomeOfficeOnly || job.work_mode === 'Remoto' || job.job_type === 'Home Office';
-    
-    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice;
-  });
+  const filteredJobs = React.useMemo(() => {
+    let filtered = jobs.filter(job => {
+      const matchesSearch = !searchTerm || 
+        job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.job_function?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesState = selectedState === 'all' || job.state === selectedState;
+      const matchesCity = selectedCity === 'all' || job.city === selectedCity;
+      
+      const matchesType = selectedType === 'all' || 
+        job.job_type === selectedType ||
+        (job.contract_types && job.contract_types.includes(selectedType));
+      
+      const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
+      const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
+      const matchesPremium = !showPremiumOnly || job.is_premium;
+      const matchesFeatured = !showFeaturedOnly || job.is_featured;
+      const matchesHomeOffice = !showHomeOfficeOnly || job.work_mode === 'Remoto' || job.job_type === 'Home Office';
+      
+      const matchesWorkMode = selectedWorkMode === 'all' || job.work_mode === selectedWorkMode;
+      
+      const matchesLevel = selectedLevel === 'all' || 
+        job.title?.toLowerCase().includes(selectedLevel.toLowerCase()) ||
+        job.description?.toLowerCase().includes(selectedLevel.toLowerCase());
+      
+      const matchesSalary = selectedSalaryRange === 'all' || (() => {
+        const salaryStr = job.salary_range?.toLowerCase() || '';
+        const salaryNum = parseFloat(salaryStr.replace(/[^\d,]/g, '').replace(',', '.'));
+        
+        if (selectedSalaryRange === '0-1500') return salaryNum <= 1500;
+        if (selectedSalaryRange === '1500-3000') return salaryNum > 1500 && salaryNum <= 3000;
+        if (selectedSalaryRange === '3000-5000') return salaryNum > 3000 && salaryNum <= 5000;
+        if (selectedSalaryRange === '5000+') return salaryNum > 5000;
+        if (selectedSalaryRange === 'combinar') return salaryStr.includes('combinar') || !job.salary_range;
+        return true;
+      })();
+      
+      return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && 
+             matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice && 
+             matchesWorkMode && matchesLevel && matchesSalary;
+    });
+
+    // Ordenação
+    filtered.sort((a, b) => {
+      if (sortBy === 'date') {
+        return new Date(b.created_date) - new Date(a.created_date);
+      }
+      if (sortBy === 'salary') {
+        const getSalary = (job) => {
+          const salaryStr = job.salary_range?.toLowerCase() || '';
+          return parseFloat(salaryStr.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+        };
+        return getSalary(b) - getSalary(a);
+      }
+      if (sortBy === 'views') {
+        return (viewsCountMap[b.id] || 0) - (viewsCountMap[a.id] || 0);
+      }
+      return 0;
+    });
+
+    return filtered;
+  }, [jobs, searchTerm, selectedState, selectedCity, selectedType, selectedCategory, 
+      selectedFunction, showPremiumOnly, showFeaturedOnly, showHomeOfficeOnly, 
+      selectedWorkMode, selectedLevel, selectedSalaryRange, sortBy, viewsCountMap]);
 
   const filteredCities = availableCities.filter(city =>
     city.toLowerCase().includes(citySearch.toLowerCase())
@@ -316,12 +364,16 @@ export default function Jobs() {
     setSelectedType('all');
     setSelectedCategory('all');
     setSelectedFunction('all');
+    setSelectedWorkMode('all');
+    setSelectedLevel('all');
+    setSelectedSalaryRange('all');
     setCitySearch('');
     setFuncSearch('');
+    setSortBy('date');
   };
 
-  const activeFiltersCount = [selectedState, selectedCity, selectedType, selectedCategory, selectedFunction].filter(f => f !== 'all').length;
-  const hasActiveFilters = searchTerm || activeFiltersCount > 0;
+  const activeFiltersCount = [selectedState, selectedCity, selectedType, selectedCategory, selectedFunction, selectedWorkMode, selectedLevel, selectedSalaryRange].filter(f => f !== 'all').length;
+  const hasActiveFilters = searchTerm || activeFiltersCount > 0 || sortBy !== 'date';
 
   const handleFavorite = async (job, e) => {
     e.preventDefault();
@@ -379,7 +431,7 @@ export default function Jobs() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <Input
               type="text"
-              placeholder="Buscar vagas..."
+              placeholder="Buscar por cargo, empresa, palavra-chave..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="h-10 pl-10 pr-10 rounded-lg border-slate-200 bg-white"
@@ -395,6 +447,17 @@ export default function Jobs() {
               </Button>
             )}
           </div>
+          {hasActiveFilters && (
+            <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
+              <SlidersHorizontal className="w-3 h-3" />
+              <span>{filteredJobs.length} {filteredJobs.length === 1 ? 'vaga encontrada' : 'vagas encontradas'}</span>
+              {sortBy !== 'date' && (
+                <Badge variant="outline" className="text-xs">
+                  {sortBy === 'views' ? 'Por relevância' : 'Por salário'}
+                </Badge>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -480,6 +543,57 @@ export default function Jobs() {
                     </SelectItem>
                   ))}
                 </ScrollArea>
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedWorkMode} onValueChange={setSelectedWorkMode}>
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+                <SelectValue placeholder="Modalidade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="Presencial">Presencial</SelectItem>
+                <SelectItem value="Remoto">Remoto</SelectItem>
+                <SelectItem value="Híbrido">Híbrido</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+                <SelectValue placeholder="Nível" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="júnior">Júnior</SelectItem>
+                <SelectItem value="pleno">Pleno</SelectItem>
+                <SelectItem value="sênior">Sênior</SelectItem>
+                <SelectItem value="estagiário">Estagiário</SelectItem>
+                <SelectItem value="trainee">Trainee</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedSalaryRange} onValueChange={setSelectedSalaryRange}>
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+                <SelectValue placeholder="Salário" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="0-1500">Até R$ 1.500</SelectItem>
+                <SelectItem value="1500-3000">R$ 1.500 - R$ 3.000</SelectItem>
+                <SelectItem value="3000-5000">R$ 3.000 - R$ 5.000</SelectItem>
+                <SelectItem value="5000+">Acima de R$ 5.000</SelectItem>
+                <SelectItem value="combinar">A combinar</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap bg-slate-100 border-slate-200">
+                <SelectValue placeholder="Ordenar" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date">Mais recentes</SelectItem>
+                <SelectItem value="views">Mais visualizadas</SelectItem>
+                <SelectItem value="salary">Maior salário</SelectItem>
               </SelectContent>
             </Select>
 
