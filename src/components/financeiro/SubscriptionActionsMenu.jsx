@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Edit2, Eye, Trash2, MoreVertical, RefreshCw, X } from "lucide-react";
+import { Edit2, Eye, Trash2, MoreVertical, RefreshCw, X, Lock, Unlock } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
