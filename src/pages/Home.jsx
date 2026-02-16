@@ -13,7 +13,6 @@ import { base44 } from "@/api/base44Client";
 import TimeAgo from "@/components/common/TimeAgo";
 import VisitTracker from "@/components/common/VisitTracker";
 import PremiumModal from "@/components/subscription/PremiumModal";
-import AssistantChat from "@/components/chat/AssistantChat";
 import PlansBanner from "@/components/common/PlansBanner";
 import FeaturedJobsCarousel from "@/components/jobs/FeaturedJobsCarousel";
 import SupportButton from "@/components/support/SupportButton";
@@ -259,9 +258,6 @@ export default function Home() {
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
-            {/* Assistente IA */}
-            <AssistantChat user={user} isPremium={user?.subscription_type === 'premium' || user?.subscription_type === 'admin' || user?.subscription_type === 'recruiter' || user?.role === 'admin'} inline={true} />
-
             {/* Suporte */}
             <SupportButton user={user} inline={true} />
 
