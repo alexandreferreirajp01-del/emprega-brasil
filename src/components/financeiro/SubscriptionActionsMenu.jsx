@@ -142,12 +142,13 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
             <div>
               <label className="text-sm font-medium block mb-1">Status</label>
               <select
-                value={editData.status}
+                value={editData.status || 'active'}
                 onChange={(e) => setEditData({ ...editData, status: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
               >
                 <option value="pending">Pendente</option>
                 <option value="active">Ativo</option>
+                <option value="renewing">Renovando</option>
                 <option value="blocked">Bloqueado</option>
                 <option value="canceled">Cancelado</option>
               </select>
