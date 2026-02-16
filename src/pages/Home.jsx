@@ -253,7 +253,7 @@ export default function Home() {
             </div>
 
             {/* Latest Jobs Today */}
-            <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 sm:p-6 shadow-lg">
+            <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-3 sm:p-4 shadow-lg">
               <LatestJobsToday jobs={jobs} />
             </div>
           </div>
