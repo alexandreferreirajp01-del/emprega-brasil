@@ -94,9 +94,9 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onDelete?.(subscription)} className="text-red-600">
+          <DropdownMenuItem onClick={handleDelete} className="text-red-600" disabled={deleting}>
             <Trash2 className="w-4 h-4 mr-2" />
-            Deletar
+            {deleting ? 'Deletando...' : 'Deletar'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
