@@ -30,7 +30,7 @@ const menuItems = [
   { id: 'divider-planos', type: 'divider', label: 'Planos e Pagamentos', roles: ['admin', 'dono'] },
   { id: 'planos', name: 'Assinaturas', icon: Crown, color: 'purple', page: 'GerenciarPlanos', description: 'Controle de assinaturas e cobranças', roles: ['admin', 'dono'] },
   { id: 'precos', name: 'Gerenciar Preços', icon: CreditCard, color: 'emerald', page: 'GerenciarPrecos', description: 'Ajustar valores dos planos', roles: ['admin', 'dono'] },
-  { id: 'payments', name: 'Pagamentos', icon: CreditCard, color: 'green', page: 'PaymentsPage', description: 'Gerenciar pagamentos', permissionId: 'pagamentos' },
+  { id: 'controle-financeiro', name: 'Controle Financeiro', icon: CreditCard, color: 'green', page: 'ControleFinanceiro', description: 'Gerenciar assinaturas, ciclos e receitas', roles: ['admin', 'dono'] },
   
   // Gestão de Vagas
   { id: 'divider-vagas', type: 'divider', label: 'Gestão de Vagas' },
