@@ -291,11 +291,11 @@ export default function Extrato() {
         </div>
       </div>
 
-      {/* Modal de novo lançamento */}
-      <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
+      {/* Modal de novo/editar lançamento */}
+      <Dialog open={addModalOpen} onOpenChange={handleCloseModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Novo Lançamento Manual</DialogTitle>
+            <DialogTitle>{editingId ? 'Editar Lançamento' : 'Novo Lançamento Manual'}</DialogTitle>
             <DialogClose />
           </DialogHeader>
 
