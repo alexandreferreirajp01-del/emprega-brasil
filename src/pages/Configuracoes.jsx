@@ -68,7 +68,7 @@ const menuItems = [
   
   // Minha Área
   { id: 'divider-minha-area', type: 'divider', label: 'Minha Área' },
-  { id: 'usuarios-mensagens', name: 'Usuários', icon: MessageCircle, color: 'blue', page: 'Mensagens', description: 'Conversar com usuários e receber mensagens', permissionId: 'usuarios_mensagens' },
+  { id: 'usuarios-mensagens', name: 'Suporte', icon: MessageCircle, color: 'blue', page: 'Mensagens', description: 'Conversar com usuários e receber mensagens', permissionId: 'usuarios_mensagens' },
   { id: 'favoritas', name: 'Favoritas', icon: Heart, color: 'rose', page: 'Favoritos', description: 'Vagas salvas como favoritas', permissionId: 'favoritas' },
   { id: 'historico', name: 'Histórico', icon: History, color: 'violet', page: 'Historico', description: 'Vagas visualizadas recentemente', permissionId: 'historico' },
   { id: 'curriculos', name: 'Ver Currículos', icon: FileText, color: 'teal', page: 'ProfessionalResume', description: 'Visualizar currículos de candidatos', permissionId: 'curriculos' },
