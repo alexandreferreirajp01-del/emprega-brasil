@@ -30,7 +30,8 @@ export default function GerenciarVagas() {
     workMode: 'all',
     city: '',
     state: '',
-    period: '30',
+    period: 'all',
+    periodType: 'days',
     locationStatus: 'all'
   });
   const [showFilters, setShowFilters] = useState(false);

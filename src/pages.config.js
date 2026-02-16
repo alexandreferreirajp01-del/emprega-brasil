@@ -94,6 +94,7 @@ import Home from './pages/Home';
 import JobDetail from './pages/JobDetail';
 import Jobs from './pages/Jobs';
 import LGPD from './pages/LGPD';
+import LancamentosFinanceiros from './pages/LancamentosFinanceiros';
 import ListaTransmissao from './pages/ListaTransmissao';
 import Mensagens from './pages/Mensagens';
 import N8NConfig from './pages/N8NConfig';
@@ -136,7 +137,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import LancamentosFinanceiros from './pages/LancamentosFinanceiros';
 import __Layout from './Layout.jsx';
 
 
@@ -188,6 +188,7 @@ export const PAGES = {
     "JobDetail": JobDetail,
     "Jobs": Jobs,
     "LGPD": LGPD,
+    "LancamentosFinanceiros": LancamentosFinanceiros,
     "ListaTransmissao": ListaTransmissao,
     "Mensagens": Mensagens,
     "N8NConfig": N8NConfig,
@@ -230,7 +231,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "LancamentosFinanceiros": LancamentosFinanceiros,
 }
 
 export const pagesConfig = {
