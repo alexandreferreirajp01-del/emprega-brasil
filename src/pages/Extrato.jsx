@@ -220,25 +220,62 @@ export default function Extrato() {
         </div>
 
         {/* Resumo */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Receita Total</p>
-            <p className="text-2xl font-bold text-green-600">R$ {totals.total > 0 ? totals.total.toFixed(2) : '0.00'}</p>
-          </div>
-          <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Receita Mensal</p>
-            <p className="text-2xl font-bold text-blue-600">R$ {totals.monthRevenue.toFixed(2)}</p>
-          </div>
-          <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Despesas Mensais</p>
-            <p className="text-2xl font-bold text-red-600">R$ {totals.monthExpense.toFixed(2)}</p>
-          </div>
-          <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Saldo do Mês</p>
-            <p className={`text-2xl font-bold ${totals.monthBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              R$ {totals.monthBalance.toFixed(2)}
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card className="dark:bg-slate-800">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Saldo Total</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                    R$ {totals.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <DollarSign className="w-8 h-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="dark:bg-slate-800">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Entradas Mês</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    R$ {totals.monthRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="dark:bg-slate-800">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Saídas Mês</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    R$ {totals.monthExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <TrendingDown className="w-8 h-8 text-red-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="dark:bg-slate-800">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Saldo Mês</p>
+                  <p className={`text-2xl font-bold ${totals.monthBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    R$ {totals.monthBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <Calendar className="w-8 h-8 text-slate-600" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Tabela de lançamentos */}
