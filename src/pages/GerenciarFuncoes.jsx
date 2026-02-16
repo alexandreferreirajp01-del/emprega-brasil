@@ -53,7 +53,7 @@ const DEFAULT_CONFIG = {
     { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros' },
     { id: 'vagas', name: 'Gerenciar Vagas', description: 'Visualizar e excluir vagas' },
     { id: 'usuarios', name: 'Gerenciar Usuários', description: 'Aprovar e gerenciar usuários', enabled: true },
-    { id: 'planos', name: 'Gerenciar Planos', description: 'Controle de assinaturas e cobranças', enabled: true },
+    { id: 'planos', name: 'Assinaturas', description: 'Controle de assinaturas e cobranças', enabled: true },
     { id: 'precos', name: 'Gerenciar Preços', description: 'Ajustar valores dos planos' },
     { id: 'cores', name: 'Gerenciar Cores', description: 'Personalizar cores da aplicação' },
     { id: 'dividerProducao', type: 'divider', label: 'Ferramentas de Produção', locked: true },
