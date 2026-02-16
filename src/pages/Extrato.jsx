@@ -46,12 +46,24 @@ export default function Extrato() {
         displayDate: e.entry_date,
         displayAmount: e.type === 'receita' ? e.amount : -e.amount,
       })),
-      ...financialHistory.map(e => ({
-        ...e,
-        source: 'subscription',
-        displayDate: e.timestamp,
-        displayAmount: e.event_type === 'payment' || e.event_type === 'renewal' ? e.amount : -e.amount,
-      })),
+      ...financialHistory.map(e => {
+        const eventLabel = {
+          'payment': 'Pagamento',
+          'renewal': 'Renovação',
+          'status_change': 'Mudança de Status',
+          'block': 'Bloqueio',
+          'unblock': 'Desbloqueio',
+          'cancellation': 'Cancelamento'
+        }[e.event_type] || e.event_type;
+        
+        return {
+          ...e,
+          source: 'subscription',
+          displayDate: e.timestamp,
+          displayAmount: e.event_type === 'payment' || e.event_type === 'renewal' ? e.amount : -e.amount,
+          description: `${eventLabel} - ${e.user_name || 'Usuário'} (${e.cycle || 'N/A'}, ${e.payment_method || 'N/A'})`,
+        };
+      }),
     ];
     return combined.sort((a, b) => new Date(b.displayDate) - new Date(a.displayDate));
   }, [manualEntries, financialHistory]);
