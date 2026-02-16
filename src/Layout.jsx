@@ -552,7 +552,7 @@ export default function Layout({ children, currentPageName }) {
   </footer>
 
   {/* Bottom Navigation (Mobile) - Fixed com z-index alto */}
-  <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 shadow-lg z-[9998]" translate="no" style={{
+  <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 shadow-lg z-[9998]" translate="no" style={{
     position: 'fixed',
     bottom: 0,
     left: 0,
