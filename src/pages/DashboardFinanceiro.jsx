@@ -4,6 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { FileText, CreditCard, ArrowLeft } from 'lucide-react';
+import { createPageUrl } from '@/utils';
+import { Link } from 'react-router-dom';
 
 export default function DashboardFinanceiro() {
   const [filterType, setFilterType] = useState('mensal'); // diario, semanal, mensal, periodo
