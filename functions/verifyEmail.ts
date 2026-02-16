@@ -47,12 +47,12 @@ Deno.serve(async (req) => {
     // Enviar email de boas-vindas
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: user.email,
-      subject: 'Emprega Brasil+ - Bem-vindo! 🎉',
+      subject: 'Vagas Abertas Paraíba - Bem-vindo! 🎉',
       body: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; border-radius: 10px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/704fcb47f_file_000000001aec71f583d94b71860e2dbd.png" alt="Emprega Brasil+" style="width: 100px; height: 100px;">
-            <h1 style="color: #0A66C2; margin-top: 20px;">Emprega Brasil+</h1>
+            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" alt="Vagas Abertas Paraíba" style="width: 100px; height: 100px;">
+            <h1 style="color: #0A66C2; margin-top: 20px;">Vagas Abertas Paraíba</h1>
           </div>
           
           <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
           </div>
           
           <p style="text-align: center; color: #999; font-size: 12px; margin-top: 20px;">
-            © ${new Date().getFullYear()} Emprega Brasil+ - Todos os direitos reservados
+            © ${new Date().getFullYear()} Vagas Abertas Paraíba - Todos os direitos reservados
           </p>
         </div>
       `

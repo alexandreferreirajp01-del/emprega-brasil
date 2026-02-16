@@ -73,11 +73,11 @@ Deno.serve(async (req) => {
       if (numJobs > 1) {
         dynamicTitle = `🚨 ${numJobs} Novas Vagas Publicadas!`;
         const phrases = [
-          `Confira as ${numJobs} oportunidades recém-adicionadas no Emprega Brasil+!`, 
+          `Confira as ${numJobs} oportunidades recém-adicionadas no Vagas Abertas Paraíba!`, 
           `Acabamos de adicionar ${numJobs} vagas fresquinhas para você explorar!`, 
           `Não perca: ${numJobs} novas chances de emprego esperam por você!`, 
           `Sua próxima vaga pode estar entre estas ${numJobs} oportunidades!`,
-          `${numJobs} vagas disponíveis agora no Emprega Brasil+!`,
+          `${numJobs} vagas disponíveis agora no Vagas Abertas Paraíba!`,
           `Chegaram ${numJobs} novas vagas! Veja quais combinam com você.`
         ];
         dynamicMessage = phrases[Math.floor(Math.random() * phrases.length)];
@@ -203,7 +203,7 @@ Deno.serve(async (req) => {
                 body: `
                   <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; background: #ffffff; border-radius: 12px;">
                     <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #0A66C2 0%, #004182 100%); border-radius: 12px 12px 0 0; margin: -20px -20px 20px -20px;">
-                      <h1 style="color: white; margin: 0; font-size: 28px;">${notification.icon} Emprega Brasil+</h1>
+                      <h1 style="color: white; margin: 0; font-size: 28px;">${notification.icon} Vagas Abertas Paraíba</h1>
                     </div>
                     
                     <h2 style="color: #0A66C2; margin-bottom: 15px; font-size: 24px;">${dynamicTitle}</h2>
@@ -221,7 +221,7 @@ Deno.serve(async (req) => {
                     
                     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
                       <p style="font-size: 12px; color: #999; margin: 5px 0;">
-                        Você recebeu este email porque está cadastrado no Emprega Brasil+
+                        Você recebeu este email porque está cadastrado no Vagas Abertas Paraíba
                       </p>
                       <p style="font-size: 12px; color: #999; margin: 5px 0;">
                         Para ajustar suas preferências de notificação, acesse seu perfil no app
