@@ -123,6 +123,7 @@ import ResponderChat from './pages/ResponderChat';
 import Security from './pages/Security';
 import Splash from './pages/Splash';
 import Subscription from './pages/Subscription';
+import SuporteAdmin from './pages/SuporteAdmin';
 import Terms from './pages/Terms';
 import Utilidades from './pages/Utilidades';
 import VagasConverter from './pages/VagasConverter';
@@ -131,7 +132,7 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import SuporteAdmin from './pages/SuporteAdmin';
+import Usuarios from './pages/Usuarios';
 import __Layout from './Layout.jsx';
 
 
@@ -212,6 +213,7 @@ export const PAGES = {
     "Security": Security,
     "Splash": Splash,
     "Subscription": Subscription,
+    "SuporteAdmin": SuporteAdmin,
     "Terms": Terms,
     "Utilidades": Utilidades,
     "VagasConverter": VagasConverter,
@@ -220,7 +222,7 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "SuporteAdmin": SuporteAdmin,
+    "Usuarios": Usuarios,
 }
 
 export const pagesConfig = {
