@@ -10,9 +10,11 @@ import { createPageUrl } from '@/utils';
 import { Link } from 'react-router-dom';
 
 export default function DashboardFinanceiro() {
-  const [filterType, setFilterType] = useState('mensal'); // diario, semanal, mensal, periodo
+  const [filterType, setFilterType] = useState('mensal');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const queryClient = useQueryClient();
 
   // Buscar dados
   const { data: manualEntries = [] } = useQuery({
