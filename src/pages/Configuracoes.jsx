@@ -28,7 +28,7 @@ const menuItems = [
 
   // Planos e Pagamentos
   { id: 'divider-planos', type: 'divider', label: 'Planos e Pagamentos', roles: ['admin', 'dono'] },
-  { id: 'planos', name: 'Assinaturas', icon: Crown, color: 'purple', page: 'GerenciarPlanos', description: 'Controle de assinaturas e cobranças', roles: ['admin', 'dono'] },
+
   { id: 'precos', name: 'Gerenciar Preços', icon: CreditCard, color: 'emerald', page: 'GerenciarPrecos', description: 'Ajustar valores dos planos', roles: ['admin', 'dono'] },
   { id: 'controle-financeiro', name: 'Controle Financeiro', icon: CreditCard, color: 'green', page: 'ControleFinanceiro', description: 'Gerenciar assinaturas, ciclos e receitas', roles: ['admin', 'dono'] },
   { id: 'extrato', name: 'Extrato Financeiro', icon: FileText, color: 'emerald', page: 'Extrato', description: 'Lançamentos e relatório de extrato', roles: ['admin', 'dono'] },
