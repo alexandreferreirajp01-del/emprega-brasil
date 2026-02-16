@@ -107,6 +107,20 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleToggleBlock} disabled={saving}>
+            {subscription.status === 'blocked' ? (
+              <>
+                <Unlock className="w-4 h-4 mr-2 text-green-600" />
+                <span className="text-green-600">Desbloquear Acesso</span>
+              </>
+            ) : (
+              <>
+                <Lock className="w-4 h-4 mr-2 text-orange-600" />
+                <span className="text-orange-600">Bloquear Acesso</span>
+              </>
+            )}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleDelete} className="text-red-600" disabled={deleting}>
             <Trash2 className="w-4 h-4 mr-2" />
             {deleting ? 'Deletando...' : 'Deletar'}
