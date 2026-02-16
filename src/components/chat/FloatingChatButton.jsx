@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Send, Loader2, User as UserIcon, X, Sparkles, Paperclip, Image as ImageIcon, File } from "lucide-react";
+import { Bot, Send, Loader2, User as UserIcon, X, Sparkles, Paperclip, Image as ImageIcon, File, Crown, Lock } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import ReactMarkdown from 'react-markdown';
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function FloatingChatButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,8 +29,13 @@ export default function FloatingChatButton() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        // Verifica se é Premium ou Admin
+        const isAdmin = currentUser?.role === 'admin' || currentUser?.subscription_type === 'admin';
+        const hasPremium = currentUser?.subscription_type === 'premium' || currentUser?.subscription_type === 'recruiter';
+        setIsPremium(isAdmin || hasPremium);
       } catch (e) {
-        // Visitante pode usar
+        setIsPremium(false);
       }
     };
     checkAuth();
@@ -192,6 +201,14 @@ export default function FloatingChatButton() {
     '❓ Como funciona o Premium?'
   ];
 
+  const handleButtonClick = () => {
+    if (!isPremium) {
+      setShowUpgradeModal(true);
+    } else {
+      setIsOpen(true);
+    }
+  };
+
   return (
     <>
       {/* Floating Button */}
@@ -203,11 +220,19 @@ export default function FloatingChatButton() {
             <div className="absolute w-14 h-14 bg-[#0A66C2]/8 rounded-full animate-pulse"></div>
           </div>
           
+          {/* Badge Premium */}
+          {!isPremium && (
+            <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg z-10 flex items-center gap-1">
+              <Crown className="w-2.5 h-2.5" />
+              PRO
+            </div>
+          )}
+          
           {/* Botão principal */}
           <button
-            onClick={() => setIsOpen(true)}
+            onClick={handleButtonClick}
             className="relative bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#0A66C2] text-white p-3.5 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center justify-center overflow-hidden"
-            title="Assistente IA"
+            title={isPremium ? "Assistente IA" : "Assistente IA - Apenas Premium"}
             style={{
               animation: 'float 3s ease-in-out infinite, gradient-shift 4s ease infinite',
               backgroundSize: '200% 200%'
@@ -407,6 +432,70 @@ export default function FloatingChatButton() {
           </div>
         </div>
       )}
+
+      {/* Modal de Upgrade para Premium */}
+      <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <DialogTitle className="text-center text-2xl">Recurso Premium</DialogTitle>
+            <DialogDescription className="text-center text-base">
+              O Assistente de IA é exclusivo para membros Premium
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4">
+              <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-yellow-600" />
+                Com o Premium você tem:
+              </h3>
+              <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+                  <span>Assistente de IA 24/7 para tirar dúvidas</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+                  <span>Busca inteligente de vagas</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+                  <span>Acesso a vagas exclusivas</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+                  <span>Ferramentas profissionais avançadas</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+                  <span>Suporte prioritário</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <Link to={createPageUrl('Subscription')}>
+                <Button className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-semibold h-12">
+                  <Crown className="w-5 h-5 mr-2" />
+                  Assinar Premium Agora
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowUpgradeModal(false)}
+                className="w-full"
+              >
+                Voltar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
