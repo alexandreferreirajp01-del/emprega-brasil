@@ -107,6 +107,22 @@ export default function DashboardFinanceiro() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
       <div className="max-w-7xl mx-auto">
+        {/* Barra de Navegação */}
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow mb-6 flex items-center gap-2">
+          <Link to={createPageUrl('ControleFinanceiro')}>
+            <Button variant="outline" size="sm" className="gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Controle de Assinaturas
+            </Button>
+          </Link>
+          <Link to={createPageUrl('Extrato')}>
+            <Button variant="outline" size="sm" className="gap-2">
+              <FileText className="w-4 h-4" />
+              Extrato
+            </Button>
+          </Link>
+        </div>
+
         <h1 className="text-3xl font-bold mb-8">Dashboard Financeiro</h1>
 
         {/* Filtros */}
