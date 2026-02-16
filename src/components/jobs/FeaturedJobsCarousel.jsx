@@ -89,7 +89,7 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
             >
               <div className="relative min-h-56 bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md transition-all border border-slate-100 dark:border-slate-700 flex flex-col">
                 {/* Content */}
-                <div className="p-3 flex-1">
+                <div className="p-3 flex-1 flex flex-col">
                   {/* Title & Company */}
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1 line-clamp-2 group-hover:text-orange-500 transition-colors">
                     {job.title}
@@ -99,7 +99,7 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
                   </p>
 
                   {/* Details */}
-                  <div className="space-y-1 mb-2 text-xs">
+                  <div className="space-y-1 mb-2 text-xs flex-1">
                     <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
                       <MapPin className="w-3 h-3 flex-shrink-0" />
                       <span className="truncate">{job.city}, {job.state}</span>
