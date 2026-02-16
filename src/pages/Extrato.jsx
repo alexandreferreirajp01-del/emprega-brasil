@@ -288,9 +288,8 @@ export default function Extrato() {
         </Card>
       </div>
 
-      {/* Aviso: Extrato é somente leitura */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        {/* Aviso: Extrato é somente leitura */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-6">
           <p className="text-sm text-blue-800 dark:text-blue-300">
             ℹ️ <strong>Extrato é somente leitura.</strong> Para adicionar/editar lançamentos, use a página de <strong>Lançamentos Financeiros</strong> ou <strong>Controle Financeiro</strong>.
           </p>
