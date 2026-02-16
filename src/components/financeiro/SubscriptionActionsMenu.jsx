@@ -55,6 +55,21 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm(`Tem certeza que deseja deletar a assinatura de ${subscription.user_name}?`)) return;
+    
+    setDeleting(true);
+    try {
+      await base44.entities.Subscription.delete(subscription.id);
+      onDelete?.(subscription);
+      window.location.reload();
+    } catch (error) {
+      alert('Erro ao deletar: ' + error.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
