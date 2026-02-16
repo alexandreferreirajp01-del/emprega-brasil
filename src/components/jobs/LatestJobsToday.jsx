@@ -7,15 +7,27 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function LatestJobsToday({ jobs }) {
-  const today = new Date();
+  // Obter data de hoje em Brasília (GMT-3)
+  const now = new Date();
+  const brasiliaOffset = -3 * 60; // -3 horas em minutos
+  const localOffset = now.getTimezoneOffset();
+  const brasiliaTime = new Date(now.getTime() + (localOffset + brasiliaOffset) * 60000);
+  
+  const today = new Date(brasiliaTime);
   today.setHours(0, 0, 0, 0);
+  
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-  // Filtrar vagas publicadas hoje
+  // Filtrar vagas publicadas hoje (horário de Brasília)
   const todayJobs = jobs
     .filter(job => {
       const jobDate = new Date(job.published_at || job.created_date);
-      jobDate.setHours(0, 0, 0, 0);
-      return jobDate.getTime() === today.getTime() && job.status === 'ativa';
+      // Converter para horário de Brasília
+      const jobBrasiliaTime = new Date(jobDate.getTime() + (localOffset + brasiliaOffset) * 60000);
+      jobBrasiliaTime.setHours(0, 0, 0, 0);
+      
+      return jobBrasiliaTime.getTime() === today.getTime() && job.status === 'ativa';
     })
     .sort((a, b) => new Date(b.published_at || b.created_date) - new Date(a.published_at || a.created_date))
     .slice(0, 4);
