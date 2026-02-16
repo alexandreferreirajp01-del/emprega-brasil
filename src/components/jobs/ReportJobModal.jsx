@@ -37,7 +37,7 @@ export default function ReportJobModal({ job, user, isOpen, onClose }) {
 
     try {
       // Criar ocorrência
-      await base44.entities.Occurrence.create({
+      const occurrence = await base44.entities.Occurrence.create({
         user_email: user?.email || email,
         user_name: user?.full_name || email,
         job_id: job.id,
@@ -46,6 +46,18 @@ export default function ReportJobModal({ job, user, isOpen, onClose }) {
         message: `${message.trim()}\n\n--- Contato ---\nEmail: ${email}\nTelefone: ${phone || 'Não informado'}`,
         status: 'pending'
       });
+
+      // Criar mensagem direta para admin
+      try {
+        await base44.functions.invoke('createReportMessage', {
+          report_id: occurrence.id,
+          content_type: 'job',
+          content_id: job.id,
+          reason: `${subject} - ${message}`
+        });
+      } catch (e) {
+        // Continuar mesmo se falhar
+      }
 
       // Notificar admins
       try {
