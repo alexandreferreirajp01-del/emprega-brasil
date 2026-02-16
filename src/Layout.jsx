@@ -10,8 +10,7 @@ import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingButtons from "@/components/common/FloatingButtons";
-import FloatingChatButton from "@/components/chat/FloatingChatButton";
-import SupportButton from "@/components/support/SupportButton";
+      import SupportButton from "@/components/support/SupportButton";
 import NativePermissionModal from "@/components/common/NativePermissionModal";
 import PushManager from "@/components/push/PushManager";
 import PopupManager from "@/components/common/PopupManager";
@@ -588,8 +587,7 @@ export default function Layout({ children, currentPageName }) {
   </div>
 
   <FloatingButtons />
-  <FloatingChatButton />
-  <SupportButton user={user} />
+          <SupportButton user={user} />
   <CookieConsent />
   <PopupManager />
   <WelcomePopup />

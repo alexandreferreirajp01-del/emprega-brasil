@@ -13,6 +13,7 @@ import { base44 } from "@/api/base44Client";
 import TimeAgo from "@/components/common/TimeAgo";
 import VisitTracker from "@/components/common/VisitTracker";
 import PremiumModal from "@/components/subscription/PremiumModal";
+import AssistantChat from "@/components/chat/AssistantChat";
 import PlansBanner from "@/components/common/PlansBanner";
 import FeaturedJobsCarousel from "@/components/jobs/FeaturedJobsCarousel";
 
