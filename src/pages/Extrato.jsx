@@ -173,6 +173,22 @@ export default function Extrato() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
       <div className="max-w-7xl mx-auto">
+        {/* Barra de Navegação */}
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow mb-6 flex items-center gap-2">
+          <Link to={createPageUrl('ControleFinanceiro')}>
+            <Button variant="outline" size="sm" className="gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Controle de Assinaturas
+            </Button>
+          </Link>
+          <Link to={createPageUrl('DashboardFinanceiro')}>
+            <Button variant="outline" size="sm" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Dashboard
+            </Button>
+          </Link>
+        </div>
+
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Extrato Financeiro</h1>
           <div className="flex gap-2">
