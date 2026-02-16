@@ -286,7 +286,6 @@ export default function Extrato() {
             </div>
           </CardContent>
         </Card>
-      </div>
 
         {/* Aviso: Extrato é somente leitura */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-6">
@@ -294,7 +293,7 @@ export default function Extrato() {
             ℹ️ <strong>Extrato é somente leitura.</strong> Para adicionar/editar lançamentos, use a página de <strong>Lançamentos Financeiros</strong> ou <strong>Controle Financeiro</strong>.
           </p>
         </div>
-      </div>
+        </div>
     </div>
   );
 }
