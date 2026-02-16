@@ -23,9 +23,6 @@ import {
 } from '@/components/ui/table';
 
 export default function Extrato() {
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [newEntry, setNewEntry] = useState({ entry_date: new Date().toISOString().split('T')[0], description: '', amount: 0, type: 'receita', category: 'receita_extra' });
   const queryClient = useQueryClient();
 
   // Buscar lançamentos manuais
