@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Download, ArrowLeft, RefreshCw, TrendingUp, TrendingDown, DollarSign, Calendar } from 'lucide-react';
+import { FileText, Download, ArrowLeft, RefreshCw, TrendingUp, TrendingDown, DollarSign, Calendar, Loader2 } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { Link } from 'react-router-dom';
 import {
@@ -86,6 +86,25 @@ export default function Extrato() {
   }, [allEntries]);
 
 
+
+  const [fixing, setFixing] = useState(false);
+
+  const handleFixAmounts = async () => {
+    if (!confirm('Corrigir valores de FinancialHistory com base nas Subscriptions? Isso corrigirá registros com amount = 0.')) {
+      return;
+    }
+    
+    setFixing(true);
+    try {
+      const response = await base44.functions.invoke('fixFinancialHistoryAmounts');
+      alert(`✅ ${response.data.message}\nRegistros corrigidos: ${response.data.fixedCount}`);
+      queryClient.invalidateQueries({ queryKey: ['financialHistory', 'manualEntries'] });
+    } catch (error) {
+      alert('❌ Erro ao corrigir valores: ' + error.message);
+    } finally {
+      setFixing(false);
+    }
+  };
 
   const handleExportPDF = () => {
     const now = new Date();
@@ -174,13 +193,23 @@ export default function Extrato() {
           </Button>
         </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Registros de Movimentação</h2>
-          <Button onClick={handleExportPDF} className="bg-blue-600 hover:bg-blue-700">
-            <Download className="w-4 h-4 mr-2" />
-            Exportar PDF
-          </Button>
-        </div>
+        <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Registros de Movimentação</h2>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={handleFixAmounts}
+                      disabled={fixing}
+                      className="bg-orange-600 hover:bg-orange-700"
+                    >
+                      {fixing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Loader2 className="w-4 h-4 mr-2" />}
+                      {fixing ? 'Corrigindo...' : 'Corrigir Valores'}
+                    </Button>
+                    <Button onClick={handleExportPDF} className="bg-blue-600 hover:bg-blue-700">
+                      <Download className="w-4 h-4 mr-2" />
+                      Exportar PDF
+                    </Button>
+                  </div>
+                </div>
 
         {/* Resumo */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
