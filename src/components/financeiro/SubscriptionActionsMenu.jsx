@@ -215,6 +215,16 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
               />
             </div>
 
+            <div>
+              <label className="text-sm font-medium block mb-1">Dias Restantes</label>
+              <Input
+                type="number"
+                value={editData.days_remaining || 0}
+                onChange={(e) => setEditData({ ...editData, days_remaining: parseInt(e.target.value) })}
+                className="w-full"
+              />
+            </div>
+
             <div className="flex gap-2 pt-4">
               <Button
                 variant="outline"
