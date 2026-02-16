@@ -147,7 +147,7 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
             Editar
           </DropdownMenuItem>
           {subscription.status === 'active' && (
-            <DropdownMenuItem onClick={() => onRenew?.(subscription)}>
+            <DropdownMenuItem onClick={() => setRenewModalOpen(true)}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Renovar
             </DropdownMenuItem>
