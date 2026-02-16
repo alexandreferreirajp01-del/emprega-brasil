@@ -136,38 +136,18 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
       </div>
 
       {/* Navigation & Dots */}
-      <div className="flex items-center justify-between mt-2">
-        <div className="flex gap-1">
+      <div className="flex items-center justify-center gap-2 mt-2 md:hidden">
+        {Array.from({ length: Math.ceil(jobs.length / 1) }).map((_, index) => (
           <button
-            onClick={scrollPrev}
-            disabled={!prevBtnEnabled}
-            className="bg-white dark:bg-slate-800 rounded-full p-1.5 shadow-sm hover:shadow-md disabled:opacity-50 transition-all"
-          >
-            <ChevronLeft className="w-4 h-4 text-slate-900 dark:text-white" />
-          </button>
-          <button
-            onClick={scrollNext}
-            disabled={!nextBtnEnabled}
-            className="bg-white dark:bg-slate-800 rounded-full p-1.5 shadow-sm hover:shadow-md disabled:opacity-50 transition-all"
-          >
-            <ChevronRight className="w-4 h-4 text-slate-900 dark:text-white" />
-          </button>
-        </div>
-
-        {/* Dots */}
-        <div className="flex gap-1.5">
-          {Array.from({ length: Math.ceil(jobs.length / 1) }).map((_, index) => (
-            <button
-              key={index}
-              className={`h-1.5 rounded-full transition-all ${
-                index === selectedIndex
-                  ? 'w-6 bg-orange-500'
-                  : 'w-1.5 bg-slate-300 dark:bg-slate-600'
-              }`}
-              onClick={() => emblaApi && emblaApi.scrollTo(index)}
-            />
-          ))}
-        </div>
+            key={index}
+            className={`h-1.5 rounded-full transition-all ${
+              index === selectedIndex
+                ? 'w-5 bg-orange-500'
+                : 'w-1.5 bg-slate-300 dark:bg-slate-600'
+            }`}
+            onClick={() => emblaApi && emblaApi.scrollTo(index)}
+          />
+        ))}
       </div>
     </div>
   );
