@@ -1,351 +1,329 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Send, ArrowLeft, MessageCircle, Plus, Search, Users } from "lucide-react";
-import { base44 } from "@/api/base44Client";
-import TimeAgo from "@/components/common/TimeAgo";
-import { createPageUrl } from "@/utils";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState, useEffect, useRef } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { MessageCircle, Send, Search, Users, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-export default function Mensagens() {
+export default function MensagensPage() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [conversaAtiva, setConversaAtiva] = useState(null);
-  const [novaMensagem, setNovaMensagem] = useState('');
-  const [showNovaConversa, setShowNovaConversa] = useState(false);
-  const [buscaUsuario, setBuscaUsuario] = useState('');
+  const [selectedConversa, setSelectedConversa] = useState(null);
+  const [messageText, setMessageText] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const scrollRef = useRef(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const init = async () => {
+    const checkAuth = async () => {
       try {
-        const u = await base44.auth.me();
-        setUser(u);
-        
-        const params = new URLSearchParams(window.location.search);
-        const destEmail = params.get('para');
-        const destNome = params.get('nome');
-        const destFoto = params.get('foto');
-        
-        if (destEmail) {
-          setConversaAtiva({
-            email: destEmail,
-            nome: destNome || destEmail,
-            foto: destFoto || ''
-          });
-        }
-      } catch {
-        window.location.href = createPageUrl('Splash');
-      } finally {
-        setLoading(false);
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+      } catch (e) {
+        window.location.href = '/';
       }
     };
-    init();
+    checkAuth();
   }, []);
 
-  const getConversaId = (email1, email2) => {
-    return [email1, email2].sort().join('_');
-  };
-
-  // Buscar todos os usuários cadastrados
-  const { data: usuarios = [], isLoading: loadingUsuarios } = useQuery({
-    queryKey: ['todos-usuarios-mensagem'],
+  // Buscar todas as mensagens do usuário
+  const { data: mensagens = [] } = useQuery({
+    queryKey: ['mensagens', user?.email],
     queryFn: async () => {
-      const allUsers = await base44.entities.User.list('full_name', 1000);
-      return (allUsers || [])
-        .filter(u => u.email && u.email !== user?.email)
-        .map(u => ({
-          id: u.id || u.email,
-          email: u.email,
-          full_name: u.full_name || u.email,
-          profile_photo: u.profile_photo || ''
-        }))
-        .sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+      if (!user) return [];
+      return await base44.entities.MensagemDireta.list('-created_date', 500);
     },
-    enabled: showNovaConversa && !!user,
-    staleTime: 60000
+    enabled: !!user,
+    refetchInterval: 5000
   });
 
-  const { data: todasMensagens = [] } = useQuery({
-    queryKey: ['mensagens-usuario', user?.email],
-    queryFn: async () => {
-      const enviadas = await base44.entities.MensagemDireta.filter({ remetente_email: user.email });
-      const recebidas = await base44.entities.MensagemDireta.filter({ destinatario_email: user.email });
-      return [...(enviadas || []), ...(recebidas || [])].sort((a, b) => 
-        new Date(b.created_date) - new Date(a.created_date)
-      );
-    },
-    enabled: !!user?.email,
-    refetchInterval: 3000
-  });
-
+  // Agrupar mensagens por conversa
   const conversas = React.useMemo(() => {
-    if (!user || !todasMensagens.length) return [];
-    
-    const map = new Map();
-    todasMensagens.forEach(msg => {
-      const outroEmail = msg.remetente_email === user.email ? msg.destinatario_email : msg.remetente_email;
-      const outroNome = msg.remetente_email === user.email ? (msg.destinatario_nome || outroEmail) : (msg.remetente_nome || outroEmail);
+    const conversasMap = new Map();
+
+    mensagens.forEach(msg => {
+      const conversaId = msg.conversa_id;
       
-      if (!map.has(outroEmail)) {
-        map.set(outroEmail, {
-          email: outroEmail,
-          nome: outroNome,
-          ultimaMensagem: msg.conteudo,
-          data: msg.created_date,
-          naoLida: msg.destinatario_email === user.email && !msg.lida
+      if (!conversasMap.has(conversaId)) {
+        // Determinar o outro participante
+        const isRemetente = msg.remetente_email === user?.email;
+        const outroParticipante = {
+          email: isRemetente ? msg.destinatario_email : msg.remetente_email,
+          nome: isRemetente ? msg.destinatario_nome : msg.remetente_nome,
+          foto: isRemetente ? msg.destinatario_foto : msg.remetente_foto
+        };
+
+        conversasMap.set(conversaId, {
+          conversa_id: conversaId,
+          outroParticipante,
+          mensagens: [],
+          ultimaMensagem: msg,
+          naoLidas: 0
         });
       }
+
+      const conversa = conversasMap.get(conversaId);
+      conversa.mensagens.push(msg);
+      
+      // Contar não lidas (apenas mensagens recebidas)
+      if (msg.destinatario_email === user?.email && !msg.lida) {
+        conversa.naoLidas++;
+      }
     });
-    
-    return Array.from(map.values());
-  }, [todasMensagens, user]);
 
-  const mensagensConversa = React.useMemo(() => {
-    if (!conversaAtiva || !user) return [];
-    const conversaId = getConversaId(user.email, conversaAtiva.email);
-    return todasMensagens
-      .filter(m => m.conversa_id === conversaId)
-      .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
-  }, [todasMensagens, conversaAtiva, user]);
+    return Array.from(conversasMap.values())
+      .sort((a, b) => new Date(b.ultimaMensagem.created_date) - new Date(a.ultimaMensagem.created_date));
+  }, [mensagens, user]);
 
-  const enviarMutation = useMutation({
-    mutationFn: (data) => base44.entities.MensagemDireta.create(data),
+  // Filtrar conversas por busca
+  const conversasFiltradas = conversas.filter(c => 
+    c.outroParticipante.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.outroParticipante.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Mutation para enviar mensagem
+  const sendMessageMutation = useMutation({
+    mutationFn: async (messageData) => {
+      return await base44.functions.invoke('sendMessage', messageData);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mensagens-usuario'] });
-      setNovaMensagem('');
+      queryClient.invalidateQueries(['mensagens']);
+      setMessageText('');
     }
   });
 
-  const handleEnviar = () => {
-    if (!novaMensagem.trim() || !conversaAtiva) return;
-    enviarMutation.mutate({
-      conversa_id: getConversaId(user.email, conversaAtiva.email),
-      remetente_email: user.email,
-      remetente_nome: user.full_name || 'Usuário',
-      destinatario_email: conversaAtiva.email,
-      destinatario_nome: conversaAtiva.nome,
-      conteudo: novaMensagem
+  // Mutation para marcar como lida
+  const markAsReadMutation = useMutation({
+    mutationFn: async (mensagemId) => {
+      await base44.entities.MensagemDireta.update(mensagemId, { lida: true });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['mensagens']);
+    }
+  });
+
+  // Marcar mensagens como lidas ao selecionar conversa
+  useEffect(() => {
+    if (selectedConversa && user) {
+      const conversaData = conversas.find(c => c.conversa_id === selectedConversa);
+      if (conversaData) {
+        conversaData.mensagens
+          .filter(msg => msg.destinatario_email === user.email && !msg.lida)
+          .forEach(msg => markAsReadMutation.mutate(msg.id));
+      }
+    }
+  }, [selectedConversa, user]);
+
+  // Auto scroll para última mensagem
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [selectedConversa, mensagens]);
+
+  const handleSendMessage = () => {
+    if (!messageText.trim() || !selectedConversa) return;
+
+    const conversa = conversas.find(c => c.conversa_id === selectedConversa);
+    if (!conversa) return;
+
+    sendMessageMutation.mutate({
+      destinatario_email: conversa.outroParticipante.email,
+      conteudo: messageText,
+      message_type: 'user_to_admin'
     });
   };
 
-  const iniciarConversa = (usuario) => {
-    setConversaAtiva({
-      email: usuario.email,
-      nome: usuario.full_name || usuario.email,
-      foto: usuario.profile_photo || ''
-    });
-    setShowNovaConversa(false);
-    setBuscaUsuario('');
+  const formatTime = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   };
-
-  const usuariosFiltrados = usuarios.filter(u => 
-    u.email !== user?.email && 
-    (u.full_name?.toLowerCase().includes(buscaUsuario.toLowerCase()) ||
-     u.email?.toLowerCase().includes(buscaUsuario.toLowerCase()))
-  );
-
-
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0A66C2]" />
-      </div>
-    );
-  }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full rounded-2xl">
-          <CardContent className="p-8 text-center">
-            <MessageCircle className="w-16 h-16 mx-auto mb-4 text-slate-300" />
-            <h2 className="text-xl font-bold text-slate-800 mb-2">Login Necessário</h2>
-            <p className="text-slate-600 mb-6">Faça login para acessar suas mensagens</p>
-            <Button 
-              onClick={() => window.location.href = createPageUrl('Splash')}
-              className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
-            >
-              Fazer Login
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-4 px-4">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {conversaAtiva && (
-              <Button variant="ghost" size="icon" onClick={() => setConversaAtiva(null)} className="text-white hover:bg-white/20">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            )}
-            <div>
-              <h1 className="text-2xl font-bold text-white">
-                {conversaAtiva ? conversaAtiva.nome : 'Mensagens'}
-              </h1>
-              <p className="text-white/70 text-sm">
-                {conversaAtiva ? 'Conversa' : 'Suas conversas'}
-              </p>
-            </div>
-          </div>
-          {!conversaAtiva && (
-            <Dialog open={showNovaConversa} onOpenChange={setShowNovaConversa}>
-              <DialogTrigger asChild>
-                <Button className="bg-white/20 hover:bg-white/30 text-white rounded-full" size="icon">
-                  <Plus className="w-5 h-5" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Nova Mensagem
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      value={buscaUsuario}
-                      onChange={(e) => setBuscaUsuario(e.target.value)}
-                      placeholder="Buscar usuário..."
-                      className="pl-10 rounded-xl"
-                    />
-                  </div>
-                  <ScrollArea className="h-[300px]">
-                    <div className="space-y-2">
-                      {loadingUsuarios ? (
-                        <div className="flex justify-center py-8">
-                          <Loader2 className="w-6 h-6 animate-spin text-[#0A66C2]" />
-                        </div>
-                      ) : (
-                        usuariosFiltrados.slice(0, 50).map((u) => (
-                          <div
-                            key={u.id}
-                            onClick={() => iniciarConversa(u)}
-                            className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
-                          >
-                            <Avatar className="w-10 h-10">
-                              <AvatarImage src={u.profile_photo} />
-                              <AvatarFallback className="bg-blue-100 text-blue-700">
-                                {u.full_name?.[0] || u.email?.[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-slate-800 truncate">{u.full_name || 'Usuário'}</p>
-                              <p className="text-sm text-slate-500 truncate">{u.email}</p>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </ScrollArea>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
-        </div>
-      </div>
+  const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
+  const conversaSelecionada = conversas.find(c => c.conversa_id === selectedConversa);
 
-      <div className="max-w-2xl mx-auto px-4 py-4">
-        {!conversaAtiva ? (
-          <div className="space-y-2">
-            {conversas.length === 0 ? (
-              <div className="text-center py-12 text-slate-500">
-                <MessageCircle className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                <p className="font-medium">Nenhuma conversa ainda</p>
-                <p className="text-sm mb-4">Clique no + para iniciar uma nova conversa</p>
-                <Button onClick={() => setShowNovaConversa(true)} className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Nova Mensagem
-                </Button>
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-4">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+            Mensagens {isAdmin && '(Suporte)'}
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400">
+            {isAdmin ? 'Central de atendimento e suporte' : 'Fale com os administradores'}
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-200px)]">
+          {/* Lista de Conversas */}
+          <Card className="lg:col-span-1 flex flex-col dark:bg-slate-800 dark:border-slate-700">
+            <CardContent className="p-4 flex flex-col h-full">
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    placeholder="Buscar conversas..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 dark:bg-slate-700 dark:border-slate-600"
+                  />
+                </div>
               </div>
-            ) : (
-              conversas.map((conv) => (
-                <Card
-                  key={conv.email}
-                  className={`rounded-xl cursor-pointer hover:shadow-md transition-shadow ${conv.naoLida ? 'border-blue-300 bg-blue-50' : ''}`}
-                  onClick={() => setConversaAtiva(conv)}
-                >
-                  <CardContent className="p-4 flex items-center gap-3">
-                    <Avatar className="w-12 h-12">
-                      <AvatarFallback className="bg-blue-100 text-blue-700">
-                        {conv.nome?.[0] || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className={`font-semibold truncate ${conv.naoLida ? 'text-blue-700' : 'text-slate-800'}`}>{conv.nome}</p>
-                        <TimeAgo date={conv.data} className="text-xs text-slate-400" />
-                      </div>
-                      <p className={`text-sm truncate ${conv.naoLida ? 'text-blue-600 font-medium' : 'text-slate-500'}`}>{conv.ultimaMensagem}</p>
-                    </div>
-                    {conv.naoLida && (
-                      <div className="w-3 h-3 bg-blue-500 rounded-full" />
-                    )}
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-        ) : (
-          <Card className="rounded-xl h-[calc(100vh-220px)] flex flex-col">
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-3">
-                {mensagensConversa.length === 0 ? (
-                  <p className="text-center text-slate-400 py-8">Nenhuma mensagem ainda. Envie a primeira!</p>
+
+              <ScrollArea className="flex-1">
+                {conversasFiltradas.length === 0 ? (
+                  <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p className="text-sm">Nenhuma conversa</p>
+                  </div>
                 ) : (
-                  mensagensConversa.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex ${msg.remetente_email === user.email ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-[80%] p-3 rounded-2xl ${
-                          msg.remetente_email === user.email
-                            ? 'bg-[#0A66C2] text-white rounded-br-md'
-                            : 'bg-slate-100 text-slate-800 rounded-bl-md'
+                  <div className="space-y-2">
+                    {conversasFiltradas.map((conversa) => (
+                      <button
+                        key={conversa.conversa_id}
+                        onClick={() => setSelectedConversa(conversa.conversa_id)}
+                        className={`w-full p-3 rounded-xl text-left transition-all ${
+                          selectedConversa === conversa.conversa_id
+                            ? 'bg-blue-50 dark:bg-slate-700 border-2 border-blue-500'
+                            : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700'
                         }`}
                       >
-                        <p className="text-sm whitespace-pre-wrap">{msg.conteudo}</p>
-                        <p className={`text-xs mt-1 ${msg.remetente_email === user.email ? 'text-blue-100' : 'text-slate-400'}`}>
-                          {new Date(msg.created_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      </div>
-                    </div>
-                  ))
+                        <div className="flex items-start gap-3">
+                          <div className="relative flex-shrink-0">
+                            <Avatar className="w-12 h-12 bg-slate-200 dark:bg-slate-600">
+                              {conversa.outroParticipante.foto ? (
+                                <img src={conversa.outroParticipante.foto} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-300 font-semibold">
+                                  {conversa.outroParticipante.nome?.[0]?.toUpperCase()}
+                                </div>
+                              )}
+                            </Avatar>
+                            {conversa.naoLidas > 0 && (
+                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                                {conversa.naoLidas}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-slate-900 dark:text-white truncate">
+                              {conversa.outroParticipante.nome}
+                            </p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
+                              {conversa.ultimaMensagem.conteudo}
+                            </p>
+                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                              {formatTime(conversa.ultimaMensagem.created_date)}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 )}
-              </div>
-            </ScrollArea>
-            
-            <div className="p-4 border-t flex gap-2">
-              <Input
-                value={novaMensagem}
-                onChange={(e) => setNovaMensagem(e.target.value)}
-                placeholder="Digite sua mensagem..."
-                className="rounded-full"
-                onKeyPress={(e) => e.key === 'Enter' && handleEnviar()}
-              />
-              <Button
-                onClick={handleEnviar}
-                disabled={!novaMensagem.trim() || enviarMutation.isPending}
-                className="bg-[#0A66C2] hover:bg-[#004182] rounded-full"
-              >
-                {enviarMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              </Button>
-            </div>
+              </ScrollArea>
+            </CardContent>
           </Card>
-        )}
+
+          {/* Área de Chat */}
+          <Card className="lg:col-span-2 flex flex-col dark:bg-slate-800 dark:border-slate-700">
+            {selectedConversa && conversaSelecionada ? (
+              <>
+                {/* Header da Conversa */}
+                <div className="p-4 border-b dark:border-slate-700 bg-white dark:bg-slate-800">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="w-10 h-10 bg-slate-200 dark:bg-slate-600">
+                      {conversaSelecionada.outroParticipante.foto ? (
+                        <img src={conversaSelecionada.outroParticipante.foto} alt="" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-300 font-semibold">
+                          {conversaSelecionada.outroParticipante.nome?.[0]?.toUpperCase()}
+                        </div>
+                      )}
+                    </Avatar>
+                    <div>
+                      <h3 className="font-semibold text-slate-900 dark:text-white">
+                        {conversaSelecionada.outroParticipante.nome}
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {conversaSelecionada.outroParticipante.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mensagens */}
+                <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+                  <div className="space-y-4">
+                    {conversaSelecionada.mensagens
+                      .sort((a, b) => new Date(a.created_date) - new Date(b.created_date))
+                      .map((msg) => {
+                        const isMe = msg.remetente_email === user.email;
+                        return (
+                          <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+                              isMe 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white'
+                            }`}>
+                              <p className="text-sm">{msg.conteudo}</p>
+                              <p className={`text-xs mt-1 ${isMe ? 'text-blue-100' : 'text-slate-400'}`}>
+                                {formatTime(msg.created_date)}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </ScrollArea>
+
+                {/* Input de Mensagem */}
+                <div className="p-4 border-t dark:border-slate-700 bg-white dark:bg-slate-800">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Digite sua mensagem..."
+                      value={messageText}
+                      onChange={(e) => setMessageText(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      className="flex-1 dark:bg-slate-700 dark:border-slate-600"
+                    />
+                    <Button 
+                      onClick={handleSendMessage}
+                      disabled={!messageText.trim() || sendMessageMutation.isPending}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Send className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-slate-400 dark:text-slate-500">
+                <div className="text-center">
+                  <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p>Selecione uma conversa para começar</p>
+                </div>
+              </div>
+            )}
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -18,6 +18,7 @@ export default function NotificationBell({ user, className }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  // Buscar notificações e mensagens não lidas
   const { data: notifications = [] } = useQuery({
     queryKey: ['user-notifications', user?.email],
     queryFn: async () => {
@@ -31,6 +32,23 @@ export default function NotificationBell({ user, className }) {
         return personal;
       } catch (e) {
         return [];
+      }
+    },
+    enabled: !!user?.email,
+    refetchInterval: 30000,
+  });
+
+  const { data: unreadMessages = 0 } = useQuery({
+    queryKey: ['unread-messages', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return 0;
+      try {
+        const messages = await base44.entities.MensagemDireta.filter(
+          { destinatario_email: user.email, lida: false }
+        ) || [];
+        return messages.length;
+      } catch (e) {
+        return 0;
       }
     },
     enabled: !!user?.email,
@@ -54,7 +72,8 @@ export default function NotificationBell({ user, className }) {
       });
   }, [notifications]);
 
-  const unreadCount = uniqueNotifications.filter(n => !n.is_read).length;
+  const notificationUnreadCount = uniqueNotifications.filter(n => !n.is_read).length;
+  const unreadCount = notificationUnreadCount + unreadMessages;
 
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId) => {
