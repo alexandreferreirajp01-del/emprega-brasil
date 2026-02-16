@@ -290,7 +290,65 @@ export default function SubscriptionActionsMenu({ subscription, onEdit, onView, 
             </div>
           </div>
         </DialogContent>
-      </Dialog>
-    </>
-  );
-}
+        </Dialog>
+
+        <Dialog open={renewModalOpen} onOpenChange={setRenewModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Renovar Assinatura - {subscription.user_name}</DialogTitle>
+            <DialogClose />
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium block mb-1">Valor Pago (R$)</label>
+              <Input
+                type="number"
+                placeholder="0.00"
+                value={renewData.amount}
+                onChange={(e) => setRenewData({ ...renewData, amount: parseFloat(e.target.value) })}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium block mb-1">Dias a Adicionar</label>
+              <Input
+                type="number"
+                placeholder="30"
+                value={renewData.days}
+                onChange={(e) => setRenewData({ ...renewData, days: parseInt(e.target.value) })}
+                className="w-full"
+              />
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Dias atuais: <span className="font-bold">{subscription.days_remaining || 0}</span><br/>
+                Novos dias: <span className="font-bold">{(subscription.days_remaining || 0) + renewData.days}</span>
+              </p>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setRenewModalOpen(false)}
+                disabled={saving}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                onClick={handleRenew}
+                disabled={saving}
+              >
+                {saving ? 'Renovando...' : 'Renovar'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+        </Dialog>
+        </>
+        );
+        }
