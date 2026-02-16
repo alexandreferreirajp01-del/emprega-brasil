@@ -86,14 +86,12 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
               to={createPageUrl('JobDetail') + `?id=${job.id}`}
               className="flex-shrink-0 w-[90%] sm:w-[70%] md:w-[48%] lg:w-[32%] group"
             >
-              <div className="h-full bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md transition-all border border-slate-100 dark:border-slate-700">
+              <div className="relative h-full bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md transition-all border border-slate-100 dark:border-slate-700">
                 {/* Badge */}
-                <div className="absolute top-2 right-2 z-10">
-                  <Badge className="bg-orange-500 text-white border-0 text-xs h-5">
-                    <Crown className="w-3 h-3 mr-1" />
-                    Destaque
-                  </Badge>
-                </div>
+                <Badge className="absolute top-2 right-2 bg-orange-500 text-white border-0 text-xs h-5 z-10">
+                  <Crown className="w-3 h-3 mr-1" />
+                  Destaque
+                </Badge>
 
                 {/* Content */}
                 <div className="p-3">
