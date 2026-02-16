@@ -4,13 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { 
   ArrowLeft, Loader2, TrendingUp, Users, Clock, AlertCircle,
-  Plus, Edit2, Eye, Download, Filter, Search, MoreVertical,
+  Plus, Edit2, Eye, Download, Filter, Search,
   DollarSign, CheckCircle, XCircle, AlertTriangle
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { useQuery } from '@tanstack/react-query';
+import SubscriptionActionsMenu from "@/components/financeiro/SubscriptionActionsMenu";
 
 export default function ControleFinanceiro() {
   const [user, setUser] = useState(null);
