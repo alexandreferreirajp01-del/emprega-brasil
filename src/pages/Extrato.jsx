@@ -360,11 +360,11 @@ export default function Extrato() {
             </div>
 
             <div className="flex gap-2 pt-4">
-              <Button variant="outline" className="flex-1" onClick={() => setAddModalOpen(false)}>
+              <Button variant="outline" className="flex-1" onClick={handleCloseModal}>
                 Cancelar
               </Button>
-              <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={handleAdd} disabled={addMutation.isPending}>
-                {addMutation.isPending ? 'Adicionando...' : 'Adicionar'}
+              <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={handleSave} disabled={saveMutation.isPending}>
+                {saveMutation.isPending ? (editingId ? 'Atualizando...' : 'Adicionando...') : (editingId ? 'Atualizar' : 'Adicionar')}
               </Button>
             </div>
           </div>
