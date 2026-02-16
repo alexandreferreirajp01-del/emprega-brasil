@@ -147,37 +147,37 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
 
                   {/* Title & Company */}
                   <div className="mb-4">
-                    <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white mb-1 line-clamp-2 group-hover:text-[#0A66C2] dark:group-hover:text-blue-400 transition-colors break-words">
+                    <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white mb-1 line-clamp-2 group-hover:text-[#0A66C2] dark:group-hover:text-blue-400 transition-colors leading-tight">
                       {job.title}
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 font-medium truncate">
+                    <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 font-medium truncate">
                       {job.company}
                     </p>
                   </div>
 
                   {/* Details Grid */}
                   <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm min-w-0">
-                      <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-3.5 h-3.5 text-[#0A66C2]" />
+                    <div className="flex items-center gap-2 text-xs md:text-sm min-w-0">
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#0A66C2]" />
                       </div>
                       <span className="text-slate-700 dark:text-slate-300 truncate flex-1 min-w-0">
                         {job.city}, {job.state}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm min-w-0">
-                      <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
-                        <Briefcase className="w-3.5 h-3.5 text-[#0A66C2]" />
+                    <div className="flex items-center gap-2 text-xs md:text-sm min-w-0">
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                        <Briefcase className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#0A66C2]" />
                       </div>
                       <span className="text-slate-700 dark:text-slate-300 truncate flex-1 min-w-0">
                         {job.job_type || 'Não especificado'}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm min-w-0">
-                      <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
-                        <DollarSign className="w-3.5 h-3.5 text-[#0A66C2]" />
+                    <div className="flex items-center gap-2 text-xs md:text-sm min-w-0">
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                        <DollarSign className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#0A66C2]" />
                       </div>
                       <span className="text-slate-700 dark:text-slate-300 font-semibold truncate flex-1 min-w-0">
                         {formatSalary(job.salary_range)}
