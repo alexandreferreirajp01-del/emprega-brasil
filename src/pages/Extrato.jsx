@@ -3,7 +3,9 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, FileText, Download, X } from 'lucide-react';
+import { Plus, Trash2, FileText, Download, X, BarChart3, CreditCard, ArrowLeft } from 'lucide-react';
+import { createPageUrl } from '@/utils';
+import { Link } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
