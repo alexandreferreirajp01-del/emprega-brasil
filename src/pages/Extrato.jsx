@@ -170,23 +170,45 @@ export default function Extrato() {
     a.click();
   };
 
+  const handleRefresh = async () => {
+    queryClient.invalidateQueries({ queryKey: ['manualEntries', 'financialHistory'] });
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Barra de Navegação */}
-        <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow mb-6 flex items-center gap-2">
-          <Link to={createPageUrl('ControleFinanceiro')}>
-            <Button variant="outline" size="sm" className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Controle de Assinaturas
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 pt-6 pb-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          <Link to={createPageUrl('Configuracoes')}>
+            <Button variant="ghost" className="text-white hover:bg-white/20 mb-2 -ml-2">
+              <ArrowLeft className="w-5 h-5 mr-2" />Voltar
             </Button>
+          </Link>
+          <h1 className="text-3xl font-bold text-white">Extrato Financeiro</h1>
+          <p className="text-white/80">Consolidação de todos os movimentos financeiros</p>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        {/* Barra de Navegação */}
+        <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-4 mb-6 rounded-t-lg flex items-center gap-2 flex-wrap sticky top-16 z-40">
+          <Link to={createPageUrl('LancamentosFinanceiros')}>
+            <Button variant="outline" size="sm">Lançamentos</Button>
+          </Link>
+          <Link to={createPageUrl('ControleFinanceiro')}>
+            <Button variant="outline" size="sm">Controle</Button>
           </Link>
           <Link to={createPageUrl('DashboardFinanceiro')}>
-            <Button variant="outline" size="sm" className="gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Dashboard
-            </Button>
+            <Button variant="outline" size="sm">Dashboard</Button>
           </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            className="ml-auto"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </Button>
         </div>
 
         <div className="flex justify-between items-center mb-8">
