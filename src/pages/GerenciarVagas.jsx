@@ -35,7 +35,10 @@ export default function GerenciarVagas() {
     locationStatus: 'all',
     missingContact: 'all',
     missingDescription: 'all',
-    missingCity: 'all'
+    missingCity: 'all',
+    sort: 'newest',
+    dateStart: '',
+    dateEnd: ''
   });
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
