@@ -211,18 +211,12 @@ export default function Extrato() {
           </Button>
         </div>
 
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Extrato Financeiro</h1>
-          <div className="flex gap-2">
-            <Button onClick={handleExportPDF} className="bg-blue-600 hover:bg-blue-700">
-              <Download className="w-4 h-4 mr-2" />
-              Baixar Extrato
-            </Button>
-            <Button onClick={() => setAddModalOpen(true)} className="bg-green-600 hover:bg-green-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Lançamento
-            </Button>
-          </div>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Registros de Movimentação</h2>
+          <Button onClick={handleExportPDF} className="bg-blue-600 hover:bg-blue-700">
+            <Download className="w-4 h-4 mr-2" />
+            Exportar PDF
+          </Button>
         </div>
 
         {/* Resumo */}
