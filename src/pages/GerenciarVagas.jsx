@@ -142,6 +142,18 @@ export default function GerenciarVagas() {
         filtered = filtered.filter(j => new Date(j.created_date) >= cutoff);
       }
     }
+    
+    // Filtro: Data início e fim
+    if (filters.dateStart) {
+      const startDate = new Date(filters.dateStart);
+      filtered = filtered.filter(j => new Date(j.created_date) >= startDate);
+    }
+    if (filters.dateEnd) {
+      const endDate = new Date(filters.dateEnd);
+      endDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(j => new Date(j.created_date) <= endDate);
+    }
+    
     if (filters.locationStatus === 'no_city') {
       filtered = filtered.filter(j => !j.city || j.city.trim() === '');
     } else if (filters.locationStatus === 'no_state') {
@@ -171,6 +183,13 @@ export default function GerenciarVagas() {
     // Filtro: Sem cidade
     if (filters.missingCity === 'missing') {
       filtered = filtered.filter(j => !j.city || j.city.trim() === '');
+    }
+
+    // Ordenação
+    if (filters.sort === 'newest') {
+      filtered.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    } else if (filters.sort === 'oldest') {
+      filtered.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
     }
 
     return filtered;
