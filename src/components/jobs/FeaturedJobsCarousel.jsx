@@ -125,7 +125,7 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
                 </div>
 
                 {/* Header com gradiente */}
-                <div className="h-24 bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#0A66C2] relative">
+                <div className="h-16 bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#0A66C2] relative">
                   <div className="absolute inset-0 bg-black/10"></div>
                   {/* Decoração */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
@@ -135,7 +135,7 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
                 {/* Content */}
                 <div className="p-5">
                   {/* Company Info */}
-                  <div className="flex items-start justify-between mb-3 -mt-8">
+                  <div className="flex items-start justify-between mb-3 -mt-6">
                     <div className="w-14 h-14 rounded-xl bg-white dark:bg-slate-700 shadow-lg flex items-center justify-center border-2 border-white dark:border-slate-600">
                       <Briefcase className="w-7 h-7 text-[#0A66C2]" />
                     </div>
