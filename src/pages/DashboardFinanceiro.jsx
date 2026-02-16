@@ -151,6 +151,13 @@ export default function DashboardFinanceiro() {
           </Button>
         </div>
 
+        {/* Aviso: Somente leitura */}
+        <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-4 mb-6">
+          <p className="text-sm text-indigo-800 dark:text-indigo-300">
+            📊 <strong>Dashboard é somente leitura.</strong> Os dados são carregados automaticamente do Extrato Financeiro.
+          </p>
+        </div>
+
         {/* Filtros */}
         <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow mb-8">
           <h2 className="text-lg font-semibold mb-4">Filtros</h2>
