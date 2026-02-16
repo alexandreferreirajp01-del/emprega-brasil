@@ -31,7 +31,9 @@ const menuItems = [
   { id: 'planos', name: 'Assinaturas', icon: Crown, color: 'purple', page: 'GerenciarPlanos', description: 'Controle de assinaturas e cobranças', roles: ['admin', 'dono'] },
   { id: 'precos', name: 'Gerenciar Preços', icon: CreditCard, color: 'emerald', page: 'GerenciarPrecos', description: 'Ajustar valores dos planos', roles: ['admin', 'dono'] },
   { id: 'controle-financeiro', name: 'Controle Financeiro', icon: CreditCard, color: 'green', page: 'ControleFinanceiro', description: 'Gerenciar assinaturas, ciclos e receitas', roles: ['admin', 'dono'] },
-  
+  { id: 'extrato', name: 'Extrato Financeiro', icon: FileText, color: 'emerald', page: 'Extrato', description: 'Lançamentos e relatório de extrato', roles: ['admin', 'dono'] },
+  { id: 'dashboard-financeiro', name: 'Dashboard Financeiro', icon: BarChart3, color: 'cyan', page: 'DashboardFinanceiro', description: 'Análise de receitas e despesas com gráficos', roles: ['admin', 'dono'] },
+
   // Gestão de Vagas
   { id: 'divider-vagas', type: 'divider', label: 'Gestão de Vagas' },
   { id: 'gerenciar-vagas', name: 'Gerenciador de Vagas', icon: Briefcase, color: 'indigo', page: 'GerenciarVagas', description: 'Central única de controle e manutenção', roles: ['admin', 'dono'] },
