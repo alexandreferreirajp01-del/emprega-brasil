@@ -132,6 +132,21 @@ export default function Usuarios() {
                       <Calendar className="w-3 h-3" />
                       <span>Cadastro: {new Date(user.created_date).toLocaleDateString('pt-BR')}</span>
                     </div>
+                    {user.phone && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const phone = user.phone.replace(/\D/g, '');
+                          window.open(`https://wa.me/55${phone}`, '_blank');
+                        }}
+                        className="h-7 px-2 text-green-600 hover:text-green-700 hover:bg-green-50"
+                      >
+                        <Phone className="w-3 h-3 mr-1" />
+                        WhatsApp
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>
