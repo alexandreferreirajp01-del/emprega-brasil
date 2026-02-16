@@ -10,7 +10,7 @@ import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingButtons from "@/components/common/FloatingButtons";
-      import SupportButton from "@/components/support/SupportButton";
+import SupportButton from "@/components/support/SupportButton";
 import NativePermissionModal from "@/components/common/NativePermissionModal";
 import PushManager from "@/components/push/PushManager";
 import PopupManager from "@/components/common/PopupManager";
@@ -472,8 +472,11 @@ export default function Layout({ children, currentPageName }) {
 
   {/* Footer */}
   <footer className="bg-slate-800 dark:bg-slate-950 text-white py-12 hidden md:block" translate="no">
-    <div className="max-w-7xl mx-auto px-4">
-      <div className="text-center mb-10">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-center mb-6">
+          <SupportButton user={user} discrete={true} />
+        </div>
+        <div className="text-center mb-10">
         <img 
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
           alt="Alexandre Ferreira"
@@ -587,7 +590,6 @@ export default function Layout({ children, currentPageName }) {
   </div>
 
   <FloatingButtons />
-          <SupportButton user={user} />
   <CookieConsent />
   <PopupManager />
   <WelcomePopup />
