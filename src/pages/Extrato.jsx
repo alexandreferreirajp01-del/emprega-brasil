@@ -74,12 +74,18 @@ export default function Extrato() {
     return { total, monthRevenue, monthExpense, monthBalance };
   }, [allEntries]);
 
-  // Adicionar lançamento manual
-  const addMutation = useMutation({
-    mutationFn: () => base44.entities.ManualEntry.create(newEntry),
+  // Adicionar/Editar lançamento manual
+  const saveMutation = useMutation({
+    mutationFn: () => {
+      if (editingId) {
+        return base44.entities.ManualEntry.update(editingId, newEntry);
+      }
+      return base44.entities.ManualEntry.create(newEntry);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['manualEntries'] });
       setAddModalOpen(false);
+      setEditingId(null);
       setNewEntry({ entry_date: new Date().toISOString().split('T')[0], description: '', amount: 0, type: 'receita', category: 'receita_extra' });
     },
   });
