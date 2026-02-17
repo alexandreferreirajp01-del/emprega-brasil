@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     });
 
     // Enviar e-mail com código e link
-    const resetLink = `${new URL(req.url).origin}${createPageUrl ? createPageUrl('ResetPassword') : '/reset-password'}?email=${encodeURIComponent(email.toLowerCase())}`;
+    const resetLink = `${new URL(req.url).origin}/?page=ResetPassword&email=${encodeURIComponent(email.toLowerCase())}`;
     
     await base44.integrations.Core.SendEmail({
       to: email.toLowerCase(),
