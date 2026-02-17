@@ -108,6 +108,9 @@ IMPORTANTE:
           company: vaga.empresa || 'Empresa não informada',
           city: vaga.cidade || 'Não informado',
           state: vaga.estado || '',
+          neighborhood: vaga.neighborhood || '',
+          cep: vaga.cep || '',
+          numero: vaga.numero || '',
           salary_range: vaga.salario || '',
           job_type: vaga.tipo_contrato || 'CLT',
           contract_types: vaga.tipos_contratacao || ['CLT'],
@@ -237,7 +240,10 @@ IMPORTANTE:
                 contact_email: { type: 'string' },
                 contact_phone: { type: 'string' },
                 contact_whatsapp: { type: 'string' },
-                home_office: { type: 'boolean' }
+                home_office: { type: 'boolean' },
+                neighborhood: { type: 'string' },
+                cep: { type: 'string' },
+                numero: { type: 'string' }
               }
             }
           }

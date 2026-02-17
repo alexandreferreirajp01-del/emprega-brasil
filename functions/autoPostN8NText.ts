@@ -68,7 +68,9 @@ ${texto}`,
                 salary_range: { type: "string" },
                 contact_phone: { type: "string" },
                 contact_email: { type: "string" },
+                contact_whatsapp: { type: "string" },
                 application_link: { type: "string" },
+                contact_instagram: { type: "string" },
                 description: { type: "string" },
                 job_type: { type: "string" },
                 work_mode: { type: "string" },
@@ -97,7 +99,13 @@ ${texto}`,
     for (const job of jobs) {
       try {
         // Validar se tem contato
-        const hasContact = !!(job.application_link || job.contact_phone || job.contact_email);
+        const hasContact = !!(
+          job.application_link || 
+          job.contact_phone || 
+          job.contact_email || 
+          job.contact_whatsapp ||
+          job.contact_instagram
+        );
         
         const vagaCriada = await base44.asServiceRole.entities.Job.create({
           title: job.title || 'Vaga',
@@ -107,7 +115,9 @@ ${texto}`,
           salary_range: job.salary_range || '',
           contact_phone: job.contact_phone || '',
           contact_email: job.contact_email || '',
+          contact_whatsapp: job.contact_whatsapp || '',
           application_link: job.application_link || '',
+          additional_info: job.contact_instagram ? `Instagram: ${job.contact_instagram}` : '',
           description: job.description || texto.slice(0, 500),
           job_type: job.job_type || 'CLT',
           work_mode: job.work_mode || 'Presencial',
@@ -152,14 +162,20 @@ ${texto}`,
               const foundContact = reprocessResult.contact_phone || 
                                  reprocessResult.contact_email || 
                                  reprocessResult.contact_whatsapp ||
-                                 reprocessResult.application_link;
+                                 reprocessResult.application_link ||
+                                 reprocessResult.contact_instagram;
 
               if (foundContact) {
+                const additionalInfo = reprocessResult.contact_instagram ? 
+                  `Instagram: ${reprocessResult.contact_instagram}` : 
+                  vagaCriada.additional_info;
+                
                 await base44.asServiceRole.entities.Job.update(vagaCriada.id, {
                   contact_phone: reprocessResult.contact_phone || vagaCriada.contact_phone,
                   contact_email: reprocessResult.contact_email || vagaCriada.contact_email,
                   contact_whatsapp: reprocessResult.contact_whatsapp || vagaCriada.contact_whatsapp,
                   application_link: reprocessResult.application_link || vagaCriada.application_link,
+                  additional_info: additionalInfo,
                   status: 'ativa',
                   contact_status: 'ok',
                   needs_review: false,
