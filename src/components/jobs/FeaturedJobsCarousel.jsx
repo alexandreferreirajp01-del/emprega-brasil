@@ -98,22 +98,29 @@ export default function FeaturedJobsCarousel({ jobs, viewCounts = {} }) {
                     {job.company}
                   </p>
 
+                  {/* Description */}
+                  {job.description && (
+                   <p className="text-xs text-slate-600 dark:text-slate-400 mb-2 line-clamp-2">
+                     {job.description.replace(/<[^>]*>/g, '').substring(0, 120)}...
+                   </p>
+                  )}
+
                   {/* Details */}
                   <div className="space-y-1 mb-2 text-xs flex-1">
-                    <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-                      <MapPin className="w-3 h-3 flex-shrink-0" />
-                      <span className="truncate">{job.city}, {job.state}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-                      <Briefcase className="w-3 h-3 flex-shrink-0" />
-                      <span className="truncate">{job.job_type}</span>
-                    </div>
-                    {job.salary_range && (
-                      <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300 font-medium">
-                        <DollarSign className="w-3 h-3 flex-shrink-0" />
-                        <span className="truncate">{formatSalary(job.salary_range)}</span>
-                      </div>
-                    )}
+                   <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                     <MapPin className="w-3 h-3 flex-shrink-0" />
+                     <span className="truncate">{job.city}, {job.state}</span>
+                   </div>
+                   <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                     <Briefcase className="w-3 h-3 flex-shrink-0" />
+                     <span className="truncate">{job.job_type}</span>
+                   </div>
+                   {job.salary_range && (
+                     <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300 font-medium">
+                       <DollarSign className="w-3 h-3 flex-shrink-0" />
+                       <span className="truncate">{formatSalary(job.salary_range)}</span>
+                     </div>
+                   )}
                   </div>
 
                   {/* Footer */}

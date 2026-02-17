@@ -7,9 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function LatestJobsToday({ jobs }) {
-  // Obter hoje
+  // Obter hoje no timezone de Brasília
   const now = new Date();
-  const todayDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+  
+  // Converter para horário de Brasília (UTC-3)
+  const nowBrasilia = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  const todayBrasilia = nowBrasilia.toISOString().split('T')[0]; // YYYY-MM-DD format
 
   // Filtrar vagas postadas hoje - sem restrição de status
   const todayJobs = jobs
@@ -17,10 +20,13 @@ export default function LatestJobsToday({ jobs }) {
       try {
         // Usar qualquer data disponível
         const dateToCheck = new Date(job.published_at || job.created_date);
-        const jobDate = dateToCheck.toISOString().split('T')[0]; // YYYY-MM-DD format
+        
+        // Converter a data da vaga para horário de Brasília
+        const jobDateBrasilia = new Date(dateToCheck.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+        const jobDate = jobDateBrasilia.toISOString().split('T')[0]; // YYYY-MM-DD format
         
         // Comparar as datas em formato ISO (evita problemas de timezone)
-        return jobDate === todayDate;
+        return jobDate === todayBrasilia;
       } catch (e) {
         return false;
       }
