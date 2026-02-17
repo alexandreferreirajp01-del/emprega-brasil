@@ -29,9 +29,8 @@ export default function ForgotPassword() {
     setError('');
 
     try {
-      const response = await base44.functions.invoke('resetPassword', {
-        action: 'request_reset',
-        email
+      const response = await base44.functions.invoke('forgotPassword', {
+        email: email.toLowerCase()
       });
 
       if (response.data.success) {
@@ -41,7 +40,8 @@ export default function ForgotPassword() {
         setLoading(false);
       }
     } catch (err) {
-      setError('Erro ao enviar email. Tente novamente.');
+      console.error('Erro ao recuperar senha:', err);
+      setError(err?.response?.data?.error || 'Erro ao enviar email. Tente novamente.');
       setLoading(false);
     }
   };
@@ -60,19 +60,19 @@ export default function ForgotPassword() {
             </h1>
 
             <p className="text-slate-600 mb-6">
-              Se o email <strong>{email}</strong> estiver cadastrado, você receberá um link para redefinir sua senha.
+              Enviamos um código de 6 dígitos para <strong>{email}</strong>. Use esse código para redefinir sua senha.
             </p>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
-              <p className="text-slate-700 text-sm font-medium mb-2">📧 Verifique seu email:</p>
+              <p className="text-slate-700 text-sm font-medium mb-2">📧 Próximos passos:</p>
               <ol className="list-decimal list-inside space-y-1 text-slate-600 text-sm">
                 <li>Abra seu email</li>
-                <li>Procure pelo email do Emprega Brasil+</li>
-                <li>Clique no botão "Redefinir minha senha"</li>
-                <li>Crie uma nova senha</li>
+                <li>Procure pelo email de Vagas Abertas Paraíba</li>
+                <li>Copie o código de 6 dígitos</li>
+                <li>Clique no link para criar uma nova senha</li>
               </ol>
               <p className="text-slate-500 text-xs mt-3">
-                ⚠️ O link expira em 1 hora
+                ⚠️ O código expira em 1 hora
               </p>
             </div>
 
