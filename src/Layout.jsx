@@ -225,6 +225,16 @@ export default function Layout({ children, currentPageName }) {
   }
 
   const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
+  
+  const vagasSubmenuItems = [
+    { name: 'Gerenciador de Vagas', page: 'GerenciarVagas', icon: Briefcase, description: 'Central única de controle e manutenção' },
+    { name: 'Gerenciador de Filtros', page: 'GerenciadorFiltros', icon: Settings, description: 'Gerenciar categorias, funções, tipos de vaga e filtros' },
+    { name: 'Postar Vagas', page: 'PostarVaga', icon: Home, description: 'Criar novas vagas de emprego' },
+    { name: 'Posts em Massa', page: 'PostsEmMassa', icon: Users, description: 'Upload múltiplas imagens e extraia vagas com IA' },
+    { name: 'Posts em Massa TXT', page: 'PostsEmMassaTXT', icon: Newspaper, description: 'Upload arquivos TXT/DOC/PDF e extraia até 50 vagas' },
+    { name: 'Vagas por IA', page: 'VagasPorIA', icon: Bot, description: 'Gerar vagas com inteligência artificial' },
+    { name: 'Vagas Home Office', page: 'VagasHomeOffice', icon: Home, description: 'Publicar vagas remotas' },
+  ];
 
   const handleLogout = () => {
     localStorage.clear();
