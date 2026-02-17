@@ -36,9 +36,10 @@ export default function NotificationBell({ user, className }) {
       }
     },
     enabled: !!user?.email,
-    refetchInterval: 10000,
+    refetchInterval: 5000,
     refetchOnWindowFocus: true,
     staleTime: 0,
+    cacheTime: 0,
   });
 
   const { data: unreadMessages = 0 } = useQuery({
@@ -83,6 +84,7 @@ export default function NotificationBell({ user, className }) {
       await base44.entities.Notification.update(notificationId, { is_read: true });
     },
     onSuccess: async () => {
+      queryClient.removeQueries({ queryKey: ['user-notifications'] });
       await refetchNotifications();
     }
   });
@@ -91,23 +93,37 @@ export default function NotificationBell({ user, className }) {
     const unread = uniqueNotifications.filter(n => !n.is_read);
     if (unread.length === 0) return;
     
-    await Promise.all(unread.map(n => 
-      base44.entities.Notification.update(n.id, { is_read: true }).catch(() => {})
-    ));
-    
-    // Forçar recarga imediata
-    await refetchNotifications();
+    try {
+      await Promise.all(unread.map(n => 
+        base44.entities.Notification.update(n.id, { is_read: true })
+      ));
+      
+      // Limpar cache e forçar recarga
+      queryClient.removeQueries({ queryKey: ['user-notifications'] });
+      await refetchNotifications();
+    } catch (e) {
+      console.error('Erro ao marcar como lido:', e);
+    }
   };
 
   const deleteAllNotifications = async () => {
-    if (uniqueNotifications.length === 0) return;
+    if (notifications.length === 0) return;
     
-    await Promise.all(uniqueNotifications.map(n => 
-      base44.entities.Notification.delete(n.id).catch(() => {})
-    ));
-    
-    // Forçar recarga imediata
-    await refetchNotifications();
+    try {
+      // Deletar TODAS as notificações do usuário, não apenas as únicas
+      await Promise.all(notifications.map(n => 
+        base44.entities.Notification.delete(n.id)
+      ));
+      
+      // Limpar cache e forçar recarga
+      queryClient.removeQueries({ queryKey: ['user-notifications'] });
+      await refetchNotifications();
+      
+      // Fechar o popover após limpar
+      setTimeout(() => setOpen(false), 500);
+    } catch (e) {
+      console.error('Erro ao deletar notificações:', e);
+    }
   };
 
   const deleteNotification = async (e, notificationId) => {
@@ -115,6 +131,7 @@ export default function NotificationBell({ user, className }) {
     e.stopPropagation();
     try {
       await base44.entities.Notification.delete(notificationId);
+      queryClient.removeQueries({ queryKey: ['user-notifications'] });
       await refetchNotifications();
     } catch (e) {}
   };
