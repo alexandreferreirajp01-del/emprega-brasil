@@ -74,7 +74,7 @@ export default function Splash() {
         password
       });
 
-      if (response.data.success) {
+      if (response.data?.success) {
         localStorage.setItem('vagas_abertas_last_login', Date.now().toString());
         const redirectTo = sessionStorage.getItem('redirect_after_login');
         sessionStorage.removeItem('needs_login');
@@ -98,7 +98,9 @@ export default function Splash() {
         setLoading(false);
       }
     } catch (err) {
-      setError('Erro ao fazer login. Tente novamente.');
+      console.error('Erro login:', err);
+      const errorMsg = err?.response?.data?.error || err?.data?.error || 'Erro ao fazer login. Tente novamente.';
+      setError(errorMsg);
       setLoading(false);
     }
   };

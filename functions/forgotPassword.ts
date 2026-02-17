@@ -47,8 +47,8 @@ Deno.serve(async (req) => {
     
     // Salvar token no usuário
     await base44.asServiceRole.entities.User.update(user.id, {
-      reset_password_token: resetToken,
-      reset_password_expires: expiresAt
+      resetPasswordToken: resetToken,
+      resetPasswordExpiry: expiresAt
     });
 
     console.log('[forgotPassword] Token salvo:', resetToken);
