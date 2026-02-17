@@ -48,24 +48,38 @@ function formatDate(dateStr) {
 // Extrair contatos do job
 function extractContacts(job) {
   if (!job) return { whatsapp: null, email: null, site: null };
-  
-  const text = `${job.description || ''} ${job.additional_info || ''} ${job.application_link || ''}`;
-  
-  // WhatsApp
-  const phoneRegex = /\(?\d{2}\)?[\s.-]?\d{4,5}[-.\s]?\d{4}/g;
-  const phones = text.match(phoneRegex) || [];
-  const whatsapp = phones.length > 0 ? phones[0].replace(/\D/g, '') : null;
-  
-  // Email
-  const emailRegex = /[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-  const emails = text.match(emailRegex) || [];
-  const email = emails.length > 0 ? emails[0] : null;
-  
-  // Site
-  const urlRegex = /https?:\/\/[^\s]+/g;
-  const urls = text.match(urlRegex) || [];
-  const site = urls.length > 0 ? urls[0] : (job.application_link || null);
-  
+
+  // Prioridade: campos dedicados do banco de dados
+  let whatsapp = job.contact_whatsapp || job.contact_phone || null;
+  let email = job.contact_email || null;
+  let site = job.application_link || null;
+
+  // Fallback: buscar nos textos via regex
+  const text = `${job.description || ''} ${job.additional_info || ''}`;
+
+  if (!whatsapp) {
+    const phoneRegex = /\(?\d{2}\)?[\s.-]?\d{4,5}[-.\s]?\d{4}/g;
+    const phones = text.match(phoneRegex) || [];
+    whatsapp = phones.length > 0 ? phones[0].replace(/\D/g, '') : null;
+  }
+
+  if (!email) {
+    const emailRegex = /[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+    const emails = text.match(emailRegex) || [];
+    email = emails.length > 0 ? emails[0] : null;
+  }
+
+  if (!site) {
+    const urlRegex = /https?:\/\/[^\s]+/g;
+    const urls = text.match(urlRegex) || [];
+    site = urls.length > 0 ? urls[0] : null;
+  }
+
+  // Limpar número de telefone para usar no WhatsApp
+  if (whatsapp && typeof whatsapp === 'string') {
+    whatsapp = whatsapp.replace(/\D/g, '');
+  }
+
   return { whatsapp, email, site };
 }
 
