@@ -37,11 +37,11 @@ export default function ForgotPassword() {
         setSuccess(true);
       } else {
         setError(response.data.error || 'Erro ao enviar email');
-        setLoading(false);
       }
     } catch (err) {
       console.error('Erro ao recuperar senha:', err);
       setError(err?.response?.data?.error || 'Erro ao enviar email. Tente novamente.');
+    } finally {
       setLoading(false);
     }
   };
@@ -55,29 +55,30 @@ export default function ForgotPassword() {
               <CheckCircle className="w-12 h-12 text-green-600" />
             </div>
 
-            <h1 className="text-3xl font-bold text-slate-900 mb-4">
-              Email enviado! ✉️
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+              Email Enviado! ✉️
             </h1>
 
-            <p className="text-slate-600 mb-6">
-              Enviamos um código de 6 dígitos para <strong>{email}</strong>. Use esse código para redefinir sua senha.
+            <p className="text-slate-600 dark:text-slate-300 mb-6">
+              Enviamos um link de recuperação para <strong>{email}</strong>
             </p>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
               <p className="text-slate-700 text-sm font-medium mb-2">📧 Próximos passos:</p>
               <ol className="list-decimal list-inside space-y-1 text-slate-600 text-sm">
                 <li>Abra seu email</li>
-                <li>Procure pelo email de Vagas Abertas Paraíba</li>
-                <li>Copie o código de 6 dígitos</li>
-                <li>Clique no link para criar uma nova senha</li>
+                <li>Procure por email de Vagas Abertas PB</li>
+                <li>Clique no botão "Redefinir Minha Senha"</li>
+                <li>Digite sua nova senha</li>
+                <li>Faça login com a nova senha</li>
               </ol>
               <p className="text-slate-500 text-xs mt-3">
-                ⚠️ O código expira em 1 hora
+                ⚠️ O link expira em 1 hora
               </p>
             </div>
 
             <Link to={createPageUrl('Splash')}>
-              <Button className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl font-semibold">
+              <Button className="w-full h-12 bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl font-semibold">
                 Voltar para Login
               </Button>
             </Link>
@@ -100,12 +101,12 @@ export default function ForgotPassword() {
 
       <div className="text-center mb-8">
         <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Key className="w-10 h-10 text-[#0A66C2]" />
+          <Key className="w-10 h-10 text-[#1D4371]" />
         </div>
-        <h1 className="text-3xl font-bold text-[#0A66C2] mb-2">
-          Esqueci minha senha
+        <h1 className="text-3xl font-bold text-[#1D4371] dark:text-blue-400 mb-2">
+          Esqueci Minha Senha
         </h1>
-        <p className="text-slate-600">
+        <p className="text-slate-600 dark:text-slate-300">
           Digite seu email para receber um link de recuperação
         </p>
       </div>
@@ -134,7 +135,7 @@ export default function ForgotPassword() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-[#0A66C2] hover:bg-[#004182] text-white rounded-xl font-semibold"
+              className="w-full h-12 bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl font-semibold"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -143,9 +144,9 @@ export default function ForgotPassword() {
               )}
             </Button>
 
-            <p className="text-center text-xs text-slate-500">
+            <p className="text-center text-xs text-slate-500 dark:text-slate-400">
               Lembrou sua senha?{' '}
-              <Link to={createPageUrl('Splash')} className="text-[#0A66C2] hover:underline font-medium">
+              <Link to={createPageUrl('Splash')} className="text-[#1D4371] hover:underline font-medium">
                 Fazer login
               </Link>
             </p>
