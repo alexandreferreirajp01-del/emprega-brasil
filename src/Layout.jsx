@@ -31,6 +31,7 @@ import PopunderAd from "@/components/ads/PopunderAd";
 import SocialBarAd from "@/components/ads/SocialBarAd";
 import BannerAd from "@/components/ads/BannerAd";
 import WelcomePopup from "@/components/common/WelcomePopup";
+import ChatButton from "@/components/chat/ChatButton";
 
 const vagasSubmenuItems = [
   { id: 'gerenciar-vagas', name: 'Gerenciador de Vagas', icon: Briefcase, color: 'indigo', page: 'GerenciarVagas', description: 'Central única de controle e manutenção', roles: ['admin', 'dono'] },
@@ -358,8 +359,9 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Right side actions */}
         <div className="flex items-center gap-1 absolute right-0 lg:relative lg:ml-auto">
-          {/* Desktop: Notification Bell + Settings + Users Button + Vagas Button + Theme */}
+          {/* Desktop: Notification Bell + Chat + Settings + Users Button + Vagas Button + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
+          <ChatButton user={user} className="hidden lg:block" />
           {showVagasButton && (
             <Button 
               variant="ghost" 
@@ -402,8 +404,9 @@ export default function Layout({ children, currentPageName }) {
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
 
-          {/* Mobile: Settings + Theme + Users Button + Vagas Button + Menu */}
+          {/* Mobile: Chat + Settings + Theme + Users Button + Vagas Button + Menu */}
           <div className="lg:hidden flex items-center gap-1">
+            <ChatButton user={user} />
             {showVagasButton && (
               <Button 
                 variant="ghost" 
