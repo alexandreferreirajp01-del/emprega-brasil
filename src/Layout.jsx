@@ -329,15 +329,28 @@ export default function Layout({ children, currentPageName }) {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-2 flex-wrap max-w-[50%] ml-4">
           {navItems.map((item) => (
-            <Link key={item.page} to={createPageUrl(item.page)}>
-              <Button 
-                variant={currentPageName === item.page ? "secondary" : "ghost"}
-                className={`rounded-xl text-sm px-4 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'text-[#1D2226] dark:text-slate-200'}`}
-              >
-                <item.icon className="w-4 h-4 mr-2 flex-shrink-0" />
-                <span>{item.name}</span>
-              </Button>
-            </Link>
+            <div key={item.page} className="relative flex items-center gap-0.5">
+              <Link to={createPageUrl(item.page)}>
+                <Button 
+                  variant={currentPageName === item.page ? "secondary" : "ghost"}
+                  className={`rounded-xl text-sm px-4 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'text-[#1D2226] dark:text-slate-200'}`}
+                >
+                  <item.icon className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>{item.name}</span>
+                </Button>
+              </Link>
+              {item.page === 'Jobs' && isAdmin && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowVagasSubmenu(true)}
+                  className="h-8 w-8 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  title="Gestão de Vagas"
+                >
+                  <Settings className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           ))}
               </nav>
 
