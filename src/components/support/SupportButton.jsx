@@ -166,7 +166,12 @@ export default function SupportButton({ user, inline = false, discrete = false }
             
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-3">
-                {messages.length === 0 ? (
+                {isLoading ? (
+                  <div className="text-center py-8 text-slate-500">
+                    <Loader2 className="w-12 h-12 mx-auto mb-2 opacity-50 animate-spin" />
+                    <p className="text-sm">Carregando mensagens...</p>
+                  </div>
+                ) : messages.length === 0 ? (
                   <div className="text-center py-8 text-slate-500">
                     <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">Nenhuma mensagem ainda</p>
@@ -256,7 +261,12 @@ export default function SupportButton({ user, inline = false, discrete = false }
             
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-3">
-                {messages.length === 0 ? (
+                {isLoading ? (
+                  <div className="text-center py-8 text-slate-500">
+                    <Loader2 className="w-12 h-12 mx-auto mb-2 opacity-50 animate-spin" />
+                    <p className="text-sm">Carregando mensagens...</p>
+                  </div>
+                ) : messages.length === 0 ? (
                   <div className="text-center py-8 text-slate-500">
                     <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">Nenhuma mensagem ainda</p>
