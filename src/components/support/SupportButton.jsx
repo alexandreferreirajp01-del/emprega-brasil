@@ -15,18 +15,14 @@ export default function SupportButton({ user, inline = false, discrete = false }
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
       try {
-        const users = await base44.entities.User.list();
-        const admin = users.find(u => u.role === 'admin' || u.subscription_type === 'admin');
-        
-        if (!admin) {
-          throw new Error('Admin não encontrado');
-        }
-
-        return await base44.functions.invoke('sendMessage', {
-          destinatario_email: admin.email,
+        // Buscar admin usando service role direto na função backend
+        const response = await base44.functions.invoke('sendMessage', {
+          destinatario_email: 'alexandreferreirajp01@gmail.com',
           conteudo: content,
           message_type: 'support'
         });
+        
+        return response.data;
       } catch (error) {
         console.error('Erro ao enviar mensagem:', error);
         throw error;
