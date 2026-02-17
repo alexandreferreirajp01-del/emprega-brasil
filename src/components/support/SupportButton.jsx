@@ -14,25 +14,31 @@ export default function SupportButton({ user, inline = false, discrete = false }
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
-      const users = await base44.entities.User.list();
-      const admin = users.find(u => u.role === 'admin' || u.subscription_type === 'admin');
-      
-      if (!admin) {
-        throw new Error('Admin não encontrado');
-      }
+      try {
+        const users = await base44.entities.User.list();
+        const admin = users.find(u => u.role === 'admin' || u.subscription_type === 'admin');
+        
+        if (!admin) {
+          throw new Error('Admin não encontrado');
+        }
 
-      return await base44.functions.invoke('sendMessage', {
-        destinatario_email: admin.email,
-        conteudo: content,
-        message_type: 'user_to_admin'
-      });
+        return await base44.functions.invoke('sendMessage', {
+          destinatario_email: admin.email,
+          conteudo: content,
+          message_type: 'support'
+        });
+      } catch (error) {
+        console.error('Erro ao enviar mensagem:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast.success('Mensagem enviada! Responderemos em breve.');
       setMessage('');
       setIsOpen(false);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Erro na mutation:', error);
       toast.error('Erro ao enviar mensagem. Tente novamente.');
     }
   });
@@ -45,7 +51,47 @@ export default function SupportButton({ user, inline = false, discrete = false }
     sendMessageMutation.mutate(message);
   };
 
-  if (!user) return null;
+  // Permitir acesso mesmo sem usuário autenticado
+  if (!user) {
+    // Versão para usuários não autenticados
+    return (
+      <>
+        {inline && (
+          <Card className="overflow-hidden">
+            <CardContent className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                  <MessageCircle className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-slate-800 dark:text-white">Precisa de Ajuda?</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-300">Fale diretamente com nossa equipe</p>
+                </div>
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 text-sm mb-4">
+                Faça login para enviar mensagens ao suporte.
+              </p>
+              <Button 
+                onClick={() => window.location.href = '/splash'}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+              >
+                Fazer Login
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+        {discrete && (
+          <button
+            onClick={() => window.location.href = '/splash'}
+            className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            title="Suporte - Faça login"
+          >
+            Suporte
+          </button>
+        )}
+      </>
+    );
+  }
 
   // Versão inline para Home
   if (inline) {
