@@ -185,7 +185,7 @@ export default function NotificationBell({ user, className }) {
         case 'payment':
           return createPageUrl('PaymentsPage');
         default:
-          return null;
+          return createPageUrl('Home');
       }
     }
 
@@ -199,21 +199,33 @@ export default function NotificationBell({ user, className }) {
       return createPageUrl('GerenciarUsuarios');
     }
 
-    // Sem referência = não clicável
-    return null;
+    // 6. Notificações de vagas sem job_id específico
+    if (notification.type === 'job') {
+      return createPageUrl('Jobs');
+    }
+
+    // 7. Notificações de notícias sem news_id específico
+    if (notification.type === 'news') {
+      return createPageUrl('News');
+    }
+
+    // 8. Notificações de promoção
+    if (notification.type === 'promo') {
+      return createPageUrl('Premium');
+    }
+
+    // Fallback final: sempre direcionar para Home
+    return createPageUrl('Home');
   };
 
   const handleNotificationClick = (notification) => {
     const url = getRedirectUrl(notification);
-    
-    // Só processa se houver URL válida
-    if (!url) return;
-    
+
     // Marcar como lida
     if (!notification.is_read) {
       markAsReadMutation.mutate(notification.id);
     }
-    
+
     // Fechar popover e navegar
     setOpen(false);
     setTimeout(() => {
@@ -338,9 +350,6 @@ export default function NotificationBell({ user, className }) {
             <div className="p-2 space-y-1">
               <AnimatePresence>
                 {uniqueNotifications.slice(0, 30).map((notification, index) => {
-                  const redirectUrl = getRedirectUrl(notification);
-                  const isClickable = !!redirectUrl;
-
                   return (
                     <motion.button
                       key={notification.id}
@@ -348,15 +357,11 @@ export default function NotificationBell({ user, className }) {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
                       transition={{ delay: index * 0.03 }}
-                      onClick={() => isClickable && handleNotificationClick(notification)}
-                      className={`w-full p-3 transition-all duration-200 group text-left rounded-xl border ${
+                      onClick={() => handleNotificationClick(notification)}
+                      className={`w-full p-3 transition-all duration-200 group text-left rounded-xl border hover:shadow-md hover:border-[#1E6FB6] dark:hover:border-blue-700 cursor-pointer hover:scale-[1.02] ${
                         !notification.is_read 
                           ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' 
                           : 'bg-white dark:bg-slate-800 border-transparent'
-                      } ${
-                        isClickable 
-                          ? 'hover:shadow-md hover:border-[#1E6FB6] dark:hover:border-blue-700 cursor-pointer hover:scale-[1.02]' 
-                          : ''
                       }`}
                     >
                       <div className="flex items-start gap-3">
