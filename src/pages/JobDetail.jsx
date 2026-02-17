@@ -321,7 +321,7 @@ export default function JobDetail() {
   }
 
   const contacts = extractContacts(job);
-  const hasContact = contacts.whatsapp || contacts.email || contacts.site;
+  const hasContact = contacts.whatsapps.length > 0 || contacts.emails.length > 0 || contacts.sites.length > 0 || contacts.phones.length > 0;
   const viewCount = views.length;
   
   // Verificar se é admin ou dono
