@@ -37,6 +37,7 @@ export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [navItems, setNavItems] = useState([]);
+  const [showVagasSubmenu, setShowVagasSubmenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
