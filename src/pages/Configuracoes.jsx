@@ -114,6 +114,7 @@ export default function Configuracoes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [migrating, setMigrating] = useState(false);
   const [migrationResult, setMigrationResult] = useState(null);
+  const [showVagasSubmenu, setShowVagasSubmenu] = useState(false);
   const [items, setItems] = useState(() => {
     // Sempre usar menuItems atualizados (prioriza código sobre cache)
     // Tenta mesclar nomes customizados do localStorage, mas mantém estrutura atual
