@@ -25,19 +25,12 @@ import PopunderAd from "@/components/ads/PopunderAd";
 import SocialBarAd from "@/components/ads/SocialBarAd";
 import BannerAd from "@/components/ads/BannerAd";
 import WelcomePopup from "@/components/common/WelcomePopup";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [navItems, setNavItems] = useState([]);
-  const [showVagasSubmenu, setShowVagasSubmenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -225,16 +218,6 @@ export default function Layout({ children, currentPageName }) {
   }
 
   const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
-  
-  const vagasSubmenuItems = [
-    { name: 'Gerenciador de Vagas', page: 'GerenciarVagas', icon: Briefcase, description: 'Central única de controle e manutenção' },
-    { name: 'Gerenciador de Filtros', page: 'GerenciadorFiltros', icon: Settings, description: 'Gerenciar categorias, funções, tipos de vaga e filtros' },
-    { name: 'Postar Vagas', page: 'PostarVaga', icon: Home, description: 'Criar novas vagas de emprego' },
-    { name: 'Posts em Massa', page: 'PostsEmMassa', icon: Users, description: 'Upload múltiplas imagens e extraia vagas com IA' },
-    { name: 'Posts em Massa TXT', page: 'PostsEmMassaTXT', icon: Newspaper, description: 'Upload arquivos TXT/DOC/PDF e extraia até 50 vagas' },
-    { name: 'Vagas por IA', page: 'VagasPorIA', icon: Bot, description: 'Gerar vagas com inteligência artificial' },
-    { name: 'Vagas Home Office', page: 'VagasHomeOffice', icon: Home, description: 'Publicar vagas remotas' },
-  ];
 
   const handleLogout = () => {
     localStorage.clear();
@@ -329,28 +312,15 @@ export default function Layout({ children, currentPageName }) {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-2 flex-wrap max-w-[50%] ml-4">
           {navItems.map((item) => (
-            <div key={item.page} className="relative flex items-center gap-0.5">
-              <Link to={createPageUrl(item.page)}>
-                <Button 
-                  variant={currentPageName === item.page ? "secondary" : "ghost"}
-                  className={`rounded-xl text-sm px-4 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'text-[#1D2226] dark:text-slate-200'}`}
-                >
-                  <item.icon className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span>{item.name}</span>
-                </Button>
-              </Link>
-              {item.page === 'Jobs' && isAdmin && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowVagasSubmenu(true)}
-                  className="h-8 w-8 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                  title="Gestão de Vagas"
-                >
-                  <Settings className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
+            <Link key={item.page} to={createPageUrl(item.page)}>
+              <Button 
+                variant={currentPageName === item.page ? "secondary" : "ghost"}
+                className={`rounded-xl text-sm px-4 py-2 h-auto whitespace-nowrap ${currentPageName === item.page ? 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-white' : 'text-[#1D2226] dark:text-slate-200'}`}
+              >
+                <item.icon className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span>{item.name}</span>
+              </Button>
+            </Link>
           ))}
               </nav>
 
@@ -625,45 +595,6 @@ export default function Layout({ children, currentPageName }) {
   <CookieConsent />
   <PopupManager />
   <WelcomePopup />
-
-  {/* Submenu Gestão de Vagas */}
-  <Dialog open={showVagasSubmenu} onOpenChange={setShowVagasSubmenu}>
-    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-      <DialogHeader>
-        <DialogTitle className="text-xl font-bold flex items-center gap-2">
-          <Briefcase className="w-6 h-6" />
-          Gestão de Vagas
-        </DialogTitle>
-      </DialogHeader>
-
-      <div className="space-y-2 mt-4">
-        {vagasSubmenuItems.map((item, index) => {
-          const Icon = item.icon;
-          const isLast = index === vagasSubmenuItems.length - 1;
-
-          return (
-            <button
-              key={item.page}
-              onClick={() => {
-                setShowVagasSubmenu(false);
-                window.location.href = createPageUrl(item.page);
-              }}
-              className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left rounded-xl ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900 dark:to-indigo-800 text-indigo-600 dark:text-indigo-300 flex items-center justify-center flex-shrink-0">
-                <Icon className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
-            </button>
-          );
-        })}
-      </div>
-    </DialogContent>
-  </Dialog>
   </div>
   );
   }
