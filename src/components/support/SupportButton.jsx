@@ -39,11 +39,13 @@ export default function SupportButton({ user, inline = false, discrete = false }
     }
   });
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!message.trim()) {
       toast.error('Por favor, escreva uma mensagem');
       return;
     }
+    
+    console.log('Enviando mensagem:', message);
     sendMessageMutation.mutate(message);
   };
 
