@@ -25,6 +25,12 @@ import PopunderAd from "@/components/ads/PopunderAd";
 import SocialBarAd from "@/components/ads/SocialBarAd";
 import BannerAd from "@/components/ads/BannerAd";
 import WelcomePopup from "@/components/common/WelcomePopup";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
