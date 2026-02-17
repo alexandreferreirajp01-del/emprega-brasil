@@ -514,43 +514,43 @@ export default function JobDetail() {
             <div className="pt-6 border-t space-y-3">
               <h2 className="text-lg font-semibold text-slate-800 mb-2">Como se candidatar</h2>
               
-              {/* WhatsApp */}
-              {(contacts.whatsapp) ? (
-                <a href={`https://wa.me/55${contacts.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(`Olá! Vi a vaga de ${job.title} e gostaria de me candidatar.`)}`} target="_blank" rel="noopener noreferrer" className="block">
+              {/* WhatsApp - um botão por número */}
+              {contacts.whatsapps.map((num, i) => (
+                <a key={`wa-${i}`} href={`https://wa.me/55${num.replace(/\D/g,'')}?text=${encodeURIComponent(`Olá! Vi a vaga de ${job.title} e gostaria de me candidatar.`)}`} target="_blank" rel="noopener noreferrer" className="block">
                   <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#20bd5a] rounded-xl h-14 text-base">
                     <MessageCircle className="w-5 h-5 mr-2" />
-                    WhatsApp: {contacts.whatsapp}
+                    WhatsApp: {num}
                   </Button>
                 </a>
-              ) : null}
+              ))}
 
-              {/* Telefone (contact_phone diferente de whatsapp) */}
-              {(job.contact_phone && job.contact_phone !== job.contact_whatsapp) ? (
-                <a href={`tel:${job.contact_phone}`} className="block">
+              {/* Telefone extra (diferente do whatsapp) */}
+              {contacts.phones.map((num, i) => (
+                <a key={`tel-${i}`} href={`tel:${num}`} className="block">
                   <Button size="lg" variant="outline" className="w-full rounded-xl h-12 text-base">
-                    📞 Telefone: {job.contact_phone}
+                    📞 Telefone: {num}
                   </Button>
                 </a>
-              ) : null}
+              ))}
 
-              {/* Email */}
-              {(contacts.email) ? (
-                <a href={`mailto:${contacts.email}?subject=${encodeURIComponent(`Candidatura - ${job.title}`)}`} className="block">
+              {/* Email - um botão por email */}
+              {contacts.emails.map((em, i) => (
+                <a key={`em-${i}`} href={`mailto:${em}?subject=${encodeURIComponent(`Candidatura - ${job.title}`)}`} className="block">
                   <Button size="lg" variant="outline" className="w-full rounded-xl h-12 text-base">
-                    ✉️ E-mail: {contacts.email}
+                    ✉️ E-mail: {em}
                   </Button>
                 </a>
-              ) : null}
+              ))}
 
               {/* Link/Site */}
-              {(contacts.site) ? (
-                <a href={contacts.site} target="_blank" rel="noopener noreferrer" className="block">
+              {contacts.sites.map((url, i) => (
+                <a key={`site-${i}`} href={url} target="_blank" rel="noopener noreferrer" className="block">
                   <Button size="lg" variant="outline" className="w-full rounded-xl h-12 text-base">
                     <ExternalLink className="w-5 h-5 mr-2" />
                     Acessar Link de Candidatura
                   </Button>
                 </a>
-              ) : null}
+              ))}
 
               {/* Nenhum contato */}
               {!hasContact && (
