@@ -180,60 +180,9 @@ export default function Splash() {
 
       <Card className="w-full max-w-md rounded-2xl shadow-2xl border-0">
         <CardContent className="p-6 space-y-5">
-          <form onSubmit={handleEmailLogin} className="space-y-4">
-            <Input
-              type="text"
-              placeholder="Email ou nome de usuário"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              className="h-12 rounded-xl"
-            />
-            
-            <div className="relative">
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-12 rounded-xl pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-red-600 text-sm">{error}</p>
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl font-semibold"
-            >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Entrar'}
-            </Button>
-
-            <div className="flex justify-center">
-              <Link to={createPageUrl('ForgotPassword')} className="text-sm text-slate-600 hover:text-slate-800 hover:underline">
-                Esqueci minha senha
-              </Link>
-            </div>
-          </form>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="px-3 bg-white text-slate-400 text-sm">ou</span>
-            </div>
+          <div className="text-center mb-4">
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Entrar com</h2>
+            <p className="text-sm text-slate-600">Escolha uma das opções abaixo</p>
           </div>
 
           <div className="space-y-3">
