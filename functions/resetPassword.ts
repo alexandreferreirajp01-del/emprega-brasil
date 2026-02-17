@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
       console.log('[resetPassword] Validando token:', token);
 
       const users = await base44.asServiceRole.entities.User.filter({ 
-        reset_password_token: token 
+        resetPasswordToken: token 
       });
 
       if (users.length === 0) {
@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
       const user = users[0];
 
       // Verificar se expirou
-      if (new Date(user.reset_password_expires) < new Date()) {
+      if (new Date(user.resetPasswordExpiry) < new Date()) {
         console.log('[resetPassword] Token expirado');
         return Response.json({ 
           success: false, 
@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
       console.log('[resetPassword] Resetando senha com token:', token);
 
       const users = await base44.asServiceRole.entities.User.filter({ 
-        reset_password_token: token 
+        resetPasswordToken: token 
       });
 
       if (users.length === 0) {
@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
       const user = users[0];
 
       // Verificar expiração
-      if (new Date(user.reset_password_expires) < new Date()) {
+      if (new Date(user.resetPasswordExpiry) < new Date()) {
         return Response.json({ 
           success: false, 
           error: 'Link expirado' 
@@ -96,8 +96,8 @@ Deno.serve(async (req) => {
       // Atualizar senha e limpar token
       await base44.asServiceRole.entities.User.update(user.id, {
         senhaHash,
-        reset_password_token: null,
-        reset_password_expires: null
+        resetPasswordToken: null,
+        resetPasswordExpiry: null
       });
 
       console.log('[resetPassword] Senha atualizada para:', user.email);
