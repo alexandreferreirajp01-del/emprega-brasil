@@ -230,7 +230,7 @@ export default function NotificationBell({ user, className }) {
           className={`relative rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-300 ${className || ''}`}
         >
           <motion.div 
-            className="relative"
+            className="relative w-6 h-6 flex items-center justify-center"
             animate={unreadCount > 0 ? { 
               rotate: [0, -15, 15, -15, 15, 0],
             } : {}}
@@ -253,7 +253,8 @@ export default function NotificationBell({ user, className }) {
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-gradient-to-br from-red-500 to-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none border-2 border-white dark:border-slate-800 shadow-lg"
+                  className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-gradient-to-br from-red-500 to-red-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-lg z-10"
+                  style={{ lineHeight: '1' }}
                 >
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </motion.span>
@@ -262,9 +263,9 @@ export default function NotificationBell({ user, className }) {
 
             {unreadCount > 0 && (
               <motion.div
-                className="absolute inset-0 rounded-full bg-[#1E6FB6] dark:bg-orange-500"
+                className="absolute inset-0 rounded-full bg-[#1E6FB6] dark:bg-orange-500 -z-10"
                 initial={{ scale: 1, opacity: 0.5 }}
-                animate={{ scale: 1.5, opacity: 0 }}
+                animate={{ scale: 1.8, opacity: 0 }}
                 transition={{
                   duration: 1.5,
                   repeat: Infinity,
