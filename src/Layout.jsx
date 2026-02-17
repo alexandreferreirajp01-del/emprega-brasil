@@ -361,7 +361,9 @@ export default function Layout({ children, currentPageName }) {
         <div className="flex items-center gap-1 absolute right-0 lg:relative lg:ml-auto">
           {/* Desktop: Notification Bell + Chat + Settings + Users Button + Vagas Button + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
-          <ChatButton user={user} className="hidden lg:block" />
+          <div className="hidden lg:block">
+            <ChatButton user={user} />
+          </div>
           {showVagasButton && (
             <Button 
               variant="ghost" 
@@ -406,7 +408,9 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Mobile: Chat + Settings + Theme + Users Button + Vagas Button + Menu */}
           <div className="lg:hidden flex items-center gap-1">
-            <ChatButton user={user} />
+            <div className="lg:hidden">
+              <ChatButton user={user} />
+            </div>
             {showVagasButton && (
               <Button 
                 variant="ghost" 
