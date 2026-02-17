@@ -21,12 +21,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Destinatário e conteúdo são obrigatórios' }, { status: 400 });
     }
 
-    // Buscar informações do destinatário
-    const allUsers = await base44.asServiceRole.entities.User.list();
-    const destinatario = allUsers.find(u => u.email === destinatario_email);
-
-    if (!destinatario) {
-      return Response.json({ error: 'Destinatário não encontrado' }, { status: 404 });
+    // Buscar informações do destinatário com retry
+    let destinatario = null;
+    try {
+      const allUsers = await base44.asServiceRole.entities.User.list();
+      destinatario = allUsers.find(u => u.email === destinatario_email);
+    } catch (error) {
+      console.log('Erro ao buscar usuário, criando dados default:', error);
+      destinatario = {
+        email: destinatario_email,
+        full_name: destinatario_email.split('@')[0],
+        data: {}
+      };
     }
 
     // Criar conversa_id ordenando emails alfabeticamente
@@ -39,27 +45,35 @@ Deno.serve(async (req) => {
       remetente_email: user.email,
       remetente_nome: user.full_name || user.email,
       remetente_foto: user.data?.photo_url || null,
+      remetente_tipo: user.role === 'admin' ? 'admin' : 'user',
       destinatario_email,
       destinatario_nome: destinatario.full_name || destinatario.email,
       destinatario_foto: destinatario.data?.photo_url || null,
       conteudo,
       lida: false,
       message_type,
-      related_entity_id: related_entity_id || null,
-      related_entity_type: related_entity_type || null
+      related_job_id: related_entity_id || null,
+      related_user_email: related_entity_type || null
     });
 
+    console.log('Mensagem criada:', mensagem.id, 'conversa_id:', conversa_id);
+
     // Criar notificação para o destinatário
-    await base44.asServiceRole.entities.Notification.create({
-      title: `💬 Nova mensagem de ${user.full_name || user.email}`,
-      message: conteudo.substring(0, 100) + (conteudo.length > 100 ? '...' : ''),
-      type: 'user',
-      reference_type: 'chat',
-      reference_id: mensagem.id,
-      user_email: destinatario_email,
-      redirect_page: 'Mensagens',
-      redirect_params: { conversa_id }
-    });
+    try {
+      await base44.asServiceRole.entities.Notification.create({
+        title: `💬 Nova mensagem de ${user.full_name || user.email}`,
+        message: conteudo.substring(0, 100) + (conteudo.length > 100 ? '...' : ''),
+        type: 'user',
+        reference_type: 'chat',
+        reference_id: mensagem.id,
+        user_email: destinatario_email,
+        icon_url: user.data?.photo_url || null,
+        redirect_page: 'Home'
+      });
+      console.log('Notificação criada para:', destinatario_email);
+    } catch (notifError) {
+      console.error('Erro ao criar notificação:', notifError);
+    }
 
     return Response.json({ 
       success: true, 

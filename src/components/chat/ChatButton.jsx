@@ -21,18 +21,23 @@ export default function ChatButton({ user }) {
   const conversaId = user ? [user.email, adminEmail].sort().join('_') : null;
 
   // Buscar mensagens da conversa
-  const { data: messages = [], refetch } = useQuery({
+  const { data: messages = [], refetch, isLoading } = useQuery({
     queryKey: ['chat-messages', conversaId],
     queryFn: async () => {
-      if (!conversaId) return [];
+      if (!conversaId) {
+        console.log('ChatButton: conversaId não definido');
+        return [];
+      }
+      console.log('ChatButton: Buscando mensagens para conversa_id:', conversaId);
       const msgs = await base44.entities.MensagemDireta.filter(
         { conversa_id: conversaId },
         'created_date'
       );
+      console.log('ChatButton: Mensagens encontradas:', msgs.length);
       return msgs;
     },
     enabled: !!conversaId,
-    refetchInterval: isOpen ? 2000 : 10000,
+    refetchInterval: isOpen ? 3000 : 15000,
   });
 
   // Contar mensagens não lidas
@@ -88,23 +93,25 @@ export default function ChatButton({ user }) {
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
+      console.log('ChatButton: Enviando mensagem...', { conversaId, adminEmail, content });
       const response = await base44.functions.invoke('sendMessage', {
         destinatario_email: adminEmail,
         conteudo: content,
         message_type: 'direct'
       });
+      console.log('ChatButton: Resposta:', response.data);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('ChatButton: Mensagem enviada com sucesso:', data);
       setMessage('');
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['chat-messages'] });
-        queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
-        refetch();
-      }, 500);
+      queryClient.invalidateQueries({ queryKey: ['chat-messages', conversaId] });
+      queryClient.invalidateQueries({ queryKey: ['support-chat', conversaId] });
+      queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+      setTimeout(() => refetch(), 500);
     },
     onError: (error) => {
-      console.error('Erro ao enviar:', error);
+      console.error('ChatButton: Erro ao enviar:', error);
       toast.error('Erro ao enviar mensagem');
     }
   });
@@ -181,7 +188,12 @@ export default function ChatButton({ user }) {
           
           <ScrollArea className="flex-1 p-4 bg-slate-50 dark:bg-slate-900">
             <div className="space-y-3">
-              {messages.length === 0 ? (
+              {isLoading ? (
+                <div className="text-center py-8 text-slate-500">
+                  <Loader2 className="w-12 h-12 mx-auto mb-2 opacity-50 animate-spin" />
+                  <p className="text-sm">Carregando mensagens...</p>
+                </div>
+              ) : messages.length === 0 ? (
                 <div className="text-center py-8 text-slate-500">
                   <Mail className="w-12 h-12 mx-auto mb-2 opacity-50" />
                   <p className="text-sm font-medium">Nenhuma mensagem ainda</p>

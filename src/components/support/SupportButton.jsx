@@ -21,18 +21,23 @@ export default function SupportButton({ user, inline = false, discrete = false }
   const conversaId = user ? [user.email, adminEmail].sort().join('_') : null;
 
   // Buscar mensagens da conversa
-  const { data: messages = [], refetch } = useQuery({
+  const { data: messages = [], refetch, isLoading } = useQuery({
     queryKey: ['support-chat', conversaId],
     queryFn: async () => {
-      if (!conversaId) return [];
+      if (!conversaId) {
+        console.log('SupportButton: conversaId não definido');
+        return [];
+      }
+      console.log('SupportButton: Buscando mensagens para conversa_id:', conversaId);
       const msgs = await base44.entities.MensagemDireta.filter(
         { conversa_id: conversaId },
         'created_date'
       );
+      console.log('SupportButton: Mensagens encontradas:', msgs.length);
       return msgs;
     },
     enabled: !!conversaId,
-    refetchInterval: isOpen ? 2000 : 10000,
+    refetchInterval: isOpen ? 3000 : 15000,
   });
 
   // Scroll para o final ao abrir ou receber mensagens
@@ -46,23 +51,24 @@ export default function SupportButton({ user, inline = false, discrete = false }
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
+      console.log('SupportButton: Enviando mensagem...', { conversaId, adminEmail, content });
       const response = await base44.functions.invoke('sendMessage', {
         destinatario_email: adminEmail,
         conteudo: content,
         message_type: 'support'
       });
+      console.log('SupportButton: Resposta:', response.data);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('SupportButton: Mensagem enviada com sucesso:', data);
       setMessage('');
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['support-chat'] });
-        queryClient.invalidateQueries({ queryKey: ['chat-messages'] });
-        refetch();
-      }, 500);
+      queryClient.invalidateQueries({ queryKey: ['support-chat', conversaId] });
+      queryClient.invalidateQueries({ queryKey: ['chat-messages', conversaId] });
+      setTimeout(() => refetch(), 500);
     },
     onError: (error) => {
-      console.error('Erro na mutation:', error);
+      console.error('SupportButton: Erro na mutation:', error);
       toast.error('Erro ao enviar mensagem. Tente novamente.');
     }
   });
