@@ -358,8 +358,19 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Right side actions */}
         <div className="flex items-center gap-1 absolute right-0 lg:relative lg:ml-auto">
-          {/* Desktop: Notification Bell + Vagas Button + Theme */}
+          {/* Desktop: Notification Bell + Users Button + Vagas Button + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
+          {showVagasButton && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => window.location.href = createPageUrl('GerenciarUsuarios')}
+              className="text-[#1D2226] dark:text-white hidden lg:block"
+              title="Gerenciar Usuários"
+            >
+              <Users className="w-5 h-5" />
+            </Button>
+          )}
           {showVagasButton && (
             <Button 
               variant="ghost" 
@@ -380,7 +391,7 @@ export default function Layout({ children, currentPageName }) {
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
 
-          {/* Mobile: Theme + Vagas Button + Menu */}
+          {/* Mobile: Theme + Users Button + Vagas Button + Menu */}
           <div className="lg:hidden flex items-center gap-1">
             <Button 
               variant="ghost" 
@@ -390,6 +401,17 @@ export default function Layout({ children, currentPageName }) {
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
+            {showVagasButton && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => window.location.href = createPageUrl('GerenciarUsuarios')}
+                className="text-[#1D2226] dark:text-white"
+                title="Gerenciar Usuários"
+              >
+                <Users className="w-5 h-5" />
+              </Button>
+            )}
             {showVagasButton && (
               <Button 
                 variant="ghost" 
