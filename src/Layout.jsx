@@ -625,6 +625,45 @@ export default function Layout({ children, currentPageName }) {
   <CookieConsent />
   <PopupManager />
   <WelcomePopup />
+
+  {/* Submenu Gestão de Vagas */}
+  <Dialog open={showVagasSubmenu} onOpenChange={setShowVagasSubmenu}>
+    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle className="text-xl font-bold flex items-center gap-2">
+          <Briefcase className="w-6 h-6" />
+          Gestão de Vagas
+        </DialogTitle>
+      </DialogHeader>
+
+      <div className="space-y-2 mt-4">
+        {vagasSubmenuItems.map((item, index) => {
+          const Icon = item.icon;
+          const isLast = index === vagasSubmenuItems.length - 1;
+
+          return (
+            <button
+              key={item.page}
+              onClick={() => {
+                setShowVagasSubmenu(false);
+                window.location.href = createPageUrl(item.page);
+              }}
+              className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left rounded-xl ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900 dark:to-indigo-800 text-indigo-600 dark:text-indigo-300 flex items-center justify-center flex-shrink-0">
+                <Icon className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+            </button>
+          );
+        })}
+      </div>
+    </DialogContent>
+  </Dialog>
   </div>
   );
   }
