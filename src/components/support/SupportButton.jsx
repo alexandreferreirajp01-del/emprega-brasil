@@ -1,37 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { MessageCircle, Loader2 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { MessageCircle, Loader2, Send } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export default function SupportButton({ user, inline = false, discrete = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const scrollRef = useRef(null);
+  const queryClient = useQueryClient();
+
+  const adminEmail = 'alexandreferreirajp01@gmail.com';
+  
+  // Criar conversa_id
+  const conversaId = user ? [user.email, adminEmail].sort().join('_') : null;
+
+  // Buscar mensagens da conversa
+  const { data: messages = [], refetch } = useQuery({
+    queryKey: ['support-chat', conversaId],
+    queryFn: async () => {
+      if (!conversaId) return [];
+      const msgs = await base44.entities.MensagemDireta.filter(
+        { conversa_id: conversaId },
+        '-created_date'
+      );
+      return msgs.reverse();
+    },
+    enabled: !!conversaId && isOpen,
+    refetchInterval: 5000,
+  });
+
+  // Scroll para o final ao abrir ou receber mensagens
+  useEffect(() => {
+    if (scrollRef.current && messages.length > 0) {
+      setTimeout(() => {
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [messages]);
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
-      try {
-        // Buscar admin usando service role direto na função backend
-        const response = await base44.functions.invoke('sendMessage', {
-          destinatario_email: 'alexandreferreirajp01@gmail.com',
-          conteudo: content,
-          message_type: 'support'
-        });
-        
-        return response.data;
-      } catch (error) {
-        console.error('Erro ao enviar mensagem:', error);
-        throw error;
-      }
+      const response = await base44.functions.invoke('sendMessage', {
+        destinatario_email: adminEmail,
+        conteudo: content,
+        message_type: 'support'
+      });
+      return response.data;
     },
     onSuccess: () => {
-      toast.success('Mensagem enviada! Responderemos em breve.');
       setMessage('');
-      setIsOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['support-chat'] });
+      refetch();
     },
     onError: (error) => {
       console.error('Erro na mutation:', error);
@@ -40,13 +65,15 @@ export default function SupportButton({ user, inline = false, discrete = false }
   });
 
   const handleSend = async () => {
-    if (!message.trim()) {
-      toast.error('Por favor, escreva uma mensagem');
-      return;
-    }
-    
-    console.log('Enviando mensagem:', message);
+    if (!message.trim()) return;
     sendMessageMutation.mutate(message);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   // Permitir acesso mesmo sem usuário autenticado
