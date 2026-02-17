@@ -7,11 +7,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Bell, Briefcase, Check, Newspaper, Gift, Sparkles, MessageCircle, Trash2, User, Users } from "lucide-react";
+import { Bell, Briefcase, Check, Newspaper, Gift, Sparkles, MessageCircle, Trash2, User, Users, BellRing } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function NotificationBell({ user, className }) {
   const [open, setOpen] = useState(false);
@@ -226,107 +227,203 @@ export default function NotificationBell({ user, className }) {
         <Button 
           variant="ghost" 
           size="icon" 
-          className={`relative rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 ${className || ''}`}
+          className={`relative rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-300 ${className || ''}`}
         >
-          <div className="relative">
-            <Bell className="w-5 h-5 text-[#1D2226] dark:text-orange-500" />
-            {unreadCount > 0 && (
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 min-w-5 h-5 px-1 bg-red-500 dark:bg-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none border-2 border-white dark:border-slate-800 z-50">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
+          <motion.div 
+            className="relative"
+            animate={unreadCount > 0 ? { 
+              rotate: [0, -15, 15, -15, 15, 0],
+            } : {}}
+            transition={{
+              duration: 0.6,
+              repeat: unreadCount > 0 ? Infinity : 0,
+              repeatDelay: 3,
+            }}
+          >
+            {unreadCount > 0 ? (
+              <BellRing className="w-5 h-5 text-[#1E6FB6] dark:text-orange-500" />
+            ) : (
+              <Bell className="w-5 h-5 text-[#1D2226] dark:text-slate-400" />
             )}
-          </div>
+            
+            <AnimatePresence>
+              {unreadCount > 0 && (
+                <motion.span 
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-gradient-to-br from-red-500 to-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none border-2 border-white dark:border-slate-800 shadow-lg"
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
+
+            {unreadCount > 0 && (
+              <motion.div
+                className="absolute inset-0 rounded-full bg-[#1E6FB6] dark:bg-orange-500"
+                initial={{ scale: 1, opacity: 0.5 }}
+                animate={{ scale: 1.5, opacity: 0 }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  repeatDelay: 0.5,
+                }}
+              />
+            )}
+          </motion.div>
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-80 sm:w-96 p-0 max-h-[80vh] flex flex-col dark:bg-slate-800 dark:border-slate-700 rounded-2xl overflow-hidden" 
+        className="w-80 sm:w-96 p-0 max-h-[80vh] flex flex-col dark:bg-slate-800 dark:border-slate-700 rounded-2xl overflow-hidden shadow-2xl" 
         align="end"
         sideOffset={8}
       >
-        <div className="p-3 border-b dark:border-slate-700 flex items-center justify-between bg-white dark:bg-slate-800 sticky top-0 z-10 rounded-t-2xl">
-          <h3 className="font-semibold text-slate-800 dark:text-white">Notificações</h3>
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 border-b dark:border-slate-700 flex items-center justify-between bg-gradient-to-r from-[#1E6FB6] to-[#1D4371] sticky top-0 z-10 rounded-t-2xl"
+        >
+          <div className="flex items-center gap-2">
+            <BellRing className="w-5 h-5 text-white" />
+            <h3 className="font-bold text-white">Notificações</h3>
+            {unreadCount > 0 && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold rounded-full"
+              >
+                {unreadCount}
+              </motion.span>
+            )}
+          </div>
           {unreadCount > 0 && (
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={markAllAsRead}
-              className="text-xs text-[#1E6FB6] hover:text-[#0B2F5B]"
+              className="text-xs text-white hover:bg-white/10 hover:text-white"
             >
               <Check className="w-3 h-3 mr-1" />
               Marcar todas
             </Button>
           )}
-        </div>
+        </motion.div>
 
         <ScrollArea className="flex-1 max-h-[400px] overflow-y-auto">
           {uniqueNotifications.length === 0 ? (
-            <div className="p-8 text-center text-slate-400 dark:text-slate-500">
-              <Bell className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="p-8 text-center text-slate-400 dark:text-slate-500"
+            >
+              <motion.div
+                animate={{ 
+                  rotate: [0, 10, -10, 0],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatDelay: 1
+                }}
+              >
+                <Bell className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              </motion.div>
               <p className="text-sm">Nenhuma notificação</p>
-            </div>
+            </motion.div>
           ) : (
-            <div className="divide-y dark:divide-slate-700 p-2 space-y-2">
-              {uniqueNotifications.slice(0, 30).map((notification) => {
-                const redirectUrl = getRedirectUrl(notification);
-                const isClickable = !!redirectUrl;
+            <div className="p-2 space-y-1">
+              <AnimatePresence>
+                {uniqueNotifications.slice(0, 30).map((notification, index) => {
+                  const redirectUrl = getRedirectUrl(notification);
+                  const isClickable = !!redirectUrl;
 
-                return (
-                  <button
-                    key={notification.id}
-                    onClick={() => isClickable && handleNotificationClick(notification)}
-                    className={`w-full p-3 transition-colors group text-left rounded-xl border border-transparent ${!notification.is_read ? 'bg-slate-200 dark:bg-slate-700/30' : ''} ${isClickable ? 'hover:bg-slate-50 hover:border-slate-200 dark:hover:bg-slate-700 dark:hover:border-slate-600 cursor-pointer' : ''}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getIconStyle(notification.type)}`}>
-                        {notification.icon_url ? (
-                          <img src={notification.icon_url} alt="" className="w-6 h-6 rounded-full object-cover" />
-                        ) : (
-                          getNotificationIcon(notification)
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm text-slate-800 dark:text-white line-clamp-1">
-                          {notification.title}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5">
-                          {notification.message}
-                        </p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                          {formatTimeAgo(notification.created_date)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {!notification.is_read && (
-                          <div className="w-2 h-2 bg-[#1E6FB6] rounded-full flex-shrink-0" />
-                        )}
-                        <button
-                          onClick={(e) => deleteNotification(e, notification.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded transition-opacity"
+                  return (
+                    <motion.button
+                      key={notification.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ delay: index * 0.03 }}
+                      onClick={() => isClickable && handleNotificationClick(notification)}
+                      className={`w-full p-3 transition-all duration-200 group text-left rounded-xl border ${
+                        !notification.is_read 
+                          ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' 
+                          : 'bg-white dark:bg-slate-800 border-transparent'
+                      } ${
+                        isClickable 
+                          ? 'hover:shadow-md hover:border-[#1E6FB6] dark:hover:border-blue-700 cursor-pointer hover:scale-[1.02]' 
+                          : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <motion.div 
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                          className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${getIconStyle(notification.type)}`}
                         >
-                          <Trash2 className="w-3 h-3 text-red-500" />
-                        </button>
+                          {notification.icon_url ? (
+                            <img src={notification.icon_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                          ) : (
+                            getNotificationIcon(notification)
+                          )}
+                        </motion.div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-slate-800 dark:text-white line-clamp-1">
+                            {notification.title}
+                          </p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mt-1">
+                            {notification.message}
+                          </p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 flex items-center gap-1">
+                            <span className="w-1 h-1 rounded-full bg-slate-400" />
+                            {formatTimeAgo(notification.created_date)}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {!notification.is_read && (
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="w-2.5 h-2.5 bg-gradient-to-br from-[#1E6FB6] to-[#1D4371] rounded-full flex-shrink-0 shadow-sm"
+                            />
+                          )}
+                          <motion.button
+                            whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={(e) => deleteNotification(e, notification.id)}
+                            className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                          </motion.button>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                );
-              })}
+                    </motion.button>
+                  );
+                })}
+              </AnimatePresence>
             </div>
           )}
         </ScrollArea>
 
         {uniqueNotifications.length > 0 && (
-          <div className="p-2 border-t dark:border-slate-700 bg-white dark:bg-slate-800 sticky bottom-0 rounded-b-2xl">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-3 border-t dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 sticky bottom-0 rounded-b-2xl"
+          >
             <Button 
               variant="ghost" 
-              className="w-full text-[#1E6FB6] dark:text-blue-400 text-sm"
+              className="w-full text-[#1E6FB6] dark:text-blue-400 text-sm font-semibold hover:bg-white dark:hover:bg-slate-700 transition-all"
               onClick={() => {
                 navigate(createPageUrl('Notifications'));
                 setOpen(false);
               }}
             >
-              Ver todas
+              Ver todas as notificações
             </Button>
-          </div>
+          </motion.div>
         )}
       </PopoverContent>
     </Popover>
