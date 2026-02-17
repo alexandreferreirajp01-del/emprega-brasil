@@ -546,50 +546,33 @@ export default function JobDetail() {
               </div>
             )}
 
-            {/* Contatos diretos */}
-            <div className="pt-6 border-t space-y-3">
-              <h2 className="text-lg font-semibold text-slate-800 mb-2">Como se candidatar</h2>
-              
-              {/* WhatsApp - um botão por número */}
-              {contacts.whatsapps.map((num, i) => (
-                <a key={`wa-${i}`} href={`https://wa.me/55${num.replace(/\D/g,'')}?text=${encodeURIComponent(`Olá! Vi a vaga de ${job.title} e gostaria de me candidatar.`)}`} target="_blank" rel="noopener noreferrer" className="block">
-                  <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#20bd5a] rounded-xl h-14 text-base">
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                    WhatsApp: {num}
-                  </Button>
-                </a>
-              ))}
+            {/* Candidatura */}
+            <div className="pt-6 border-t">
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Como se candidatar</h2>
 
-              {/* Telefone extra (diferente do whatsapp) */}
-              {contacts.phones.map((num, i) => (
-                <a key={`tel-${i}`} href={`tel:${num}`} className="block">
-                  <Button size="lg" variant="outline" className="w-full rounded-xl h-12 text-base">
-                    📞 Telefone: {num}
-                  </Button>
-                </a>
-              ))}
-
-              {/* Email - um botão por email */}
-              {contacts.emails.map((em, i) => (
-                <a key={`em-${i}`} href={`mailto:${em}?subject=${encodeURIComponent(`Candidatura - ${job.title}`)}`} className="block">
-                  <Button size="lg" variant="outline" className="w-full rounded-xl h-12 text-base">
-                    ✉️ E-mail: {em}
-                  </Button>
-                </a>
-              ))}
-
-              {/* Link/Site */}
-              {contacts.sites.map((url, i) => (
-                <a key={`site-${i}`} href={url} target="_blank" rel="noopener noreferrer" className="block">
-                  <Button size="lg" variant="outline" className="w-full rounded-xl h-12 text-base">
-                    <ExternalLink className="w-5 h-5 mr-2" />
-                    Acessar Link de Candidatura
-                  </Button>
-                </a>
-              ))}
-
-              {/* Nenhum contato */}
-              {!hasContact && (
+              {hasContact ? (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowContactDialog(true)}
+                  className="w-full relative overflow-hidden rounded-2xl h-16 text-base font-bold text-white shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #0A66C2 0%, #25D366 100%)' }}
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-3">
+                    <MessageCircle className="w-6 h-6" />
+                    Candidate-se Agora
+                    {(() => {
+                      const total = contacts.whatsapps.length + contacts.phones.length + contacts.emails.length + contacts.sites.length;
+                      return total > 1 ? (
+                        <span className="bg-white/25 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                          {total} opções
+                        </span>
+                      ) : null;
+                    })()}
+                  </span>
+                  <div className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity" />
+                </motion.button>
+              ) : (
                 <div className="p-4 bg-yellow-50 rounded-xl text-yellow-700 text-sm border border-yellow-200">
                   ⚠️ Nenhuma informação de contato disponível para esta vaga.
                 </div>
@@ -599,7 +582,7 @@ export default function JobDetail() {
               <Button 
                 variant="outline"
                 onClick={() => setShowReportModal(true)}
-                className="w-full md:w-auto rounded-xl h-12 px-6 text-orange-600 border-orange-300 hover:bg-orange-50"
+                className="w-full md:w-auto rounded-xl h-12 px-6 text-orange-600 border-orange-300 hover:bg-orange-50 mt-3"
               >
                 <AlertCircle className="w-5 h-5 mr-2" />
                 Reportar Vaga
