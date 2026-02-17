@@ -47,7 +47,9 @@ Deno.serve(async (req) => {
       reset_password_expires: expiresAt
     });
 
-    // Enviar e-mail com código
+    // Enviar e-mail com código e link
+    const resetLink = `${new URL(req.url).origin}${createPageUrl ? createPageUrl('ResetPassword') : '/reset-password'}?email=${encodeURIComponent(email.toLowerCase())}`;
+    
     await base44.integrations.Core.SendEmail({
       to: email.toLowerCase(),
       subject: 'Redefinir Senha - Vagas Abertas Paraíba',
@@ -73,6 +75,19 @@ Deno.serve(async (req) => {
                 ${resetCode}
               </h1>
             </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetLink}" style="background-color: #0056ff; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold; display: inline-block;">
+                Redefinir Minha Senha
+              </a>
+            </div>
+            
+            <p style="color: #888; font-size: 14px; line-height: 1.6; text-align: center;">
+              Ou copie e cole este link no seu navegador:<br>
+              <a href="${resetLink}" style="color: #0056ff; word-break: break-all;">${resetLink}</a>
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
             
             <p style="color: #888; font-size: 14px; line-height: 1.6;">
               Este código expira em <strong>1 hora</strong>.<br>
