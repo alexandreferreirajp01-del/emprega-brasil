@@ -600,12 +600,12 @@ export default function JobDetail() {
         onClose={() => setShowShareDialog(false)} 
       />
 
-      {/* Contact Dialog */}
-      <ContactDialog 
+      {/* Apply Modal */}
+      <ApplyModal
         job={job}
         contacts={contacts}
-        open={showContactDialog} 
-        onClose={() => setShowContactDialog(false)} 
+        open={showContactDialog}
+        onClose={() => setShowContactDialog(false)}
       />
 
       {/* Premium Modal */}
