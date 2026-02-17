@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Bell, Briefcase, Check, Newspaper, Gift, Sparkles, MessageCircle, Trash2, User, Users, BellRing } from "lucide-react";
+import { Bell, Briefcase, Check, Newspaper, Gift, Sparkles, MessageCircle, Trash2, User, Users, BellRing, X } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -42,23 +42,6 @@ export default function NotificationBell({ user, className }) {
     cacheTime: 0,
   });
 
-  const { data: unreadMessages = 0 } = useQuery({
-    queryKey: ['unread-messages', user?.email],
-    queryFn: async () => {
-      if (!user?.email) return 0;
-      try {
-        const messages = await base44.entities.MensagemDireta.filter(
-          { destinatario_email: user.email, lida: false }
-        ) || [];
-        return messages.length;
-      } catch (e) {
-        return 0;
-      }
-    },
-    enabled: !!user?.email,
-    refetchInterval: 30000,
-  });
-
   const uniqueNotifications = useMemo(() => {
     const seen = new Map();
     
@@ -76,8 +59,7 @@ export default function NotificationBell({ user, className }) {
       });
   }, [notifications]);
 
-  const notificationUnreadCount = uniqueNotifications.filter(n => !n.is_read).length;
-  const unreadCount = notificationUnreadCount + unreadMessages;
+  const unreadCount = uniqueNotifications.filter(n => !n.is_read).length;
 
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId) => {
