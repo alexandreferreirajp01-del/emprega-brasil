@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
         Home, Briefcase, User, Menu, X, 
-        LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings, Bot, ArrowLeft, ChevronRight, PlusCircle, Sparkles, FileText
+        LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings, Bot, ArrowLeft, ChevronRight, PlusCircle, Sparkles, FileText, Wrench
       } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -358,8 +358,19 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Right side actions */}
         <div className="flex items-center gap-1 absolute right-0 lg:relative lg:ml-auto">
-          {/* Desktop: Notification Bell + Users Button + Vagas Button + Theme */}
+          {/* Desktop: Notification Bell + Settings + Users Button + Vagas Button + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
+          {showVagasButton && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => window.location.href = createPageUrl('Configuracoes')}
+              className="text-[#1D2226] dark:text-white hidden lg:block"
+              title="Configurações Gerais"
+            >
+              <Wrench className="w-5 h-5" />
+            </Button>
+          )}
           {showVagasButton && (
             <Button 
               variant="ghost" 
@@ -391,8 +402,19 @@ export default function Layout({ children, currentPageName }) {
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
 
-          {/* Mobile: Theme + Users Button + Vagas Button + Menu */}
+          {/* Mobile: Settings + Theme + Users Button + Vagas Button + Menu */}
           <div className="lg:hidden flex items-center gap-1">
+            {showVagasButton && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => window.location.href = createPageUrl('Configuracoes')}
+                className="text-[#1D2226] dark:text-white"
+                title="Configurações Gerais"
+              >
+                <Wrench className="w-5 h-5" />
+              </Button>
+            )}
             <Button 
               variant="ghost" 
               size="icon" 
