@@ -130,16 +130,14 @@ export default function JobDetail() {
     const loadData = async () => {
       setIsLoading(true);
       
-      // Buscar todas as vagas e filtrar
-      const [allJobs, allViews, allFavorites] = await Promise.all([
-        safeFetch(() => base44.entities.Job.list('-created_date', 500), []),
-        safeFetch(() => base44.entities.JobView.list('-created_date', 2000), []),
-        user ? safeFetch(() => base44.entities.FavoriteJob.list('-created_date', 500), []) : Promise.resolve([])
+      // Buscar a vaga diretamente pelo ID + views + favoritos em paralelo
+      const [foundJob, allViews, allFavorites] = await Promise.all([
+        safeFetch(() => base44.entities.Job.filter({ id: jobId }, '-created_date', 1).then(r => r?.[0] || null), null),
+        safeFetch(() => base44.entities.JobView.filter({ job_id: jobId }, '-created_date', 2000), []),
+        user ? safeFetch(() => base44.entities.FavoriteJob.filter({ user_email: user.email }, '-created_date', 500), []) : Promise.resolve([])
       ]);
 
       if (mounted) {
-        // Encontrar a vaga específica
-        const foundJob = allJobs?.find(j => j.id === jobId) || null;
         setJob(foundJob);
         
         // Filtrar views desta vaga
