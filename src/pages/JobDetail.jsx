@@ -140,11 +140,8 @@ export default function JobDetail() {
       if (mounted) {
         setJob(foundJob);
         
-        // Filtrar views desta vaga
-        setViews(allViews?.filter(v => v.job_id === jobId) || []);
-        
-        // Filtrar favoritos do usuário
-        setFavorites(allFavorites?.filter(f => f.user_email === user?.email) || []);
+        setViews(allViews || []);
+        setFavorites(allFavorites || []);
         
         setIsLoading(false);
         
