@@ -80,17 +80,23 @@ export default function NotificationBell({ user, className }) {
     mutationFn: async (notificationId) => {
       await base44.entities.Notification.update(notificationId, { is_read: true });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['user-notifications', user?.email] });
+      await queryClient.refetchQueries({ queryKey: ['user-notifications', user?.email] });
     }
   });
 
   const markAllAsRead = async () => {
     const unread = uniqueNotifications.filter(n => !n.is_read);
+    if (unread.length === 0) return;
+    
     await Promise.all(unread.map(n => 
       base44.entities.Notification.update(n.id, { is_read: true }).catch(() => {})
     ));
-    queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
+    
+    // Forçar invalidação imediata e recarregar
+    await queryClient.invalidateQueries({ queryKey: ['user-notifications', user?.email] });
+    await queryClient.refetchQueries({ queryKey: ['user-notifications', user?.email] });
   };
 
   const deleteNotification = async (e, notificationId) => {
@@ -98,7 +104,8 @@ export default function NotificationBell({ user, className }) {
     e.stopPropagation();
     try {
       await base44.entities.Notification.delete(notificationId);
-      queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
+      await queryClient.invalidateQueries({ queryKey: ['user-notifications', user?.email] });
+      await queryClient.refetchQueries({ queryKey: ['user-notifications', user?.email] });
     } catch (e) {}
   };
 
