@@ -4,67 +4,59 @@ import * as bcrypt from 'npm:bcryptjs@2.4.3';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { action, code, email, newPassword } = await req.json();
+    const { action, token, newPassword } = await req.json();
 
-    // ===== VALIDAR CÓDIGO =====
-    if (action === 'validate_code') {
-      if (!code || !email) {
+    console.log('[resetPassword] Action:', action);
+
+    // ===== VALIDAR TOKEN =====
+    if (action === 'validate_token') {
+      if (!token) {
         return Response.json({ 
           success: false, 
-          error: 'Código e email são obrigatórios' 
+          error: 'Token inválido' 
         }, { status: 400 });
       }
 
+      console.log('[resetPassword] Validando token:', token);
+
       const users = await base44.asServiceRole.entities.User.filter({ 
-        email: email.toLowerCase() 
+        reset_password_token: token 
       });
 
       if (users.length === 0) {
+        console.log('[resetPassword] Token não encontrado');
         return Response.json({ 
           success: false, 
-          error: 'Email não encontrado' 
+          error: 'Link inválido ou já utilizado' 
         }, { status: 404 });
       }
 
       const user = users[0];
 
-      // Verificar se o código existe
-      if (!user.reset_password_code) {
-        return Response.json({ 
-          success: false, 
-          error: 'Nenhum código de recuperação encontrado. Solicite um novo.' 
-        }, { status: 400 });
-      }
-
-      // Verificar se código expirou
+      // Verificar se expirou
       if (new Date(user.reset_password_expires) < new Date()) {
+        console.log('[resetPassword] Token expirado');
         return Response.json({ 
           success: false, 
-          error: 'Código expirado. Solicite um novo.',
+          error: 'Link expirado',
           expired: true 
         }, { status: 400 });
       }
 
-      // Verificar se código confere
-      if (user.reset_password_code !== code) {
-        return Response.json({ 
-          success: false, 
-          error: 'Código inválido' 
-        }, { status: 400 });
-      }
+      console.log('[resetPassword] Token válido para:', user.email);
 
       return Response.json({ 
-        success: true, 
-        message: 'Código válido' 
+        success: true,
+        email: user.email
       });
     }
 
     // ===== RESETAR SENHA =====
     if (action === 'reset_password') {
-      if (!code || !email || !newPassword) {
+      if (!token || !newPassword) {
         return Response.json({ 
           success: false, 
-          error: 'Todos os campos são obrigatórios' 
+          error: 'Dados incompletos' 
         }, { status: 400 });
       }
 
@@ -75,43 +67,40 @@ Deno.serve(async (req) => {
         }, { status: 400 });
       }
 
+      console.log('[resetPassword] Resetando senha com token:', token);
+
       const users = await base44.asServiceRole.entities.User.filter({ 
-        email: email.toLowerCase() 
+        reset_password_token: token 
       });
 
       if (users.length === 0) {
         return Response.json({ 
           success: false, 
-          error: 'Email não encontrado' 
+          error: 'Link inválido' 
         }, { status: 404 });
       }
 
       const user = users[0];
 
-      // Verificar código novamente
-      if (!user.reset_password_code || user.reset_password_code !== code) {
-        return Response.json({ 
-          success: false, 
-          error: 'Código inválido' 
-        }, { status: 400 });
-      }
-
+      // Verificar expiração
       if (new Date(user.reset_password_expires) < new Date()) {
         return Response.json({ 
           success: false, 
-          error: 'Código expirado' 
+          error: 'Link expirado' 
         }, { status: 400 });
       }
 
       // Hash da nova senha
       const senhaHash = await bcrypt.hash(newPassword, 10);
 
-      // Atualizar senha e limpar código
+      // Atualizar senha e limpar token
       await base44.asServiceRole.entities.User.update(user.id, {
         senhaHash,
-        reset_password_code: null,
+        reset_password_token: null,
         reset_password_expires: null
       });
+
+      console.log('[resetPassword] Senha atualizada para:', user.email);
 
       return Response.json({ 
         success: true, 
@@ -125,10 +114,10 @@ Deno.serve(async (req) => {
     }, { status: 400 });
 
   } catch (error) {
-    console.error('Erro em resetPassword:', error);
+    console.error('[resetPassword] Erro:', error);
     return Response.json({ 
       success: false, 
-      error: error.message || 'Erro ao processar solicitação' 
+      error: 'Erro ao processar solicitação' 
     }, { status: 500 });
   }
 });
