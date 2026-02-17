@@ -3,12 +3,18 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
         Home, Briefcase, User, Menu, X, 
-        LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings, Bot, ArrowLeft
+        LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings, Bot, ArrowLeft, ChevronRight, PlusCircle, Sparkles, FileText
       } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import FloatingButtons from "@/components/common/FloatingButtons";
 import FloatingChatButton from "@/components/chat/FloatingChatButton";
 import SupportButton from "@/components/support/SupportButton";
@@ -26,11 +32,31 @@ import SocialBarAd from "@/components/ads/SocialBarAd";
 import BannerAd from "@/components/ads/BannerAd";
 import WelcomePopup from "@/components/common/WelcomePopup";
 
+const vagasSubmenuItems = [
+  { id: 'gerenciar-vagas', name: 'Gerenciador de Vagas', icon: Briefcase, color: 'indigo', page: 'GerenciarVagas', description: 'Central única de controle e manutenção', roles: ['admin', 'dono'] },
+  { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'slate', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros', permissionId: 'gerenciador_filtros' },
+  { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego', permissionId: 'postar_vagas' },
+  { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA', permissionId: 'posts_massa' },
+  { id: 'posts-massa-txt', name: 'Posts em Massa TXT', icon: FileText, color: 'indigo', page: 'PostsEmMassaTXT', description: 'Upload arquivos TXT/DOC/PDF e extraia até 50 vagas', permissionId: 'posts_massa_txt' },
+  { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
+  { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'teal', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
+];
+
+const colorClasses = {
+  indigo: 'bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600',
+  slate: 'bg-gradient-to-br from-slate-50 to-slate-100 text-slate-600',
+  blue: 'bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600',
+  purple: 'bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600',
+  violet: 'bg-gradient-to-br from-violet-50 to-violet-100 text-violet-600',
+  teal: 'bg-gradient-to-br from-teal-50 to-teal-100 text-teal-600',
+};
+
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [navItems, setNavItems] = useState([]);
+  const [showVagasSubmenu, setShowVagasSubmenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -218,6 +244,8 @@ export default function Layout({ children, currentPageName }) {
   }
 
   const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
+  const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || user?.subscription_type === 'dono';
+  const showVagasButton = isDono || isAdmin;
 
   const handleLogout = () => {
     localStorage.clear();
@@ -330,8 +358,19 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Right side actions */}
         <div className="flex items-center gap-1 absolute right-0 lg:relative lg:ml-auto">
-          {/* Desktop: Notification Bell + Theme */}
+          {/* Desktop: Notification Bell + Vagas Button + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
+          {showVagasButton && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setShowVagasSubmenu(true)}
+              className="text-[#1D2226] dark:text-white hidden lg:block"
+              title="Gestão de Vagas"
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
+          )}
           <Button 
             variant="ghost" 
             size="icon" 
@@ -340,8 +379,8 @@ export default function Layout({ children, currentPageName }) {
           >
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
-          
-          {/* Mobile: Theme + Menu */}
+
+          {/* Mobile: Theme + Vagas Button + Menu */}
           <div className="lg:hidden flex items-center gap-1">
             <Button 
               variant="ghost" 
@@ -351,6 +390,17 @@ export default function Layout({ children, currentPageName }) {
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
+            {showVagasButton && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setShowVagasSubmenu(true)}
+                className="text-[#1D2226] dark:text-white"
+                title="Gestão de Vagas"
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
+            )}
             <Button 
               variant="ghost" 
               size="icon" 
@@ -595,6 +645,64 @@ export default function Layout({ children, currentPageName }) {
   <CookieConsent />
   <PopupManager />
   <WelcomePopup />
+
+  {/* Submenu de Gestão de Vagas */}
+  <Dialog open={showVagasSubmenu} onOpenChange={setShowVagasSubmenu}>
+    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle className="text-xl font-bold flex items-center gap-2">
+          <Briefcase className="w-6 h-6" />
+          Gestão de Vagas
+        </DialogTitle>
+      </DialogHeader>
+
+      <div className="space-y-2 mt-4">
+        {vagasSubmenuItems.map((item, index) => {
+          // Verificar permissões
+          if (!isDono && !isAdmin) {
+            if (item.permissionId) {
+              const userPermissions = user?.permissions || {};
+              if (userPermissions[item.permissionId] === false) {
+                return null;
+              }
+            }
+          }
+
+          if (item.roles) {
+            const hasAccess = item.roles.some(role => {
+              if (role === 'dono') return isDono;
+              if (role === 'admin') return isAdmin;
+              return false;
+            });
+            if (!hasAccess) return null;
+          }
+
+          const Icon = item.icon;
+          const isLast = index === vagasSubmenuItems.length - 1;
+
+          return (
+            <button
+              key={item.id}
+              onClick={() => {
+                setShowVagasSubmenu(false);
+                window.location.href = createPageUrl(item.page);
+              }}
+              className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left rounded-xl ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}
+            >
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+            </button>
+          );
+        })}
+      </div>
+    </DialogContent>
+  </Dialog>
   </div>
   );
   }
