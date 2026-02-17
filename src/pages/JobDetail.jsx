@@ -20,6 +20,7 @@ import PremiumModal from "@/components/subscription/PremiumModal";
 import EditJobModal from "@/components/admin/EditJobModal";
 import NativeBannerAd from "@/components/ads/NativeBannerAd";
 import ReportJobModal from "@/components/jobs/ReportJobModal";
+import ApplyModal from "@/components/jobs/ApplyModal";
 
 // Função de fetch robusta
 async function safeFetch(fetchFn, fallback = null) {
