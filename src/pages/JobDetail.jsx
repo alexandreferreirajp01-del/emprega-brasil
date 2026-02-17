@@ -45,42 +45,38 @@ function formatDate(dateStr) {
   });
 }
 
+// Separar múltiplos números de uma string
+function parsePhones(str) {
+  if (!str) return [];
+  // Separa por vírgula, ponto-e-vírgula, barra ou nova linha
+  return str.split(/[,;/\n]/).map(s => s.trim()).filter(s => /\d{8,}/.test(s));
+}
+
 // Extrair contatos do job
 function extractContacts(job) {
-  if (!job) return { whatsapp: null, email: null, site: null };
+  if (!job) return { whatsapps: [], phones: [], emails: [], sites: [] };
 
-  // Prioridade: campos dedicados do banco de dados
-  let whatsapp = job.contact_whatsapp || job.contact_phone || null;
-  let email = job.contact_email || null;
-  let site = job.application_link || null;
+  // WhatsApp - pode ter múltiplos
+  const whatsapps = parsePhones(job.contact_whatsapp);
 
-  // Fallback: buscar nos textos via regex
-  const text = `${job.description || ''} ${job.additional_info || ''}`;
+  // Telefone - pode ter múltiplos; evitar duplicar com whatsapp
+  const allPhones = parsePhones(job.contact_phone);
+  const phones = allPhones.filter(p => !whatsapps.some(w => w.replace(/\D/g,'') === p.replace(/\D/g,'')));
 
-  if (!whatsapp) {
-    const phoneRegex = /\(?\d{2}\)?[\s.-]?\d{4,5}[-.\s]?\d{4}/g;
-    const phones = text.match(phoneRegex) || [];
-    whatsapp = phones.length > 0 ? phones[0].replace(/\D/g, '') : null;
-  }
+  // Se não tiver whatsapp mas tiver phone, usar phone como whatsapp também
+  const finalWhatsapps = whatsapps.length > 0 ? whatsapps : allPhones;
 
-  if (!email) {
-    const emailRegex = /[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-    const emails = text.match(emailRegex) || [];
-    email = emails.length > 0 ? emails[0] : null;
-  }
+  // Email - pode ter múltiplos
+  const emailRegex = /[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  const emailsFromField = job.contact_email ? job.contact_email.match(emailRegex) || [] : [];
+  const emails = emailsFromField.length > 0 ? emailsFromField : 
+    (`${job.description || ''} ${job.additional_info || ''}`).match(emailRegex) || [];
 
-  if (!site) {
-    const urlRegex = /https?:\/\/[^\s]+/g;
-    const urls = text.match(urlRegex) || [];
-    site = urls.length > 0 ? urls[0] : null;
-  }
+  // Site/Link
+  const sites = [];
+  if (job.application_link && job.application_link.trim()) sites.push(job.application_link.trim());
 
-  // Limpar número de telefone para usar no WhatsApp
-  if (whatsapp && typeof whatsapp === 'string') {
-    whatsapp = whatsapp.replace(/\D/g, '');
-  }
-
-  return { whatsapp, email, site };
+  return { whatsapps: finalWhatsapps, phones: whatsapps.length > 0 ? phones : [], emails, sites };
 }
 
 export default function JobDetail() {
