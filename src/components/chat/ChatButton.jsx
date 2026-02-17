@@ -27,12 +27,12 @@ export default function ChatButton({ user }) {
       if (!conversaId) return [];
       const msgs = await base44.entities.MensagemDireta.filter(
         { conversa_id: conversaId },
-        '-created_date'
+        'created_date'
       );
-      return msgs.reverse();
+      return msgs;
     },
-    enabled: !!conversaId && isOpen,
-    refetchInterval: 3000,
+    enabled: !!conversaId,
+    refetchInterval: isOpen ? 2000 : 10000,
   });
 
   // Contar mensagens não lidas
@@ -53,19 +53,29 @@ export default function ChatButton({ user }) {
 
   // Marcar como lida ao abrir
   useEffect(() => {
-    if (isOpen && messages.length > 0 && user) {
-      messages.forEach(async (msg) => {
-        if (msg.destinatario_email === user.email && !msg.lida) {
+    const markAsRead = async () => {
+      if (isOpen && messages.length > 0 && user) {
+        const unreadMessages = messages.filter(
+          msg => msg.destinatario_email === user.email && !msg.lida
+        );
+        
+        for (const msg of unreadMessages) {
           try {
             await base44.entities.MensagemDireta.update(msg.id, { lida: true });
           } catch (error) {
             console.error('Erro ao marcar como lida:', error);
           }
         }
-      });
-      queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
-    }
-  }, [isOpen, messages, user]);
+        
+        if (unreadMessages.length > 0) {
+          queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        }
+      }
+    };
+    
+    markAsRead();
+  }, [isOpen, messages, user, queryClient]);
 
   // Scroll para o final ao receber mensagens
   useEffect(() => {
@@ -87,8 +97,11 @@ export default function ChatButton({ user }) {
     },
     onSuccess: () => {
       setMessage('');
-      queryClient.invalidateQueries({ queryKey: ['chat-messages'] });
-      refetch();
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['chat-messages'] });
+        queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+        refetch();
+      }, 500);
     },
     onError: (error) => {
       console.error('Erro ao enviar:', error);

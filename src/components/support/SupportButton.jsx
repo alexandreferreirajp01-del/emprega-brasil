@@ -27,12 +27,12 @@ export default function SupportButton({ user, inline = false, discrete = false }
       if (!conversaId) return [];
       const msgs = await base44.entities.MensagemDireta.filter(
         { conversa_id: conversaId },
-        '-created_date'
+        'created_date'
       );
-      return msgs.reverse();
+      return msgs;
     },
-    enabled: !!conversaId && isOpen,
-    refetchInterval: 5000,
+    enabled: !!conversaId,
+    refetchInterval: isOpen ? 2000 : 10000,
   });
 
   // Scroll para o final ao abrir ou receber mensagens
@@ -55,8 +55,11 @@ export default function SupportButton({ user, inline = false, discrete = false }
     },
     onSuccess: () => {
       setMessage('');
-      queryClient.invalidateQueries({ queryKey: ['support-chat'] });
-      refetch();
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['support-chat'] });
+        queryClient.invalidateQueries({ queryKey: ['chat-messages'] });
+        refetch();
+      }, 500);
     },
     onError: (error) => {
       console.error('Erro na mutation:', error);
