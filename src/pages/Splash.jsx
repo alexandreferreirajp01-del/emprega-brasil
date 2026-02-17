@@ -175,7 +175,10 @@ export default function Splash() {
           />
         </div>
         <h1 className="text-4xl font-bold text-[#1D4371] mb-2">Vagas Abertas PB</h1>
-        <p className="text-slate-600 text-lg">Empregos na Paraíba</p>
+        <p className="text-slate-600 text-lg">
+          <span className="block">Sua próxima oportunidade</span>
+          <span className="block">está aqui</span>
+        </p>
       </div>
 
       <Card className="w-full max-w-md rounded-2xl shadow-2xl border-0">
