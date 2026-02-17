@@ -49,6 +49,7 @@ Se houver múltiplas vagas, separe-as com "---".
 
 IMPORTANTE:
 - Extraia cidade, estado, cargo, salário, requisitos
+- Extraia TODOS os contatos: telefone, email, WhatsApp, links
 - Mantenha formatação e quebras de linha
 - NÃO adicione interpretações`,
           file_urls: [imagem_url],
@@ -94,6 +95,14 @@ IMPORTANTE:
     
     for (const vaga of vagasExtraidas) {
       try {
+        // Validar se tem contato
+        const hasContact = !!(
+          vaga.link_candidatura || 
+          vaga.contact_phone || 
+          vaga.contact_email || 
+          vaga.contact_whatsapp
+        );
+
         const vagaPendente = await base44.asServiceRole.entities.Job.create({
           title: vaga.titulo,
           company: vaga.empresa || 'Empresa não informada',
@@ -107,11 +116,16 @@ IMPORTANTE:
           description: vaga.descricao || textoLimpo,
           additional_info: vaga.informacoes_adicionais || '',
           application_link: vaga.link_candidatura || '',
+          contact_email: vaga.contact_email || '',
+          contact_phone: vaga.contact_phone || '',
+          contact_whatsapp: vaga.contact_whatsapp || '',
           image_url: imagem_url || '',
           is_premium: false,
           is_featured: false,
-          published_at: null, // NÃO PUBLICADA
-          status: 'pending_ai', // Status especial para vagas da IA
+          published_at: hasContact ? new Date().toISOString() : null,
+          status: hasContact ? 'ativa' : 'pending_contact',
+          contact_status: hasContact ? 'ok' : 'missing',
+          needs_review: !hasContact,
           origin_source: 'auto_post_n8n',
           origin_channel: canal,
           origin_group_id: grupo_id || '',
@@ -189,6 +203,9 @@ INSTRUÇÕES:
    - Categoria profissional
    - Descrição completa
    - Link de candidatura (se houver)
+   - Email de contato (se houver)
+   - Telefone de contato (se houver)
+   - WhatsApp de contato (se houver)
 
 4. Se não houver vaga válida, retorne array vazio
 
@@ -217,6 +234,9 @@ IMPORTANTE:
                 descricao: { type: 'string' },
                 informacoes_adicionais: { type: 'string' },
                 link_candidatura: { type: 'string' },
+                contact_email: { type: 'string' },
+                contact_phone: { type: 'string' },
+                contact_whatsapp: { type: 'string' },
                 home_office: { type: 'boolean' }
               }
             }
