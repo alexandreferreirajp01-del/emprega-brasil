@@ -163,6 +163,11 @@ export default function Configuracoes() {
 
 
   const handleItemClick = async (item) => {
+    if (item.isSubmenu) {
+      setShowVagasSubmenu(true);
+      return;
+    }
+    
     if (item.action === 'updateJobs') {
       if (!confirm('Atualizar cidade/UF de todas as vagas antigas? Pode levar alguns minutos.')) return;
       
