@@ -20,7 +20,7 @@ export default function NotificationBell({ user, className }) {
   const navigate = useNavigate();
 
   // Buscar notificações e mensagens não lidas
-  const { data: notifications = [] } = useQuery({
+  const { data: notifications = [], refetch: refetchNotifications } = useQuery({
     queryKey: ['user-notifications', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
@@ -36,7 +36,9 @@ export default function NotificationBell({ user, className }) {
       }
     },
     enabled: !!user?.email,
-    refetchInterval: 30000,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   const { data: unreadMessages = 0 } = useQuery({
@@ -81,8 +83,7 @@ export default function NotificationBell({ user, className }) {
       await base44.entities.Notification.update(notificationId, { is_read: true });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['user-notifications', user?.email] });
-      await queryClient.refetchQueries({ queryKey: ['user-notifications', user?.email] });
+      await refetchNotifications();
     }
   });
 
@@ -94,9 +95,19 @@ export default function NotificationBell({ user, className }) {
       base44.entities.Notification.update(n.id, { is_read: true }).catch(() => {})
     ));
     
-    // Forçar invalidação imediata e recarregar
-    await queryClient.invalidateQueries({ queryKey: ['user-notifications', user?.email] });
-    await queryClient.refetchQueries({ queryKey: ['user-notifications', user?.email] });
+    // Forçar recarga imediata
+    await refetchNotifications();
+  };
+
+  const deleteAllNotifications = async () => {
+    if (uniqueNotifications.length === 0) return;
+    
+    await Promise.all(uniqueNotifications.map(n => 
+      base44.entities.Notification.delete(n.id).catch(() => {})
+    ));
+    
+    // Forçar recarga imediata
+    await refetchNotifications();
   };
 
   const deleteNotification = async (e, notificationId) => {
@@ -104,8 +115,7 @@ export default function NotificationBell({ user, className }) {
     e.stopPropagation();
     try {
       await base44.entities.Notification.delete(notificationId);
-      await queryClient.invalidateQueries({ queryKey: ['user-notifications', user?.email] });
-      await queryClient.refetchQueries({ queryKey: ['user-notifications', user?.email] });
+      await refetchNotifications();
     } catch (e) {}
   };
 
@@ -318,17 +328,30 @@ export default function NotificationBell({ user, className }) {
               </motion.span>
             )}
           </div>
-          {unreadCount > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={markAllAsRead}
-              className="text-xs text-white hover:bg-white/10 hover:text-white"
-            >
-              <Check className="w-3 h-3 mr-1" />
-              Marcar todas
-            </Button>
-          )}
+          <div className="flex items-center gap-1">
+            {unreadCount > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={markAllAsRead}
+                className="text-xs text-white hover:bg-white/10 hover:text-white"
+              >
+                <Check className="w-3 h-3 mr-1" />
+                Marcar todas
+              </Button>
+            )}
+            {uniqueNotifications.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={deleteAllNotifications}
+                className="text-xs text-white hover:bg-red-500/20 hover:text-white"
+              >
+                <Trash2 className="w-3 h-3 mr-1" />
+                Limpar
+              </Button>
+            )}
+          </div>
         </motion.div>
 
         <ScrollArea className="flex-1 max-h-[400px] overflow-y-auto">
