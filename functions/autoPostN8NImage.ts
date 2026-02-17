@@ -3,26 +3,66 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    
+
     // Validação de segurança via API Key do N8N
     const apiKey = req.headers.get('X-API-Key');
     const validKey = Deno.env.get('API_KEY_N8N');
-    
+
     if (!apiKey || apiKey !== validKey) {
       return Response.json({ error: 'API Key inválida ou ausente' }, { status: 401 });
     }
 
     const body = await req.json();
-    const { imagem_url, texto_adicional = '', origem = 'n8n', metadados = {} } = body;
+    const {
+      imagem_url,
+      imagem_base64,
+      mime_type = 'image/jpeg',
+      texto_adicional = '',
+      origem = 'n8n',
+      metadados = {}
+    } = body;
 
-    if (!imagem_url) {
-      return Response.json({ 
-        error: 'Campo "imagem_url" é obrigatório' 
+    if (!imagem_url && !imagem_base64) {
+      return Response.json({
+        error: 'Campo "imagem_url" ou "imagem_base64" é obrigatório'
       }, { status: 400 });
     }
 
+    // Se recebeu base64, fazer upload para storage permanente
+    let urlFinal = imagem_url;
+
+    if (imagem_base64) {
+      try {
+        console.log('Recebeu base64, fazendo upload para storage...');
+
+        // Converter base64 para Blob
+        const byteString = atob(imagem_base64);
+        const byteArray = new Uint8Array(byteString.length);
+        for (let i = 0; i < byteString.length; i++) {
+          byteArray[i] = byteString.charCodeAt(i);
+        }
+        const ext = mime_type.includes('png') ? 'png' : mime_type.includes('webp') ? 'webp' : 'jpg';
+        const blob = new Blob([byteArray], { type: mime_type });
+        const file = new File([blob], `vaga_n8n_${Date.now()}.${ext}`, { type: mime_type });
+
+        const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({ file });
+        urlFinal = uploadResult?.file_url;
+        console.log('Upload concluído:', urlFinal);
+      } catch (uploadError) {
+        console.error('Erro no upload da imagem:', uploadError);
+        return Response.json({
+          error: 'Erro ao fazer upload da imagem',
+          details: uploadError.message
+        }, { status: 500 });
+      }
+    }
+
+    if (!urlFinal) {
+      return Response.json({ error: 'Não foi possível obter URL da imagem' }, { status: 400 });
+    }
+
     // Extrair dados da imagem usando IA com análise profunda
-    const resultado = await base44.integrations.Core.InvokeLLM({
+    const resultado = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: `🔍 ANÁLISE COMPLETA DE IMAGEM - EXTRAIA TODAS AS VAGAS:
 
 ${texto_adicional ? `TEXTO ADICIONAL:\n${texto_adicional}\n\n` : ''}
@@ -35,12 +75,12 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
    - Bairro, endereço completo
    - CEP se houver
    - Se remoto: city: "Remoto", state: ""
-   
-📞 CONTATOS (TODOS):
-   - Telefones (WhatsApp, fixo, celular)
-   - Emails
+
+📞 CONTATOS (TODOS - muito importante!):
+   - Telefones com DDD (WhatsApp, fixo, celular)
+   - Emails (ex: rh@empresa.com.br)
    - Instagram, Facebook
-   - Sites, formulários
+   - Sites, formulários online
    - QR Codes (links)
 
 💰 SALÁRIO (apenas valores):
@@ -56,8 +96,8 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
    - Tipo de contrato
    - Modalidade (Presencial/Híbrido/Remoto)
 
-⚠️ REGRA: NÃO INVENTE - extraia apenas o que está visível!`,
-      file_urls: [imagem_url],
+⚠️ REGRA PRINCIPAL: Procure TODOS os contatos em toda a imagem, incluindo rodapé, caixas de texto, selos, marcas d'água. NÃO INVENTE - extraia apenas o que está visível!`,
+      file_urls: [urlFinal],
       response_json_schema: {
         type: "object",
         properties: {
@@ -77,8 +117,8 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
                 contact_phone: { type: "string" },
                 contact_email: { type: "string" },
                 contact_whatsapp: { type: "string" },
-                application_link: { type: "string" },
                 contact_instagram: { type: "string" },
+                application_link: { type: "string" },
                 description: { type: "string" },
                 job_type: { type: "string" },
                 work_mode: { type: "string" },
@@ -92,9 +132,16 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
     });
 
     const jobs = resultado?.jobs || [];
+    console.log(`IA extraiu ${jobs.length} vaga(s). Contatos:`, jobs.map(j => ({
+      title: j.title,
+      email: j.contact_email,
+      phone: j.contact_phone,
+      whatsapp: j.contact_whatsapp,
+      link: j.application_link
+    })));
 
     if (jobs.length === 0) {
-      return Response.json({ 
+      return Response.json({
         success: true,
         message: 'Nenhuma vaga válida encontrada na imagem',
         vagas_criadas: 0
@@ -103,18 +150,19 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
 
     // Criar vagas no banco
     const vagasCriadas = [];
-    
+
     for (const job of jobs) {
       try {
-        // Validar se tem contato
         const hasContact = !!(
-          job.application_link || 
-          job.contact_phone || 
-          job.contact_email || 
+          job.application_link ||
+          job.contact_phone ||
+          job.contact_email ||
           job.contact_whatsapp ||
           job.contact_instagram
         );
-        
+
+        const additionalInfo = job.contact_instagram ? `Instagram: ${job.contact_instagram}` : '';
+
         const vagaCriada = await base44.asServiceRole.entities.Job.create({
           title: job.title || 'Vaga',
           company: job.company || 'Empresa não informada',
@@ -128,13 +176,13 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
           contact_email: job.contact_email || '',
           contact_whatsapp: job.contact_whatsapp || '',
           application_link: job.application_link || '',
-          additional_info: job.contact_instagram ? `Instagram: ${job.contact_instagram}` : '',
+          additional_info: additionalInfo,
           description: job.description || 'Vaga extraída automaticamente',
           job_type: job.job_type || 'CLT',
           work_mode: job.work_mode || 'Presencial',
           category: job.category || 'Geral',
           job_function: job.job_function || '',
-          image_url: imagem_url,
+          image_url: urlFinal,
           is_premium: false,
           is_featured: false,
           status: hasContact ? 'ativa' : 'pending_contact',
@@ -144,64 +192,64 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
           origem: 'n8n_image'
         });
 
-        // Se não tiver contato, tentar reprocessar até 2x
+        // Se não tiver contato, tentar reprocessar mais 1 vez
         if (!hasContact) {
-          for (let attempt = 0; attempt < 2; attempt++) {
-            try {
-              const reprocessResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
-                prompt: `🔍 BUSCA PROFUNDA NA IMAGEM - TENTATIVA ${attempt + 1}/2:
-                
-ANALISE NOVAMENTE com MÁXIMA ATENÇÃO:
-- Telefones em QUALQUER lugar da imagem
-- Emails, Instagram, Facebook
-- Sites, QR codes, formulários
-- Marcas d'água, cantos, rodapé
+          try {
+            const reprocessResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
+              prompt: `🔍 BUSCA PROFUNDA NA IMAGEM:
 
-${texto_adicional ? `TEXTO: ${texto_adicional}` : ''}`,
-                file_urls: [imagem_url],
-                response_json_schema: {
-                  type: "object",
-                  properties: {
-                    contact_phone: { type: "string" },
-                    contact_email: { type: "string" },
-                    application_link: { type: "string" },
-                    contact_whatsapp: { type: "string" },
-                    contact_instagram: { type: "string" }
-                  }
+ANALISE TODA A IMAGEM COM MÁXIMA ATENÇÃO buscando qualquer forma de contato:
+- Telefones, celulares, WhatsApp com ou sem DDD
+- Emails (ex: rh@empresa.com.br)
+- Instagram, Facebook, sites
+- QR codes, formulários, links
+- Texto em rodapé, cantos, selos, caixas separadas
+
+${texto_adicional ? `TEXTO: ${texto_adicional}` : ''}
+
+RETORNE QUALQUER contato que encontrar na imagem.`,
+              file_urls: [urlFinal],
+              response_json_schema: {
+                type: "object",
+                properties: {
+                  contact_phone: { type: "string" },
+                  contact_email: { type: "string" },
+                  application_link: { type: "string" },
+                  contact_whatsapp: { type: "string" },
+                  contact_instagram: { type: "string" }
                 }
-              });
-
-              const foundContact = reprocessResult.contact_phone || 
-                                 reprocessResult.contact_email || 
-                                 reprocessResult.contact_whatsapp ||
-                                 reprocessResult.application_link ||
-                                 reprocessResult.contact_instagram;
-
-              if (foundContact) {
-                const additionalInfo = reprocessResult.contact_instagram ? 
-                  `Instagram: ${reprocessResult.contact_instagram}` : 
-                  vagaCriada.additional_info;
-                
-                await base44.asServiceRole.entities.Job.update(vagaCriada.id, {
-                  contact_phone: reprocessResult.contact_phone || vagaCriada.contact_phone,
-                  contact_email: reprocessResult.contact_email || vagaCriada.contact_email,
-                  contact_whatsapp: reprocessResult.contact_whatsapp || vagaCriada.contact_whatsapp,
-                  application_link: reprocessResult.application_link || vagaCriada.application_link,
-                  additional_info: additionalInfo,
-                  status: 'ativa',
-                  contact_status: 'ok',
-                  needs_review: false,
-                  reprocess_attempts: attempt + 1
-                });
-                break;
-              } else {
-                await base44.asServiceRole.entities.Job.update(vagaCriada.id, {
-                  reprocess_attempts: attempt + 1
-                });
               }
-            } catch (e) {
-              console.error(`Erro na tentativa ${attempt + 1}:`, e);
+            });
+
+            const foundContact = reprocessResult.contact_phone ||
+              reprocessResult.contact_email ||
+              reprocessResult.contact_whatsapp ||
+              reprocessResult.application_link ||
+              reprocessResult.contact_instagram;
+
+            if (foundContact) {
+              const addInfo = reprocessResult.contact_instagram ?
+                `Instagram: ${reprocessResult.contact_instagram}` :
+                vagaCriada.additional_info;
+
+              await base44.asServiceRole.entities.Job.update(vagaCriada.id, {
+                contact_phone: reprocessResult.contact_phone || vagaCriada.contact_phone,
+                contact_email: reprocessResult.contact_email || vagaCriada.contact_email,
+                contact_whatsapp: reprocessResult.contact_whatsapp || vagaCriada.contact_whatsapp,
+                application_link: reprocessResult.application_link || vagaCriada.application_link,
+                additional_info: addInfo,
+                status: 'ativa',
+                contact_status: 'ok',
+                needs_review: false,
+                reprocess_attempts: 1
+              });
+            } else {
+              await base44.asServiceRole.entities.Job.update(vagaCriada.id, {
+                reprocess_attempts: 1
+              });
             }
+          } catch (e) {
+            console.error('Erro no reprocessamento:', e);
           }
         }
 
@@ -223,13 +271,16 @@ ${texto_adicional ? `TEXTO: ${texto_adicional}` : ''}`,
         company: v.company,
         city: v.city,
         state: v.state,
+        contact_email: v.contact_email,
+        contact_phone: v.contact_phone,
+        contact_whatsapp: v.contact_whatsapp,
         status: v.status
       }))
     });
 
   } catch (error) {
     console.error('Erro em autoPostN8NImage:', error);
-    return Response.json({ 
+    return Response.json({
       error: error.message,
       details: 'Erro ao processar imagem via N8N'
     }, { status: 500 });
