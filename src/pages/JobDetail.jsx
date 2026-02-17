@@ -45,11 +45,46 @@ function formatDate(dateStr) {
   });
 }
 
-// Separar múltiplos números de uma string
+// Separar múltiplos números de uma string com inteligência de DDD compartilhado
 function parsePhones(str) {
   if (!str) return [];
-  // Separa por vírgula, ponto-e-vírgula, barra ou nova linha
-  return str.split(/[,;/\n]/).map(s => s.trim()).filter(s => /\d{8,}/.test(s));
+
+  // Extrair todos os blocos numéricos (com possíveis separadores: espaço, hífen, parênteses)
+  // Primeiro normaliza: remove parênteses, substitui vírgulas/; por separador
+  const normalized = str.replace(/[()]/g, ' ').replace(/[,;\/\n]+/g, '|').trim();
+  const parts = normalized.split('|').map(s => s.trim()).filter(Boolean);
+
+  const results = [];
+  let lastDDD = null;
+
+  for (const part of parts) {
+    // Extrai só os dígitos de cada parte
+    const digits = part.replace(/\D/g, '');
+
+    if (digits.length === 0) continue;
+
+    if (digits.length >= 10) {
+      // Número completo com DDD (10 ou 11 dígitos)
+      lastDDD = digits.substring(0, 2);
+      results.push(digits);
+    } else if (digits.length === 8 || digits.length === 9) {
+      // Número sem DDD — usa o último DDD encontrado
+      if (lastDDD) {
+        results.push(lastDDD + digits);
+      } else {
+        results.push(digits);
+      }
+    } else if (digits.length === 2) {
+      // Pode ser só um DDD solto (ex: "83")
+      lastDDD = digits;
+    } else if (digits.length > 2 && digits.length < 8) {
+      // Pode ser DDD + início de número — guardar DDD
+      lastDDD = digits.substring(0, 2);
+    }
+  }
+
+  // Deduplicar
+  return [...new Set(results)];
 }
 
 // Extrair contatos do job
