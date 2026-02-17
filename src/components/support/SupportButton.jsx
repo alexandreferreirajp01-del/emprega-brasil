@@ -141,40 +141,79 @@ export default function SupportButton({ user, inline = false, discrete = false }
               className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
             >
               <MessageCircle className="w-5 h-5 mr-2" />
-              Enviar Mensagem
+              Abrir Chat
             </Button>
           </CardContent>
         </Card>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Contatar Suporte</DialogTitle>
+          <DialogContent className="sm:max-w-lg h-[600px] flex flex-col p-0">
+            <DialogHeader className="p-4 border-b">
+              <DialogTitle className="flex items-center gap-2">
+                <MessageCircle className="w-5 h-5" />
+                Chat com Suporte
+              </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <Textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Digite sua mensagem..."
-                className="min-h-[120px]"
-              />
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
+            
+            <ScrollArea className="flex-1 p-4">
+              <div className="space-y-3">
+                {messages.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Nenhuma mensagem ainda</p>
+                    <p className="text-xs">Envie uma mensagem para iniciar</p>
+                  </div>
+                ) : (
+                  messages.map((msg) => {
+                    const isFromMe = msg.remetente_email === user?.email;
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                            isFromMe
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
+                          }`}
+                        >
+                          <p className="text-sm whitespace-pre-wrap break-words">{msg.conteudo}</p>
+                          <p className={`text-[10px] mt-1 ${isFromMe ? 'text-blue-100' : 'text-slate-500'}`}>
+                            {new Date(msg.created_date).toLocaleTimeString('pt-BR', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={scrollRef} />
+              </div>
+            </ScrollArea>
+
+            <div className="p-4 border-t">
+              <div className="flex gap-2">
+                <Input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Digite sua mensagem..."
                   className="flex-1"
-                >
-                  Cancelar
-                </Button>
+                  disabled={sendMessageMutation.isPending}
+                />
                 <Button
                   onClick={handleSend}
-                  disabled={sendMessageMutation.isPending}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  disabled={sendMessageMutation.isPending || !message.trim()}
+                  size="icon"
+                  className="bg-blue-600 hover:bg-blue-700"
                 >
                   {sendMessageMutation.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    'Enviar'
+                    <Send className="w-4 h-4" />
                   )}
                 </Button>
               </div>
@@ -198,34 +237,73 @@ export default function SupportButton({ user, inline = false, discrete = false }
         </button>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Contatar Suporte</DialogTitle>
+          <DialogContent className="sm:max-w-lg h-[600px] flex flex-col p-0">
+            <DialogHeader className="p-4 border-b">
+              <DialogTitle className="flex items-center gap-2">
+                <MessageCircle className="w-5 h-5" />
+                Chat com Suporte
+              </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <Textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Digite sua mensagem..."
-                className="min-h-[120px]"
-              />
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
+            
+            <ScrollArea className="flex-1 p-4">
+              <div className="space-y-3">
+                {messages.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Nenhuma mensagem ainda</p>
+                    <p className="text-xs">Envie uma mensagem para iniciar</p>
+                  </div>
+                ) : (
+                  messages.map((msg) => {
+                    const isFromMe = msg.remetente_email === user?.email;
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                            isFromMe
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
+                          }`}
+                        >
+                          <p className="text-sm whitespace-pre-wrap break-words">{msg.conteudo}</p>
+                          <p className={`text-[10px] mt-1 ${isFromMe ? 'text-blue-100' : 'text-slate-500'}`}>
+                            {new Date(msg.created_date).toLocaleTimeString('pt-BR', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={scrollRef} />
+              </div>
+            </ScrollArea>
+
+            <div className="p-4 border-t">
+              <div className="flex gap-2">
+                <Input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Digite sua mensagem..."
                   className="flex-1"
-                >
-                  Cancelar
-                </Button>
+                  disabled={sendMessageMutation.isPending}
+                />
                 <Button
                   onClick={handleSend}
-                  disabled={sendMessageMutation.isPending}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  disabled={sendMessageMutation.isPending || !message.trim()}
+                  size="icon"
+                  className="bg-blue-600 hover:bg-blue-700"
                 >
                   {sendMessageMutation.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    'Enviar'
+                    <Send className="w-4 h-4" />
                   )}
                 </Button>
               </div>
