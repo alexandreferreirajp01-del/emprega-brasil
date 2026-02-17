@@ -98,6 +98,16 @@ const colorClasses = {
   emerald: 'bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-600',
 };
 
+const vagasSubmenuItems = [
+  { id: 'gerenciar-vagas', name: 'Gerenciador de Vagas', icon: Briefcase, color: 'indigo', page: 'GerenciarVagas', description: 'Central única de controle e manutenção', roles: ['admin', 'dono'] },
+  { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'slate', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros', permissionId: 'gerenciador_filtros' },
+  { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego', permissionId: 'postar_vagas' },
+  { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA', permissionId: 'posts_massa' },
+  { id: 'posts-massa-txt', name: 'Posts em Massa TXT', icon: FileText, color: 'indigo', page: 'PostsEmMassaTXT', description: 'Upload arquivos TXT/DOC/PDF e extraia até 50 vagas', permissionId: 'posts_massa_txt' },
+  { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
+  { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'teal', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
+];
+
 export default function Configuracoes() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
