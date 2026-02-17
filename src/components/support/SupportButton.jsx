@@ -19,6 +19,8 @@ export default function SupportButton({ user, inline = false, discrete = false }
   
   // Criar conversa_id
   const conversaId = user ? [user.email, adminEmail].sort().join('_') : null;
+  
+  console.log('SupportButton: user.email:', user?.email, 'conversaId:', conversaId);
 
   // Buscar mensagens da conversa
   const { data: messages = [], refetch, isLoading } = useQuery({
