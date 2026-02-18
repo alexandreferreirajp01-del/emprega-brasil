@@ -521,20 +521,20 @@ export default function Jobs() {
             )}
           </div>
 
-          {/* Linha 3: Toggles + Limpar */}
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Linha 3: Toggles centralizados + Limpar */}
+          <div className="flex items-center justify-center gap-2">
             {userIsPremium && (
               <>
                 <button
                   onClick={() => setShowPremiumOnly(v => !v)}
-                  className={`flex items-center gap-1.5 px-3 h-8 rounded-lg border text-[11px] font-medium transition-colors ${showPremiumOnly ? 'bg-purple-100 border-purple-400 text-purple-700' : 'bg-white border-slate-200 text-slate-600'}`}
+                  className={`flex items-center gap-1.5 px-3 h-8 rounded-lg border text-[11px] font-medium transition-all active:scale-95 ${showPremiumOnly ? 'bg-purple-600 border-purple-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-purple-300'}`}
                 >
                   <Lock className="w-3 h-3" />
                   Premium
                 </button>
                 <button
                   onClick={() => setShowFeaturedOnly(v => !v)}
-                  className={`flex items-center gap-1.5 px-3 h-8 rounded-lg border text-[11px] font-medium transition-colors ${showFeaturedOnly ? 'bg-yellow-100 border-yellow-400 text-yellow-700' : 'bg-white border-slate-200 text-slate-600'}`}
+                  className={`flex items-center gap-1.5 px-3 h-8 rounded-lg border text-[11px] font-medium transition-all active:scale-95 ${showFeaturedOnly ? 'bg-yellow-500 border-yellow-500 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-yellow-300'}`}
                 >
                   <Star className="w-3 h-3" />
                   Destaque
@@ -543,7 +543,7 @@ export default function Jobs() {
             )}
             <button
               onClick={() => setShowHomeOfficeOnly(v => !v)}
-              className={`flex items-center gap-1.5 px-3 h-8 rounded-lg border text-[11px] font-medium transition-colors ${showHomeOfficeOnly ? 'bg-blue-100 border-blue-400 text-blue-700' : 'bg-white border-slate-200 text-slate-600'}`}
+              className={`flex items-center gap-1.5 px-3 h-8 rounded-lg border text-[11px] font-medium transition-all active:scale-95 ${showHomeOfficeOnly ? 'bg-blue-600 border-blue-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300'}`}
             >
               <Briefcase className="w-3 h-3" />
               Home Office
@@ -551,7 +551,7 @@ export default function Jobs() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-1 px-3 h-8 rounded-lg border border-red-200 bg-red-50 text-red-600 text-[11px] font-medium ml-auto"
+                className="flex items-center gap-1 px-3 h-8 rounded-lg border border-red-200 bg-red-50 text-red-600 text-[11px] font-medium active:scale-95 transition-all"
               >
                 <X className="w-3 h-3" />
                 Limpar
