@@ -288,30 +288,24 @@ Deno.serve(async (req) => {
     const users = await base44.asServiceRole.entities.User.list('-created_date', 10000);
     let emailsSent = 0, emailErrors = 0, pushSent = 0, pushErrors = 0;
 
-    // 3. Enviar emails sequencialmente com delay para evitar rate limit
-    const BATCH = 5;
-    const DELAY_MS = 1200; // 1.2s entre batches = ~4 emails/seg
-    for (let i = 0; i < users.length; i += BATCH) {
-      const batch = users.slice(i, i + BATCH);
-      await Promise.allSettled(
-        batch.filter(u => u.email).map(async (user) => {
-          try {
-            const userSeed = (seed + i) % TEMPLATES.length;
-            const userTemplate = pickTemplate(userSeed);
-            await base44.asServiceRole.integrations.Core.SendEmail({
-              to: user.email,
-              subject: userTemplate.subject(vars),
-              body: buildEmailHtml(userTemplate, vars, jobUrl)
-            });
-            emailsSent++;
-          } catch (e) {
-            emailErrors++;
-          }
-        })
-      );
-      if (i + BATCH < users.length) {
-        await new Promise(r => setTimeout(r, DELAY_MS));
+    // 3. Enviar emails sequencialmente 1 por vez com delay para respeitar rate limit
+    for (let i = 0; i < users.length; i++) {
+      const u = users[i];
+      if (!u.email) continue;
+      try {
+        const userSeed = (seed + i) % TEMPLATES.length;
+        const userTemplate = pickTemplate(userSeed);
+        await base44.asServiceRole.integrations.Core.SendEmail({
+          to: u.email,
+          subject: userTemplate.subject(vars),
+          body: buildEmailHtml(userTemplate, vars, jobUrl)
+        });
+        emailsSent++;
+      } catch (e) {
+        emailErrors++;
       }
+      // Delay de 600ms entre cada email (~1.6 emails/seg) para não estourar rate limit
+      await new Promise(r => setTimeout(r, 600));
     }
 
     // 4. Enviar push notification para todos os inscritos
