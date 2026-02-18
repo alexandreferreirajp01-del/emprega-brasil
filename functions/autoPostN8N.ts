@@ -137,6 +137,21 @@ IMPORTANTE:
           is_home_office: vaga.home_office || false
         });
 
+        // ✅ Notificar todos os usuários (email + sininho + push)
+        if (vagaPendente?.status === 'ativa') {
+          try {
+            await base44.asServiceRole.functions.invoke('notifyNewJob', {
+              jobId: vagaPendente.id,
+              jobTitle: vagaPendente.title,
+              jobCompany: vagaPendente.company,
+              jobCity: vagaPendente.city,
+              isHomeOffice: !!(vagaPendente.is_home_office || vagaPendente.work_mode === 'Remoto')
+            });
+          } catch (notifyErr) {
+            console.error('Erro ao notificar vaga:', notifyErr.message);
+          }
+        }
+
         vagasCriadas.push(vagaPendente);
       } catch (error) {
         console.error('Erro ao criar vaga pendente:', error);
