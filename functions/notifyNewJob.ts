@@ -239,7 +239,7 @@ Deno.serve(async (req) => {
       if (!job || job.status !== 'ativa') {
         return Response.json({ skipped: true, reason: 'Vaga não ativa, notificação ignorada' });
       }
-      jobId = job.id;
+      jobId = body.event.entity_id || job.id;
       jobTitle = job.title;
       jobCompany = job.company;
       jobCity = job.city;
