@@ -193,6 +193,22 @@ ${texto}`,
           }
         }
 
+        // ✅ Notificar todos os usuários (email + sininho + push)
+        const latestJob = await base44.asServiceRole.entities.Job.filter({ id: vagaCriada.id }, '-created_date', 1).then(r => r?.[0] || vagaCriada);
+        if (latestJob?.status === 'ativa') {
+          try {
+            await base44.asServiceRole.functions.invoke('notifyNewJob', {
+              jobId: latestJob.id,
+              jobTitle: latestJob.title,
+              jobCompany: latestJob.company,
+              jobCity: latestJob.city,
+              isHomeOffice: (latestJob.work_mode === 'Remoto' || latestJob.is_remote)
+            });
+          } catch (notifyErr) {
+            console.error('Erro ao notificar vaga:', notifyErr.message);
+          }
+        }
+
         vagasCriadas.push(vagaCriada);
       } catch (error) {
         console.error('Erro ao criar vaga:', error);
