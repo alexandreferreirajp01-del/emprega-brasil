@@ -763,6 +763,36 @@ export default function Jobs() {
         )}
       </div>
 
+      {/* Modal bloqueio filtro Empresa */}
+      <Dialog open={showCompanyLockedModal} onOpenChange={setShowCompanyLockedModal}>
+        <DialogContent className="max-w-sm text-center">
+          <DialogHeader>
+            <div className="flex justify-center mb-3">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                <Lock className="w-8 h-8 text-purple-600" />
+              </div>
+            </div>
+            <DialogTitle className="text-xl font-bold text-slate-800">Filtro Exclusivo Premium</DialogTitle>
+          </DialogHeader>
+          <p className="text-slate-500 text-sm mt-1 mb-4">
+            O filtro por <strong>Empresa</strong> é exclusivo para assinantes Premium. Assine agora e filtre vagas pela empresa que você deseja!
+          </p>
+          <Button
+            className="w-full bg-gradient-to-r from-purple-600 to-[#1D4371] text-white font-semibold rounded-xl"
+            onClick={() => {
+              setShowCompanyLockedModal(false);
+              window.location.href = createPageUrl('Subscription');
+            }}
+          >
+            <Star className="w-4 h-4 mr-2" />
+            Assinar Premium
+          </Button>
+          <Button variant="ghost" className="w-full mt-1 text-slate-500 text-sm" onClick={() => setShowCompanyLockedModal(false)}>
+            Agora não
+          </Button>
+        </DialogContent>
+      </Dialog>
+
       <PremiumModal
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
