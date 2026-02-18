@@ -312,8 +312,9 @@ export default function Jobs() {
     const matchesPremium = !showPremiumOnly || job.is_premium;
     const matchesFeatured = !showFeaturedOnly || job.is_featured;
     const matchesHomeOffice = !showHomeOfficeOnly || job.work_mode === 'Remoto' || job.job_type === 'Home Office';
+    const matchesCompany = selectedCompany === 'all' || job.company === selectedCompany;
     
-    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice;
+    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice && matchesCompany;
   });
 
   const filteredCities = availableCities.filter(city =>
