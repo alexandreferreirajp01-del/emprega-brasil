@@ -64,6 +64,10 @@ export default function Jobs() {
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   const [showHomeOfficeOnly, setShowHomeOfficeOnly] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState('all');
+  const [companySearch, setCompanySearch] = useState('');
+  const [companyOpen, setCompanyOpen] = useState(false);
+  const [showCompanyLockedModal, setShowCompanyLockedModal] = useState(false);
   
   const [user, setUser] = useState(null);
   const [isVisitor, setIsVisitor] = useState(false);
