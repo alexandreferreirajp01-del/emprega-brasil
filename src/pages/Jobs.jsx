@@ -417,55 +417,34 @@ export default function Jobs() {
         </div>
       </div>
 
-      {/* Filters - Horizontal Scroll - Estilo G1 */}
+      {/* Filters - Grid Responsivo */}
       <div className="bg-slate-50 border-b sticky top-[52px] z-10">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex overflow-x-auto gap-2 py-3 hide-scrollbar">
-            <Select value="PB" onValueChange={() => {}} disabled>
-              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap bg-[#1D4371] text-white border-[#1D4371]">
-                <SelectValue>PB - Paraíba</SelectValue>
-              </SelectTrigger>
-            </Select>
+        <div className="max-w-6xl mx-auto px-3 py-3 space-y-2">
+
+          {/* Linha 1: PB fixo + Cidade + Tipo */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="flex items-center justify-center h-9 rounded-lg bg-[#1D4371] text-white text-xs font-semibold px-2">
+              📍 Paraíba
+            </div>
 
             <Popover open={cityOpen} onOpenChange={setCityOpen}>
               <PopoverTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  className="h-9 rounded-full text-xs whitespace-nowrap"
+                <Button
+                  variant="outline"
+                  className={`h-9 w-full rounded-lg text-xs px-2 truncate ${selectedCity !== 'all' ? 'border-[#1D4371] text-[#1D4371] font-semibold' : ''}`}
                 >
                   {selectedCity === 'all' ? 'Cidade' : selectedCity}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0" align="start">
                 <Command>
-                  <CommandInput 
-                    placeholder="Buscar..." 
-                    value={citySearch}
-                    onValueChange={setCitySearch}
-                  />
+                  <CommandInput placeholder="Buscar..." value={citySearch} onValueChange={setCitySearch} />
                   <CommandList className="max-h-[200px]">
                     <CommandEmpty>Nada encontrado</CommandEmpty>
                     <CommandGroup>
-                      <CommandItem
-                        value="all"
-                        onSelect={() => {
-                          setSelectedCity('all');
-                          setCityOpen(false);
-                        }}
-                      >
-                        Todas
-                      </CommandItem>
+                      <CommandItem value="all" onSelect={() => { setSelectedCity('all'); setCityOpen(false); }}>Todas</CommandItem>
                       {filteredCities.map((city) => (
-                        <CommandItem
-                          key={city}
-                          value={city}
-                          onSelect={() => {
-                            setSelectedCity(city);
-                            setCityOpen(false);
-                          }}
-                        >
-                          {city}
-                        </CommandItem>
+                        <CommandItem key={city} value={city} onSelect={() => { setSelectedCity(city); setCityOpen(false); }}>{city}</CommandItem>
                       ))}
                     </CommandGroup>
                   </CommandList>
@@ -474,29 +453,30 @@ export default function Jobs() {
             </Popover>
 
             <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+              <SelectTrigger className={`h-9 rounded-lg text-xs ${selectedType !== 'all' ? 'border-[#1D4371] text-[#1D4371] font-semibold' : ''}`}>
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="all">Todos os tipos</SelectItem>
                 <SelectItem value="CLT">CLT</SelectItem>
                 <SelectItem value="PJ">PJ</SelectItem>
                 <SelectItem value="Estágio">Estágio</SelectItem>
                 <SelectItem value="Home Office">Home Office</SelectItem>
               </SelectContent>
             </Select>
+          </div>
 
+          {/* Linha 2: Categoria + Empresa */}
+          <div className="grid grid-cols-2 gap-2">
             <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-              <SelectTrigger className="h-9 rounded-full text-xs whitespace-nowrap">
+              <SelectTrigger className={`h-9 rounded-lg text-xs ${selectedCategory !== 'all' ? 'border-[#1D4371] text-[#1D4371] font-semibold' : ''}`}>
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
                 <ScrollArea className="h-[200px]">
-                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
                   {categories.map(cat => (
-                    <SelectItem key={cat.id} value={cat.category_name}>
-                      {cat.category_name}
-                    </SelectItem>
+                    <SelectItem key={cat.id} value={cat.category_name}>{cat.category_name}</SelectItem>
                   ))}
                 </ScrollArea>
               </SelectContent>
@@ -508,29 +488,21 @@ export default function Jobs() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className={`h-9 rounded-full text-xs whitespace-nowrap gap-1 ${selectedCompany !== 'all' ? 'border-[#1D4371] text-[#1D4371]' : ''}`}
+                    className={`h-9 w-full rounded-lg text-xs px-2 gap-1 truncate ${selectedCompany !== 'all' ? 'border-[#1D4371] text-[#1D4371] font-semibold' : ''}`}
                   >
-                    <Building2 className="w-3 h-3" />
-                    {selectedCompany === 'all' ? 'Empresa' : selectedCompany.length > 15 ? selectedCompany.slice(0, 15) + '…' : selectedCompany}
+                    <Building2 className="w-3 h-3 flex-shrink-0" />
+                    <span className="truncate">{selectedCompany === 'all' ? 'Empresa' : selectedCompany}</span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[220px] p-0" align="start">
                   <Command>
-                    <CommandInput
-                      placeholder="Buscar empresa..."
-                      value={companySearch}
-                      onValueChange={setCompanySearch}
-                    />
+                    <CommandInput placeholder="Buscar empresa..." value={companySearch} onValueChange={setCompanySearch} />
                     <CommandList className="max-h-[200px]">
                       <CommandEmpty>Nenhuma empresa</CommandEmpty>
                       <CommandGroup>
-                        <CommandItem value="all" onSelect={() => { setSelectedCompany('all'); setCompanyOpen(false); }}>
-                          Todas
-                        </CommandItem>
+                        <CommandItem value="all" onSelect={() => { setSelectedCompany('all'); setCompanyOpen(false); }}>Todas</CommandItem>
                         {filteredCompanies.map((company) => (
-                          <CommandItem key={company} value={company} onSelect={() => { setSelectedCompany(company); setCompanyOpen(false); }}>
-                            {company}
-                          </CommandItem>
+                          <CommandItem key={company} value={company} onSelect={() => { setSelectedCompany(company); setCompanyOpen(false); }}>{company}</CommandItem>
                         ))}
                       </CommandGroup>
                     </CommandList>
@@ -540,62 +512,53 @@ export default function Jobs() {
             ) : (
               <Button
                 variant="outline"
-                className="h-9 rounded-full text-xs whitespace-nowrap gap-1 text-slate-500 border-dashed"
+                className="h-9 w-full rounded-lg text-xs gap-1 border-dashed text-slate-500"
                 onClick={() => setShowCompanyLockedModal(true)}
               >
-                <Lock className="w-3 h-3 text-purple-500" />
-                Empresa
-              </Button>
-            )}
-
-            {hasActiveFilters && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearFilters} 
-                className="h-9 rounded-full text-xs whitespace-nowrap"
-              >
-                Limpar
+                <Lock className="w-3 h-3 text-purple-500 flex-shrink-0" />
+                <span>Empresa 🔒</span>
               </Button>
             )}
           </div>
 
-          {/* Filtros Premium, Destaque e Home Office */}
-          <div className="flex gap-2 pb-3 px-1 overflow-x-auto hide-scrollbar">
+          {/* Linha 3: Toggles + Limpar */}
+          <div className="flex items-center gap-2 flex-wrap">
             {userIsPremium && (
               <>
-                <div className="flex items-center gap-1 px-2 h-8 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
-                  <Switch
-                    checked={showPremiumOnly}
-                    onCheckedChange={setShowPremiumOnly}
-                    className="data-[state=checked]:bg-purple-600 scale-75"
-                  />
-                  <Lock className="w-3 h-3 text-purple-600" />
-                  <span className="text-[10px] font-medium text-slate-700">Premium</span>
-                </div>
-
-                <div className="flex items-center gap-1 px-2 h-8 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
-                  <Switch
-                    checked={showFeaturedOnly}
-                    onCheckedChange={setShowFeaturedOnly}
-                    className="data-[state=checked]:bg-yellow-500 scale-75"
-                  />
-                  <Star className="w-3 h-3 text-yellow-500" />
-                  <span className="text-[10px] font-medium text-slate-700">Destaque</span>
-                </div>
+                <button
+                  onClick={() => setShowPremiumOnly(v => !v)}
+                  className={`flex items-center gap-1.5 px-3 h-8 rounded-lg border text-[11px] font-medium transition-colors ${showPremiumOnly ? 'bg-purple-100 border-purple-400 text-purple-700' : 'bg-white border-slate-200 text-slate-600'}`}
+                >
+                  <Lock className="w-3 h-3" />
+                  Premium
+                </button>
+                <button
+                  onClick={() => setShowFeaturedOnly(v => !v)}
+                  className={`flex items-center gap-1.5 px-3 h-8 rounded-lg border text-[11px] font-medium transition-colors ${showFeaturedOnly ? 'bg-yellow-100 border-yellow-400 text-yellow-700' : 'bg-white border-slate-200 text-slate-600'}`}
+                >
+                  <Star className="w-3 h-3" />
+                  Destaque
+                </button>
               </>
             )}
-
-            <div className="flex items-center gap-1 px-2 h-8 bg-white border rounded-full shadow-sm whitespace-nowrap flex-shrink-0">
-              <Switch
-                checked={showHomeOfficeOnly}
-                onCheckedChange={setShowHomeOfficeOnly}
-                className="data-[state=checked]:bg-blue-600 scale-75"
-              />
-              <Briefcase className="w-3 h-3 text-blue-600" />
-              <span className="text-[10px] font-medium text-slate-700">Home Office</span>
-            </div>
+            <button
+              onClick={() => setShowHomeOfficeOnly(v => !v)}
+              className={`flex items-center gap-1.5 px-3 h-8 rounded-lg border text-[11px] font-medium transition-colors ${showHomeOfficeOnly ? 'bg-blue-100 border-blue-400 text-blue-700' : 'bg-white border-slate-200 text-slate-600'}`}
+            >
+              <Briefcase className="w-3 h-3" />
+              Home Office
+            </button>
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 px-3 h-8 rounded-lg border border-red-200 bg-red-50 text-red-600 text-[11px] font-medium ml-auto"
+              >
+                <X className="w-3 h-3" />
+                Limpar
+              </button>
+            )}
           </div>
+
         </div>
       </div>
 
