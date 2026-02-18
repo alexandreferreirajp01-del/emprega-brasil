@@ -359,8 +359,16 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Right side actions */}
         <div className="flex items-center gap-1 absolute right-0 lg:relative lg:ml-auto">
-          {/* Desktop: Notification Bell + Chat + Settings + Users Button + Vagas Button + Theme */}
+          {/* Desktop: Notification Bell + Alerta Pendências + Settings + Users Button + Vagas Button + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
+
+          {showVagasButton && (
+            <Link to={createPageUrl('VagasPendentes')} title="Vagas Pendentes" className="hidden lg:inline-flex">
+              <Button variant="ghost" size="icon" className="text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                <AlertTriangle className="w-5 h-5" />
+              </Button>
+            </Link>
+          )}
 
           {showVagasButton && (
             <Button 
