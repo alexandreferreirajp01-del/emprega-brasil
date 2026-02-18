@@ -54,6 +54,19 @@ Deno.serve(async (req) => {
       updateData.profile_photo = googlePhoto.trim();
     }
 
+    // Notificar admins sobre novo usuário (primeiro login OAuth)
+    try {
+      await base44.asServiceRole.functions.invoke('notifyNewUser', {
+        user_email: user.email,
+        user_name: googleName || user.email,
+        user_type: user.subscription_type || 'basic',
+        user_id: user.id,
+        created_date: user.created_date || new Date().toISOString()
+      });
+    } catch (notifError) {
+      console.error('Erro ao notificar admins (primeiro login):', notifError);
+    }
+
     // Atualizar apenas se houver dados
     if (Object.keys(updateData).length > 0) {
       const updatedUser = await base44.asServiceRole.entities.User.update(user.id, updateData);
