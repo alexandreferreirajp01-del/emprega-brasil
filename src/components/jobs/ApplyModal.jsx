@@ -42,7 +42,7 @@ export default function ApplyModal({ job, contacts, open, onClose }) {
             className="fixed inset-0 z-[10001] flex items-end sm:items-center justify-center pointer-events-none"
             style={{ top: 0, left: 0, right: 0, bottom: 0 }}
           >
-            <div className="bg-white dark:bg-slate-800 rounded-t-3xl md:rounded-3xl shadow-2xl overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden w-full sm:max-w-md pointer-events-auto">
               {/* Header gradient */}
               <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] px-6 pt-6 pb-8 relative">
                 <button
