@@ -284,29 +284,31 @@ Deno.serve(async (req) => {
       is_read: false
     });
 
-    // 2. Buscar todos os usuários para email
+    // 2. Buscar todos os usuários e enfileirar emails
     const users = await base44.asServiceRole.entities.User.list('-created_date', 10000);
     let emailsSent = 0, emailErrors = 0, pushSent = 0, pushErrors = 0;
 
-    // 3. Enviar emails sequencialmente 1 por vez com delay para respeitar rate limit
-    for (let i = 0; i < users.length; i++) {
-      const u = users[i];
-      if (!u.email) continue;
-      try {
-        const userSeed = (seed + i) % TEMPLATES.length;
-        const userTemplate = pickTemplate(userSeed);
-        await base44.asServiceRole.integrations.Core.SendEmail({
-          to: u.email,
-          subject: userTemplate.subject(vars),
-          body: buildEmailHtml(userTemplate, vars, jobUrl)
-        });
-        emailsSent++;
-      } catch (e) {
-        emailErrors++;
-      }
-      // Delay de 600ms entre cada email (~1.6 emails/seg) para não estourar rate limit
-      await new Promise(r => setTimeout(r, 600));
+    // 3. Adicionar todos os usuários na fila de notificação (lotes de 100 para não travar)
+    const LOTE = 100;
+    for (let i = 0; i < users.length; i += LOTE) {
+      const lote = users.slice(i, i + LOTE).filter(u => u.email);
+      await Promise.allSettled(
+        lote.map((u, idx) =>
+          base44.asServiceRole.entities.FilaNotificacao.create({
+            job_id: jobId,
+            job_title: jobTitle,
+            job_company: jobCompany || '',
+            job_city: jobCity || '',
+            is_home_office: !!isHomeOffice,
+            user_email: u.email,
+            status: 'pending',
+            attempts: 0,
+            template_seed: (seed + i + idx) % 30
+          })
+        )
+      );
     }
+    emailsSent = users.filter(u => u.email).length; // total enfileirado
 
     // 4. Enviar push notification para todos os inscritos
     const subscriptions = await base44.asServiceRole.entities.PushSubscription.filter({ is_active: true }, '-created_date', 10000);
