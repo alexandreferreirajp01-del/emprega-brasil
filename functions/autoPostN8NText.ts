@@ -213,7 +213,7 @@ ${texto}`,
 
         // ✅ Notificar todos os usuários (email + sininho + push)
         const latestJob = await base44.asServiceRole.entities.Job.filter({ id: vagaCriada.id }, '-created_date', 1).then(r => r?.[0] || vagaCriada);
-        if (latestJob?.status === 'ativa') {
+        if (latestJob?.status === 'ativa' && !noLocation) {
           try {
             await base44.asServiceRole.functions.invoke('notifyNewJob', {
               jobId: latestJob.id,
