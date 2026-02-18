@@ -143,8 +143,8 @@ export default function EditJobModal({ job, isOpen, onClose, onUpdateSuccess }) 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-jobs'] });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      onUpdateSuccess();
-      onClose();
+      if (typeof onUpdateSuccess === 'function') onUpdateSuccess();
+      if (typeof onClose === 'function') onClose();
     },
     onError: (error) => {
       console.error("Erro ao atualizar vaga:", error);
