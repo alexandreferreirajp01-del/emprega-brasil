@@ -257,6 +257,18 @@ export default function Jobs() {
     user?.subscription_type === 'admin' || 
     user?.role === 'admin';
 
+  const canUseCompanyFilter = userIsPremium || user?.subscription_type === 'dono';
+
+  // Lista de empresas únicas
+  const availableCompanies = React.useMemo(() => {
+    const set = new Set(jobs.map(j => j.company).filter(Boolean));
+    return Array.from(set).sort();
+  }, [jobs]);
+
+  const filteredCompanies = availableCompanies.filter(c =>
+    c.toLowerCase().includes(companySearch.toLowerCase())
+  );
+
   const canViewJob = (job) => {
     if (!job.is_premium) return true;
     return userIsPremium;
