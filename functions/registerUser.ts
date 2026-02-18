@@ -64,6 +64,20 @@ Deno.serve(async (req) => {
       amount: 0
     });
 
+    // Notificar admins sobre novo usuário
+    try {
+      await base44.asServiceRole.functions.invoke('notifyNewUser', {
+        user_email: email.toLowerCase(),
+        user_name: full_name,
+        user_type: 'basic',
+        user_id: newUser.id,
+        created_date: new Date().toISOString()
+      });
+    } catch (notifError) {
+      console.error('Erro ao notificar admins:', notifError);
+      // Não falhar o cadastro se a notificação falhar
+    }
+
     // Enviar e-mail de boas-vindas
     try {
       await base44.integrations.Core.SendEmail({
