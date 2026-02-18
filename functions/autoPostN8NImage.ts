@@ -253,6 +253,23 @@ RETORNE QUALQUER contato que encontrar na imagem.`,
           }
         }
 
+        // ✅ Notificar todos os usuários (email + sininho + push)
+        const jobFinal = vagasCriadas.length > 0 ? vagasCriada : vagaCriada;
+        const jobToNotify = jobFinal || vagaCriada;
+        if (jobToNotify?.status === 'ativa') {
+          try {
+            await base44.asServiceRole.functions.invoke('notifyNewJob', {
+              jobId: jobToNotify.id,
+              jobTitle: jobToNotify.title,
+              jobCompany: jobToNotify.company,
+              jobCity: jobToNotify.city,
+              isHomeOffice: (jobToNotify.work_mode === 'Remoto' || jobToNotify.is_remote)
+            });
+          } catch (notifyErr) {
+            console.error('Erro ao notificar vaga:', notifyErr.message);
+          }
+        }
+
         vagasCriadas.push(vagaCriada);
       } catch (error) {
         console.error('Erro ao criar vaga:', error);
