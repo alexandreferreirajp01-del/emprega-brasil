@@ -624,8 +624,7 @@ export default function JobDetail() {
           job={job}
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          onSuccess={() => {
-            setShowEditModal(false);
+          onUpdateSuccess={() => {
             setRefreshKey(k => k + 1);
           }}
         />
