@@ -416,6 +416,14 @@ export default function Layout({ children, currentPageName }) {
           <div className="lg:hidden flex items-center gap-1">
 
             {showVagasButton && (
+              <Link to={createPageUrl('VagasPendentes')} title="Vagas Pendentes">
+                <Button variant="ghost" size="icon" className="text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                  <AlertTriangle className="w-5 h-5" />
+                </Button>
+              </Link>
+            )}
+
+            {showVagasButton && (
               <Button 
                 variant="ghost" 
                 size="icon" 
