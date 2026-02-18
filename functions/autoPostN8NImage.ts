@@ -272,9 +272,8 @@ RETORNE QUALQUER contato que encontrar na imagem.`,
         }
 
         // ✅ Notificar todos os usuários (email + sininho + push)
-        const jobFinal = vagasCriadas.length > 0 ? vagasCriada : vagaCriada;
-        const jobToNotify = jobFinal || vagaCriada;
-        if (jobToNotify?.status === 'ativa') {
+        const jobToNotify = vagaCriada;
+        if (jobToNotify?.status === 'ativa' && !noLocation) {
           try {
             await base44.asServiceRole.functions.invoke('notifyNewJob', {
               jobId: jobToNotify.id,
