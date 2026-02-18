@@ -103,10 +103,26 @@ IMPORTANTE:
           vaga.contact_whatsapp
         );
 
+        // ✅ CONDIÇÃO 1: detectar home office / remoto / híbrido no conteúdo
+        const textoCompleto = (
+          (vaga.titulo || '') + ' ' + (vaga.descricao || '') + ' ' + textoLimpo
+        ).toLowerCase();
+        const isHomeOfficeContent = /home\s*office|#home|híbrido|hibrido|#híbrido|#hibrido|remoto|#remoto|trabalhar\s*em\s*casa|trabalhe\s*em\s*casa/.test(textoCompleto);
+        const isPremium = isHomeOfficeContent || vaga.home_office === true;
+
+        // ✅ CONDIÇÃO 2: detectar ausência de localização
+        const hasLocation = !!(
+          (vaga.cidade && vaga.cidade.trim() !== '' && vaga.cidade.trim().toLowerCase() !== 'não informado') ||
+          (vaga.estado && vaga.estado.trim() !== '')
+        );
+        const noLocation = !hasLocation;
+
+        const statusFinal = noLocation ? 'pending_review' : (hasContact ? 'ativa' : 'pending_contact');
+
         const vagaPendente = await base44.asServiceRole.entities.Job.create({
           title: vaga.titulo,
           company: vaga.empresa || 'Empresa não informada',
-          city: vaga.cidade || 'Não informado',
+          city: vaga.cidade || '',
           state: vaga.estado || '',
           neighborhood: vaga.neighborhood || '',
           cep: vaga.cep || '',
@@ -123,18 +139,20 @@ IMPORTANTE:
           contact_phone: vaga.contact_phone || '',
           contact_whatsapp: vaga.contact_whatsapp || '',
           image_url: imagem_url || '',
-          is_premium: false,
+          is_premium: isPremium,
           is_featured: false,
-          published_at: hasContact ? new Date().toISOString() : null,
-          status: hasContact ? 'ativa' : 'pending_contact',
+          is_home_office: isPremium,
+          work_mode: isPremium ? 'Remoto' : 'Presencial',
+          published_at: statusFinal === 'ativa' ? new Date().toISOString() : null,
+          status: statusFinal,
           contact_status: hasContact ? 'ok' : 'missing',
-          needs_review: !hasContact,
+          needs_review: noLocation || !hasContact,
+          review_notes: noLocation ? 'Sem localização detectada - aguardando revisão' : '',
           origin_source: 'auto_post_n8n',
           origin_channel: canal,
           origin_group_id: grupo_id || '',
           origin_group_name: grupo_nome || '',
           origin_date: data_recebimento || new Date().toISOString(),
-          is_home_office: vaga.home_office || false
         });
 
         // ✅ Notificar todos os usuários (email + sininho + push)
