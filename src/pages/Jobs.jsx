@@ -333,8 +333,10 @@ export default function Jobs() {
     setSelectedType('all');
     setSelectedCategory('all');
     setSelectedFunction('all');
+    setSelectedCompany('all');
     setCitySearch('');
     setFuncSearch('');
+    setCompanySearch('');
   };
 
   const activeFiltersCount = [selectedState, selectedCity, selectedType, selectedCategory, selectedFunction].filter(f => f !== 'all').length;
