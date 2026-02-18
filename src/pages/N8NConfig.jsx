@@ -79,6 +79,7 @@ export default function N8NConfig() {
   const baseUrl = 'https://vagasabertaspb.com.br';
   const textEndpoint = `${baseUrl}/api/functions/autoPostN8NText`;
   const imageEndpoint = `${baseUrl}/api/functions/autoPostN8NImage`;
+  const homeOfficeEndpoint = `${baseUrl}/api/functions/autoPostN8NHomeOffice`;
 
   const endpoints = [
     {
@@ -123,6 +124,26 @@ export default function N8NConfig() {
           grupo: "WhatsApp Vagas Abertas PB",
           dominio: "vagasabertaspb.com.br"
         }
+      }
+    },
+    {
+      id: 'homeoffice',
+      name: 'POST Home Office (Premium)',
+      icon: Zap,
+      color: 'teal',
+      endpoint: homeOfficeEndpoint,
+      method: 'POST',
+      description: 'Vagas remotas — sempre marcadas como Premium + Home Office',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer {{TOKEN}}'
+      },
+      body: {
+        tipo_mensagem: "texto",
+        mensagem_texto: "VAGA HOME OFFICE: Desenvolvedor React\nEmpresa: Tech Remota\nSalário: R$ 5.000\nContato: vagas@techremota.com.br",
+        canal: "whatsapp",
+        grupo_nome: "Vagas Home Office PB",
+        origem: "n8n_homeoffice"
       }
     }
   ];
