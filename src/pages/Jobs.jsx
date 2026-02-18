@@ -339,7 +339,7 @@ export default function Jobs() {
     setCompanySearch('');
   };
 
-  const activeFiltersCount = [selectedState, selectedCity, selectedType, selectedCategory, selectedFunction].filter(f => f !== 'all').length;
+  const activeFiltersCount = [selectedState, selectedCity, selectedType, selectedCategory, selectedFunction, selectedCompany].filter(f => f !== 'all').length;
   const hasActiveFilters = searchTerm || activeFiltersCount > 0;
 
   const handleFavorite = async (job, e) => {
