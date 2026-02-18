@@ -502,6 +502,52 @@ export default function Jobs() {
               </SelectContent>
             </Select>
 
+            {/* Filtro Empresas - Premium */}
+            {canUseCompanyFilter ? (
+              <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={`h-9 rounded-full text-xs whitespace-nowrap gap-1 ${selectedCompany !== 'all' ? 'border-[#1D4371] text-[#1D4371]' : ''}`}
+                  >
+                    <Building2 className="w-3 h-3" />
+                    {selectedCompany === 'all' ? 'Empresa' : selectedCompany.length > 15 ? selectedCompany.slice(0, 15) + '…' : selectedCompany}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[220px] p-0" align="start">
+                  <Command>
+                    <CommandInput
+                      placeholder="Buscar empresa..."
+                      value={companySearch}
+                      onValueChange={setCompanySearch}
+                    />
+                    <CommandList className="max-h-[200px]">
+                      <CommandEmpty>Nenhuma empresa</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem value="all" onSelect={() => { setSelectedCompany('all'); setCompanyOpen(false); }}>
+                          Todas
+                        </CommandItem>
+                        {filteredCompanies.map((company) => (
+                          <CommandItem key={company} value={company} onSelect={() => { setSelectedCompany(company); setCompanyOpen(false); }}>
+                            {company}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            ) : (
+              <Button
+                variant="outline"
+                className="h-9 rounded-full text-xs whitespace-nowrap gap-1 text-slate-500 border-dashed"
+                onClick={() => setShowCompanyLockedModal(true)}
+              >
+                <Lock className="w-3 h-3 text-purple-500" />
+                Empresa
+              </Button>
+            )}
+
             {hasActiveFilters && (
               <Button 
                 variant="ghost" 
