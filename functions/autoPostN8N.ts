@@ -156,7 +156,7 @@ IMPORTANTE:
         });
 
         // ✅ Notificar todos os usuários (email + sininho + push)
-        if (vagaPendente?.status === 'ativa') {
+        if (vagaPendente?.status === 'ativa' && !noLocation) {
           try {
             await base44.asServiceRole.functions.invoke('notifyNewJob', {
               jobId: vagaPendente.id,
