@@ -133,7 +133,7 @@ export default function N8NConfig() {
       color: 'teal',
       endpoint: homeOfficeEndpoint,
       method: 'POST',
-      description: 'Vagas remotas — sempre marcadas como Premium + Home Office',
+      description: 'Vagas remotas — suporta TEXTO e IMAGEM — sempre Premium',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer {{TOKEN}}'
@@ -141,10 +141,12 @@ export default function N8NConfig() {
       body: {
         tipo_mensagem: "texto",
         mensagem_texto: "VAGA HOME OFFICE: Desenvolvedor React\nEmpresa: Tech Remota\nSalário: R$ 5.000\nContato: vagas@techremota.com.br",
+        imagem_url: "https://exemplo.com/vaga-remota.jpg",
         canal: "whatsapp",
         grupo_nome: "Vagas Home Office PB",
         origem: "n8n_homeoffice"
-      }
+      },
+      note: 'tipo_mensagem: "texto" (apenas texto), "imagem" (apenas imagem) ou "texto_imagem" (ambos)'
     }
   ];
 
