@@ -362,6 +362,16 @@ export default function N8NConfig() {
                 {/* Body Example */}
                 <div>
                   <label className="text-xs font-medium text-slate-600 mb-1 block">Exemplo de Body (JSON)</label>
+                  {endpoint.note && (
+                    <div className="mb-2 bg-teal-50 border border-teal-200 rounded-lg p-3">
+                      <p className="text-xs font-bold text-teal-800 mb-1">📝 Campo tipo_mensagem:</p>
+                      <div className="space-y-1 text-xs text-teal-700">
+                        <p><code className="bg-white px-1 rounded">"texto"</code> — envia apenas o campo <code className="bg-white px-1 rounded">mensagem_texto</code></p>
+                        <p><code className="bg-white px-1 rounded">"imagem"</code> — envia apenas o campo <code className="bg-white px-1 rounded">imagem_url</code></p>
+                        <p><code className="bg-white px-1 rounded">"texto_imagem"</code> — combina texto + imagem</p>
+                      </div>
+                    </div>
+                  )}
                   <div className="bg-slate-900 rounded-lg p-4">
                     <pre className="text-xs text-cyan-400 font-mono overflow-x-auto">
 {JSON.stringify(endpoint.body, null, 2)}
