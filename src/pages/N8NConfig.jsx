@@ -464,6 +464,11 @@ export default function N8NConfig() {
                       <p className="text-xs font-bold text-purple-900 mb-1">Para vagas em IMAGEM:</p>
                       <code className="text-xs text-purple-800 break-all block">{imageEndpoint}</code>
                     </div>
+                    <div className="bg-teal-50 border border-teal-200 rounded p-2">
+                      <p className="text-xs font-bold text-teal-900 mb-1">🏠 Para vagas HOME OFFICE (Premium):</p>
+                      <code className="text-xs text-teal-800 break-all block">{homeOfficeEndpoint}</code>
+                      <p className="text-xs text-teal-700 mt-1">✅ Vagas criadas automaticamente como <strong>Premium + Remoto</strong></p>
+                    </div>
                   </div>
                 </div>
               </div>
