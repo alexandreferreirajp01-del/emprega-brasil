@@ -228,7 +228,30 @@ function buildEmailHtml(template, vars, jobUrl) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { jobId, jobTitle, jobCompany, jobCity, isHomeOffice } = await req.json();
+    const body = await req.json();
+
+    // Suporta chamada direta (jobId, jobTitle...) E automação de entidade (event + data)
+    let jobId, jobTitle, jobCompany, jobCity, isHomeOffice;
+
+    if (body.event && body.data) {
+      // Chamada via automação de entidade
+      const job = body.data;
+      if (!job || job.status !== 'ativa') {
+        return Response.json({ skipped: true, reason: 'Vaga não ativa, notificação ignorada' });
+      }
+      jobId = job.id;
+      jobTitle = job.title;
+      jobCompany = job.company;
+      jobCity = job.city;
+      isHomeOffice = (job.work_mode === 'Remoto' || job.is_remote === true);
+    } else {
+      // Chamada direta
+      jobId = body.jobId;
+      jobTitle = body.jobTitle;
+      jobCompany = body.jobCompany;
+      jobCity = body.jobCity;
+      isHomeOffice = body.isHomeOffice;
+    }
 
     if (!jobId || !jobTitle) {
       return Response.json({ error: 'jobId and jobTitle are required' }, { status: 400 });
