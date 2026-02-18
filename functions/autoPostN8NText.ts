@@ -106,11 +106,27 @@ ${texto}`,
           job.contact_whatsapp ||
           job.contact_instagram
         );
-        
+
+        // ✅ CONDIÇÃO 1: detectar home office / remoto / híbrido no conteúdo
+        const textoCompleto = (
+          (job.title || '') + ' ' + (job.description || '') + ' ' + texto
+        ).toLowerCase();
+        const isHomeOfficeContent = /home\s*office|#home|híbrido|hibrido|#híbrido|#hibrido|remoto|#remoto|trabalhar\s*em\s*casa|trabalhe\s*em\s*casa/.test(textoCompleto);
+        const isPremium = isHomeOfficeContent || job.work_mode === 'Remoto' || job.work_mode === 'Híbrido';
+
+        // ✅ CONDIÇÃO 2: detectar ausência de localização → status pending_location
+        const hasLocation = !!(
+          (job.city && job.city.trim() !== '' && job.city.trim().toLowerCase() !== 'não informado') ||
+          (job.state && job.state.trim() !== '')
+        );
+        const noLocation = !hasLocation;
+
+        const statusFinal = noLocation ? 'pending_review' : (hasContact ? 'ativa' : 'pending_contact');
+
         const vagaCriada = await base44.asServiceRole.entities.Job.create({
           title: job.title || 'Vaga',
           company: job.company || 'Empresa não informada',
-          city: job.city || 'Não informado',
+          city: job.city || '',
           state: job.state || '',
           salary_range: job.salary_range || '',
           contact_phone: job.contact_phone || '',
@@ -120,15 +136,17 @@ ${texto}`,
           additional_info: job.contact_instagram ? `Instagram: ${job.contact_instagram}` : '',
           description: job.description || texto.slice(0, 500),
           job_type: job.job_type || 'CLT',
-          work_mode: job.work_mode || 'Presencial',
+          work_mode: isPremium ? (job.work_mode || 'Remoto') : (job.work_mode || 'Presencial'),
           category: job.category || 'Geral',
           job_function: job.job_function || '',
-          is_premium: false,
+          is_premium: isPremium,
           is_featured: false,
-          status: hasContact ? 'ativa' : 'pending_contact',
+          is_home_office: isPremium,
+          status: statusFinal,
           contact_status: hasContact ? 'ok' : 'missing',
-          needs_review: !hasContact,
-          published_at: new Date().toISOString(),
+          needs_review: noLocation || !hasContact,
+          review_notes: noLocation ? 'Sem localização detectada - aguardando revisão' : '',
+          published_at: statusFinal === 'ativa' ? new Date().toISOString() : null,
           origem: 'n8n_text'
         });
         
