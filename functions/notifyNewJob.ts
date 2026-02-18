@@ -288,14 +288,14 @@ Deno.serve(async (req) => {
     const users = await base44.asServiceRole.entities.User.list('-created_date', 10000);
     let emailsSent = 0, emailErrors = 0, pushSent = 0, pushErrors = 0;
 
-    // 3. Enviar emails em paralelo (batches de 20)
-    const BATCH = 20;
+    // 3. Enviar emails sequencialmente com delay para evitar rate limit
+    const BATCH = 5;
+    const DELAY_MS = 1200; // 1.2s entre batches = ~4 emails/seg
     for (let i = 0; i < users.length; i += BATCH) {
       const batch = users.slice(i, i + BATCH);
       await Promise.allSettled(
         batch.filter(u => u.email).map(async (user) => {
           try {
-            // Varia template por usuário para não ser repetitivo
             const userSeed = (seed + i) % TEMPLATES.length;
             const userTemplate = pickTemplate(userSeed);
             await base44.asServiceRole.integrations.Core.SendEmail({
@@ -306,10 +306,12 @@ Deno.serve(async (req) => {
             emailsSent++;
           } catch (e) {
             emailErrors++;
-            console.error('Email error:', user.email, e.message);
           }
         })
       );
+      if (i + BATCH < users.length) {
+        await new Promise(r => setTimeout(r, DELAY_MS));
+      }
     }
 
     // 4. Enviar push notification para todos os inscritos
