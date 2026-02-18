@@ -64,7 +64,7 @@ export default function GerenciarUsuarios() {
 
   const { data: users = [], isLoading: loadingUsers } = useQuery({
     queryKey: ['admin-users'],
-    queryFn: () => base44.entities.User.list('-created_date', 500),
+    queryFn: () => base44.entities.User.list('-created_date', 10000),
     staleTime: 60000,
   });
 
