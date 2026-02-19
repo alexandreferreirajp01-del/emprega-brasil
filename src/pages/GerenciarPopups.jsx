@@ -37,7 +37,8 @@ export default function GerenciarPopups() {
     button_text: 'Entendi',
     priority: 0,
     start_date: '',
-    end_date: ''
+    end_date: '',
+    buttons: []
   });
 
   const queryClient = useQueryClient();
