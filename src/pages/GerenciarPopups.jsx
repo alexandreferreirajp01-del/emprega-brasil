@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye, EyeOff, Megaphone, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, Megaphone, Loader2, Link as LinkIcon, ExternalLink, X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function GerenciarPopups() {
