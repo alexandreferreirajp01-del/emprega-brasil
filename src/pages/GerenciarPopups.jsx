@@ -78,17 +78,32 @@ export default function GerenciarPopups() {
     setIsOpen(false);
     setEditingPopup(null);
     setFormData({
-      title: '',
-      message: '',
-      icon: '📢',
-      type: 'info',
-      frequency: 'once',
-      is_active: true,
-      button_text: 'Entendi',
-      priority: 0,
-      start_date: '',
-      end_date: ''
+      title: '', message: '', icon: '📢', type: 'info', frequency: 'once',
+      is_active: true, button_text: 'Entendi', priority: 0,
+      start_date: '', end_date: '', buttons: []
     });
+  };
+
+  const addButton = () => {
+    setFormData(prev => ({
+      ...prev,
+      buttons: [...(prev.buttons || []), { label: '', url: '', style: 'primary' }]
+    }));
+  };
+
+  const updateButton = (index, field, value) => {
+    setFormData(prev => {
+      const btns = [...(prev.buttons || [])];
+      btns[index] = { ...btns[index], [field]: value };
+      return { ...prev, buttons: btns };
+    });
+  };
+
+  const removeButton = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      buttons: (prev.buttons || []).filter((_, i) => i !== index)
+    }));
   };
 
   const handleEdit = (popup) => {
