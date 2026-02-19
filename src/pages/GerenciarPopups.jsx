@@ -228,6 +228,18 @@ export default function GerenciarPopups() {
                           </Badge>
                         )}
                       </div>
+                      {popup.buttons?.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {popup.buttons.map((btn, i) => btn.url && (
+                            <a key={i} href={btn.url} target="_blank" rel="noopener noreferrer">
+                              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 cursor-pointer flex items-center gap-1">
+                                <ExternalLink className="w-3 h-3" />
+                                {btn.label || btn.url}
+                              </Badge>
+                            </a>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button
