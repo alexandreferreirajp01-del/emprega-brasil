@@ -118,7 +118,8 @@ export default function GerenciarPopups() {
       button_text: popup.button_text || 'Entendi',
       priority: popup.priority || 0,
       start_date: popup.start_date?.split('T')[0] || '',
-      end_date: popup.end_date?.split('T')[0] || ''
+      end_date: popup.end_date?.split('T')[0] || '',
+      buttons: popup.buttons || []
     });
     setIsOpen(true);
   };
