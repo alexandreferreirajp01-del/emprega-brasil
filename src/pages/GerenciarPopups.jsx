@@ -369,12 +369,65 @@ export default function GerenciarPopups() {
               </div>
 
               <div>
-                <Label>Texto do Botão</Label>
+                <Label>Texto do Botão de Fechar</Label>
                 <Input
                   value={formData.button_text}
                   onChange={(e) => setFormData(prev => ({ ...prev, button_text: e.target.value }))}
                   placeholder="Entendi"
                 />
+              </div>
+
+              {/* Botões com Links */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-1">
+                    <LinkIcon className="w-4 h-4" /> Botões com Link
+                  </Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addButton} className="h-7 text-xs gap-1">
+                    <Plus className="w-3 h-3" /> Adicionar Botão
+                  </Button>
+                </div>
+                {(formData.buttons || []).length === 0 && (
+                  <p className="text-xs text-slate-400 italic">Nenhum botão de link adicionado</p>
+                )}
+                {(formData.buttons || []).map((btn, index) => (
+                  <div key={index} className="flex gap-2 items-center p-2 bg-slate-50 rounded-lg border">
+                    <div className="flex-1 grid grid-cols-2 gap-2">
+                      <Input
+                        placeholder="Texto do botão"
+                        value={btn.label}
+                        onChange={e => updateButton(index, 'label', e.target.value)}
+                        className="h-8 text-xs"
+                      />
+                      <Input
+                        placeholder="URL (https://...)"
+                        value={btn.url}
+                        onChange={e => updateButton(index, 'url', e.target.value)}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    <select
+                      value={btn.style || 'primary'}
+                      onChange={e => updateButton(index, 'style', e.target.value)}
+                      className="h-8 px-2 text-xs rounded border bg-white flex-shrink-0"
+                    >
+                      <option value="primary">Primário</option>
+                      <option value="outline">Outline</option>
+                      <option value="ghost">Sutil</option>
+                    </select>
+                    {btn.url && (
+                      <a href={btn.url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-blue-500">
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Button>
+                      </a>
+                    )}
+                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-red-500 flex-shrink-0"
+                      onClick={() => removeButton(index)}>
+                      <X className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                ))}
               </div>
 
               <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
