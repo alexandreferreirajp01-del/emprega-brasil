@@ -29,12 +29,24 @@ export default function GerenciarPreLander() {
     const init = async () => {
       try {
         const u = await base44.auth.me();
-        const isDono = u.email === 'alexandreferreirajp01@gmail.com' || u.subscription_type === 'dono';
+        const isDono = u.email === 'alexandreferreirajp01@gmail.com' || u.subscription_type === 'dono' || u.role === 'admin' || u.subscription_type === 'admin';
         if (!isDono) { window.location.href = createPageUrl('Home'); return; }
         setUser(u);
-        // Carregar config salva
-        const saved = localStorage.getItem('prelander_config');
-        if (saved) setConfig({ ...DEFAULT_CONFIG, ...JSON.parse(saved) });
+
+        // Carregar do banco de dados primeiro
+        const records = await base44.entities.PreLanderConfig.list();
+        if (records && records.length > 0) {
+          const rec = records[0];
+          localStorage.setItem(RECORD_ID_KEY, rec.id);
+          const merged = { ...DEFAULT_CONFIG, ...rec };
+          setConfig(merged);
+          // Sincronizar localStorage também
+          localStorage.setItem('prelander_config', JSON.stringify(merged));
+        } else {
+          // Fallback: carregar do localStorage
+          const saved = localStorage.getItem('prelander_config');
+          if (saved) setConfig({ ...DEFAULT_CONFIG, ...JSON.parse(saved) });
+        }
       } catch {
         window.location.href = createPageUrl('Splash');
       } finally {
