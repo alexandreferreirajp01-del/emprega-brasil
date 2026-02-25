@@ -507,6 +507,14 @@ export default function Profile() {
 
 
 
+            {/* Ferramentas para todos os usuários */}
+            <Link to={createPageUrl('Utilidades')} className="block mb-3">
+              <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                <Wrench className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                <span className="text-slate-600 dark:text-slate-300 font-medium text-sm">Ferramentas</span>
+              </Button>
+            </Link>
+
             {(isDono || isAdmin || isRecruiter) && (
               <Link to={createPageUrl('Configuracoes')} className="block mb-4">
                 <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
