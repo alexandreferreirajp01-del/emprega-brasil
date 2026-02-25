@@ -25,8 +25,7 @@ export default function Blog() {
   const featuredPost = posts.find(p => p.is_featured);
   const filteredPosts = posts.filter(p => {
     const matchSearch = !searchTerm || p.title?.toLowerCase().includes(searchTerm.toLowerCase()) || p.subtitle?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
-    return matchSearch && matchCat && p.id !== featuredPost?.id;
+    return matchSearch && p.id !== featuredPost?.id;
   });
 
   return (
