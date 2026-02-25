@@ -9,7 +9,7 @@ const PUBLIC_PAGES = [
   'Groups', 'Subscription', 'Payment', 'About', 'Contact', 'FAQ', 
   'Terms', 'Privacy', 'Cookies', 'Security', 'LGPD', 
   'Advertise', 'Careers', 'Parcerias', 'Login', 'Register',
-  'ForgotPassword', 'ResetPassword', 'ActivateBasic'
+  'ForgotPassword', 'ResetPassword', 'ActivateBasic', 'PreLander'
 ];
 
 // Páginas que exigem Premium
