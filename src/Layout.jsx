@@ -174,7 +174,7 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  const noLayoutPages = ['Splash', 'Login', 'Register'];
+  const noLayoutPages = ['Splash', 'Login', 'Register', 'PreLander'];
 
   useEffect(() => {
     const hideBase44Button = () => {
