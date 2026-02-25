@@ -45,15 +45,9 @@ export default function Blog() {
         {/* Busca + filtros */}
         <Card className="rounded-2xl shadow">
           <CardContent className="p-4">
-            <div className="relative mb-3">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Buscar artigos..." className="pl-10 h-12 rounded-xl" />
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              <Button variant={selectedCategory === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setSelectedCategory('all')} className={`rounded-full flex-shrink-0 ${selectedCategory === 'all' ? 'bg-[#1E6FB6]' : ''}`}>Todos</Button>
-              {CATEGORIES.map(cat => (
-                <Button key={cat} variant={selectedCategory === cat ? 'default' : 'outline'} size="sm" onClick={() => setSelectedCategory(cat)} className={`rounded-full whitespace-nowrap flex-shrink-0 ${selectedCategory === cat ? 'bg-[#1E6FB6]' : ''}`}>{cat}</Button>
-              ))}
             </div>
           </CardContent>
         </Card>
