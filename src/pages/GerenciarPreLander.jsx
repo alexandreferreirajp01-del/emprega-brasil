@@ -45,12 +45,21 @@ export default function GerenciarPreLander() {
   const save = () => {
     setSaving(true);
     localStorage.setItem('prelander_config', JSON.stringify(config));
-    // Disparar evento para atualizar PreLander aberto em outra aba
     window.dispatchEvent(new Event('storage'));
     setTimeout(() => {
       setSaving(false);
       toast.success('Configurações salvas!');
     }, 400);
+  };
+
+  const getFullPageUrl = () => {
+    const params = new URLSearchParams();
+    if (config.link) params.set('link', config.link);
+    if (config.titulo !== DEFAULT_CONFIG.titulo) params.set('titulo', config.titulo);
+    if (config.subtitulo !== DEFAULT_CONFIG.subtitulo) params.set('subtitulo', config.subtitulo);
+    if (config.btn_texto !== DEFAULT_CONFIG.btn_texto) params.set('btn', config.btn_texto);
+    const qs = params.toString();
+    return `${window.location.origin}/prelander${qs ? '?' + qs : ''}`;
   };
 
   const pageUrl = `${window.location.origin}/prelander`;
