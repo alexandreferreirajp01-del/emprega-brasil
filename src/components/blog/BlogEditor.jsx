@@ -124,29 +124,13 @@ export default function BlogEditor({ value, onChange }) {
     handleInput();
   };
 
-  const uploadImage = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    // Reset input so same file can be selected again
-    e.target.value = '';
-    const toastId = toast.loading('Enviando imagem...');
-    try {
-      // Convert to base64
-      const base64 = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: base64 });
-      restoreRange();
-      const html = `<figure style="margin:1em 0;text-align:center;"><img src="${file_url}" style="max-width:100%;border-radius:8px;" alt="imagem" /></figure>`;
-      document.execCommand('insertHTML', false, html);
-      handleInput();
-      toast.success('Imagem inserida!', { id: toastId });
-    } catch (err) {
-      toast.error('Erro ao fazer upload da imagem', { id: toastId });
-    }
+  const insertImageFromUrl = (url) => {
+    restoreRange();
+    const html = `<figure style="margin:1em 0;text-align:center;"><img src="${url}" style="max-width:100%;border-radius:8px;" alt="imagem" /></figure>`;
+    document.execCommand('insertHTML', false, html);
+    setImageOpen(false);
+    setImageUrl('');
+    handleInput();
   };
 
   const insertTable = () => {
