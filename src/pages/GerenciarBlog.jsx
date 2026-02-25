@@ -279,18 +279,7 @@ export default function GerenciarBlog() {
               </button>
             </div>
           ) : (
-            <div className="flex gap-3 items-center">
-              <Label className="flex-1 cursor-pointer">
-                <div className="h-24 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:border-blue-400 hover:text-blue-500 transition-colors">
-                  {uploadingCover ? <Loader2 className="w-6 h-6 animate-spin" /> : <><ImageIcon className="w-6 h-6 mb-1" /><span className="text-xs">Upload de imagem</span></>}
-                </div>
-                <input type="file" accept="image/*" className="hidden" onChange={uploadCover} />
-              </Label>
-              <div className="text-slate-400 text-sm">ou</div>
-              <div className="flex-1">
-                <Input value={formData.cover_image} onChange={e => set('cover_image', e.target.value)} placeholder="URL da imagem..." className="text-sm" />
-              </div>
-            </div>
+            <ImageUploadButton onInsert={(url) => set('cover_image', url)} />
           )}
         </CardContent></Card>
 
