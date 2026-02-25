@@ -29,6 +29,7 @@ function getLocalConfig() {
 
 export default function PreLander() {
   const [loading, setLoading] = useState(false);
+  const [configReady, setConfigReady] = useState(false);
   const [config, setConfig] = useState(getLocalConfig());
 
   useEffect(() => {
@@ -46,10 +47,12 @@ export default function PreLander() {
           btn_texto: params.get('btn') || merged.btn_texto,
         });
         // Atualizar cache local
-        localStorage.setItem('prelander_config', JSON.stringify(merged));
+        try { localStorage.setItem('prelander_config', JSON.stringify(merged)); } catch {}
       }
     }).catch(() => {
       // Falhou, usa config local já carregada
+    }).finally(() => {
+      setConfigReady(true);
     });
   }, []);
 
