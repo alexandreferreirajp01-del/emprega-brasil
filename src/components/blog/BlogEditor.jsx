@@ -247,29 +247,16 @@ export default function BlogEditor({ value, onChange }) {
           </PopoverContent>
         </Popover>
 
-        {/* Imagem URL */}
+        {/* Imagem - Upload / URL */}
         <Popover open={imageOpen} onOpenChange={(o) => { if (o) saveRange(); setImageOpen(o); }}>
           <PopoverTrigger asChild>
-            <button type="button" title="Inserir imagem por URL" className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-slate-700 dark:text-slate-300">
+            <button type="button" title="Inserir imagem" className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-slate-700 dark:text-slate-300">
               <ImageIcon className="w-3.5 h-3.5" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-72 p-3" side="bottom">
-            <div className="space-y-2">
-              <Label className="text-xs">URL da imagem</Label>
-              <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..." className="h-8 text-sm" />
-              <p className="text-xs text-slate-500">ou</p>
-              <Label className="w-full cursor-pointer">
-                <div className="h-8 border border-dashed border-slate-300 rounded flex items-center justify-center text-xs text-slate-500 hover:bg-slate-50">
-                  📁 Upload do computador
-                </div>
-                <input type="file" accept="image/*" className="hidden" onChange={uploadImage} />
-              </Label>
-              <div className="flex gap-2 pt-1">
-                <Button size="sm" variant="outline" className="flex-1" onClick={() => setImageOpen(false)}>Cancelar</Button>
-                <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700" onClick={insertImage}>Inserir</Button>
-              </div>
-            </div>
+          <PopoverContent className="w-80 p-3" side="bottom">
+            <p className="text-xs font-semibold text-slate-600 mb-2">Inserir Imagem</p>
+            <ImageUploadButton onInsert={(url) => insertImageFromUrl(url)} />
           </PopoverContent>
         </Popover>
 
