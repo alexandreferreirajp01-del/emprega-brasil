@@ -120,9 +120,16 @@ export default function GerenciarBlog() {
   const uploadCover = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    e.target.value = '';
     setUploadingCover(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: base64 });
       set('cover_image', file_url);
       toast.success('Capa carregada!');
     } catch { toast.error('Erro ao fazer upload'); }
