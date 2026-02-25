@@ -56,14 +56,35 @@ export default function GerenciarPreLander() {
     init();
   }, []);
 
-  const save = () => {
+  const save = async () => {
     setSaving(true);
-    localStorage.setItem('prelander_config', JSON.stringify(config));
-    window.dispatchEvent(new Event('storage'));
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      // Salvar no banco de dados (persistência real)
+      const existingId = localStorage.getItem(RECORD_ID_KEY);
+      const payload = {
+        link: config.link,
+        titulo: config.titulo,
+        subtitulo: config.subtitulo,
+        btn_texto: config.btn_texto,
+      };
+      if (existingId) {
+        await base44.entities.PreLanderConfig.update(existingId, payload);
+      } else {
+        const created = await base44.entities.PreLanderConfig.create(payload);
+        localStorage.setItem(RECORD_ID_KEY, created.id);
+      }
+      // Salvar no localStorage como cache
+      localStorage.setItem('prelander_config', JSON.stringify(config));
+      window.dispatchEvent(new Event('storage'));
       toast.success('Configurações salvas!');
-    }, 400);
+    } catch (e) {
+      // Se falhar o banco, salva só no localStorage
+      localStorage.setItem('prelander_config', JSON.stringify(config));
+      window.dispatchEvent(new Event('storage'));
+      toast.warning('Salvo localmente (erro no banco)');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const getFullPageUrl = () => {
