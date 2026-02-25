@@ -36,7 +36,7 @@ export default function GerenciarBlog() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [saving, setSaving] = useState(false);
-  const [uploadingCover, setUploadingCover] = useState(false);
+
   const queryClient = useQueryClient();
 
   useEffect(() => {
