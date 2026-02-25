@@ -57,6 +57,8 @@ import ApagarVagasPorPeriodo from './pages/ApagarVagasPorPeriodo';
 import BancoDadosAssistente from './pages/BancoDadosAssistente';
 import BibliotecaAdmin from './pages/BibliotecaAdmin';
 import BibliotecaProfissional from './pages/BibliotecaProfissional';
+import Blog from './pages/Blog';
+import BlogDetail from './pages/BlogDetail';
 import Careers from './pages/Careers';
 import CentralPromocoes from './pages/CentralPromocoes';
 import ChangePassword from './pages/ChangePassword';
@@ -77,6 +79,7 @@ import GerenciadorFiltros from './pages/GerenciadorFiltros';
 import GerenciarAPIKeys from './pages/GerenciarAPIKeys';
 import GerenciarAcessos from './pages/GerenciarAcessos';
 import GerenciarAnuncios from './pages/GerenciarAnuncios';
+import GerenciarBlog from './pages/GerenciarBlog';
 import GerenciarComunidade from './pages/GerenciarComunidade';
 import GerenciarCores from './pages/GerenciarCores';
 import GerenciarFuncoes from './pages/GerenciarFuncoes';
@@ -138,9 +141,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import GerenciarBlog from './pages/GerenciarBlog';
-import Blog from './pages/Blog';
-import BlogDetail from './pages/BlogDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -155,6 +155,8 @@ export const PAGES = {
     "BancoDadosAssistente": BancoDadosAssistente,
     "BibliotecaAdmin": BibliotecaAdmin,
     "BibliotecaProfissional": BibliotecaProfissional,
+    "Blog": Blog,
+    "BlogDetail": BlogDetail,
     "Careers": Careers,
     "CentralPromocoes": CentralPromocoes,
     "ChangePassword": ChangePassword,
@@ -175,6 +177,7 @@ export const PAGES = {
     "GerenciarAPIKeys": GerenciarAPIKeys,
     "GerenciarAcessos": GerenciarAcessos,
     "GerenciarAnuncios": GerenciarAnuncios,
+    "GerenciarBlog": GerenciarBlog,
     "GerenciarComunidade": GerenciarComunidade,
     "GerenciarCores": GerenciarCores,
     "GerenciarFuncoes": GerenciarFuncoes,
@@ -236,9 +239,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "GerenciarBlog": GerenciarBlog,
-    "Blog": Blog,
-    "BlogDetail": BlogDetail,
 }
 
 export const pagesConfig = {

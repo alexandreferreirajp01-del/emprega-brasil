@@ -15,7 +15,6 @@ const CATEGORIES = ["Geral","Dicas","Mercado de Trabalho","Tecnologia","Carreira
 
 export default function Blog() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['blog-posts-public'],
