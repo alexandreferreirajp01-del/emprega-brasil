@@ -18,6 +18,7 @@ import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import BlogEditor from "@/components/blog/BlogEditor";
+import ImageUploadButton from "@/components/blog/ImageUploadButton";
 
 const CATEGORIES = ["Geral","Dicas","Mercado de Trabalho","Tecnologia","Carreira","Educação","Empreendedorismo","Lifestyle"];
 
