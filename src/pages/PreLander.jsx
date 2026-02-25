@@ -30,6 +30,7 @@ function getLocalConfig() {
 export default function PreLander() {
   const [loading, setLoading] = useState(false);
   const [configReady, setConfigReady] = useState(false);
+  const [linkError, setLinkError] = useState(false);
   const [config, setConfig] = useState(getLocalConfig());
 
   useEffect(() => {
