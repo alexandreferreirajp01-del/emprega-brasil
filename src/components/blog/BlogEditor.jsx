@@ -41,6 +41,7 @@ export default function BlogEditor({ value, onChange }) {
   const [linkOpen, setLinkOpen] = React.useState(false);
   const [imageUrl, setImageUrl] = React.useState('');
   const [imageOpen, setImageOpen] = React.useState(false);
+  const [uploadingImg, setUploadingImg] = React.useState(false);
   const [videoUrl, setVideoUrl] = React.useState('');
   const [videoOpen, setVideoOpen] = React.useState(false);
   const savedRange = useRef(null);
