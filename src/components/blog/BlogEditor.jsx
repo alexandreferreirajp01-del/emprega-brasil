@@ -98,15 +98,7 @@ export default function BlogEditor({ value, onChange }) {
     handleInput();
   };
 
-  const insertImage = () => {
-    restoreRange();
-    if (!imageUrl.trim()) return;
-    const html = `<figure style="margin:1em 0;text-align:center;"><img src="${imageUrl}" style="max-width:100%;border-radius:8px;" alt="imagem" /><figcaption style="font-size:0.8em;color:#64748b;margin-top:4px;">Imagem</figcaption></figure>`;
-    document.execCommand('insertHTML', false, html);
-    setImageOpen(false);
-    setImageUrl('');
-    handleInput();
-  };
+
 
   const insertVideo = () => {
     restoreRange();
