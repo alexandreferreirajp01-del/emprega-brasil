@@ -124,8 +124,12 @@ export default function RouteGuard({ children, currentPageName }) {
     };
   }, []);
 
-  // Fallback anti-tela-branca
+  // Fallback anti-tela-branca (não executar em páginas standalone)
   useEffect(() => {
+    const hash = window.location.hash.split('?')[0].replace('#/', '').trim();
+    const standalonePages = ['PreLander', 'Splash', 'Login', 'Register'];
+    if (standalonePages.includes(hash)) return;
+
     const checkBlankScreen = setInterval(() => {
       const bodyContent = document.body.innerHTML;
       const isBlank = !bodyContent || bodyContent.trim() === '' || 
