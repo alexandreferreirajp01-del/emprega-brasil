@@ -58,7 +58,7 @@ export default function PreLander() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A1628] via-[#0D2045] to-[#0A1628] flex items-center justify-center px-4 py-10">
+    <div style={{ minHeight: '100vh', width: '100%', background: 'linear-gradient(135deg, #0A1628, #0D2045, #0A1628)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px', boxSizing: 'border-box' }}>
       <div className="w-full max-w-lg">
 
         {/* Logo */}

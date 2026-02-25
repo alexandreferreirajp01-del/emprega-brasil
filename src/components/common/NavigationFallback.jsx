@@ -10,8 +10,8 @@ const NO_REDIRECT_PAGES = ['PreLander'];
 export default function NavigationFallback() {
   useEffect(() => {
     // Não redirecionar em páginas standalone como PreLander
-    const hash = window.location.hash.replace('#/', '');
-    if (NO_REDIRECT_PAGES.some(p => hash.startsWith(p))) return;
+    const hash = window.location.hash.split('?')[0].replace('#/', '').trim();
+    if (NO_REDIRECT_PAGES.includes(hash)) return;
 
     let checkCount = 0;
     const maxChecks = 10;

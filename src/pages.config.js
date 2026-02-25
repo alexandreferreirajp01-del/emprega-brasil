@@ -87,6 +87,7 @@ import GerenciarLinksEspeciais from './pages/GerenciarLinksEspeciais';
 import GerenciarNoticias from './pages/GerenciarNoticias';
 import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPopups from './pages/GerenciarPopups';
+import GerenciarPreLander from './pages/GerenciarPreLander';
 import GerenciarPrecos from './pages/GerenciarPrecos';
 import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
 import GerenciarUsuarios from './pages/GerenciarUsuarios';
@@ -117,6 +118,7 @@ import PostarNoticia from './pages/PostarNoticia';
 import PostarVaga from './pages/PostarVaga';
 import PostsEmMassa from './pages/PostsEmMassa';
 import PostsEmMassaTXT from './pages/PostsEmMassaTXT';
+import PreLander from './pages/PreLander';
 import Premium from './pages/Premium';
 import Privacy from './pages/Privacy';
 import ProfessionalResume from './pages/ProfessionalResume';
@@ -141,8 +143,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import PreLander from './pages/PreLander';
-import GerenciarPreLander from './pages/GerenciarPreLander';
 import __Layout from './Layout.jsx';
 
 
@@ -187,6 +187,7 @@ export const PAGES = {
     "GerenciarNoticias": GerenciarNoticias,
     "GerenciarPlanos": GerenciarPlanos,
     "GerenciarPopups": GerenciarPopups,
+    "GerenciarPreLander": GerenciarPreLander,
     "GerenciarPrecos": GerenciarPrecos,
     "GerenciarSolicitacoes": GerenciarSolicitacoes,
     "GerenciarUsuarios": GerenciarUsuarios,
@@ -217,6 +218,7 @@ export const PAGES = {
     "PostarVaga": PostarVaga,
     "PostsEmMassa": PostsEmMassa,
     "PostsEmMassaTXT": PostsEmMassaTXT,
+    "PreLander": PreLander,
     "Premium": Premium,
     "Privacy": Privacy,
     "ProfessionalResume": ProfessionalResume,
@@ -241,8 +243,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "PreLander": PreLander,
-    "GerenciarPreLander": GerenciarPreLander,
 }
 
 export const pagesConfig = {
