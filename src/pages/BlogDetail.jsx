@@ -2,17 +2,43 @@ import React, { useEffect, useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowLeft, Clock, Eye, Tag, Share2, Calendar } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, ArrowLeft, Clock, Eye, Tag, Share2, Calendar, Heart, MessageCircle, Send, Trash2, Copy, Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
+
+const PLAN_LABELS = {
+  admin: { label: 'Admin', color: 'bg-red-100 text-red-700' },
+  dono: { label: 'Dono', color: 'bg-purple-100 text-purple-700' },
+  premium: { label: 'Premium', color: 'bg-amber-100 text-amber-700' },
+  recruiter: { label: 'Recrutador', color: 'bg-blue-100 text-blue-700' },
+  basic: { label: 'Básico', color: 'bg-slate-100 text-slate-600' },
+};
+
+function PlanBadge({ plan }) {
+  const info = PLAN_LABELS[plan] || PLAN_LABELS.basic;
+  return <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${info.color}`}>{info.label}</span>;
+}
 
 export default function BlogDetail() {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    // Carregar usuário (sem redirecionar se não logado)
+    base44.auth.me().then(u => setUser(u)).catch(() => {});
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) { window.location.href = createPageUrl('Blog'); return; }
@@ -21,18 +47,73 @@ export default function BlogDetail() {
       const found = results[0];
       if (!found) { window.location.href = createPageUrl('Blog'); return; }
       setPost(found);
+      setLikesCount(found.likes_count || 0);
+
+      // Verificar se já curtiu (via localStorage)
+      const likedPosts = JSON.parse(localStorage.getItem('blog_liked') || '[]');
+      setLiked(likedPosts.includes(found.id));
+
       // Incrementar views
       base44.entities.BlogPost.update(found.id, { views_count: (found.views_count || 0) + 1 }).catch(() => {});
+
+      // Carregar comentários
+      setCommentsLoading(true);
+      base44.entities.BlogComment.filter({ post_id: found.id }, '-created_date', 200)
+        .then(setComments).finally(() => setCommentsLoading(false));
     }).finally(() => setLoading(false));
   }, []);
 
-  const share = () => {
-    if (navigator.share) {
-      navigator.share({ title: post.title, url: window.location.href });
+  const handleLike = () => {
+    if (!post) return;
+    const likedPosts = JSON.parse(localStorage.getItem('blog_liked') || '[]');
+    const newLiked = !liked;
+    const newCount = newLiked ? likesCount + 1 : Math.max(0, likesCount - 1);
+
+    if (newLiked) {
+      localStorage.setItem('blog_liked', JSON.stringify([...likedPosts, post.id]));
     } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link copiado!');
+      localStorage.setItem('blog_liked', JSON.stringify(likedPosts.filter(id => id !== post.id)));
     }
+
+    setLiked(newLiked);
+    setLikesCount(newCount);
+    base44.entities.BlogPost.update(post.id, { likes_count: newCount }).catch(() => {});
+  };
+
+  const share = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: post.title, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success('Link copiado!');
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleComment = async () => {
+    if (!user) { toast.error('Faça login para comentar'); return; }
+    if (!newComment.trim()) return;
+    setSubmitting(true);
+    const plan = user.subscription_type || (user.role === 'admin' ? 'admin' : 'basic');
+    const comment = await base44.entities.BlogComment.create({
+      post_id: post.id,
+      author_email: user.email,
+      author_name: user.full_name || user.email.split('@')[0],
+      author_plan: plan,
+      content: newComment.trim(),
+    });
+    setComments(prev => [comment, ...prev]);
+    setNewComment('');
+    setSubmitting(false);
+    toast.success('Comentário publicado!');
+  };
+
+  const deleteComment = async (commentId) => {
+    await base44.entities.BlogComment.delete(commentId);
+    setComments(prev => prev.filter(c => c.id !== commentId));
+    toast.success('Comentário excluído');
   };
 
   if (loading) return (
@@ -42,6 +123,8 @@ export default function BlogDetail() {
   );
 
   if (!post) return null;
+
+  const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
 
   return (
     <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-24">
@@ -70,7 +153,7 @@ export default function BlogDetail() {
         )}
 
         {/* Header do post */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 mb-6 -mt-12 relative z-10">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 mb-4 -mt-12 relative z-10">
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             <Badge className="bg-[#1E6FB6] text-white">{post.category}</Badge>
             {post.tags?.map(tag => (
@@ -85,31 +168,133 @@ export default function BlogDetail() {
 
           <div className="flex items-center justify-between gap-4 flex-wrap pt-3 border-t border-slate-100 dark:border-slate-700">
             <div className="flex items-center gap-4 text-sm text-slate-500 flex-wrap">
-              {post.author_name && (
-                <span className="font-medium text-slate-700 dark:text-slate-300">{post.author_name}</span>
-              )}
+              {post.author_name && <span className="font-medium text-slate-700 dark:text-slate-300">{post.author_name}</span>}
               {post.published_at && (
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5" />
                   {format(new Date(post.published_at), "dd 'de' MMMM, yyyy", { locale: ptBR })}
                 </span>
               )}
-              <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{post.reading_time || 5} min de leitura</span>
-              <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{post.views_count || 0} leituras</span>
+              <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{post.reading_time || 5} min</span>
             </div>
-            <Button variant="outline" size="sm" onClick={share} className="gap-1">
-              <Share2 className="w-4 h-4" /> Compartilhar
-            </Button>
           </div>
         </div>
 
         {/* Conteúdo */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow p-6 mb-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow p-6 mb-4">
           <div
             className="prose prose-slate dark:prose-invert max-w-none text-base leading-relaxed"
             dangerouslySetInnerHTML={{ __html: post.content }}
             style={{ wordBreak: 'break-word' }}
           />
+        </div>
+
+        {/* Barra de interação */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow p-4 mb-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            {/* Curtidas */}
+            <button
+              onClick={handleLike}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all font-medium text-sm ${liked ? 'bg-red-50 text-red-500 dark:bg-red-900/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+            >
+              <Heart className={`w-5 h-5 transition-all ${liked ? 'fill-red-500 text-red-500 scale-110' : ''}`} />
+              {likesCount}
+            </button>
+
+            {/* Views */}
+            <div className="flex items-center gap-1.5 text-slate-500 text-sm">
+              <Eye className="w-5 h-5" />
+              {post.views_count || 0}
+            </div>
+
+            {/* Comentários */}
+            <div className="flex items-center gap-1.5 text-slate-500 text-sm">
+              <MessageCircle className="w-5 h-5" />
+              {comments.length}
+            </div>
+          </div>
+
+          {/* Compartilhar */}
+          <Button variant="outline" size="sm" onClick={share} className="gap-1.5">
+            {copied ? <Check className="w-4 h-4 text-green-500" /> : <Share2 className="w-4 h-4" />}
+            {copied ? 'Copiado!' : 'Compartilhar'}
+          </Button>
+        </div>
+
+        {/* Seção de Comentários */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow p-6 mb-6">
+          <h2 className="font-bold text-slate-900 dark:text-white text-lg mb-4 flex items-center gap-2">
+            <MessageCircle className="w-5 h-5" /> Comentários ({comments.length})
+          </h2>
+
+          {/* Caixa de novo comentário */}
+          {user ? (
+            <div className="mb-6">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-full bg-[#1E6FB6] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  {(user.full_name || user.email)[0].toUpperCase()}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-sm text-slate-800 dark:text-white">{user.full_name || user.email.split('@')[0]}</span>
+                    <PlanBadge plan={user.subscription_type || (user.role === 'admin' ? 'admin' : 'basic')} />
+                  </div>
+                  <Textarea
+                    value={newComment}
+                    onChange={e => setNewComment(e.target.value)}
+                    placeholder="Escreva um comentário..."
+                    className="min-h-[80px] resize-none text-sm rounded-xl"
+                  />
+                  <div className="flex justify-end mt-2">
+                    <Button size="sm" disabled={!newComment.trim() || submitting} onClick={handleComment} className="bg-[#1E6FB6] hover:bg-[#0B2F5B] gap-1">
+                      {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} Publicar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-700 rounded-xl text-center">
+              <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Faça login para comentar</p>
+              <Link to={createPageUrl('Splash')}>
+                <Button size="sm" className="bg-[#1E6FB6]">Entrar / Cadastrar</Button>
+              </Link>
+            </div>
+          )}
+
+          {/* Lista de comentários */}
+          {commentsLoading ? (
+            <div className="flex justify-center py-6"><Loader2 className="w-6 h-6 animate-spin text-slate-400" /></div>
+          ) : comments.length === 0 ? (
+            <p className="text-slate-400 text-sm text-center py-6">Seja o primeiro a comentar!</p>
+          ) : (
+            <div className="space-y-4">
+              {comments.map(comment => (
+                <div key={comment.id} className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-200 font-bold text-sm flex-shrink-0">
+                    {(comment.author_name || comment.author_email)[0].toUpperCase()}
+                  </div>
+                  <div className="flex-1 bg-slate-50 dark:bg-slate-700 rounded-xl p-3">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm text-slate-800 dark:text-white">{comment.author_name || comment.author_email.split('@')[0]}</span>
+                        <PlanBadge plan={comment.author_plan || 'basic'} />
+                        <span className="text-xs text-slate-400">
+                          {format(new Date(comment.created_date), "dd/MM/yy 'às' HH:mm", { locale: ptBR })}
+                        </span>
+                      </div>
+                      {(isAdmin || comment.author_email === user?.email) && (
+                        <button onClick={() => deleteComment(comment.id)} className="text-slate-300 hover:text-red-400 transition-colors">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">{comment.content}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
