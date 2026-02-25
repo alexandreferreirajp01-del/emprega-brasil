@@ -79,7 +79,7 @@ export default function Layout({ children, currentPageName }) {
         { name: 'Início', icon: Home, page: 'Home' },
         { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
         { name: 'Notícias', icon: Newspaper, page: 'News' },
-        { name: 'Ferramentas', icon: Settings, page: 'Utilidades' },
+        { name: 'Blog', icon: BookOpen, page: 'Blog' },
         { name: 'Feed', icon: MessageCircle, page: 'Feed' },
       ];
       
