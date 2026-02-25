@@ -18,6 +18,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import ImageUploadButton from "@/components/blog/ImageUploadButton";
+import { Loader2 } from "lucide-react";
 
 const ToolBtn = ({ onClick, title, active, children }) => (
   <button
