@@ -9,6 +9,8 @@ import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 
+const RECORD_ID_KEY = 'prelander_db_id';
+
 const DEFAULT_CONFIG = {
   link: '',
   titulo: 'Você está a 1 passo de ver a vaga! 🎯',
