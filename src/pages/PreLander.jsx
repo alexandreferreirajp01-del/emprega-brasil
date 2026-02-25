@@ -67,36 +67,15 @@ export default function PreLander() {
   };
 
   const handleClick = () => {
-    // Se ainda carregando do banco, aguarda
-    if (!configReady) return;
-
     const url = getRedirectUrl();
     if (!config.link || url === '#') {
-      // Fallback: tentar novamente do banco antes de mostrar erro
-      base44.entities.PreLanderConfig.list().then(records => {
-        if (records && records.length > 0 && records[0].link) {
-          const rec = records[0];
-          setConfig(prev => ({ ...prev, link: rec.link }));
-          setLoading(true);
-          setTimeout(() => {
-            const params = new URLSearchParams(window.location.search);
-            const vaga = params.get('vaga');
-            let finalUrl = rec.link;
-            if (vaga) finalUrl += (finalUrl.includes('?') ? '&' : '?') + `vaga=${vaga}`;
-            window.location.href = finalUrl;
-          }, 800);
-        } else {
-          alert('Link de redirecionamento não configurado. Tente novamente em instantes.');
-        }
-      }).catch(() => {
-        alert('Erro ao carregar configuração. Verifique sua conexão e tente novamente.');
-      });
+      setLinkError(true);
       return;
     }
     setLoading(true);
     setTimeout(() => {
-      window.location.href = url;
-    }, 1200);
+      window.open(url, '_blank') || (window.location.href = url);
+    }, 800);
   };
 
   const s = {
