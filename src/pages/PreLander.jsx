@@ -1,20 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
-function getConfig() {
-  // Tenta pegar da URL primeiro (query params têm prioridade)
-  const params = new URLSearchParams(window.location.search);
-  const linkParam = params.get('link');
-
-  let saved = {};
-  try { saved = JSON.parse(localStorage.getItem('prelander_config') || '{}'); } catch {}
-
-  return {
-    link: linkParam || saved.link || '',
-    titulo: params.get('titulo') || saved.titulo || 'Você está a 1 passo de ver a vaga! 🎯',
-    subtitulo: params.get('subtitulo') || saved.subtitulo || 'Antes de acessar, você passará por um anúncio rápido. Isso é o que mantém este projeto 100% gratuito e com novas vagas todo dia!',
-    btn_texto: params.get('btn') || saved.btn_texto || 'CONTINUAR PARA VER A VAGA',
-  };
-}
+import { base44 } from '@/api/base44Client';
 
 const steps = [
   { num: 1, icon: '👆', text: 'Clique no botão "Continuar" abaixo' },
