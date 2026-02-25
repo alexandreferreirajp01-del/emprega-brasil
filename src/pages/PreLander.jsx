@@ -8,14 +8,49 @@ const steps = [
   { num: 4, icon: '🎉', text: 'Pronto! A vaga será liberada para você acessar' },
 ];
 
+const DEFAULT_CONFIG = {
+  link: '',
+  titulo: 'Você está a 1 passo de ver a vaga! 🎯',
+  subtitulo: 'Antes de acessar, você passará por um anúncio rápido. Isso é o que mantém este projeto 100% gratuito e com novas vagas todo dia!',
+  btn_texto: 'CONTINUAR PARA VER A VAGA',
+};
+
+function getLocalConfig() {
+  const params = new URLSearchParams(window.location.search);
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('prelander_config') || '{}'); } catch {}
+  return {
+    link: params.get('link') || saved.link || '',
+    titulo: params.get('titulo') || saved.titulo || DEFAULT_CONFIG.titulo,
+    subtitulo: params.get('subtitulo') || saved.subtitulo || DEFAULT_CONFIG.subtitulo,
+    btn_texto: params.get('btn') || saved.btn_texto || DEFAULT_CONFIG.btn_texto,
+  };
+}
+
 export default function PreLander() {
   const [loading, setLoading] = useState(false);
-  const [config, setConfig] = useState(getConfig());
+  const [config, setConfig] = useState(getLocalConfig());
 
   useEffect(() => {
-    const handleStorage = () => setConfig(getConfig());
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    // Buscar config do banco de dados (fonte confiável)
+    base44.entities.PreLanderConfig.list().then(records => {
+      if (records && records.length > 0) {
+        const rec = records[0];
+        const merged = { ...DEFAULT_CONFIG, ...rec };
+        // URL params têm prioridade
+        const params = new URLSearchParams(window.location.search);
+        setConfig({
+          link: params.get('link') || merged.link || '',
+          titulo: params.get('titulo') || merged.titulo,
+          subtitulo: params.get('subtitulo') || merged.subtitulo,
+          btn_texto: params.get('btn') || merged.btn_texto,
+        });
+        // Atualizar cache local
+        localStorage.setItem('prelander_config', JSON.stringify(merged));
+      }
+    }).catch(() => {
+      // Falhou, usa config local já carregada
+    });
   }, []);
 
   const getRedirectUrl = () => {
