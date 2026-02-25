@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { createPageUrl } from '@/utils';
 
+const NO_REDIRECT_PAGES = ['PreLander'];
+
 /**
  * Componente de fallback para prevenir tela branca
  * Monitora o estado do DOM e redireciona se necessário
