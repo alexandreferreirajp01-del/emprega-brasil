@@ -53,7 +53,7 @@ export default function GerenciarPreLander() {
     }, 400);
   };
 
-  const pageUrl = `${window.location.origin}${window.location.pathname.split('?')[0].split('#')[0]}#/PreLander`;
+  const pageUrl = `${window.location.origin}/#/PreLander`;
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(pageUrl);
