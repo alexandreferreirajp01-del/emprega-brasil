@@ -53,7 +53,7 @@ export default function Blog() {
         </Card>
 
         {/* Post em destaque */}
-        {featuredPost && selectedCategory === 'all' && !searchTerm && (
+        {featuredPost && !searchTerm && (
           <Link to={createPageUrl('BlogDetail') + `?id=${featuredPost.id}`}>
             <Card className="rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
               {featuredPost.cover_image ? (
