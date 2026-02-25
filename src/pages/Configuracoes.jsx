@@ -53,6 +53,10 @@ const menuItems = [
   { id: 'feed', name: 'Feed', icon: MessageSquare, color: 'pink', page: 'GerenciarComunidade', description: 'Posts, comentários e chat', permissionId: 'gerenciar_comunidade' },
   { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'orange', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos', permissionId: 'biblioteca_admin' },
 
+  // Pre-lander
+  { id: 'divider-prelander', type: 'divider', label: 'Pre-lander / Links Monetizados', roles: ['dono'] },
+  { id: 'gerenciar-prelander', name: 'Gerenciar Pre-lander', icon: LinkIcon, color: 'blue', page: 'GerenciarPreLander', description: 'Configurar página de pré-acesso com link Encurta.net', roles: ['dono'] },
+
   // Marketing e Comunicação
   { id: 'divider-marketing', type: 'divider', label: 'Marketing e Comunicação', roles: ['admin', 'dono'] },
   { id: 'central-promocoes', name: 'Central de Promoções', icon: MessageSquare, color: 'purple', page: 'CentralPromocoes', description: 'Enviar campanhas de email e WhatsApp', roles: ['admin', 'dono'] },
