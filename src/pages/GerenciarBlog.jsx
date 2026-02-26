@@ -36,6 +36,7 @@ export default function GerenciarBlog() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [saving, setSaving] = useState(false);
+  const [liteMode, setLiteMode] = useState(() => localStorage.getItem('blog_lite_mode') === '1');
 
   const queryClient = useQueryClient();
 
