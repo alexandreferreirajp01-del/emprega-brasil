@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowLeft, Plus, Edit, Trash2, Eye, Loader2, Search,
-  Star, Clock, Image as ImageIcon, Send, Save, X, BookOpen
+  Star, Clock, Image as ImageIcon, Send, Save, X, BookOpen, Zap
 } from "lucide-react";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
