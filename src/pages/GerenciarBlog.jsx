@@ -143,14 +143,30 @@ export default function GerenciarBlog() {
               <ArrowLeft className="w-4 h-4" /> Configurações
             </button>
           </Link>
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
               <h1 className="text-xl font-bold text-white flex items-center gap-2"><BookOpen className="w-5 h-5" />Gerenciar Blog</h1>
               <p className="text-white/60 text-xs mt-0.5">{posts.filter(p => p.status === 'published').length} publicados · {posts.filter(p => p.status === 'draft').length} rascunhos</p>
             </div>
-            <Button onClick={handleNew} size="sm" className="bg-white text-[#1D2226] hover:bg-white/90 font-semibold gap-1">
-              <Plus className="w-4 h-4" /> Novo Post
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* Toggle Modo Lite */}
+              <div
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition-colors ${liteMode ? 'bg-amber-400/20 border-amber-400/50' : 'bg-white/10 border-white/20'}`}
+                onClick={() => {
+                  const next = !liteMode;
+                  setLiteMode(next);
+                  localStorage.setItem('blog_lite_mode', next ? '1' : '0');
+                }}
+                title="Modo Lite: exibe o blog sem imagens (economiza créditos de integração)"
+              >
+                <Zap className={`w-4 h-4 ${liteMode ? 'text-amber-400' : 'text-white/50'}`} />
+                <span className={`text-xs font-semibold ${liteMode ? 'text-amber-400' : 'text-white/60'}`}>Modo Lite</span>
+                <Switch checked={liteMode} onCheckedChange={v => { setLiteMode(v); localStorage.setItem('blog_lite_mode', v ? '1' : '0'); }} className="scale-75" />
+              </div>
+              <Button onClick={handleNew} size="sm" className="bg-white text-[#1D2226] hover:bg-white/90 font-semibold gap-1">
+                <Plus className="w-4 h-4" /> Novo Post
+              </Button>
+            </div>
           </div>
         </div>
       </div>
