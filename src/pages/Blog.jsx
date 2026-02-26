@@ -23,6 +23,7 @@ function timeAgo(dateStr) {
 export default function Blog() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
+  const liteMode = localStorage.getItem('blog_lite_mode') === '1';
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['blog-posts-public'],
