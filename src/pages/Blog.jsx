@@ -113,7 +113,68 @@ export default function Blog() {
             <h3 className="font-semibold text-slate-600 dark:text-slate-300">Nenhum artigo encontrado</h3>
             <p className="text-slate-500 text-sm">Tente ajustar sua busca ou categoria</p>
           </div>
+        ) : liteMode ? (
+          /* ── MODO LITE (sem imagens) ── */
+          <>
+            {/* Banner informativo lite */}
+            <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded px-3 py-2 mb-4 text-xs text-amber-700 dark:text-amber-400">
+              <span className="font-bold">⚡ Modo Lite ativo</span>
+              <span className="text-amber-600/70 dark:text-amber-500/70">— exibição sem imagens</span>
+            </div>
+
+            {/* Destaque Lite */}
+            {featuredPost && (
+              <div className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 mb-0">
+                <Link to={createPageUrl('BlogDetail') + `?id=${featuredPost.id}`} className="block group p-5 border-b-4 border-[#1D4371]">
+                  <span className="text-[10px] font-bold text-[#1D4371] dark:text-blue-400 uppercase tracking-wider">{featuredPost.category}</span>
+                  <h2 className="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white mt-1 mb-2 group-hover:text-[#1D4371] dark:group-hover:text-blue-400 transition-colors leading-snug">{featuredPost.title}</h2>
+                  {featuredPost.subtitle && <p className="text-slate-500 dark:text-slate-400 text-sm mb-3">{featuredPost.subtitle}</p>}
+                  <div className="flex items-center gap-3 text-xs text-slate-400">
+                    <span>{timeAgo(featuredPost.published_at)}</span>
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{featuredPost.reading_time || 5} min</span>
+                    {featuredPost.author_name && <span>{featuredPost.author_name}</span>}
+                  </div>
+                </Link>
+                {/* Sub-posts em 2 colunas */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 dark:divide-slate-700">
+                  {secondaryPosts.map(post => (
+                    <Link key={post.id} to={createPageUrl('BlogDetail') + `?id=${post.id}`} className="block p-4 group hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
+                      <span className="text-[10px] font-bold text-[#1D4371] dark:text-blue-400 uppercase tracking-wider">{post.category}</span>
+                      <h3 className="text-sm font-semibold text-slate-800 dark:text-white group-hover:text-[#1D4371] dark:group-hover:text-blue-400 transition-colors leading-snug mt-0.5 line-clamp-3">{post.title}</h3>
+                      <p className="text-xs text-slate-400 mt-1">{timeAgo(post.published_at)}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {feedPosts.length > 0 && (
+              <div className="mt-8 mb-2 border-b-2 border-[#1D4371] pb-1">
+                <span className="text-sm font-bold text-[#1D4371] uppercase tracking-wider">Mais artigos</span>
+              </div>
+            )}
+
+            <div className="divide-y divide-slate-200 dark:divide-slate-700">
+              {feedPosts.map(post => (
+                <Link key={post.id} to={createPageUrl('BlogDetail') + `?id=${post.id}`} className="flex gap-3 py-4 group hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-2 px-2 rounded transition-colors">
+                  {/* Coluna de cor da categoria */}
+                  <div className="w-1 flex-shrink-0 rounded-full bg-[#1D4371] self-stretch" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-[10px] font-bold text-[#1D4371] dark:text-blue-400 uppercase tracking-wider">{post.category}</span>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#1D4371] dark:group-hover:text-blue-400 transition-colors leading-snug mt-0.5 line-clamp-2">{post.title}</h3>
+                    {post.subtitle && <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{post.subtitle}</p>}
+                    <div className="flex items-center gap-3 text-xs text-slate-400 mt-1.5">
+                      <span>{timeAgo(post.published_at)}</span>
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{post.reading_time || 5} min</span>
+                      <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{post.views_count || 0}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
         ) : (
+          /* ── MODO NORMAL (com imagens) ── */
           <>
             {/* Bloco principal - estilo G1: destaque grande + lista à direita */}
             {featuredPost && (
