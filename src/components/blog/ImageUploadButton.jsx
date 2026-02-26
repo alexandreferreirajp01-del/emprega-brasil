@@ -1,9 +1,34 @@
 import React, { useRef, useState } from 'react';
 import { Loader2, Upload, Link as LinkIcon, X } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+
+const UPLOAD_URL = 'https://api.base44.com/api/apps/692a4c2d5228a0792af288b2/storage/upload';
+
+async function uploadFileToStorage(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const token = localStorage.getItem('base44_token') || sessionStorage.getItem('base44_token') || '';
+
+  const res = await fetch(UPLOAD_URL, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Upload falhou: ${res.status} ${text}`);
+  }
+
+  const data = await res.json();
+  // The API may return { file_url } or { url } or { public_url }
+  const url = data.file_url || data.url || data.public_url;
+  if (!url) throw new Error('URL não retornada pelo servidor');
+  return url;
+}
 
 export default function ImageUploadButton({ onInsert }) {
   const fileRef = useRef(null);
@@ -13,26 +38,33 @@ export default function ImageUploadButton({ onInsert }) {
   const [dragging, setDragging] = useState(false);
 
   const doUpload = async (file) => {
-    if (!file) return;
+    if (!file || uploading) return;
     setUploading(true);
     const tid = toast.loading('Enviando imagem...');
     try {
-      // Read as base64 data URL
-      const dataUrl = await new Promise((res, rej) => {
-        const reader = new FileReader();
-        reader.onload = () => res(reader.result);
-        reader.onerror = rej;
-        reader.readAsDataURL(file);
-      });
-
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: dataUrl });
-
-      if (!file_url) throw new Error('URL não retornada');
-      onInsert(file_url);
+      const url = await uploadFileToStorage(file);
+      onInsert(url);
       toast.success('Imagem enviada!', { id: tid });
     } catch (err) {
       console.error('Upload error:', err);
-      toast.error('Falha no upload. Tente usar URL externa.', { id: tid });
+      // Fallback: try base64 via SDK
+      try {
+        const { base44 } = await import('@/api/base44Client');
+        const dataUrl = await new Promise((res, rej) => {
+          const reader = new FileReader();
+          reader.onload = () => res(reader.result);
+          reader.onerror = rej;
+          reader.readAsDataURL(file);
+        });
+        const result = await base44.integrations.Core.UploadFile({ file: dataUrl });
+        const fileUrl = result?.file_url || result?.url;
+        if (!fileUrl) throw new Error('Sem URL');
+        onInsert(fileUrl);
+        toast.success('Imagem enviada!', { id: tid });
+      } catch (err2) {
+        console.error('Fallback upload error:', err2);
+        toast.error('Falha no upload. Tente inserir por URL.', { id: tid });
+      }
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -61,7 +93,7 @@ export default function ImageUploadButton({ onInsert }) {
 
   return (
     <div className="border border-slate-200 rounded-xl overflow-hidden bg-white">
-      {/* Área de drop */}
+      {/* Drop area */}
       <div
         className={`relative flex flex-col items-center justify-center gap-3 p-6 transition-colors cursor-pointer ${dragging ? 'bg-blue-50 border-2 border-dashed border-blue-400' : 'hover:bg-slate-50'}`}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -81,21 +113,21 @@ export default function ImageUploadButton({ onInsert }) {
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-slate-700">Clique ou arraste uma imagem aqui</p>
-              <p className="text-xs text-slate-400 mt-1">JPG, PNG, GIF, WEBP, SVG, BMP — qualquer formato</p>
+              <p className="text-xs text-slate-400 mt-1">JPG, PNG, GIF, WEBP, SVG, BMP</p>
             </div>
           </>
         )}
         <input
           ref={fileRef}
           type="file"
-          accept="*"
+          accept="image/*"
           className="hidden"
           onChange={handleFileChange}
           onClick={(e) => e.stopPropagation()}
         />
       </div>
 
-      {/* Divisor + opção URL */}
+      {/* URL option */}
       <div className="border-t border-slate-100 px-4 py-3">
         {showUrl ? (
           <div className="flex gap-2 items-center">
