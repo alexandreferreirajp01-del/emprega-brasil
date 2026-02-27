@@ -136,8 +136,9 @@ function extractFromText(rawInput) {
   const linkMatch = text.match(/https?:\/\/[^\s]+/);
   if (linkMatch) result.application_link = linkMatch[0];
 
-  // Descrição: usar o texto original limpo
+  // Descrição: usar o texto limpo
   result.description = text.trim();
+
 
   return result;
 }
