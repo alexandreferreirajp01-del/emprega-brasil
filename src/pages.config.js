@@ -114,6 +114,7 @@ import Pendencias from './pages/Pendencias';
 import PendingAccess from './pages/PendingAccess';
 import Permissoes from './pages/Permissoes';
 import PostManual from './pages/PostManual';
+import PostManualTexto from './pages/PostManualTexto';
 import PostarNoticia from './pages/PostarNoticia';
 import PostarVaga from './pages/PostarVaga';
 import PostsEmMassa from './pages/PostsEmMassa';
@@ -143,7 +144,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import PostManualTexto from './pages/PostManualTexto';
 import __Layout from './Layout.jsx';
 
 
@@ -215,6 +215,7 @@ export const PAGES = {
     "PendingAccess": PendingAccess,
     "Permissoes": Permissoes,
     "PostManual": PostManual,
+    "PostManualTexto": PostManualTexto,
     "PostarNoticia": PostarNoticia,
     "PostarVaga": PostarVaga,
     "PostsEmMassa": PostsEmMassa,
@@ -244,7 +245,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "PostManualTexto": PostManualTexto,
 }
 
 export const pagesConfig = {

@@ -35,8 +35,25 @@ const emptyForm = {
   contract_types: [],
 };
 
+// Remove emojis e caracteres especiais indesejados do texto
+function cleanText(text) {
+  return text
+    // Remove emojis
+    .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')
+    .replace(/[\u{2600}-\u{27BF}]/gu, '')
+    .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+    .replace(/[\u{FE00}-\u{FEFF}]/gu, '')
+    // Remove caracteres especiais específicos
+    .replace(/[*"/£¢¥^°}\\∆×÷`|]/g, '')
+    // Limpa espaços múltiplos e linhas em branco extras
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 // Extrator manual simples (sem IA, sem créditos)
-function extractFromText(text) {
+function extractFromText(rawInput) {
+  const text = cleanText(rawInput);
   const result = { ...emptyForm };
   if (!text.trim()) return result;
 
