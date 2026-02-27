@@ -51,6 +51,7 @@ const menuItems = [
   { id: 'divider-conteudo', type: 'divider', label: 'Conteúdo' },
   { id: 'noticias', name: 'Notícias', icon: Newspaper, color: 'rose', page: 'GerenciarNoticias', description: 'Criar e gerenciar notícias', permissionId: 'noticias' },
   { id: 'blog', name: 'Gerenciar Blog', icon: BookOpen, color: 'emerald', page: 'GerenciarBlog', description: 'Criar e gerenciar posts do blog', roles: ['admin', 'dono'] },
+  { id: 'grupos', name: 'Gerenciar Grupos', icon: Users, color: 'green', page: 'GerenciarGrupos', description: 'Adicionar, editar e desativar grupos de WhatsApp, Telegram e Facebook', roles: ['admin', 'dono'] },
   { id: 'feed', name: 'Feed', icon: MessageSquare, color: 'pink', page: 'GerenciarComunidade', description: 'Posts, comentários e chat', permissionId: 'gerenciar_comunidade' },
   { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'orange', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos', permissionId: 'biblioteca_admin' },
 
