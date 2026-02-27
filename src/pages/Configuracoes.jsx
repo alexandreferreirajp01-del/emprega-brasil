@@ -87,6 +87,10 @@ const menuItems = [
   // Analytics
   { id: 'divider-analytics', type: 'divider', label: 'Analytics e Monitoramento', roles: ['admin', 'dono'] },
   { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
+
+  // Documentação
+  { id: 'divider-docs', type: 'divider', label: 'Documentação', roles: ['admin', 'dono'] },
+  { id: 'documentacao-app', name: 'Documentação do Aplicativo', icon: BookOpen, color: 'slate', page: 'DocumentacaoApp', description: 'Baixar documentação técnica e prompt de recriação em PDF, Word ou TXT', roles: ['admin', 'dono'] },
 ];
 
 const colorClasses = {
