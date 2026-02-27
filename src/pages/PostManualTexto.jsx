@@ -411,6 +411,39 @@ export default function PostManualTexto() {
                 <Textarea value={form.description} onChange={e => set('description', e.target.value)} rows={8} className="mt-1 text-sm" placeholder="Descrição da vaga..." />
               </div>
 
+              {/* Destaque e Premium */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => set('is_featured', !form.is_featured)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${form.is_featured ? 'bg-amber-50 border-amber-400 dark:bg-amber-900/20 dark:border-amber-500' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 hover:border-amber-300'}`}
+                >
+                  <Star className={`w-5 h-5 flex-shrink-0 ${form.is_featured ? 'text-amber-500 fill-amber-400' : 'text-slate-400'}`} />
+                  <div>
+                    <p className={`font-semibold text-sm ${form.is_featured ? 'text-amber-700 dark:text-amber-400' : 'text-slate-700 dark:text-slate-300'}`}>Vaga em Destaque</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Aparece no topo e em evidência</p>
+                  </div>
+                  <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${form.is_featured ? 'bg-amber-400 border-amber-400' : 'border-slate-300'}`}>
+                    {form.is_featured && <div className="w-2 h-2 rounded-full bg-white" />}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => set('is_premium', !form.is_premium)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${form.is_premium ? 'bg-purple-50 border-purple-400 dark:bg-purple-900/20 dark:border-purple-500' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 hover:border-purple-300'}`}
+                >
+                  <Crown className={`w-5 h-5 flex-shrink-0 ${form.is_premium ? 'text-purple-500' : 'text-slate-400'}`} />
+                  <div>
+                    <p className={`font-semibold text-sm ${form.is_premium ? 'text-purple-700 dark:text-purple-400' : 'text-slate-700 dark:text-slate-300'}`}>Vaga Premium</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Visível apenas para assinantes</p>
+                  </div>
+                  <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${form.is_premium ? 'bg-purple-400 border-purple-400' : 'border-slate-300'}`}>
+                    {form.is_premium && <div className="w-2 h-2 rounded-full bg-white" />}
+                  </div>
+                </button>
+              </div>
+
               {/* Botões de publicação */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-slate-100 dark:border-slate-700">
                 <Button
