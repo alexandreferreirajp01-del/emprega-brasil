@@ -109,6 +109,7 @@ const colorClasses = {
 const vagasSubmenuItems = [
   { id: 'gerenciar-vagas', name: 'Gerenciador de Vagas', icon: Briefcase, color: 'indigo', page: 'GerenciarVagas', description: 'Central única de controle e manutenção', roles: ['admin', 'dono'] },
   { id: 'post-manual', name: 'Vagas N8N (Revisão)', icon: PlusCircle, color: 'emerald', page: 'PostManual', description: 'Revisar e publicar vagas recebidas do N8N', roles: ['admin', 'dono'] },
+  { id: 'post-manual-texto-sub', name: 'Post Manual — Texto', icon: ClipboardList, color: 'amber', page: 'PostManualTexto', description: 'Cole texto de vaga e preencha manualmente', roles: ['admin', 'dono'] },
   { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'slate', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros', permissionId: 'gerenciador_filtros' },
   { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego', permissionId: 'postar_vagas' },
   { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA', permissionId: 'posts_massa' },
