@@ -37,110 +37,226 @@ const emptyForm = {
   is_premium: false,
 };
 
+// Cidades comuns da Paraíba e outros estados para detecção sem prefixo
+const CIDADES_CONHECIDAS = [
+  'joão pessoa','campina grande','patos','cajazeiras','sousa','guarabira','bayeux','santa rita',
+  'cabedelo','sapé','queimadas','pombal','catolé do rocha','cuité','picuí','monteiro','sumé',
+  'recife','fortaleza','natal','maceió','teresina','são luís','salvador','aracaju','belém',
+  'manaus','porto alegre','curitiba','florianópolis','belo horizonte','rio de janeiro','são paulo',
+  'brasília','goiânia','campo grande','cuiabá','porto velho','macapá','boa vista','rio branco','palmas',
+  'vitória','macaió','caruaru','petrolina','mossoró','juazeiro do norte','montes claros','uberlândia',
+  'londrina','maringá','joinville','blumenau','caxias do sul','pelotas'
+];
+
+const ESTADOS_MAP = {
+  'paraíba': 'PB', 'pernambuco': 'PE', 'ceará': 'CE', 'rio grande do norte': 'RN',
+  'bahia': 'BA', 'alagoas': 'AL', 'sergipe': 'SE', 'maranhão': 'MA', 'piauí': 'PI',
+  'pará': 'PA', 'amazonas': 'AM', 'roraima': 'RR', 'amapá': 'AP', 'acre': 'AC',
+  'rondônia': 'RO', 'tocantins': 'TO', 'mato grosso': 'MT', 'mato grosso do sul': 'MS',
+  'goiás': 'GO', 'minas gerais': 'MG', 'espírito santo': 'ES', 'rio de janeiro': 'RJ',
+  'são paulo': 'SP', 'paraná': 'PR', 'santa catarina': 'SC', 'rio grande do sul': 'RS',
+  'distrito federal': 'DF'
+};
+
 // Remove emojis e caracteres especiais indesejados do texto
 function cleanText(text) {
   return text
-    // Remove emojis
     .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')
     .replace(/[\u{2600}-\u{27BF}]/gu, '')
     .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
     .replace(/[\u{FE00}-\u{FEFF}]/gu, '')
-    // Remove caracteres especiais específicos
     .replace(/[*"/£¢¥^°}\\∆×÷`|]/g, '')
-    // Limpa espaços múltiplos e linhas em branco extras
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
 
-// Extrator manual simples (sem IA, sem créditos)
 function extractFromText(rawInput) {
   const text = cleanText(rawInput);
   const result = { ...emptyForm };
   if (!text.trim()) return result;
 
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const textLower = text.toLowerCase();
 
-  // Título: primeira linha não vazia ou linha com "vaga" / "cargo" / "função"
+  // ── TÍTULO ──────────────────────────────────────────────────────────────
+  // Prioridade 1: linha com prefixo "vaga:", "cargo:", "função:", etc.
   for (const line of lines) {
-    const lower = line.toLowerCase();
-    if (lower.includes('vaga') || lower.includes('cargo') || lower.includes('função') || lower.includes('contratamos') || lower.includes('procuramos')) {
-      result.title = line.replace(/^(vaga|cargo|função|contratamos|procuramos)[:\s-]*/i, '').trim() || line;
-      break;
+    const m = line.match(/^(?:vaga|cargo|fun[cç][aã]o|oportunidade|vaga de emprego)[:\s-]+(.+)/i);
+    if (m) { result.title = m[1].trim(); break; }
+  }
+  // Prioridade 2: linha "contratamos / procuramos / selecionamos [cargo]"
+  if (!result.title) {
+    for (const line of lines) {
+      const m = line.match(/^(?:contratamos|procuramos|selecionamos|buscamos|precisa-se de|vaga para)[:\s]+(.+)/i);
+      if (m) { result.title = m[1].trim(); break; }
     }
   }
+  // Prioridade 3: primeira linha
   if (!result.title && lines.length > 0) result.title = lines[0];
 
-  // Empresa
+  // ── EMPRESA ─────────────────────────────────────────────────────────────
   for (const line of lines) {
-    const m = line.match(/empresa[:\s]+(.+)/i) || line.match(/^(.+)\s+(contrata|busca|seleciona|recruta)/i);
+    const m = line.match(/^(?:empresa|empregador|recrutador|contratante)[:\s]+(.+)/i);
     if (m) { result.company = m[1].trim(); break; }
   }
+  if (!result.company) {
+    for (const line of lines) {
+      const m = line.match(/^(.{3,50}?)\s+(?:contrata|busca|seleciona|recruta|está contratando)/i);
+      if (m) { result.company = m[1].trim(); break; }
+    }
+  }
 
-  // Cidade / Estado
+  // ── LOCALIZAÇÃO (Cidade, UF, Bairro) ────────────────────────────────────
+  // 1) Prefixo "local:", "localização:", "cidade:", "endereço:", "onde:", "lotação:"
   for (const line of lines) {
-    const m = line.match(/(?:local(?:ização)?|cidade|cep)[:\s]+(.+)/i);
+    const m = line.match(/^(?:local(?:iza[cç][aã]o)?|cidade|endere[cç]o|onde|lota[cç][aã]o|local de trabalho)[:\s]+(.+)/i);
     if (m) {
       const loc = m[1].trim();
-      const stateMatch = loc.match(/[-–,]\s*([A-Z]{2})$/) || loc.match(/\b([A-Z]{2})\b/);
-      if (stateMatch) result.state = stateMatch[1];
-      result.city = loc.replace(/[-–,]\s*[A-Z]{2}$/, '').trim();
+      // Extrai UF sigla
+      const ufMatch = loc.match(/[-–,\/]\s*([A-Z]{2})\b/) || loc.match(/\b([A-Z]{2})\b/);
+      if (ufMatch) result.state = ufMatch[1];
+      // Extrai nome do estado por extenso
+      if (!result.state) {
+        for (const [name, uf] of Object.entries(ESTADOS_MAP)) {
+          if (loc.toLowerCase().includes(name)) { result.state = uf; break; }
+        }
+      }
+      result.city = loc.replace(/[-–,\/]\s*[A-Z]{2}\b/, '').replace(/,?\s*bairro.+/i, '').trim();
+      // Bairro embutido: "João Pessoa - PB - Bairro dos Estados"
+      const bairroEmbutido = loc.match(/[-–,]\s*(?:bairro\s+)?(.+)$/i);
+      if (bairroEmbutido && !result.neighborhood) result.neighborhood = bairroEmbutido[1].trim();
       break;
     }
-    // Padrão: "Cidade - UF" ou "Cidade/UF"
-    const cityState = line.match(/^([A-Za-zÀ-ú\s]+)\s*[-\/]\s*([A-Z]{2})$/);
-    if (cityState) {
-      result.city = cityState[1].trim();
-      result.state = cityState[2];
-      break;
+  }
+
+  // 2) Padrão "Cidade - UF" ou "Cidade/UF" em qualquer linha
+  if (!result.city) {
+    for (const line of lines) {
+      const m = line.match(/^([A-Za-zÀ-ú][A-Za-zÀ-ú\s]{2,40}?)\s*[-–\/]\s*([A-Z]{2})\b/);
+      if (m) {
+        result.city = m[1].trim();
+        result.state = m[2];
+        break;
+      }
     }
   }
 
-  // Bairro
-  for (const line of lines) {
-    const m = line.match(/bairro[:\s]+(.+)/i);
-    if (m) { result.neighborhood = m[1].trim(); break; }
+  // 3) Detectar cidade por nome conhecido no texto
+  if (!result.city) {
+    for (const cidade of CIDADES_CONHECIDAS) {
+      const idx = textLower.indexOf(cidade);
+      if (idx !== -1) {
+        result.city = text.substring(idx, idx + cidade.length)
+          .split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        break;
+      }
+    }
   }
 
-  // Salário
-  for (const line of lines) {
-    const m = line.match(/sal[aá]rio[:\s]+(.+)/i) || line.match(/remunera[cç][aã]o[:\s]+(.+)/i) || line.match(/(R\$\s*[\d.,]+(?:\s*[-–]\s*R?\$?\s*[\d.,]+)?)/i);
-    if (m) { result.salary_range = (m[1] || m[0]).trim(); break; }
+  // 4) UF por nome de estado por extenso
+  if (!result.state) {
+    for (const [name, uf] of Object.entries(ESTADOS_MAP)) {
+      if (textLower.includes(name)) { result.state = uf; break; }
+    }
   }
 
-  // Tipo de contrato
-  const textLower = text.toLowerCase();
-  if (textLower.includes('clt')) result.job_type = 'CLT';
-  else if (textLower.includes('estágio') || textLower.includes('estagio')) result.job_type = 'Estágio';
-  else if (textLower.includes('jovem aprendiz')) result.job_type = 'Jovem Aprendiz';
+  // ── BAIRRO ──────────────────────────────────────────────────────────────
+  if (!result.neighborhood) {
+    for (const line of lines) {
+      const m = line.match(/^(?:bairro|localidade)[:\s]+(.+)/i);
+      if (m) { result.neighborhood = m[1].trim(); break; }
+    }
+  }
+
+  // ── SALÁRIO ─────────────────────────────────────────────────────────────
+  for (const line of lines) {
+    // Prefixo "salário:", "remuneração:", "faixa salarial:", "valor:", "pagamento:"
+    const m = line.match(/^(?:sal[aá]rio|remunera[cç][aã]o|faixa salarial|pagamento|valor|benefícios salariais)[:\s]+(.+)/i);
+    if (m) { result.salary_range = m[1].trim(); break; }
+  }
+  if (!result.salary_range) {
+    // Detecta "R$ X" ou "R$ X - R$ Y" em qualquer linha
+    const m = text.match(/R\$\s*[\d.,]+(?:\s*(?:[-–a]|até)\s*R?\$?\s*[\d.,]+)?(?:\s*(?:\/hora|\/h|por hora|mensais?|mês)?)?/i);
+    if (m) result.salary_range = m[0].trim();
+  }
+  if (!result.salary_range) {
+    // "a combinar", "à combinar", "a definir"
+    const m = text.match(/(?:sal[aá]rio|remunera[cç][aã]o)[^.\n]{0,30}(a combinar|à combinar|a definir|conforme experiência)/i);
+    if (m) result.salary_range = m[1].trim();
+  }
+
+  // ── TIPO DE CONTRATO ─────────────────────────────────────────────────────
+  if (textLower.includes('jovem aprendiz')) result.job_type = 'Jovem Aprendiz';
+  else if (textLower.includes('estágio') || textLower.includes('estagio') || textLower.includes('estagiário')) result.job_type = 'Estágio';
+  else if (textLower.includes('pcd') || textLower.includes('pessoa com deficiência')) result.job_type = 'PCD';
+  else if (textLower.includes('freelancer') || textLower.includes('free-lancer')) result.job_type = 'Freelancer';
+  else if (textLower.includes('temporári') || textLower.includes('temporario')) result.job_type = 'Temporário';
+  else if (textLower.match(/\bpj\b/) || textLower.includes('pessoa jurídica')) result.job_type = 'PJ';
+  else if (textLower.includes('clt')) result.job_type = 'CLT';
   else if (textLower.includes('home office') || textLower.includes('remoto')) result.job_type = 'Home Office';
-  else if (textLower.includes('temporário') || textLower.includes('temporario')) result.job_type = 'Temporário';
-  else if (textLower.includes(' pj ') || textLower.includes('pessoa jurídica')) result.job_type = 'PJ';
-  else if (textLower.includes('freelancer')) result.job_type = 'Freelancer';
 
-  // Modalidade
-  if (textLower.includes('home office') || textLower.includes('remoto') || textLower.includes('trabalho remoto')) result.work_mode = 'Remoto';
-  else if (textLower.includes('híbrido') || textLower.includes('hibrido')) result.work_mode = 'Híbrido';
+  // Contract types array
+  const ctMap = { 'CLT': 'clt', 'PJ': /\bpj\b/, 'Estágio': /est[aá]gi/, 'Jovem Aprendiz': 'jovem aprendiz', 'Temporário': /temporári/, 'Freelancer': 'freelancer', 'Trainee': 'trainee', 'Autônomo': /aut[ôo]nom/ };
+  for (const [label, pattern] of Object.entries(ctMap)) {
+    const found = typeof pattern === 'string' ? textLower.includes(pattern) : pattern.test(textLower);
+    if (found && !result.contract_types.includes(label)) result.contract_types.push(label);
+  }
 
-  // Contato - WhatsApp
-  const waMatch = text.match(/(?:whatsapp|wpp|zap|zap zap)[:\s]+([+\d\s().()-]+)/i) || text.match(/(\(?\d{2}\)?\s*9[\d\s-]{8,})/);
-  if (waMatch) result.contact_whatsapp = waMatch[1].replace(/\D/g, '');
+  // ── MODALIDADE ───────────────────────────────────────────────────────────
+  if (textLower.includes('home office') || textLower.includes('remoto') || textLower.includes('trabalho remoto') || textLower.includes('100% remoto')) result.work_mode = 'Remoto';
+  else if (textLower.includes('híbrido') || textLower.includes('hibrido') || textLower.includes('semi-presencial')) result.work_mode = 'Híbrido';
 
-  // Contato - Telefone
-  const phoneMatch = text.match(/(?:telefone|tel|fone|celular)[:\s]+([+\d\s().()-]+)/i);
-  if (phoneMatch) result.contact_phone = phoneMatch[1].replace(/\D/g, '');
+  // ── CATEGORIA ────────────────────────────────────────────────────────────
+  const categoryMap = [
+    { cat: 'TI', keywords: ['desenvolvedor', 'programador', 'ti ', 'tecnologia da informação', 'suporte técnico', 'analista de sistemas', 'analista de ti', 'web', 'software', 'hardware', 'infra'] },
+    { cat: 'Saúde', keywords: ['enfermeiro', 'médico', 'médica', 'enfermagem', 'farmacêutico', 'fisioterapeuta', 'nutricionista', 'psicólogo', 'técnico de enfermagem', 'cuidador', 'saúde'] },
+    { cat: 'Educação', keywords: ['professor', 'professora', 'pedagogo', 'educação', 'docente', 'tutor', 'instrutor', 'escola', 'ensino'] },
+    { cat: 'Administrativo', keywords: ['auxiliar administrativo', 'assistente administrativo', 'secretária', 'recepcionista', 'escritório', 'administrativ'] },
+    { cat: 'Atendimento', keywords: ['atendente', 'atendimento ao cliente', 'sac', 'call center', 'telemarketing', 'operador de caixa', 'caixa', 'balconista'] },
+    { cat: 'Comercial', keywords: ['vendedor', 'vendas', 'representante comercial', 'consultor de vendas', 'promotor', 'comercial'] },
+    { cat: 'Logística', keywords: ['logística', 'motorista', 'entregador', 'mototaxista', 'motoboy', 'conferente', 'estoquista', 'almoxarife', 'armazém'] },
+    { cat: 'Construção Civil', keywords: ['pedreiro', 'servente', 'eletricista', 'encanador', 'pintor', 'construção', 'obra', 'engenheiro civil', 'mestre de obras', 'carpinteiro', 'azulejista'] },
+    { cat: 'Indústria', keywords: ['operador de máquina', 'produção', 'fábrica', 'industrial', 'linha de produção', 'montador', 'mecânico', 'soldador', 'torneiro'] },
+    { cat: 'Serviços Gerais', keywords: ['serviços gerais', 'limpeza', 'faxineiro', 'zelador', 'porteiro', 'vigilante', 'segurança', 'copeiro', 'auxiliar de limpeza'] },
+    { cat: 'Financeiro', keywords: ['financeiro', 'contador', 'contabilidade', 'tesoureiro', 'analista financeiro', 'cobrança', 'fiscal'] },
+  ];
+  for (const { cat, keywords } of categoryMap) {
+    if (keywords.some(kw => textLower.includes(kw))) { result.category = cat; break; }
+  }
+
+  // ── CONTATOS ─────────────────────────────────────────────────────────────
+  // WhatsApp (prefixo específico primeiro)
+  const waExplicit = text.match(/(?:whatsapp|wpp|wha?ts?|zap)[:\s]+([+\d\s().()-]{8,20})/i);
+  if (waExplicit) result.contact_whatsapp = waExplicit[1].replace(/\D/g, '');
+
+  // Telefone (prefixo específico)
+  const phoneExplicit = text.match(/(?:telefone|tel\.?|fone|celular|contato)[:\s]+([+\d\s().()-]{7,20})/i);
+  if (phoneExplicit) result.contact_phone = phoneExplicit[1].replace(/\D/g, '');
+
+  // Fallback: número genérico com DDD
+  if (!result.contact_whatsapp && !result.contact_phone) {
+    const numMatch = text.match(/\(?\d{2}\)?\s*9?\d{4}[-\s]?\d{4}/);
+    if (numMatch) result.contact_whatsapp = numMatch[0].replace(/\D/g, '');
+  }
 
   // Email
   const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
   if (emailMatch) result.contact_email = emailMatch[0];
 
-  // Link de candidatura
-  const linkMatch = text.match(/https?:\/\/[^\s]+/);
-  if (linkMatch) result.application_link = linkMatch[0];
+  // Link de candidatura (exclui links de imagens/mídias)
+  const linkMatch = text.match(/https?:\/\/(?!(?:wa\.me|api\.whatsapp|t\.me|instagram|facebook|twitter))[^\s]+/i)
+    || text.match(/https?:\/\/[^\s]+/);
+  if (linkMatch) result.application_link = linkMatch[0].replace(/[.,;)]+$/, '');
 
-  // Descrição: usar o texto limpo
-  result.description = text.trim();
-
+  // ── DESCRIÇÃO ────────────────────────────────────────────────────────────
+  // Remove linhas que são apenas o título para não repetir
+  const titleNorm = result.title.toLowerCase().trim();
+  const descLines = lines.filter(line => {
+    const l = line.toLowerCase().trim();
+    return l !== titleNorm && l !== `vaga: ${titleNorm}` && l !== `cargo: ${titleNorm}`;
+  });
+  result.description = descLines.join('\n').trim();
 
   return result;
 }
