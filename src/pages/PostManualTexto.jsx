@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ClipboardPaste, Send, Loader2, CheckCircle, RefreshCw, FileText, Briefcase } from "lucide-react";
+import { ArrowLeft, ClipboardPaste, Send, Loader2, CheckCircle, RefreshCw, FileText, Briefcase, Star, Crown } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
