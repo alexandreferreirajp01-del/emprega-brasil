@@ -33,6 +33,8 @@ const emptyForm = {
   contact_phone: '',
   contact_whatsapp: '',
   contract_types: [],
+  is_featured: false,
+  is_premium: false,
 };
 
 // Remove emojis e caracteres especiais indesejados do texto
