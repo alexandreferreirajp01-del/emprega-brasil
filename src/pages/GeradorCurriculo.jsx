@@ -55,7 +55,7 @@ export default function GeradorCurriculo() {
   };
 
   const planInfo = getPlanLimits(user);
-  const filteredTemplates = filterCat === 'Todos' ? TEMPLATES : TEMPLATES.filter(t => t.category === filterCat);
+  const filteredTemplates = filterCat === 'Todos' ? TEMPLATES : filterCat === '🆕 Novos' ? TEMPLATES.filter(t => t.isNew) : TEMPLATES.filter(t => t.category === filterCat);
 
   const canDownloadMore = () => {
     if (!user) return false;
