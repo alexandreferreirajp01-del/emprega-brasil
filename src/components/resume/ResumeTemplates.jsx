@@ -158,4 +158,4 @@ export const TEMPLATES = [
   },
 ];
 
-export const CATEGORIES = ['Todos', 'Corporativo', 'Moderno', 'Minimalista', 'Executivo', 'Criativo', 'Tecnologia'];
+export const CATEGORIES = ['Todos', '🆕 Novos', 'Corporativo', 'Moderno', 'Minimalista', 'Executivo', 'Criativo', 'Tecnologia'];
