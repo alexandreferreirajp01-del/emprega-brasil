@@ -1,6 +1,7 @@
-// 15 templates profissionais de currículo
+// 21 templates profissionais de currículo
 
 export const TEMPLATES = [
+  // ── Originais ──────────────────────────────────────────────────────────
   {
     id: 'classic_blue',
     name: 'Clássico Azul',
@@ -96,7 +97,7 @@ export const TEMPLATES = [
     id: 'pink_creative',
     name: 'Rosa Criativo',
     description: 'Feminino e elegante para áreas criativas',
-    preview_color: '#c0392b',
+    preview_color: '#ad1457',
     category: 'Criativo',
   },
   {
@@ -105,6 +106,49 @@ export const TEMPLATES = [
     description: 'Luxuoso com detalhes dourados para cargos executivos',
     preview_color: '#b7950b',
     category: 'Executivo',
+  },
+  // ── Novos Templates (inspirados nos modelos enviados) ──────────────────
+  {
+    id: 'bw_infographic',
+    name: 'Preto & Branco Infográfico',
+    description: 'Limpo e profissional, seções em destaque cinza arredondado',
+    preview_color: '#333333',
+    category: 'Minimalista',
+  },
+  {
+    id: 'beige_brown',
+    name: 'Bege & Marrom Clássico',
+    description: 'Elegante com foto, layout duas colunas em tom quentinho',
+    preview_color: '#7B3F00',
+    category: 'Corporativo',
+  },
+  {
+    id: 'blue_gray_pro',
+    name: 'Azul Cinza Profissional',
+    description: 'Header navy, sidebar lateral com timeline de experiência',
+    preview_color: '#1D2B4F',
+    category: 'Executivo',
+  },
+  {
+    id: 'blue_photo_sidebar',
+    name: 'Azul com Foto Lateral',
+    description: 'Sidebar azul escuro com foto no topo e dados à direita',
+    preview_color: '#1B4F8A',
+    category: 'Moderno',
+  },
+  {
+    id: 'beige_soft_photo',
+    name: 'Bege Suave com Foto',
+    description: 'Fundo bege claro, foto circular e barras de habilidades',
+    preview_color: '#8B7355',
+    category: 'Criativo',
+  },
+  {
+    id: 'dark_sidebar_cv',
+    name: 'CV Sidebar Escuro',
+    description: 'Sidebar escuro elegante com foto circular e conteúdo branco',
+    preview_color: '#2B3444',
+    category: 'Moderno',
   },
 ];
 
