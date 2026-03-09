@@ -255,12 +255,13 @@ export default function GeradorCurriculo() {
         {/* STEP 2: Form */}
         {step === 'form' && (
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-slate-800 dark:text-white">Preencha seus dados</h2>
               <Button onClick={() => setStep('preview')} className="bg-[#1D4371] text-white gap-2">
                 Visualizar Currículo <Eye className="w-4 h-4" />
               </Button>
             </div>
+            <AIResumeGenerator onGenerated={(data) => { setFormData(data); }} />
             <Card className="rounded-2xl border-0 shadow-lg">
               <CardContent className="p-5">
                 <ResumeForm data={formData} onChange={setFormData} />
