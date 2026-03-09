@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Search, Briefcase, MessageCircle, Newspaper, Crown, ArrowRight, 
   MapPin, Calendar, Users, Star, TrendingUp, Building2, Eye,
-  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake, Sparkles, Moon, Sun
+  ChevronRight, Zap, Shield, CheckCircle, Clock, Heart, Handshake, Sparkles, Moon, Sun, FileText
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
