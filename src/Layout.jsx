@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // Injeção imediata do AdSense
 (function() {
@@ -52,6 +52,11 @@ import PopunderAd from "@/components/ads/PopunderAd";
 import SocialBarAd from "@/components/ads/SocialBarAd";
 import BannerAd from "@/components/ads/BannerAd";
 import WelcomePopup from "@/components/common/WelcomePopup";
+import HomeTabPage from "@/pages/Home";
+import JobsTabPage from "@/pages/Jobs";
+import NewsTabPage from "@/pages/News";
+import BlogTabPage from "@/pages/Blog";
+import FeedTabPage from "@/pages/Feed";
 
 
 const vagasSubmenuItems = [
