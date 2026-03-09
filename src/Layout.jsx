@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
 
-// Injeção imediata do AdSense (antes do React renderizar)
-if (typeof document !== 'undefined') {
+// Injeção imediata do AdSense
+(function() {
+  if (typeof document === 'undefined') return;
+  // Meta tag
   if (!document.querySelector('meta[name="google-adsense-account"]')) {
-    const m = document.createElement('meta');
-    m.name = 'google-adsense-account';
-    m.content = 'ca-pub-8605408842983455';
+    var m = document.createElement('meta');
+    m.setAttribute('name', 'google-adsense-account');
+    m.setAttribute('content', 'ca-pub-8605408842983455');
     document.head.insertBefore(m, document.head.firstChild);
   }
-  if (!document.querySelector('script[src*="adsbygoogle"]')) {
-    const s = document.createElement('script');
-    s.async = true;
-    s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8605408842983455';
-    s.crossOrigin = 'anonymous';
+  // Script AdSense
+  if (!document.querySelector('script[src*="pagead2.googlesyndication"]')) {
+    var s = document.createElement('script');
+    s.setAttribute('async', '');
+    s.setAttribute('src', 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8605408842983455');
+    s.setAttribute('crossorigin', 'anonymous');
     document.head.appendChild(s);
   }
-}
+})();
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
