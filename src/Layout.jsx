@@ -93,8 +93,18 @@ export default function Layout({ children, currentPageName }) {
   const [darkMode, setDarkMode] = useState(false);
   const [navItems, setNavItems] = useState([]);
   const [showVagasSubmenu, setShowVagasSubmenu] = useState(false);
+  const [mountedTabs, setMountedTabs] = useState(new Set([currentPageName]));
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isTabPage = TAB_PAGES.includes(currentPageName);
+
+  // Mount tabs as user navigates to them (preserve state on switch)
+  useEffect(() => {
+    if (isTabPage) {
+      setMountedTabs(prev => new Set([...prev, currentPageName]));
+    }
+  }, [currentPageName, isTabPage]);
 
   // Rotas que são consideradas "filhas" e devem mostrar botão voltar
   const childRoutes = ['JobDetail', 'NewsDetail', 'Profile', 'Configuracoes', 'PostarVaga', 
