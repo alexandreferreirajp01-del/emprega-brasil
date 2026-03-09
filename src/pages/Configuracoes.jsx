@@ -43,8 +43,6 @@ const menuItems = [
 
   // Gestão de Vagas - Botão com Submenu
   { id: 'divider-vagas', type: 'divider', label: 'Gestão de Vagas' },
-  { id: 'post-manual-main', name: 'Vagas N8N (Revisão)', icon: PlusCircle, color: 'emerald', page: 'PostManual', description: 'Revisar e publicar vagas recebidas do N8N automaticamente', roles: ['admin', 'dono'] },
-  { id: 'post-manual-texto', name: 'Post Manual — Texto', icon: ClipboardList, color: 'amber', page: 'PostManualTexto', description: 'Cole o texto de uma vaga e preencha o formulário manualmente, sem IA', roles: ['admin', 'dono'] },
   { id: 'gestao-vagas-menu', name: 'Gestão de Vagas', icon: Briefcase, color: 'indigo', description: 'Central única de controle e manutenção', isSubmenu: true },
 
   // Conteúdo
