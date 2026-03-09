@@ -769,4 +769,4 @@ export default function Layout({ children, currentPageName }) {
   </Dialog>
   </div>
   );
-  }
+}
