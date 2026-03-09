@@ -52,11 +52,20 @@ import PopunderAd from "@/components/ads/PopunderAd";
 import SocialBarAd from "@/components/ads/SocialBarAd";
 import BannerAd from "@/components/ads/BannerAd";
 import WelcomePopup from "@/components/common/WelcomePopup";
-import HomeTabPage from "@/pages/Home";
-import JobsTabPage from "@/pages/Jobs";
-import NewsTabPage from "@/pages/News";
-import BlogTabPage from "@/pages/Blog";
-import FeedTabPage from "@/pages/Feed";
+const HomeTabPage = React.lazy(() => import("@/pages/Home"));
+const JobsTabPage = React.lazy(() => import("@/pages/Jobs"));
+const NewsTabPage = React.lazy(() => import("@/pages/News"));
+const BlogTabPage = React.lazy(() => import("@/pages/Blog"));
+const FeedTabPage = React.lazy(() => import("@/pages/Feed"));
+
+const TAB_PAGES = ['Home', 'Jobs', 'News', 'Blog', 'Feed'];
+const TAB_COMPONENTS = {
+  Home: HomeTabPage,
+  Jobs: JobsTabPage,
+  News: NewsTabPage,
+  Blog: BlogTabPage,
+  Feed: FeedTabPage,
+};
 
 
 const vagasSubmenuItems = [
