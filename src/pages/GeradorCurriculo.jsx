@@ -7,6 +7,7 @@ import { createPageUrl } from '@/utils';
 import { FileText, Download, Crown, ChevronRight, ChevronLeft, Eye, Lock, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import ResumeForm from '@/components/resume/ResumeForm';
 import ResumeRenderer from '@/components/resume/ResumeRenderer';
+import AIResumeGenerator from '@/components/resume/AIResumeGenerator';
 import { TEMPLATES, CATEGORIES } from '@/components/resume/ResumeTemplates';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
