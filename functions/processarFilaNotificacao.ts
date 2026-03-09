@@ -45,6 +45,9 @@ function buildEmailHtml(template, vars, jobUrl) {
 }
 
 Deno.serve(async (req) => {
+  // EMAIL DESABILITADO — envio de notificações por email está desativado
+  return Response.json({ success: true, message: 'Envio de email desabilitado', processados: 0 });
+
   try {
     const base44 = createClientFromRequest(req);
 

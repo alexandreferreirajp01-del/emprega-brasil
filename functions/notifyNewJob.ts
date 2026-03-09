@@ -288,27 +288,10 @@ Deno.serve(async (req) => {
     const users = await base44.asServiceRole.entities.User.list('-created_date', 10000);
     let emailsSent = 0, emailErrors = 0, pushSent = 0, pushErrors = 0;
 
-    // 3. Adicionar todos os usuários na fila de notificação (lotes de 100 para não travar)
-    const LOTE = 100;
-    for (let i = 0; i < users.length; i += LOTE) {
-      const lote = users.slice(i, i + LOTE).filter(u => u.email);
-      await Promise.allSettled(
-        lote.map((u, idx) =>
-          base44.asServiceRole.entities.FilaNotificacao.create({
-            job_id: jobId,
-            job_title: jobTitle,
-            job_company: jobCompany || '',
-            job_city: jobCity || '',
-            is_home_office: !!isHomeOffice,
-            user_email: u.email,
-            status: 'pending',
-            attempts: 0,
-            template_seed: (seed + i + idx) % 30
-          })
-        )
-      );
-    }
-    emailsSent = users.filter(u => u.email).length; // total enfileirado
+    // EMAIL DESABILITADO — enfileiramento de emails desativado
+    // const LOTE = 100;
+    // for (let i = 0; i < users.length; i += LOTE) { ... }
+    emailsSent = 0;
 
     // 4. Enviar push notification para todos os inscritos
     const subscriptions = await base44.asServiceRole.entities.PushSubscription.filter({ is_active: true }, '-created_date', 10000);
