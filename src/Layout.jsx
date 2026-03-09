@@ -614,19 +614,35 @@ export default function Layout({ children, currentPageName }) {
   </header>
 
   {/* Main Content com padding-top para o header fixo */}
-  <main className="flex-1" style={{ paddingTop: '4rem', paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
+  <main className="flex-1" style={{ paddingTop: '4rem', paddingBottom: 'calc(5rem + var(--sab, env(safe-area-inset-bottom, 0px)))' }}>
     <ErrorBoundary>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={location.pathname}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
-        >
-          {children}
-        </motion.div>
-      </AnimatePresence>
+      {/* Tab pages: rendered hidden when not active to preserve scroll/state */}
+      {Array.from(mountedTabs).map(tabName => {
+        const TabComponent = TAB_COMPONENTS[tabName];
+        if (!TabComponent) return null;
+        return (
+          <div key={tabName} style={{ display: currentPageName === tabName ? 'block' : 'none' }}>
+            <React.Suspense fallback={null}>
+              <TabComponent />
+            </React.Suspense>
+          </div>
+        );
+      })}
+
+      {/* Non-tab pages: normal animated transition */}
+      {!isTabPage && (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      )}
     </ErrorBoundary>
   </main>
 
