@@ -221,7 +221,7 @@ export default function FloatingSupportChat() {
     <>
       {/* Floating Button */}
       {!isOpen && (
-        <div className="fixed bottom-20 right-3 md:bottom-6 md:right-4 z-[9985]">
+        <div className="fixed bottom-20 right-3 md:bottom-6 md:right-6 z-[9985]">
           <button
             onClick={handleOpen}
             className="relative bg-gradient-to-br from-green-500 to-emerald-600 text-white p-3.5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 active:scale-95"
@@ -240,7 +240,7 @@ export default function FloatingSupportChat() {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className="fixed bottom-20 right-3 left-3 md:bottom-6 md:left-auto md:right-4 md:w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden"
+          className="fixed bottom-20 right-3 md:bottom-6 md:right-6 w-[calc(100vw-24px)] md:w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden"
           style={{ zIndex: 9985, height: 380, maxHeight: 'calc(100vh - 100px)' }}
         >
           {/* Header */}
