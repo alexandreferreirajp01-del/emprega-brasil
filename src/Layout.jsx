@@ -19,6 +19,7 @@ import FloatingButtons from "@/components/common/FloatingButtons";
 import AdSenseHead from "@/components/common/AdSenseHead";
 import FloatingChatButton from "@/components/chat/FloatingChatButton";
 import SupportButton from "@/components/support/SupportButton";
+import FloatingSupportChat from "@/components/support/FloatingSupportChat";
 import NativePermissionModal from "@/components/common/NativePermissionModal";
 import PushManager from "@/components/push/PushManager";
 import PopupManager from "@/components/common/PopupManager";
