@@ -221,7 +221,7 @@ export default function FloatingSupportChat() {
     <>
       {/* Floating Button */}
       {!isOpen && (
-        <div className="fixed bottom-20 left-3 md:bottom-24 md:right-6 md:left-auto z-[9985]">
+        <div className="fixed bottom-20 right-3 md:bottom-6 md:right-4 z-[9985]">
           <button
             onClick={handleOpen}
             className="relative bg-gradient-to-br from-green-500 to-emerald-600 text-white p-3.5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 active:scale-95"
