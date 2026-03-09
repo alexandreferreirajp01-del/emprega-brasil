@@ -34,7 +34,7 @@ export default function GeradorCurriculo() {
   const [step, setStep] = useState('templates'); // templates | form | preview
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [formData, setFormData] = useState(EMPTY_DATA);
-  const [filterCat, setFilterCat] = useState('Todos');
+  const [filterCat, setFilterCat] = useState('🆕 Novos');
   const [downloading, setDownloading] = useState(false);
   const [downloadsThisMonth, setDownloadsThisMonth] = useState(0);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
