@@ -68,6 +68,7 @@ import Contact from './pages/Contact';
 import ControleFinanceiro from './pages/ControleFinanceiro';
 import Cookies from './pages/Cookies';
 import DashboardFinanceiro from './pages/DashboardFinanceiro';
+import DocumentacaoApp from './pages/DocumentacaoApp';
 import EnviarParaTodos from './pages/EnviarParaTodos';
 import ExcluirVagasSemContato from './pages/ExcluirVagasSemContato';
 import Extrato from './pages/Extrato';
@@ -145,7 +146,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import DocumentacaoApp from './pages/DocumentacaoApp';
 import __Layout from './Layout.jsx';
 
 
@@ -171,6 +171,7 @@ export const PAGES = {
     "ControleFinanceiro": ControleFinanceiro,
     "Cookies": Cookies,
     "DashboardFinanceiro": DashboardFinanceiro,
+    "DocumentacaoApp": DocumentacaoApp,
     "EnviarParaTodos": EnviarParaTodos,
     "ExcluirVagasSemContato": ExcluirVagasSemContato,
     "Extrato": Extrato,
@@ -248,7 +249,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "DocumentacaoApp": DocumentacaoApp,
 }
 
 export const pagesConfig = {
