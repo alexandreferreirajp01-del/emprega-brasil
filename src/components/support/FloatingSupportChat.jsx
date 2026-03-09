@@ -214,9 +214,8 @@ export default function FloatingSupportChat() {
     return new Date(dateStr).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Hide for admins (they have their own panel)
+  // Still loading auth
   if (user === undefined) return null;
-  if (user?.role === 'admin' || user?.subscription_type === 'admin' || user?.subscription_type === 'dono') return null;
 
   return (
     <>
