@@ -1,0 +1,111 @@
+// 15 templates profissionais de currículo
+
+export const TEMPLATES = [
+  {
+    id: 'classic_blue',
+    name: 'Clássico Azul',
+    description: 'Elegante e tradicional, ideal para cargos corporativos',
+    preview_color: '#1D4371',
+    category: 'Corporativo',
+  },
+  {
+    id: 'modern_dark',
+    name: 'Moderno Escuro',
+    description: 'Sofisticado com coluna lateral escura',
+    preview_color: '#1a1a2e',
+    category: 'Moderno',
+  },
+  {
+    id: 'clean_green',
+    name: 'Limpo Verde',
+    description: 'Minimalista com toques verdes, perfeito para área de saúde',
+    preview_color: '#057642',
+    category: 'Minimalista',
+  },
+  {
+    id: 'executive',
+    name: 'Executivo',
+    description: 'Premium com cabeçalho em gradiente para cargos de liderança',
+    preview_color: '#2c3e50',
+    category: 'Executivo',
+  },
+  {
+    id: 'creative_purple',
+    name: 'Criativo Roxo',
+    description: 'Destaque para profissionais criativos e de design',
+    preview_color: '#6c3483',
+    category: 'Criativo',
+  },
+  {
+    id: 'tech_dark',
+    name: 'Tech Dark',
+    description: 'Ideal para desenvolvedores e profissionais de TI',
+    preview_color: '#0d1117',
+    category: 'Tecnologia',
+  },
+  {
+    id: 'elegant_red',
+    name: 'Elegante Vermelho',
+    description: 'Impactante com detalhes em vermelho para se destacar',
+    preview_color: '#c0392b',
+    category: 'Corporativo',
+  },
+  {
+    id: 'minimal_gray',
+    name: 'Minimal Cinza',
+    description: 'Ultra minimalista, foco total no conteúdo',
+    preview_color: '#555555',
+    category: 'Minimalista',
+  },
+  {
+    id: 'teal_modern',
+    name: 'Teal Moderno',
+    description: 'Coluna lateral com foto de destaque',
+    preview_color: '#0d7377',
+    category: 'Moderno',
+  },
+  {
+    id: 'orange_accent',
+    name: 'Laranja Accent',
+    description: 'Energético com acentos em laranja, ideal para vendas',
+    preview_color: '#e67e22',
+    category: 'Criativo',
+  },
+  {
+    id: 'navy_professional',
+    name: 'Navy Profissional',
+    description: 'Azul marinho clássico com linha dividida',
+    preview_color: '#003153',
+    category: 'Executivo',
+  },
+  {
+    id: 'fresh_light',
+    name: 'Fresco Claro',
+    description: 'Layout claro e arejado para recém-formados',
+    preview_color: '#3498db',
+    category: 'Minimalista',
+  },
+  {
+    id: 'bold_black',
+    name: 'Bold Black',
+    description: 'Ousado e marcante com tipografia forte',
+    preview_color: '#222222',
+    category: 'Moderno',
+  },
+  {
+    id: 'pink_creative',
+    name: 'Rosa Criativo',
+    description: 'Feminino e elegante para áreas criativas',
+    preview_color: '#c0392b',
+    category: 'Criativo',
+  },
+  {
+    id: 'golden_executive',
+    name: 'Dourado Executivo',
+    description: 'Luxuoso com detalhes dourados para cargos executivos',
+    preview_color: '#b7950b',
+    category: 'Executivo',
+  },
+];
+
+export const CATEGORIES = ['Todos', 'Corporativo', 'Moderno', 'Minimalista', 'Executivo', 'Criativo', 'Tecnologia'];
