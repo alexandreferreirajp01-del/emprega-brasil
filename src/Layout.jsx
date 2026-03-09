@@ -356,7 +356,7 @@ export default function Layout({ children, currentPageName }) {
     left: 0,
     right: 0,
     zIndex: 9999,
-    paddingTop: 'env(safe-area-inset-top, 0px)'
+    paddingTop: 'var(--sat, env(safe-area-inset-top, 0px))'
   }}>
     <div className="max-w-7xl mx-auto px-4">
       <div className="flex items-center h-16 lg:h-20 relative">
@@ -737,7 +737,7 @@ export default function Layout({ children, currentPageName }) {
     left: 0,
     right: 0,
     zIndex: 9998,
-    paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+    paddingBottom: 'var(--sab, env(safe-area-inset-bottom, 0px))'
   }}>
     <div className="flex items-center justify-around h-16">
       {navItems.slice(0, 5).map((item) => (
@@ -757,7 +757,7 @@ export default function Layout({ children, currentPageName }) {
 
   {/* AdsTerra Banner 320x50 - Mobile Footer */}
   <div className="md:hidden fixed z-[9997] bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-1" style={{
-    bottom: '64px',
+    bottom: 'calc(64px + var(--sab, env(safe-area-inset-bottom, 0px)))',
     left: 0,
     right: 0,
     zIndex: 9997
