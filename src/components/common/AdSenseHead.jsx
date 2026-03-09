@@ -4,12 +4,12 @@ export default function AdSenseHead() {
   return (
     <Helmet>
       {/* Meta tag de verificação do AdSense */}
-      <meta name="google-adsense-account" content="ca-pub-8005400849298455" />
+      <meta name="google-adsense-account" content="ca-pub-8605408842983455" />
       
       {/* Script do AdSense - Anúncios Automáticos */}
       <script
         async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8005400849298455"
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8605408842983455"
         crossOrigin="anonymous"
       />
       
