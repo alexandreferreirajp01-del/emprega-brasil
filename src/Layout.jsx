@@ -747,6 +747,7 @@ export default function Layout({ children, currentPageName }) {
   </div>
 
   <FloatingButtons />
+  <FloatingSupportChat />
   <CookieConsent />
   <PopupManager />
   <WelcomePopup />
