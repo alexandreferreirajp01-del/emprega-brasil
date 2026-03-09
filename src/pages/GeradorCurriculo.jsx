@@ -240,7 +240,10 @@ export default function GeradorCurriculo() {
                     {[1, 2].map(j => (
                       <div key={j} style={{ width: '70%', height: 3, background: 'rgba(255,255,255,0.25)', borderRadius: 2, marginTop: 2 }} />
                     ))}
-                    <Badge className="absolute top-2 right-2 text-[9px] px-1.5 py-0.5" style={{ background: 'rgba(0,0,0,0.4)', color: '#fff', border: 'none' }}>{t.category}</Badge>
+                    {t.isNew && (
+                      <span className="absolute top-2 left-2 text-[9px] px-1.5 py-0.5 rounded font-bold" style={{ background: '#f59e0b', color: '#fff' }}>NOVO</span>
+                    )}
+                    <Badge className="absolute top-2 right-2 text-[9px] px-1.5 py-0.5" style={{ background: 'rgba(0,0,0,0.4)', color: '#fff', border: 'none' }}>{t.isNew ? 'Novo' : t.category}</Badge>
                   </div>
                   <div className="bg-white dark:bg-slate-800 p-3">
                     <p className="font-semibold text-slate-800 dark:text-white text-xs truncate">{t.name}</p>
