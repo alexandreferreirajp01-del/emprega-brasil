@@ -34,12 +34,18 @@ export default function FloatingSupportChat() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('support') === 'open') {
       setIsOpen(true);
-      // Clean URL
       const url = new URL(window.location.href);
       url.searchParams.delete('support');
       window.history.replaceState({}, '', url.toString());
     }
   }, [user]);
+
+  // Open via custom event (from SupportButton in footer)
+  useEffect(() => {
+    const handler = () => { setIsOpen(true); setUnreadCount(0); };
+    window.addEventListener('open_support_chat', handler);
+    return () => window.removeEventListener('open_support_chat', handler);
+  }, []);
 
   // Scroll to bottom smoothly
   const scrollToBottom = useCallback(() => {
