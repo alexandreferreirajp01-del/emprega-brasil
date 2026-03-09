@@ -332,6 +332,25 @@ export default function Home() {
                 </Link>
               </CardContent>
             </Card>
+
+            {/* Banner Gerador de Currículos */}
+            <Card
+              className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#0F2744] to-[#1D4371] cursor-pointer hover:shadow-xl transition-all overflow-hidden"
+              onClick={() => window.location.href = createPageUrl('GeradorCurriculo')}
+            >
+              <CardContent className="p-6 relative">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center mb-3">
+                  <FileText className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-white font-bold text-base mb-1">Gerador de Currículos</h3>
+                <p className="text-white/70 text-xs mb-3">15 templates profissionais. Preencha e baixe em PDF na hora!</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-white text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">Criar agora</span>
+                  <ChevronRight className="w-4 h-4 text-white/70" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
