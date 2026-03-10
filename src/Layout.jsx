@@ -578,9 +578,10 @@ export default function Layout({ children, currentPageName }) {
                 </Link>
                 <div className="flex items-center justify-center gap-3 pt-2">
                   <img 
-                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/7b27af03a_1738422560961.jpg"
                     alt="Alexandre Ferreira"
-                    className="w-10 h-10 rounded-full border-2 border-[#1D4371]"
+                    className="w-10 h-10 rounded-full border-2 border-[#1D4371] object-cover"
+                    style={{ objectPosition: '50% 15%' }}
                   />
                   <div className="text-left">
                     <p className="text-xs font-bold text-slate-800 dark:text-white">Alexandre Ferreira</p>
