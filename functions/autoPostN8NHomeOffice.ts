@@ -100,7 +100,7 @@ IMPORTANTE:
         const vagaCriada = await base44.asServiceRole.entities.Job.create({
           title: vaga.titulo,
           company: vaga.empresa || 'Empresa não informada',
-          city: vaga.cidade || 'Remoto',
+          city: (vaga.cidade && vaga.cidade.trim().toLowerCase() !== 'remoto') ? vaga.cidade.trim() : '',
           state: vaga.estado || '',
           neighborhood: vaga.neighborhood || '',
           cep: vaga.cep || '',
@@ -205,7 +205,7 @@ INSTRUÇÕES:
 3. Para cada vaga, extraia:
    - Título/cargo
    - Empresa (se mencionada)
-   - Cidade e estado (pode ser "Remoto" se não especificado)
+   - Cidade e estado (se não especificado, deixe vazio)
    - Salário (se mencionado)
    - Tipo de contrato (CLT, PJ, Estágio, etc)
    - Categoria profissional

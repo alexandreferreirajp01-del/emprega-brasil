@@ -74,7 +74,7 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
    - Estado (UF - 2 letras)
    - Bairro, endereço completo
    - CEP se houver
-   - Se remoto: city: "Remoto", state: ""
+   - Se não houver localidade informada: deixe city vazio ("")
 
 📞 CONTATOS (TODOS - muito importante!):
    - Telefones com DDD (WhatsApp, fixo, celular)
@@ -179,10 +179,13 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
 
         const additionalInfo = job.contact_instagram ? `Instagram: ${job.contact_instagram}` : '';
 
+        // Garantir que "Remoto" não seja usado como nome de cidade
+        const cityFinal = (job.city && job.city.trim().toLowerCase() !== 'remoto') ? job.city.trim() : '';
+
         const vagaCriada = await base44.asServiceRole.entities.Job.create({
           title: job.title || 'Vaga',
           company: job.company || 'Empresa não informada',
-          city: job.city || '',
+          city: cityFinal,
           state: job.state || '',
           neighborhood: job.neighborhood || '',
           cep: job.cep || '',
