@@ -228,49 +228,58 @@ export default function FloatingChatButton() {
             </div>
           )}
           
-          {/* Botão principal */}
+          {/* Botão principal - Balão de chat dinâmico */}
           <button
             onClick={handleButtonClick}
-            className="relative bg-gradient-to-br from-[#0A66C2] via-[#004182] to-[#0A66C2] text-white p-3.5 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center justify-center overflow-hidden"
             title={isPremium ? "Assistente IA" : "Assistente IA - Apenas Premium"}
-            style={{
-              animation: 'float 3s ease-in-out infinite, gradient-shift 4s ease infinite',
-              backgroundSize: '200% 200%'
-            }}
+            style={{ animation: 'chatFloat 3s ease-in-out infinite' }}
+            className="relative flex items-center justify-center"
           >
-            <Sparkles 
-              className="w-5 h-5" 
-              style={{
-                animation: 'randomSpin 4s ease-in-out infinite, randomMove 3s ease-in-out infinite'
-              }}
-            />
+            {/* Sombra colorida pulsante */}
+            <div className="absolute inset-0 rounded-full bg-[#0A66C2]/30 blur-md" style={{ animation: 'chatPulse 2s ease-in-out infinite' }} />
+            
+            {/* Corpo do balão SVG */}
+            <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="bubbleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#38bdf8" />
+                  <stop offset="50%" stopColor="#0A66C2" />
+                  <stop offset="100%" stopColor="#004182" />
+                </linearGradient>
+                <filter id="bubbleShadow">
+                  <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#0A66C2" floodOpacity="0.4"/>
+                </filter>
+              </defs>
+              {/* Balão principal */}
+              <path d="M8 6C8 3.79 9.79 2 12 2H40C42.21 2 44 3.79 44 6V30C44 32.21 42.21 34 40 34H20L12 42V34H12C9.79 34 8 32.21 8 30V6Z" 
+                fill="url(#bubbleGrad)" filter="url(#bubbleShadow)" />
+              {/* Pontinhos animados dentro */}
+              <circle cx="19" cy="18" r="2.5" fill="white" opacity="0.9" style={{ animation: 'dot1 1.4s ease-in-out infinite' }} />
+              <circle cx="26" cy="18" r="2.5" fill="white" opacity="0.9" style={{ animation: 'dot2 1.4s ease-in-out infinite' }} />
+              <circle cx="33" cy="18" r="2.5" fill="white" opacity="0.9" style={{ animation: 'dot3 1.4s ease-in-out infinite' }} />
+            </svg>
           </button>
           
           <style>{`
-            @keyframes float {
-              0%, 100% { transform: translateY(0px) scale(1); }
-              50% { transform: translateY(-5px) scale(1.05); }
+            @keyframes chatFloat {
+              0%, 100% { transform: translateY(0px); }
+              50% { transform: translateY(-6px); }
             }
-            
-            @keyframes gradient-shift {
-              0%, 100% { background-position: 0% 50%; }
-              50% { background-position: 100% 50%; }
+            @keyframes chatPulse {
+              0%, 100% { transform: scale(1); opacity: 0.6; }
+              50% { transform: scale(1.3); opacity: 0.2; }
             }
-            
-            @keyframes randomSpin {
-              0% { transform: rotate(0deg) scale(1); }
-              25% { transform: rotate(180deg) scale(1.2); }
-              50% { transform: rotate(270deg) scale(0.9); }
-              75% { transform: rotate(450deg) scale(1.1); }
-              100% { transform: rotate(720deg) scale(1); }
+            @keyframes dot1 {
+              0%, 60%, 100% { transform: translateY(0); opacity: 0.9; }
+              30% { transform: translateY(-4px); opacity: 1; }
             }
-            
-            @keyframes randomMove {
-              0%, 100% { transform: translate(0, 0); }
-              20% { transform: translate(2px, -2px); }
-              40% { transform: translate(-2px, 2px); }
-              60% { transform: translate(2px, 2px); }
-              80% { transform: translate(-2px, -2px); }
+            @keyframes dot2 {
+              0%, 60%, 100% { transform: translateY(0); opacity: 0.9; }
+              40% { transform: translateY(-4px); opacity: 1; }
+            }
+            @keyframes dot3 {
+              0%, 60%, 100% { transform: translateY(0); opacity: 0.9; }
+              50% { transform: translateY(-4px); opacity: 1; }
             }
           `}</style>
         </div>
