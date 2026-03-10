@@ -59,7 +59,7 @@ export default function VagasHomeOffice() {
 Para CADA vaga identifique:
 
 📍 LOCALIZAÇÃO:
-   - Se 100% remoto SEM cidade: city: "Home Office", state: ""
+   - Se 100% remoto SEM cidade específica: deixe city vazio ("")
    - Se mencionar cidade de apoio: extraia cidade + UF
    - Exemplo: "Remoto para Recife" → city: "Recife", state: "PE"
    - Bairro (se mencionar)
@@ -103,11 +103,11 @@ ${rawText}`,
       
       const jobs = (result.vagas || []).map(v => {
         // Priorizar dados da IA, fallback para "Home Office"
-        let finalCity = v.city || 'Home Office';
+        let finalCity = (v.city && v.city.trim().toLowerCase() !== 'home office' && v.city.trim().toLowerCase() !== 'remoto') ? v.city.trim() : '';
         let finalState = v.state || '';
         
         // Fallback: tentar extrair cidade do título se IA não pegou
-        if (!v.city || v.city === 'Home Office') {
+        if (!finalCity) {
           const cityMatch = v.titulo?.match(/\b([A-ZÇÁÉÍÓÚÂÊÔÃÕ][a-zçáéíóúâêôãõ]+(?:\s+[A-ZÇÁÉÍÓÚÂÊÔÃÕ][a-zçáéíóúâêôãõ]+)*)\b/);
           if (cityMatch) {
             const detectedCity = cityMatch[0];

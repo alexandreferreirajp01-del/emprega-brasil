@@ -60,7 +60,7 @@ export default function VagasPorIA() {
    - Estado UF (2 letras: PB, PE, SP, RJ)
    - Bairro (se mencionar)
    - Endereço (se houver rua/número)
-   - Se 100% remoto: city: "Remoto", state: ""
+   - Se não houver localidade informada: deixe city vazio ("")
    
 📞 CONTATOS (EXTRAIR ABSOLUTAMENTE TODOS):
    - Telefones (fixo e celular)
