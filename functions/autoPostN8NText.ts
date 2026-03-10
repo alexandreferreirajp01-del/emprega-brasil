@@ -31,7 +31,7 @@ Para CADA VAGA extraia TUDO com MÁXIMA PRECISÃO:
    - Cidade (nome completo)
    - Estado (UF: PE, PB, SP, etc - 2 letras)
    - Bairro (se mencionar)
-   - Se remoto: city: "Remoto", state: ""
+   - Se não houver cidade informada: deixe city vazio ("")
    
 📞 TODOS OS CONTATOS:
    - Telefones (WhatsApp, fixo, celular)

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   ArrowLeft, Users, Loader2, CheckCircle, Search, Clock, UserX, 
-  ChevronLeft, ChevronRight, Eye, Mail, Phone, FileDown, RefreshCw, Filter, Edit
+  ChevronLeft, ChevronRight, Eye, Mail, Phone, FileDown, RefreshCw, Filter, Edit, CheckCheck
 } from "lucide-react";
 import UserEditDialog from "@/components/admin/UserEditDialog";
 import { base44 } from "@/api/base44Client";
