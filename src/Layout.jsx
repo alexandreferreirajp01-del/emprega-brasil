@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
         Home, Briefcase, User, Menu, X, 
-        LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings, Bot, ArrowLeft, ChevronRight, PlusCircle, Sparkles, FileText, Wrench, AlertTriangle, BookOpen, Send
+        LogOut, Newspaper, Users, MessageCircle, Moon, Sun, Settings, Bot, ArrowLeft, ChevronRight, PlusCircle, Sparkles, FileText, Wrench, AlertTriangle, BookOpen, Send, UsersRound
       } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
