@@ -318,10 +318,21 @@ export default function GerenciarUsuarios() {
         {pendingUsers.length > 0 && (
           <Card className="rounded-xl border-amber-200 bg-amber-50">
             <CardHeader className="py-3 px-4">
+              <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2 text-amber-800">
                 <Clock className="w-4 h-4" />
                 Pendentes ({pendingUsers.length})
               </CardTitle>
+              <Button
+                size="sm"
+                onClick={handleApproveAllPending}
+                disabled={approvingAll}
+                className="bg-green-600 hover:bg-green-700 text-white text-xs h-8 rounded-lg"
+              >
+                {approvingAll ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <CheckCheck className="w-3.5 h-3.5 mr-1" />}
+                Aprovar todos como Básico
+              </Button>
+            </div>
             </CardHeader>
             <CardContent className="px-4 pb-4 space-y-2">
               {pendingUsers.slice(0, 5).map((u) => (
