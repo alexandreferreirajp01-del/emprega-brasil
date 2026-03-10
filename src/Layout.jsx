@@ -488,7 +488,7 @@ export default function Layout({ children, currentPageName }) {
                 className="text-[#1D2226] dark:text-white"
                 title="Gestão de Vagas"
               >
-                <Settings className="w-5 h-5" />
+                <Send className="w-5 h-5" />
               </Button>
             )}
             <Button 

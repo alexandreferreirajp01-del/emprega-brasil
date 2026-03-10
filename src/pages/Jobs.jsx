@@ -697,6 +697,21 @@ export default function Jobs() {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
+                              window.dispatchEvent(new CustomEvent('open_support_chat'));
+                            }}
+                            className="h-8 w-8 rounded-full text-green-600 hover:text-green-700 hover:bg-green-50"
+                            title="Suporte"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {canView && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
                               setReportJob(job);
                             }}
                             className="h-8 w-8 rounded-full text-orange-500 hover:text-orange-600 hover:bg-orange-50"
