@@ -636,10 +636,11 @@ export default function Layout({ children, currentPageName }) {
         </div>
         <div className="text-center mb-10">
         <img 
-          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
-          alt="Alexandre Ferreira"
-          className="w-28 h-28 rounded-full mx-auto mb-4 object-cover border-4 border-[#1D4371] shadow-xl bg-white p-1"
-        />
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/7b27af03a_1738422560961.jpg"
+              alt="Alexandre Ferreira"
+              className="w-28 h-28 rounded-full mx-auto mb-4 object-cover border-4 border-[#1D4371] shadow-xl"
+              style={{ objectPosition: '50% 15%' }}
+            />
         <h3 className="text-xl font-bold text-white mb-2">Alexandre Ferreira</h3>
         <p className="text-slate-300 text-sm mb-1">Criador & Desenvolvedor</p>
         <p className="text-slate-400 text-sm">CNPJ: 62.874.724/0001-11</p>
