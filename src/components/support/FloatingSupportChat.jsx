@@ -224,16 +224,61 @@ export default function FloatingSupportChat() {
         <div className="fixed bottom-20 right-3 md:bottom-6 md:right-6 z-[9985]">
           <button
             onClick={handleOpen}
-            className="relative bg-gradient-to-br from-green-500 to-emerald-600 text-white p-3.5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 active:scale-95"
             title="Falar com o Suporte"
+            style={{ animation: 'supportFloat 3s ease-in-out infinite' }}
+            className="relative flex items-center justify-center"
           >
-            <Headphones className="w-5 h-5" />
+            {/* Sombra pulsante verde */}
+            <div className="absolute inset-0 rounded-full bg-emerald-500/30 blur-md" style={{ animation: 'supportGlow 2s ease-in-out infinite' }} />
+
+            {/* Balão SVG */}
+            <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="supportGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#34d399" />
+                  <stop offset="50%" stopColor="#10b981" />
+                  <stop offset="100%" stopColor="#059669" />
+                </linearGradient>
+                <filter id="supportShadow">
+                  <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#059669" floodOpacity="0.4"/>
+                </filter>
+              </defs>
+              <path d="M8 6C8 3.79 9.79 2 12 2H40C42.21 2 44 3.79 44 6V30C44 32.21 42.21 34 40 34H20L12 42V34H12C9.79 34 8 32.21 8 30V6Z"
+                fill="url(#supportGrad)" filter="url(#supportShadow)" />
+              <circle cx="19" cy="18" r="2.5" fill="white" opacity="0.9" style={{ animation: 'sdot1 1.4s ease-in-out infinite' }} />
+              <circle cx="26" cy="18" r="2.5" fill="white" opacity="0.9" style={{ animation: 'sdot2 1.4s ease-in-out infinite' }} />
+              <circle cx="33" cy="18" r="2.5" fill="white" opacity="0.9" style={{ animation: 'sdot3 1.4s ease-in-out infinite' }} />
+            </svg>
+
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white animate-bounce z-10">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </button>
+
+          <style>{`
+            @keyframes supportFloat {
+              0%, 100% { transform: translateY(0px); }
+              50% { transform: translateY(-6px); }
+            }
+            @keyframes supportGlow {
+              0%, 100% { transform: scale(1); opacity: 0.6; }
+              50% { transform: scale(1.3); opacity: 0.2; }
+            }
+            @keyframes sdot1 {
+              0%, 60%, 100% { transform: translateY(0); opacity: 0.9; }
+              30% { transform: translateY(-4px); opacity: 1; }
+            }
+            @keyframes sdot2 {
+              0%, 60%, 100% { transform: translateY(0); opacity: 0.9; }
+              40% { transform: translateY(-4px); opacity: 1; }
+            }
+            @keyframes sdot3 {
+              0%, 60%, 100% { transform: translateY(0); opacity: 0.9; }
+              50% { transform: translateY(-4px); opacity: 1; }
+            }
+          `}</style>
         </div>
       )}
 
