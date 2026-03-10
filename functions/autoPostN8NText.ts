@@ -123,10 +123,13 @@ ${texto}`,
 
         const statusFinal = noLocation ? 'pending_review' : (hasContact ? 'ativa' : 'pending_contact');
 
+        // Garantir que "Remoto" não seja usado como nome de cidade
+        const cityFinal = (job.city && job.city.trim().toLowerCase() !== 'remoto') ? job.city : '';
+
         const vagaCriada = await base44.asServiceRole.entities.Job.create({
           title: job.title || 'Vaga',
           company: job.company || 'Empresa não informada',
-          city: job.city || '',
+          city: cityFinal || '',
           state: job.state || '',
           salary_range: job.salary_range || '',
           contact_phone: job.contact_phone || '',

@@ -219,6 +219,25 @@ export default function GerenciarUsuarios() {
     setShowEditDialog(true);
   };
 
+  const handleApproveAllPending = async () => {
+    if (!pendingUsers.length) return;
+    setApprovingAll(true);
+    try {
+      await Promise.all(
+        pendingUsers.map(u => base44.entities.User.update(u.id, {
+          subscription_type: 'basic',
+          access_status: 'approved'
+        }))
+      );
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      showToast(`${pendingUsers.length} usuário(s) aprovados como Básico!`);
+    } catch {
+      showToast('Erro ao aprovar em massa', 'error');
+    } finally {
+      setApprovingAll(false);
+    }
+  };
+
   const handleSaveUser = () => {
     queryClient.invalidateQueries({ queryKey: ['admin-users'] });
   };
