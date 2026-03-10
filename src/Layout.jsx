@@ -519,9 +519,10 @@ export default function Layout({ children, currentPageName }) {
                 Entrar
               </Button>
               <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/378c9b540_135266-removebg-preview1.png"
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/7b27af03a_1738422560961.jpg"
                 alt="Criador"
-                className="w-8 h-8 rounded-full border-2 border-[#1D4371] ml-2 hidden lg:block"
+                className="w-8 h-8 rounded-full border-2 border-[#1D4371] ml-2 hidden lg:block object-cover"
+                style={{ objectPosition: '50% 15%' }}
                 title="Criado por Alexandre Ferreira"
               />
             </>
