@@ -292,7 +292,7 @@ export default function FloatingSupportChat() {
           <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <Headphones className="w-5 h-5 text-white" />
+                <MessageCircle className="w-5 h-5 text-white" />
               </div>
               <div>
                 <p className="text-white font-semibold text-sm">Suporte Vagas PB</p>
@@ -322,7 +322,7 @@ export default function FloatingSupportChat() {
             ) : !user ? (
               <div className="flex flex-col items-center justify-center h-full text-center gap-3 p-4">
                 <div className="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center justify-center">
-                  <Headphones className="w-7 h-7 text-green-600 dark:text-green-400" />
+                  <MessageCircle className="w-7 h-7 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
                   <p className="font-semibold text-slate-700 dark:text-slate-300 mb-1">Faça login para usar o suporte</p>
@@ -340,7 +340,7 @@ export default function FloatingSupportChat() {
                 {messages.length === 0 && (
                   <div className="text-center py-8">
                     <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Headphones className="w-6 h-6 text-green-600 dark:text-green-400" />
+                    <MessageCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
                     </div>
                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       Olá, {user?.full_name?.split(' ')[0] || 'usuário'}! 👋
@@ -357,7 +357,7 @@ export default function FloatingSupportChat() {
                   >
                     {msg.sender_role === 'admin' && (
                       <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mb-0.5">
-                        <Headphones className="w-3 h-3 text-white" />
+                        <MessageCircle className="w-3 h-3 text-white" />
                       </div>
                     )}
                     <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm break-words ${
