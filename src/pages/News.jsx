@@ -162,6 +162,13 @@ export default function News() {
           </Link>
         )}
 
+        {/* Google AdSense - Abaixo do destaque */}
+        {!isLoading && (
+          <div className="mb-6">
+            <GoogleAdUnit slot="2345678901" format="auto" className="w-full" />
+          </div>
+        )}
+
         {isLoading ? (
           <div className="space-y-4">
             {[1,2,3,4].map(i => (
@@ -233,6 +240,11 @@ export default function News() {
                 <p className="text-slate-500">Tente ajustar sua busca</p>
               </div>
             )}
+
+            {/* Google AdSense - Após lista de notícias */}
+            <div className="mt-6">
+              <GoogleAdUnit slot="2345678901" format="auto" className="w-full" />
+            </div>
           </div>
         )}
       </div>

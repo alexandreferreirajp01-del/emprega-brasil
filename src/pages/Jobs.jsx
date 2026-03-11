@@ -740,6 +740,11 @@ export default function Jobs() {
             <p className="text-slate-500 text-sm">Tente ajustar os filtros</p>
           </div>
         )}
+
+        {/* Google AdSense - Entre resultados */}
+        <div className="my-6">
+          <GoogleAdUnit slot="1234567890" format="auto" className="w-full" />
+        </div>
       </div>
 
       {/* Modal bloqueio filtro Empresa */}
