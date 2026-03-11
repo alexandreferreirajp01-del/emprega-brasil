@@ -261,11 +261,35 @@ INSTRUÇÕES FINAIS:
       );
     }
 
+    // Gerar descrição final enriquecida para cada vaga
+    const vagasComEnriquecimento = vagasProcessadas.map(vaga => {
+      let descricaoFinal = vaga.post_final?.descricao_publicacao || '';
+      
+      const resumo = vaga.enriquecimento_ia?.resumo_da_funcao;
+      const atividades = vaga.enriquecimento_ia?.atividades_comuns_do_cargo;
+      const competencias = vaga.enriquecimento_ia?.competencias_comuns;
+      
+      if (resumo) {
+        descricaoFinal = `${resumo}\n\n${descricaoFinal}`;
+      }
+      if (atividades?.length > 0) {
+        descricaoFinal += `\n\nAtividades comuns dessa área:\n${atividades.map(a => `- ${a}`).join('\n')}`;
+      }
+      if (competencias?.length > 0) {
+        descricaoFinal += `\n\nCompetências profissionais comuns:\n${competencias.map(c => `- ${c}`).join('\n')}`;
+      }
+      
+      return {
+        ...vaga,
+        descricao_final_com_enriquecimento: descricaoFinal
+      };
+    });
+
     return new Response(
       JSON.stringify({
         sucesso: true,
-        total_processadas: vagasProcessadas.length,
-        vagas: vagasProcessadas,
+        total_processadas: vagasComEnriquecimento.length,
+        vagas: vagasComEnriquecimento,
         timestamp: new Date().toISOString()
       }),
       {
