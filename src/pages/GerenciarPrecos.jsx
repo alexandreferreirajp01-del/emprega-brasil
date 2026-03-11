@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ArrowLeft, Loader2, DollarSign, Plus, Edit, Trash2, Save, 
-  AlertCircle, Crown, Sparkles, Briefcase, Users, Star, Tag, BookOpen, Palette
+  AlertCircle, Crown, Sparkles, Briefcase, Users, Star, Tag, BookOpen, Palette, Clock
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
