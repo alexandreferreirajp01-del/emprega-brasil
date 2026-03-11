@@ -68,6 +68,13 @@ export default function GerenciarPrecos() {
     enabled: !loading,
   });
 
+  const { data: promoConfigs = [] } = useQuery({
+    queryKey: ['promo-config'],
+    queryFn: () => base44.entities.PromoConfig.list('-created_date', 1),
+    enabled: !loading,
+  });
+  const promoConfig = promoConfigs[0] || null;
+
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Plan.create(data),
     onSuccess: () => {
