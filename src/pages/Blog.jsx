@@ -7,6 +7,7 @@ import { Search, Clock, Eye, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
+import GoogleAdUnit from "@/components/ads/GoogleAdUnit";
 import { ptBR } from "date-fns/locale";
 
 function timeAgo(dateStr) {

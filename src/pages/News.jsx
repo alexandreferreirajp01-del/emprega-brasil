@@ -9,6 +9,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import TimeAgo from "@/components/common/TimeAgo";
+import GoogleAdUnit from "@/components/ads/GoogleAdUnit";
 
 export default function News() {
   const [searchTerm, setSearchTerm] = useState('');

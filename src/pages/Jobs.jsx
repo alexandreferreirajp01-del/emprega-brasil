@@ -35,6 +35,7 @@ import {
 import PremiumModal from "@/components/subscription/PremiumModal";
 import TimeAgo from "@/components/common/TimeAgo";
 import NativeBannerAd from "@/components/ads/NativeBannerAd";
+import GoogleAdUnit from "@/components/ads/GoogleAdUnit";
 import ReportJobModal from "@/components/jobs/ReportJobModal";
 
 async function safeFetch(fetchFn, fallback = []) {
