@@ -61,6 +61,32 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Não foi possível obter URL da imagem' }, { status: 400 });
     }
 
+    // Função auxiliar para enriquecimento com pipeline
+    const enriquecerComPipeline = async (titulo) => {
+      try {
+        return await base44.asServiceRole.integrations.Core.InvokeLLM({
+          prompt: `Como especialista em recursos humanos, forneça contexto profissional genérico APENAS para a área de "${titulo}":
+
+1. Resumo da função (2-3 linhas sobre o cargo de forma genérica)
+2. Atividades comuns desta profissão (4-6 exemplos típicos)
+3. Competências profissionais comuns (5-8 skills esperadas)
+
+IMPORTANTE: Não mencionar a empresa ou informações específicas. Apenas contexto geral da profissão.`,
+          model: 'gpt_5',
+          response_json_schema: {
+            type: "object",
+            properties: {
+              resumo: { type: "string" },
+              atividades: { type: "array", items: { type: "string" } },
+              competencias: { type: "array", items: { type: "string" } }
+            }
+          }
+        });
+      } catch (e) {
+        return null;
+      }
+    };
+
     // Extrair dados da imagem usando IA com análise profunda
     const resultado = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: `🔍 ANÁLISE COMPLETA DE IMAGEM - EXTRAIA TODAS AS VAGAS:
@@ -153,6 +179,9 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
 
     for (const job of jobs) {
       try {
+        // Enriquecimento com pipeline
+        const enriquecimento = await enriquecerComPipeline(job.title);
+
         const hasContact = !!(
           job.application_link ||
           job.contact_phone ||
@@ -177,6 +206,18 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
 
         const statusFinal = noLocation ? 'pending_review' : (hasContact ? 'ativa' : 'pending_contact');
 
+        // Montar descrição enriquecida
+        let descricaoEnriquecida = job.description || 'Vaga extraída automaticamente';
+        if (enriquecimento?.resumo) {
+          descricaoEnriquecida = `${enriquecimento.resumo}\n\n${descricaoEnriquecida}`;
+        }
+        if (enriquecimento?.atividades?.length > 0) {
+          descricaoEnriquecida += `\n\nAtividades comuns dessa área:\n${enriquecimento.atividades.map(a => `- ${a}`).join('\n')}`;
+        }
+        if (enriquecimento?.competencias?.length > 0) {
+          descricaoEnriquecida += `\n\nCompetências profissionais comuns:\n${enriquecimento.competencias.map(c => `- ${c}`).join('\n')}`;
+        }
+
         const additionalInfo = job.contact_instagram ? `Instagram: ${job.contact_instagram}` : '';
 
         // Garantir que "Remoto" não seja usado como nome de cidade
@@ -196,7 +237,7 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
           contact_whatsapp: job.contact_whatsapp || '',
           application_link: job.application_link || '',
           additional_info: additionalInfo,
-          description: job.description || 'Vaga extraída automaticamente',
+          description: descricaoEnriquecida,
           job_type: job.job_type || 'CLT',
           work_mode: isPremium ? (job.work_mode || 'Remoto') : (job.work_mode || 'Presencial'),
           category: job.category || 'Geral',
