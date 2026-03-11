@@ -14,7 +14,20 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 
-const emptyForm = { name: '', type: 'whatsapp', link: '', description: '', is_active: true, order: 0 };
+const CATEGORIES = [
+  "Vagas de Emprego",
+  "Compra e Venda",
+  "Imóveis",
+  "Serviços e Profissionais",
+  "Cursos e Educação",
+  "Empreendedorismo e Negócios",
+  "Tecnologia e Informática",
+  "Eventos e Oportunidades",
+  "Comunidade Local",
+  "Assuntos Diversos",
+];
+
+const emptyForm = { name: '', type: 'whatsapp', link: '', description: '', category: 'Vagas de Emprego', is_active: true, order: 0 };
 
 const TYPE_LABELS = {
   whatsapp: 'WhatsApp',
