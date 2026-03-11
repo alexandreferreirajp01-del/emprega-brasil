@@ -293,10 +293,9 @@ export default function PostManualTexto() {
     try {
       // Enriquecimento com pipeline
       let descricaoEnriquecida = form.description.trim();
-      
       try {
         const enriquecimento = await base44.integrations.Core.InvokeLLM({
-          prompt: `Como especialista em recursos humanos, forneça contexto profissional genérico APENAS para a área de "${form.title}":
+          prompt: `Como especialista em recursos humanos, forneça contexto profissional genérico APENAS para a área de "${form.title.trim()}":
 
 1. Resumo da função (2-3 linhas sobre o cargo de forma genérica)
 2. Atividades comuns desta profissão (4-6 exemplos típicos)
@@ -324,7 +323,7 @@ IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas context
           descricaoEnriquecida += `\n\nCompetências profissionais comuns:\n${enriquecimento.competencias.map(c => `- ${c}`).join('\n')}`;
         }
       } catch (e) {
-        console.error('Erro ao enriquecer vaga:', e);
+        console.error('Erro ao enriquecer:', e);
       }
 
       await base44.entities.Job.create({
