@@ -13,7 +13,6 @@ import {
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
-import { Link } from "react-router-dom";
 import PlanosManual from "@/components/admin/PlanosManual";
 import ColorPickerModal from "@/components/admin/ColorPickerModal";
 import PromoCard from "@/components/subscription/PromoCard";
