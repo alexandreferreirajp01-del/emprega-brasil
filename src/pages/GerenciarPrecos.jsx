@@ -17,7 +17,6 @@ import { Link } from "react-router-dom";
 import PlanosManual from "@/components/admin/PlanosManual";
 import ColorPickerModal from "@/components/admin/ColorPickerModal";
 import PromoCard from "@/components/subscription/PromoCard";
-import { Link } from "react-router-dom";
 
 const ICON_OPTIONS = [
   { value: 'Crown', label: 'Coroa', component: Crown },
