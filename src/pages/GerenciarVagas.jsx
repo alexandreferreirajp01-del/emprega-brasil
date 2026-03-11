@@ -364,10 +364,19 @@ export default function GerenciarVagas() {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs defaultValue="list" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="list">Lista de Vagas</TabsTrigger>
+            <TabsTrigger value="duplicates" className="relative">
+              Duplicatas
+              {jobs.length > 0 && (() => {
+                const map = {};
+                jobs.forEach(j => { const k = (j.title||'').toLowerCase().trim() + '||' + (j.company||'').toLowerCase().trim(); if (!map[k]) map[k] = 0; map[k]++; });
+                const count = Object.values(map).filter(v => v >= 2).length;
+                return count > 0 ? <span className="ml-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 inline-flex items-center justify-center">{count > 9 ? '9+' : count}</span> : null;
+              })()}
+            </TabsTrigger>
             <TabsTrigger value="maintenance">Manutenção</TabsTrigger>
-            <TabsTrigger value="health">Saúde do Sistema</TabsTrigger>
+            <TabsTrigger value="health">Saúde</TabsTrigger>
           </TabsList>
 
           {/* Lista de Vagas */}
