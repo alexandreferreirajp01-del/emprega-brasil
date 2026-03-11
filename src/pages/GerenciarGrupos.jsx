@@ -211,6 +211,17 @@ export default function GerenciarGrupos() {
               </Select>
             </div>
             <div>
+              <Label>Categoria *</Label>
+              <Select value={form.category} onValueChange={v => set('category', v)}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label>Link de Convite *</Label>
               <Input className="mt-1" value={form.link} onChange={e => set('link', e.target.value)} placeholder="https://chat.whatsapp.com/..." />
             </div>
