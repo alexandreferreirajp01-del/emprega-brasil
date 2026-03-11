@@ -80,7 +80,7 @@ export default function GerenciarGrupos() {
   });
 
   const openCreate = () => { setEditing(null); setForm(emptyForm); setDialogOpen(true); };
-  const openEdit = (g) => { setEditing(g); setForm({ name: g.name, type: g.type || 'whatsapp', link: g.link, description: g.description || '', is_active: g.is_active !== false, order: g.order || 0 }); setDialogOpen(true); };
+  const openEdit = (g) => { setEditing(g); setForm({ name: g.name, type: g.type || 'whatsapp', link: g.link, description: g.description || '', category: g.category || 'Vagas de Emprego', is_active: g.is_active !== false, order: g.order || 0 }); setDialogOpen(true); };
   const closeDialog = () => { setDialogOpen(false); setEditing(null); };
 
   const handleSave = () => {
