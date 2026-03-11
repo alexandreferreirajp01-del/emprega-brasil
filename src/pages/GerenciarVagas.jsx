@@ -15,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EditJobModal from "@/components/admin/EditJobModal";
-import DuplicateJobsDetector from "@/components/admin/DuplicateJobsDetector";
 
 export default function GerenciarVagas() {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -364,19 +363,10 @@ export default function GerenciarVagas() {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs defaultValue="list" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="list">Lista de Vagas</TabsTrigger>
-            <TabsTrigger value="duplicates" className="relative">
-              Duplicatas
-              {jobs.length > 0 && (() => {
-                const map = {};
-                jobs.forEach(j => { const k = (j.title||'').toLowerCase().trim() + '||' + (j.company||'').toLowerCase().trim(); if (!map[k]) map[k] = 0; map[k]++; });
-                const count = Object.values(map).filter(v => v >= 2).length;
-                return count > 0 ? <span className="ml-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 inline-flex items-center justify-center">{count > 9 ? '9+' : count}</span> : null;
-              })()}
-            </TabsTrigger>
             <TabsTrigger value="maintenance">Manutenção</TabsTrigger>
-            <TabsTrigger value="health">Saúde</TabsTrigger>
+            <TabsTrigger value="health">Saúde do Sistema</TabsTrigger>
           </TabsList>
 
           {/* Lista de Vagas */}
@@ -801,16 +791,6 @@ export default function GerenciarVagas() {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-
-          {/* Duplicatas */}
-          <TabsContent value="duplicates" className="space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Copy className="w-5 h-5 text-orange-500" />
-              <h2 className="font-semibold text-slate-800">Detector de Duplicatas</h2>
-              <span className="text-sm text-slate-500">— comparando do mais novo para o mais antigo</span>
-            </div>
-            <DuplicateJobsDetector jobs={jobs} onRefresh={loadData} />
           </TabsContent>
 
           {/* Manutenção */}
