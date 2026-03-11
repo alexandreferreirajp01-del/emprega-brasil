@@ -67,6 +67,13 @@ export default function Subscription() {
     }
   });
 
+  const { data: promoConfigs = [] } = useQuery({
+    queryKey: ['promo-config'],
+    queryFn: () => base44.entities.PromoConfig.list('-created_date', 1),
+  });
+  const promoConfig = promoConfigs[0] || null;
+  const promoActive = promoConfig?.is_enabled;
+
   const handlePlanClick = (plan) => {
     if (plan.billing_cycle === 'free') {
       sessionStorage.setItem('needs_login', 'true');
