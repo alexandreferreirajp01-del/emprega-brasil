@@ -90,12 +90,27 @@ IMPORTANTE:
     
     for (const vaga of vagasExtraidas) {
       try {
+        // Enriquecimento com pipeline
+        const enriquecimento = await enriquecerComPipeline(vaga.titulo, base44);
+
         const hasContact = !!(
           vaga.link_candidatura || 
           vaga.contact_phone || 
           vaga.contact_email || 
           vaga.contact_whatsapp
         );
+
+        // Montar descrição enriquecida
+        let descricaoEnriquecida = vaga.descricao || textoLimpo;
+        if (enriquecimento?.resumo) {
+          descricaoEnriquecida = `${enriquecimento.resumo}\n\n${descricaoEnriquecida}`;
+        }
+        if (enriquecimento?.atividades?.length > 0) {
+          descricaoEnriquecida += `\n\nAtividades comuns dessa área:\n${enriquecimento.atividades.map(a => `- ${a}`).join('\n')}`;
+        }
+        if (enriquecimento?.competencias?.length > 0) {
+          descricaoEnriquecida += `\n\nCompetências profissionais comuns:\n${enriquecimento.competencias.map(c => `- ${c}`).join('\n')}`;
+        }
 
         const vagaCriada = await base44.asServiceRole.entities.Job.create({
           title: vaga.titulo,
@@ -110,7 +125,7 @@ IMPORTANTE:
           contract_types: vaga.tipos_contratacao || ['CLT'],
           category: vaga.categoria || 'Geral',
           job_function: vaga.funcao || '',
-          description: vaga.descricao || textoLimpo,
+          description: descricaoEnriquecida,
           additional_info: vaga.informacoes_adicionais || '',
           application_link: vaga.link_candidatura || '',
           contact_email: vaga.contact_email || '',
@@ -188,6 +203,32 @@ function limparTexto(texto) {
     .replace(/\s+/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+}
+
+// Função auxiliar: Enriquecimento com pipeline
+async function enriquecerComPipeline(titulo, base44) {
+  try {
+    return await base44.integrations.Core.InvokeLLM({
+      prompt: `Como especialista em recursos humanos, forneça contexto profissional genérico APENAS para a área de "${titulo}":
+
+1. Resumo da função (2-3 linhas sobre o cargo de forma genérica)
+2. Atividades comuns desta profissão (4-6 exemplos típicos)
+3. Competências profissionais comuns (5-8 skills esperadas)
+
+IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas contexto geral.`,
+      model: 'gpt_5',
+      response_json_schema: {
+        type: "object",
+        properties: {
+          resumo: { type: "string" },
+          atividades: { type: "array", items: { type: "string" } },
+          competencias: { type: "array", items: { type: "string" } }
+        }
+      }
+    });
+  } catch (e) {
+    return null;
+  }
 }
 
 // Função auxiliar: Extrair vagas com IA
