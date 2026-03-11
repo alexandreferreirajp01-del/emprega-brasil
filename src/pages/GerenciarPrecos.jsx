@@ -17,6 +17,17 @@ import { Link } from "react-router-dom";
 import PlanosManual from "@/components/admin/PlanosManual";
 import ColorPickerModal from "@/components/admin/ColorPickerModal";
 
+function getPromoStatus(plan) {
+  if (plan.plan_type !== 'promotional') return null;
+  const now = new Date();
+  const start = plan.promotion_start_at ? new Date(plan.promotion_start_at) : null;
+  const end = plan.promotion_end_at ? new Date(plan.promotion_end_at) : null;
+  if (!start || !end) return 'invalid';
+  if (now < start) return 'scheduled';
+  if (now > end) return 'expired';
+  return 'active';
+}
+
 const ICON_OPTIONS = [
   { value: 'Crown', label: 'Coroa', component: Crown },
   { value: 'Sparkles', label: 'Estrelas', component: Sparkles },
@@ -108,7 +119,12 @@ export default function GerenciarPrecos() {
       custom_gradient_start: plan.custom_gradient_start || '#2563eb',
       custom_gradient_end: plan.custom_gradient_end || '#1d4ed8',
       custom_badge_bg: plan.custom_badge_bg || '#fbbf24',
-      custom_badge_text: plan.custom_badge_text || '#78350f'
+      custom_badge_text: plan.custom_badge_text || '#78350f',
+      plan_type: plan.plan_type || 'normal',
+      payment_link: plan.payment_link || '',
+      show_countdown: plan.show_countdown !== false,
+      promotion_start_at: plan.promotion_start_at ? plan.promotion_start_at.slice(0, 16) : '',
+      promotion_end_at: plan.promotion_end_at ? plan.promotion_end_at.slice(0, 16) : ''
     });
     setEditDialog(true);
   };
@@ -133,7 +149,12 @@ export default function GerenciarPrecos() {
       is_featured: false,
       order: plans.length,
       badge_text: '',
-      badge_color: 'bg-yellow-400 text-yellow-900'
+      badge_color: 'bg-yellow-400 text-yellow-900',
+      plan_type: 'normal',
+      payment_link: '',
+      show_countdown: true,
+      promotion_start_at: '',
+      promotion_end_at: ''
     });
     setEditDialog(true);
   };
@@ -156,10 +177,19 @@ export default function GerenciarPrecos() {
   };
 
   const handleSave = () => {
+    if (formData.plan_type === 'promotional' && formData.promotion_start_at && formData.promotion_end_at) {
+      if (new Date(formData.promotion_end_at) <= new Date(formData.promotion_start_at)) {
+        showToast('A data de término deve ser maior que a de início', 'error');
+        return;
+      }
+    }
+
     const dataToSave = {
       ...formData,
       features: formData.features?.split('\n').filter(f => f.trim()) || [],
-      price: parseFloat(formData.price) || 0
+      price: parseFloat(formData.price) || 0,
+      promotion_start_at: formData.promotion_start_at ? new Date(formData.promotion_start_at).toISOString() : undefined,
+      promotion_end_at: formData.promotion_end_at ? new Date(formData.promotion_end_at).toISOString() : undefined,
     };
 
     if (editingPlan) {
@@ -300,6 +330,9 @@ export default function GerenciarPrecos() {
                                 {plan.badge_text}
                               </Badge>
                             )}
+                            {plan.plan_type === 'promotional' && (
+                              <Badge className="bg-orange-100 text-orange-700 border-0">🔥 Promo</Badge>
+                            )}
                           </div>
                           <p className="text-sm text-slate-600 mt-1">{plan.description}</p>
                         </div>
@@ -347,6 +380,17 @@ export default function GerenciarPrecos() {
                           <p className="text-sm text-slate-700">{plan.features?.length || 0} itens</p>
                         </div>
                       </div>
+                      {plan.plan_type === 'promotional' && (
+                        <div className="mt-3 p-3 bg-orange-50 border border-orange-100 rounded-xl flex flex-wrap items-center gap-2">
+                          <span className="text-xs font-semibold text-orange-700">🔥 Plano Promocional</span>
+                          {getPromoStatus(plan) === 'active' && <Badge className="bg-green-100 text-green-700 border-0">✅ Ativo agora</Badge>}
+                          {getPromoStatus(plan) === 'scheduled' && <Badge className="bg-blue-100 text-blue-700 border-0">🕐 Agendado</Badge>}
+                          {getPromoStatus(plan) === 'expired' && <Badge className="bg-red-100 text-red-700 border-0">❌ Encerrado</Badge>}
+                          {getPromoStatus(plan) === 'invalid' && <Badge className="bg-gray-100 text-gray-700 border-0">⚠️ Sem datas</Badge>}
+                          {plan.promotion_start_at && <span className="text-xs text-slate-500">Início: {new Date(plan.promotion_start_at).toLocaleString('pt-BR')}</span>}
+                          {plan.promotion_end_at && <span className="text-xs text-slate-500">Fim: {new Date(plan.promotion_end_at).toLocaleString('pt-BR')}</span>}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -395,6 +439,22 @@ export default function GerenciarPrecos() {
                 placeholder="Descrição curta do plano"
                 className="rounded-lg"
               />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Tipo do Plano</label>
+              <Select
+                value={formData.plan_type || 'normal'}
+                onValueChange={(value) => setFormData({ ...formData, plan_type: value })}
+              >
+                <SelectTrigger className="rounded-lg">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="promotional">🔥 Promocional (com timer e período)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -496,6 +556,70 @@ export default function GerenciarPrecos() {
               />
               <p className="text-xs text-slate-500 mt-1">Use {'{'}nome{'}'} e {'{'}preco{'}'} para substituir dinamicamente</p>
             </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Link de Pagamento Direto</label>
+              <Input
+                value={formData.payment_link || ''}
+                onChange={(e) => setFormData({ ...formData, payment_link: e.target.value })}
+                placeholder="https://mpago.la/... (sobrescreve o link padrão)"
+                className="rounded-lg"
+              />
+              <p className="text-xs text-slate-500 mt-1">Se preenchido, o botão redireciona diretamente para este link</p>
+            </div>
+
+            {formData.plan_type === 'promotional' && (
+              <div className="border border-orange-200 bg-orange-50 rounded-xl p-4 space-y-4">
+                <h3 className="font-semibold text-orange-800 flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Configurações Promocionais
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Data/Hora de Início</label>
+                    <Input
+                      type="datetime-local"
+                      value={formData.promotion_start_at || ''}
+                      onChange={(e) => setFormData({ ...formData, promotion_start_at: e.target.value })}
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Data/Hora de Término</label>
+                    <Input
+                      type="datetime-local"
+                      value={formData.promotion_end_at || ''}
+                      onChange={(e) => setFormData({ ...formData, promotion_end_at: e.target.value })}
+                      className="rounded-lg"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="show_countdown"
+                    checked={formData.show_countdown !== false}
+                    onChange={(e) => setFormData({ ...formData, show_countdown: e.target.checked })}
+                    className="rounded"
+                  />
+                  <label htmlFor="show_countdown" className="text-sm">Exibir contagem regressiva na página pública</label>
+                </div>
+                {formData.promotion_start_at && formData.promotion_end_at && (
+                  <div className="bg-white rounded-lg p-3 flex items-center gap-2">
+                    <span className="text-xs text-slate-500 font-medium">Status atual:</span>
+                    {(() => {
+                      const now = new Date();
+                      const start = new Date(formData.promotion_start_at);
+                      const end = new Date(formData.promotion_end_at);
+                      if (end <= start) return <span className="text-xs font-bold text-red-600">❌ Data de fim deve ser maior que início</span>;
+                      if (now < start) return <span className="text-xs font-bold text-blue-600">🕐 Agendado</span>;
+                      if (now > end) return <span className="text-xs font-bold text-red-600">❌ Encerrado</span>;
+                      return <span className="text-xs font-bold text-green-600">✅ Ativo agora</span>;
+                    })()}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="space-y-4">
               <div>

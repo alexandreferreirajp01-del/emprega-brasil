@@ -3,7 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Crown, Shield, Zap, MessageCircle, Sparkles, X, Briefcase, Users } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import PromoCountdown from "@/components/subscription/PromoCountdown";
 
 const ICON_MAP = {
   Crown: Crown,
@@ -12,10 +13,22 @@ const ICON_MAP = {
   Users: Users
 };
 
+function getPromoStatus(plan) {
+  if (plan.plan_type !== 'promotional') return null;
+  const now = new Date();
+  const start = plan.promotion_start_at ? new Date(plan.promotion_start_at) : null;
+  const end = plan.promotion_end_at ? new Date(plan.promotion_end_at) : null;
+  if (!start || !end) return 'invalid';
+  if (now < start) return 'scheduled';
+  if (now > end) return 'expired';
+  return 'active';
+}
+
 export default function Subscription() {
   const [user, setUser] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showAlreadyPremiumPopup, setShowAlreadyPremiumPopup] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -62,11 +75,27 @@ export default function Subscription() {
     queryKey: ['active-plans'],
     queryFn: async () => {
       const allPlans = await base44.entities.Plan.list('order', 100);
-      return allPlans.filter(p => p.is_active);
+      return allPlans.filter(p => {
+        if (!p.is_active) return false;
+        if (p.plan_type === 'promotional') {
+          const status = getPromoStatus(p);
+          return status === 'active' || status === 'scheduled';
+        }
+        return true;
+      });
     }
   });
 
   const handlePlanClick = (plan) => {
+    if (plan.plan_type === 'promotional') {
+      const status = getPromoStatus(plan);
+      if (status !== 'active') return;
+      if (plan.payment_link) {
+        window.open(plan.payment_link, '_blank');
+        return;
+      }
+    }
+
     if (plan.billing_cycle === 'free') {
       sessionStorage.setItem('needs_login', 'true');
       sessionStorage.setItem('from_subscription', 'true');
@@ -74,7 +103,11 @@ export default function Subscription() {
       return;
     }
 
-    // Redirecionar para Mercado Pago baseado no plano
+    if (plan.payment_link) {
+      window.open(plan.payment_link, '_blank');
+      return;
+    }
+
     const mercadoPagoLinks = {
       '9.90': 'https://mpago.la/2QMKuFo',
       '19.90': 'https://mpago.la/2R3P5Qb',
@@ -83,7 +116,6 @@ export default function Subscription() {
 
     const priceKey = plan.price.toFixed(2);
     const link = mercadoPagoLinks[priceKey] || mercadoPagoLinks['27.00'];
-    
     window.open(link, '_blank');
   };
 
@@ -121,6 +153,8 @@ export default function Subscription() {
             const isBlack = plan.color?.includes('slate-900') || plan.color?.includes('black');
             const hasCustomGradient = plan.custom_gradient_start && plan.custom_gradient_end;
             const hasCustomBadge = plan.custom_badge_bg && plan.custom_badge_text;
+            const promoStatus = getPromoStatus(plan);
+            const isPromo = plan.plan_type === 'promotional';
             
             return (
               <Card 
@@ -176,9 +210,26 @@ export default function Subscription() {
                     ))}
                   </div>
 
+                  {isPromo && promoStatus === 'active' && plan.show_countdown !== false && plan.promotion_end_at && (
+                    <PromoCountdown
+                      endDate={plan.promotion_end_at}
+                      onExpired={() => queryClient.invalidateQueries({ queryKey: ['active-plans'] })}
+                    />
+                  )}
+
+                  {isPromo && promoStatus === 'scheduled' && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-3 text-center">
+                      <p className="text-blue-700 text-xs font-semibold">🕐 Promoção em breve!</p>
+                      {plan.promotion_start_at && (
+                        <p className="text-blue-500 text-xs mt-1">Disponível em: {new Date(plan.promotion_start_at).toLocaleString('pt-BR')}</p>
+                      )}
+                    </div>
+                  )}
+
                   <button
                     onClick={() => handlePlanClick(plan)}
-                    className={`w-full h-10 text-white text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                    disabled={isPromo && promoStatus !== 'active'}
+                    className={`w-full h-10 text-white text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ${
                       isBlack 
                         ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800' 
                         : plan.billing_cycle === 'free'
@@ -190,7 +241,11 @@ export default function Subscription() {
                     } : {}}
                   >
                     <MessageCircle className="w-4 h-4" />
-                    {plan.billing_cycle === 'free' ? 'Usar Plano Gratuito' : `Quero ${plan.name.split(' ')[0]}`}
+                    {isPromo
+                      ? promoStatus === 'scheduled' ? 'Promoção em breve'
+                      : 'Quero aproveitar'
+                      : plan.billing_cycle === 'free' ? 'Usar Plano Gratuito'
+                      : `Quero ${plan.name.split(' ')[0]}`}
                   </button>
                 </CardContent>
               </Card>
