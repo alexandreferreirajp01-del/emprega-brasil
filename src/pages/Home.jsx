@@ -326,14 +326,14 @@ export default function Home() {
                 <div className="w-14 h-14 bg-[#057642]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <MessageCircle className="w-7 h-7 text-[#057642]" />
                 </div>
-                <h3 className="font-bold text-lg text-slate-800 mb-2">Grupos do WhatsApp</h3>
-                <p className="text-slate-500 text-sm mb-4">
-                  Entre nos nossos grupos e receba vagas em primeira mão
+                <h3 className="font-bold text-lg text-slate-800 dark:text-white mb-2">Hub de Comunidades</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+                  Grupos de vagas, negócios, serviços e muito mais — encontre sua comunidade!
                 </p>
                 <Link to={createPageUrl('Groups')}>
                   <Button className="w-full bg-[#25D366] hover:bg-[#20bd5a] rounded-xl">
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                    Entrar nos Grupos
+                    <Users className="w-5 h-5 mr-2" />
+                    Ver Comunidades
                   </Button>
                 </Link>
               </CardContent>
