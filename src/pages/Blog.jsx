@@ -155,6 +155,11 @@ export default function Blog() {
               </div>
             )}
 
+            {/* Google AdSense - Entre destaque e feed */}
+            <div className="my-4">
+              <GoogleAdUnit slot="3456789012" format="auto" className="w-full" />
+            </div>
+
             <div className="divide-y divide-slate-200 dark:divide-slate-700">
               {feedPosts.map(post => (
                 <Link key={post.id} to={createPageUrl('BlogDetail') + `?id=${post.id}`} className="flex gap-3 py-4 group hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-2 px-2 rounded transition-colors">
@@ -233,6 +238,11 @@ export default function Blog() {
                 <span className="text-sm font-bold text-[#1D4371] uppercase tracking-wider">Mais artigos</span>
               </div>
             )}
+
+            {/* Google AdSense - Entre destaque e feed */}
+            <div className="my-4">
+              <GoogleAdUnit slot="3456789012" format="auto" className="w-full" />
+            </div>
 
             {/* Feed de posts - estilo lista G1 com linha separadora */}
             <div className="divide-y divide-slate-200 dark:divide-slate-700">
