@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EditJobModal from "@/components/admin/EditJobModal";
+import DuplicateJobsDetector from "@/components/admin/DuplicateJobsDetector";
 
 export default function GerenciarVagas() {
   const [isAuthorized, setIsAuthorized] = useState(false);

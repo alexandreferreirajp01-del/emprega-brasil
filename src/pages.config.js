@@ -92,6 +92,7 @@ import GerenciarPlanos from './pages/GerenciarPlanos';
 import GerenciarPopups from './pages/GerenciarPopups';
 import GerenciarPreLander from './pages/GerenciarPreLander';
 import GerenciarPrecos from './pages/GerenciarPrecos';
+import GerenciarPromocao from './pages/GerenciarPromocao';
 import GerenciarSolicitacoes from './pages/GerenciarSolicitacoes';
 import GerenciarUsuarios from './pages/GerenciarUsuarios';
 import GerenciarVagas from './pages/GerenciarVagas';
@@ -147,7 +148,6 @@ import VagasPendentes from './pages/VagasPendentes';
 import VagasPendentesIA from './pages/VagasPendentesIA';
 import VagasPorIA from './pages/VagasPorIA';
 import VerifyEmail from './pages/VerifyEmail';
-import GerenciarPromocao from './pages/GerenciarPromocao';
 import __Layout from './Layout.jsx';
 
 
@@ -197,6 +197,7 @@ export const PAGES = {
     "GerenciarPopups": GerenciarPopups,
     "GerenciarPreLander": GerenciarPreLander,
     "GerenciarPrecos": GerenciarPrecos,
+    "GerenciarPromocao": GerenciarPromocao,
     "GerenciarSolicitacoes": GerenciarSolicitacoes,
     "GerenciarUsuarios": GerenciarUsuarios,
     "GerenciarVagas": GerenciarVagas,
@@ -252,7 +253,6 @@ export const PAGES = {
     "VagasPendentesIA": VagasPendentesIA,
     "VagasPorIA": VagasPorIA,
     "VerifyEmail": VerifyEmail,
-    "GerenciarPromocao": GerenciarPromocao,
 }
 
 export const pagesConfig = {
