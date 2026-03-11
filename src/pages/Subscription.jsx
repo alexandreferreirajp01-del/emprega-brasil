@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Crown, Shield, Zap, MessageCircle, Sparkles, X, Briefcase, Users } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import PromoCard from "@/components/subscription/PromoCard";
 
 const ICON_MAP = {
   Crown: Crown,
@@ -67,13 +66,6 @@ export default function Subscription() {
     }
   });
 
-  const { data: promoConfigs = [] } = useQuery({
-    queryKey: ['promo-config'],
-    queryFn: () => base44.entities.PromoConfig.list('-created_date', 1),
-  });
-  const promoConfig = promoConfigs[0] || null;
-  const promoActive = promoConfig?.is_enabled;
-
   const handlePlanClick = (plan) => {
     if (plan.billing_cycle === 'free') {
       sessionStorage.setItem('needs_login', 'true');
@@ -123,10 +115,7 @@ export default function Subscription() {
 
       {/* Plans Grid */}
       <div className="max-w-7xl mx-auto px-4 -mt-14 pb-12">
-        <div className={`grid grid-cols-1 ${(plans.length + (promoActive ? 1 : 0)) === 2 ? 'md:grid-cols-2' : (plans.length + (promoActive ? 1 : 0)) === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4'} gap-6`}>
-          {promoActive && promoConfig && (
-            <PromoCard config={promoConfig} />
-          )}
+        <div className={`grid grid-cols-1 ${plans.length === 2 ? 'md:grid-cols-2' : plans.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4'} gap-6`}>
           {plans.map((plan) => {
             const Icon = ICON_MAP[plan.icon] || Crown;
             const isBlack = plan.color?.includes('slate-900') || plan.color?.includes('black');
