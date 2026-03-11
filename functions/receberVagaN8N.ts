@@ -113,34 +113,95 @@ Deno.serve(async (req) => {
     return Response.json({ error: "Campo 'title' é obrigatório" }, { status: 400 });
   }
 
-  // ── Criar vaga no banco de dados ─────────────────────────────
+  // ── Processar com pipeline IA avançado ──────────────────────
   const base44 = createClientFromRequest(req);
 
+  // Montar prompt do pipeline avançado
+  const vagaTexto = `
+Título: ${body.title}
+${body.company ? `Empresa: ${body.company}` : ''}
+${body.city ? `Cidade: ${body.city}` : ''}
+${body.state ? `Estado: ${body.state}` : ''}
+${body.description ? `Descrição: ${body.description}` : ''}
+${body.additional_info ? `Informações adicionais: ${body.additional_info}` : ''}
+${body.salary_range ? `Salário: ${body.salary_range}` : ''}
+${body.job_type ? `Tipo: ${body.job_type}` : ''}
+${body.work_mode ? `Modalidade: ${body.work_mode}` : ''}
+${body.contact_email ? `Email: ${body.contact_email}` : ''}
+${body.contact_phone ? `Telefone: ${body.contact_phone}` : ''}
+${body.contact_whatsapp ? `WhatsApp: ${body.contact_whatsapp}` : ''}
+${body.application_link ? `Link: ${body.application_link}` : ''}
+  `;
+
+  let processamentoIA = null;
+  try {
+    processamentoIA = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt: `Você é um especialista em estruturação de vagas de emprego.
+
+NUNCA invente: salário, benefícios, empresa, cidade, email, telefone. Se não existir, marque como "não informado".
+
+PIPELINE:
+1. NORMALIZAÇÃO: limpar text
+2. EXTRAÇÃO: título, empresa, cidade, estado, modalidade, tipo contratação, salário, benefícios, requisitos, atividades, contatos
+3. CLASSIFICAÇÃO: cargo, área, nível, tags
+4. ENRIQUECIMENTO: resumo, atividades comuns, competências comuns (APENAS contexto genérico da profissão)
+5. GERAÇÃO: post final estruturado
+
+ANÚNCIO:
+${vagaTexto}
+
+Retorne JSON com:
+- vaga_extraida: {titulo, empresa, cidade, estado, modalidade, tipo_contratacao, salario, beneficios[], requisitos[], atividades_informadas[], contato{}, etc}
+- classificacao_ia: {cargo_padronizado, area_profissional, nivel, tags[]}
+- enriquecimento_ia: {resumo_da_funcao, atividades_comuns[], competencias_comuns[]}
+- controle_processamento: {confianca_extracao: 0-100, campos_nao_identificados[], observacoes}
+
+Mantenha 100% fidelidade ao anúncio original.`,
+      model: 'gpt_5',
+    });
+  } catch (e) {
+    console.warn('Erro no processamento IA, usando dados básicos:', e.message);
+  }
+
+  // Se conseguiu processar com IA, usar dados enriquecidos, senão usar dados brutos
+  const extraida = processamentoIA?.vaga_extraida || {};
+  const enriquecimento = processamentoIA?.enriquecimento_ia || {};
+  
+  // Construir descrição enriquecida
+  let descricaoFinal = body.description || extraida.descricao || '';
+  
+  if (enriquecimento.resumo_da_funcao) {
+    descricaoFinal = `${enriquecimento.resumo_da_funcao}\n\n${descricaoFinal}`.trim();
+  }
+  
+  if (enriquecimento.atividades_comuns?.length > 0) {
+    descricaoFinal += `\n\nAtividades comuns dessa área:\n${enriquecimento.atividades_comuns.map(a => `- ${a}`).join('\n')}`;
+  }
+  
   const jobData = {
     title: body.title.trim(),
-    company: body.company || '',
-    city: body.city || '',
-    state: body.state || 'PB',
-    job_type: body.job_type || '',
-    work_mode: body.work_mode || 'Presencial',
-    salary_range: body.salary_range || '',
-    description: body.description || '',
+    company: body.company || extraida.empresa || '',
+    city: body.city || extraida.cidade || '',
+    state: body.state || extraida.estado || 'PB',
+    job_type: body.job_type || extraida.tipo_contratacao || '',
+    work_mode: body.work_mode || extraida.modalidade || 'Presencial',
+    salary_range: body.salary_range || extraida.salario || '',
+    description: descricaoFinal,
     additional_info: body.additional_info || '',
-    contact_email: body.contact_email || '',
-    contact_phone: body.contact_phone || '',
-    contact_whatsapp: body.contact_whatsapp || '',
-    application_link: body.application_link || '',
+    contact_email: body.contact_email || extraida.contato?.email || '',
+    contact_phone: body.contact_phone || extraida.contato?.telefone || '',
+    contact_whatsapp: body.contact_whatsapp || extraida.contato?.whatsapp || '',
+    application_link: body.application_link || extraida.contato?.outro || '',
     category: body.category || '',
     job_function: body.job_function || '',
     is_featured: body.is_featured === true,
-    // Status: sempre "pending_review" para revisão manual
     status: 'pending_review',
     needs_review: true,
-    review_notes: 'Vaga recebida automaticamente via N8N. Aguardando revisão.',
+    review_notes: `Vaga recebida via N8N. ${processamentoIA?.controle_processamento?.observacoes || 'Aguardando revisão.'}`,
     origem: body.origem || 'n8n_automatico',
-    contract_types: body.job_type ? [body.job_type] : [],
-    nivel_localizacao: body.city ? 'cidade' : 'pendente',
-    geocode_status: body.city ? 'manual' : 'pending',
+    contract_types: body.job_type ? [body.job_type] : (extraida.tipo_contratacao ? [extraida.tipo_contratacao] : []),
+    nivel_localizacao: body.city || extraida.cidade ? 'cidade' : 'pendente',
+    geocode_status: body.city || extraida.cidade ? 'manual' : 'pending',
     contact_status: (body.contact_email || body.contact_phone || body.contact_whatsapp || body.application_link) ? 'ok' : 'missing',
   };
 
