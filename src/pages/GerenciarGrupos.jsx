@@ -154,6 +154,7 @@ export default function GerenciarGrupos() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-semibold text-slate-800 dark:text-white text-sm truncate">{g.name}</p>
                         <Badge className="text-xs">{TYPE_LABELS[g.type] || g.type}</Badge>
+                        {g.category && <Badge variant="outline" className="text-xs">{g.category}</Badge>}
                         {!g.is_active && <Badge variant="outline" className="text-xs text-red-500 border-red-300">Desativado</Badge>}
                       </div>
                       {g.description && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{g.description}</p>}
