@@ -254,6 +254,11 @@ export default function Home() {
               )}
             </div>
 
+            {/* Google AdSense - Entre carrossel e lista de vagas */}
+            <div className="my-2">
+              <GoogleAdUnit slot="4567890123" format="auto" className="w-full" />
+            </div>
+
             {/* Latest Jobs Today */}
             <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 sm:p-6 shadow-lg">
               <LatestJobsToday jobs={jobs} />
