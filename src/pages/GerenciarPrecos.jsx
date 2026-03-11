@@ -249,6 +249,57 @@ export default function GerenciarPrecos() {
           <PlanosManual />
         )}
 
+        {/* Promo Banner */}
+        <Card className="rounded-2xl overflow-hidden border-2 border-orange-300 shadow-lg">
+          <div className="bg-gradient-to-r from-orange-500 to-rose-600 px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-white font-bold text-base leading-tight">Plano Premium Promocional</p>
+                <p className="text-white/80 text-xs">R$ 4,99 · pagamento único · tempo limitado</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {promoConfig?.is_enabled ? (
+                <Badge className="bg-green-400 text-green-900 border-0 font-bold">✓ Promoção Ativa</Badge>
+              ) : (
+                <Badge className="bg-white/20 text-white border-0">Desativada</Badge>
+              )}
+              <a
+                href="https://mpago.la/1KXYZE8"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 bg-white text-orange-600 font-semibold text-xs px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-colors"
+              >
+                <ExternalLink className="w-3 h-3" />
+                Link de Pagamento
+              </a>
+              <Link to={createPageUrl('GerenciarPromocao')}>
+                <button className="flex items-center gap-1.5 bg-white/20 text-white font-semibold text-xs px-3 py-1.5 rounded-lg hover:bg-white/30 transition-colors">
+                  <Timer className="w-3 h-3" />
+                  Gerenciar Período
+                </button>
+              </Link>
+            </div>
+          </div>
+          {promoConfig?.is_enabled && (
+            <CardContent className="p-4 bg-orange-50 dark:bg-orange-900/10">
+              <div className="max-w-xs mx-auto">
+                <PromoCard config={promoConfig} />
+              </div>
+            </CardContent>
+          )}
+          {!promoConfig?.is_enabled && (
+            <CardContent className="p-3 bg-orange-50 dark:bg-orange-900/10 text-center">
+              <p className="text-orange-700 dark:text-orange-300 text-xs">
+                Acesse <strong>Gerenciar Período</strong> para ativar esta promoção com contagem regressiva.
+              </p>
+            </CardContent>
+          )}
+        </Card>
+
         {loadingPlans ? (
           <div className="text-center py-12">
             <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#0A66C2]" />
