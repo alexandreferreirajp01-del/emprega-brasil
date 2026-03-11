@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Crown, Shield, Zap, MessageCircle, Sparkles, X, Briefcase, Users } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import PromoCard from "@/components/subscription/PromoCard";
 
 const ICON_MAP = {
   Crown: Crown,
