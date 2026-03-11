@@ -291,6 +291,42 @@ export default function PostManualTexto() {
 
     setSaving(true);
     try {
+      // Enriquecimento com pipeline
+      let descricaoEnriquecida = form.description.trim();
+      
+      try {
+        const enriquecimento = await base44.integrations.Core.InvokeLLM({
+          prompt: `Como especialista em recursos humanos, forneça contexto profissional genérico APENAS para a área de "${form.title}":
+
+1. Resumo da função (2-3 linhas sobre o cargo de forma genérica)
+2. Atividades comuns desta profissão (4-6 exemplos típicos)
+3. Competências profissionais comuns (5-8 skills esperadas)
+
+IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas contexto geral.`,
+          model: 'gpt_5',
+          response_json_schema: {
+            type: "object",
+            properties: {
+              resumo: { type: "string" },
+              atividades: { type: "array", items: { type: "string" } },
+              competencias: { type: "array", items: { type: "string" } }
+            }
+          }
+        });
+
+        if (enriquecimento?.resumo) {
+          descricaoEnriquecida = `${enriquecimento.resumo}\n\n${descricaoEnriquecida}`;
+        }
+        if (enriquecimento?.atividades?.length > 0) {
+          descricaoEnriquecida += `\n\nAtividades comuns dessa área:\n${enriquecimento.atividades.map(a => `- ${a}`).join('\n')}`;
+        }
+        if (enriquecimento?.competencias?.length > 0) {
+          descricaoEnriquecida += `\n\nCompetências profissionais comuns:\n${enriquecimento.competencias.map(c => `- ${c}`).join('\n')}`;
+        }
+      } catch (e) {
+        console.error('Erro ao enriquecer vaga:', e);
+      }
+
       await base44.entities.Job.create({
         title: form.title.trim(),
         company: form.company.trim(),
@@ -301,7 +337,7 @@ export default function PostManualTexto() {
         job_type: form.job_type || undefined,
         work_mode: form.work_mode || 'Presencial',
         category: form.category.trim(),
-        description: form.description.trim(),
+        description: descricaoEnriquecida,
         application_link: form.application_link.trim(),
         contact_email: form.contact_email.trim(),
         contact_phone: form.contact_phone.trim(),
