@@ -130,6 +130,32 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
       }
     });
 
+    // ETAPA 2.5: ENRIQUECIMENTO COM PIPELINE IA AVANÇADO
+    const processarComPipeline = async (jobTitle, companyInfo) => {
+      try {
+        return await base44.asServiceRole.integrations.Core.InvokeLLM({
+          prompt: `Como especialista em recursos humanos, forneça contexto profissional genérico APENAS para a área de "${jobTitle}":
+
+1. Resumo da função (2-3 linhas sobre o cargo de forma genérica)
+2. Atividades comuns desta profissão (4-6 exemplos típicos)
+3. Competências profissionais comuns (5-8 skills esperadas)
+
+IMPORTANTE: Não mencionar a empresa ou informações específicas. Apenas contexto geral da profissão.`,
+          model: 'gpt_5',
+          response_json_schema: {
+            type: "object",
+            properties: {
+              resumo: { type: "string" },
+              atividades: { type: "array", items: { type: "string" } },
+              competencias: { type: "array", items: { type: "string" } }
+            }
+          }
+        });
+      } catch (e) {
+        return null;
+      }
+    };
+
     // ETAPA 3: EXTRAÇÃO DE REQUISITOS ESPECÍFICOS POR CARGO
     const specificJobsData = [];
     
@@ -165,9 +191,13 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
         }
       });
 
+      // Enriquecimento com pipeline
+      const enriquecimento = await processarComPipeline(title, generalInfoResult.company);
+
       specificJobsData.push({
         title,
-        ...specificResult
+        ...specificResult,
+        enriquecimento: enriquecimento || {}
       });
     }
 
@@ -178,15 +208,30 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
     const finalJobs = [];
     
     for (const jobData of specificJobsData) {
-      // Montar descrição completa
+      // Montar descrição completa com enriquecimento
       let fullDescription = generalInfoResult.general_description || '';
       
+      // Adicionar resumo genérico da profissão (contexto)
+      if (jobData.enriquecimento?.resumo) {
+        fullDescription = `${jobData.enriquecimento.resumo}\n\n${fullDescription}`.trim();
+      }
+      
       if (jobData.specific_activities) {
-        fullDescription += `\n\n**Atividades do ${jobData.title}:**\n${jobData.specific_activities}`;
+        fullDescription += `\n\n**Atividades da vaga:**\n${jobData.specific_activities}`;
+      }
+      
+      // Adicionar atividades comuns se não houver específicas
+      if (!jobData.specific_activities && jobData.enriquecimento?.atividades?.length > 0) {
+        fullDescription += `\n\n**Atividades comuns dessa área:**\n${jobData.enriquecimento.atividades.map(a => `- ${a}`).join('\n')}`;
       }
       
       if (jobData.specific_requirements) {
-        fullDescription += `\n\n**Requisitos:**\n${jobData.specific_requirements}`;
+        fullDescription += `\n\n**Requisitos da vaga:**\n${jobData.specific_requirements}`;
+      }
+      
+      // Adicionar competências comuns
+      if (jobData.enriquecimento?.competencias?.length > 0) {
+        fullDescription += `\n\n**Competências profissionais comuns para essa área:**\n${jobData.enriquecimento.competencias.map(c => `- ${c}`).join('\n')}`;
       }
       
       // Se NÃO houver descrição detalhada, adicionar texto padrão
