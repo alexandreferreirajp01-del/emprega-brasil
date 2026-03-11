@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import {
-  Plus, Edit, Trash2, DollarSign, Crown, Sparkles, Briefcase, Users,
-  ArrowLeft, Loader2, Star, AlertCircle, BookOpen, Save, Palette, Tag,
-  ExternalLink, Timer
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  ArrowLeft, Loader2, DollarSign, Plus, Edit, Trash2, Save, 
+  AlertCircle, Crown, Sparkles, Briefcase, Users, Star, Tag, BookOpen, Palette, Timer, ExternalLink
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import PlanosManual from "@/components/admin/PlanosManual";
 import ColorPickerModal from "@/components/admin/ColorPickerModal";
