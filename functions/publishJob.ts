@@ -89,9 +89,46 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Enriquecimento com pipeline
+    let descricaoEnriquecida = jobData.description || '';
+    
+    try {
+      const enriquecimento = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: `Como especialista em recursos humanos, forneça contexto profissional genérico APENAS para a área de "${jobData.title}":
+
+1. Resumo da função (2-3 linhas sobre o cargo de forma genérica)
+2. Atividades comuns desta profissão (4-6 exemplos típicos)
+3. Competências profissionais comuns (5-8 skills esperadas)
+
+IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas contexto geral.`,
+        model: 'gpt_5',
+        response_json_schema: {
+          type: "object",
+          properties: {
+            resumo: { type: "string" },
+            atividades: { type: "array", items: { type: "string" } },
+            competencias: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+
+      if (enriquecimento?.resumo) {
+        descricaoEnriquecida = `${enriquecimento.resumo}\n\n${descricaoEnriquecida}`;
+      }
+      if (enriquecimento?.atividades?.length > 0) {
+        descricaoEnriquecida += `\n\nAtividades comuns dessa área:\n${enriquecimento.atividades.map(a => `- ${a}`).join('\n')}`;
+      }
+      if (enriquecimento?.competencias?.length > 0) {
+        descricaoEnriquecida += `\n\nCompetências profissionais comuns:\n${enriquecimento.competencias.map(c => `- ${c}`).join('\n')}`;
+      }
+    } catch (e) {
+      console.error('Erro ao enriquecer vaga:', e);
+    }
+
     // Admin - criar vaga diretamente
     const createdJob = await base44.asServiceRole.entities.Job.create({
       ...jobData,
+      description: descricaoEnriquecida,
       city: jobData.city || 'Não informado',
       is_premium: visibility === 'premium' || jobData.is_premium,
       is_featured: jobData.is_featured || false
