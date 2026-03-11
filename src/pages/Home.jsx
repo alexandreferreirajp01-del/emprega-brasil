@@ -324,7 +324,7 @@ export default function Home() {
             <Card className="rounded-2xl border-0 shadow-lg">
               <CardContent className="p-6 text-center">
                 <div className="w-14 h-14 bg-[#057642]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <MessageCircle className="w-7 h-7 text-[#057642]" />
+                  <Users className="w-7 h-7 text-[#057642]" />
                 </div>
                 <h3 className="font-bold text-lg text-slate-800 dark:text-white mb-2">Hub de Comunidades</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
