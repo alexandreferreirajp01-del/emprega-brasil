@@ -53,6 +53,7 @@ Retornar SEMPRE em JSON válido, seguindo exatamente esta estrutura:
     "atividades_comuns_do_cargo": ["array com 4-6 atividades típicas da profissão"],
     "competencias_comuns": ["array com 5-8 competências profissionais comuns"]
   },
+  "descricao_final_com_enriquecimento": "descrição completa da vaga + enriquecimento integrado de forma natural",
   "post_final": {
     "titulo_publicacao": "título atrativo para publicação",
     "descricao_publicacao": "texto completo, bem estruturado, pronto para publicar",
