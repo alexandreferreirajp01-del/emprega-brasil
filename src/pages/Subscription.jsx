@@ -123,7 +123,10 @@ export default function Subscription() {
 
       {/* Plans Grid */}
       <div className="max-w-7xl mx-auto px-4 -mt-14 pb-12">
-        <div className={`grid grid-cols-1 ${plans.length === 2 ? 'md:grid-cols-2' : plans.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4'} gap-6`}>
+        <div className={`grid grid-cols-1 ${(plans.length + (promoActive ? 1 : 0)) === 2 ? 'md:grid-cols-2' : (plans.length + (promoActive ? 1 : 0)) === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4'} gap-6`}>
+          {promoActive && promoConfig && (
+            <PromoCard config={promoConfig} />
+          )}
           {plans.map((plan) => {
             const Icon = ICON_MAP[plan.icon] || Crown;
             const isBlack = plan.color?.includes('slate-900') || plan.color?.includes('black');
