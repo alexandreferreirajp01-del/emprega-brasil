@@ -94,10 +94,39 @@ ${texto}`,
     }
 
     // Criar vagas no banco (status: published, mas sem premium/featured)
+    // Função auxiliar: Enriquecimento
+    const enriquecerComPipeline = async (titulo) => {
+      try {
+        return await base44.integrations.Core.InvokeLLM({
+          prompt: `Como especialista em recursos humanos, forneça contexto profissional genérico APENAS para a área de "${titulo}":
+
+1. Resumo da função (2-3 linhas sobre o cargo de forma genérica)
+2. Atividades comuns desta profissão (4-6 exemplos típicos)
+3. Competências profissionais comuns (5-8 skills esperadas)
+
+IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas contexto geral.`,
+          model: 'gpt_5',
+          response_json_schema: {
+            type: "object",
+            properties: {
+              resumo: { type: "string" },
+              atividades: { type: "array", items: { type: "string" } },
+              competencias: { type: "array", items: { type: "string" } }
+            }
+          }
+        });
+      } catch (e) {
+        return null;
+      }
+    };
+
     const vagasCriadas = [];
     
     for (const job of jobs) {
       try {
+        // Enriquecimento com pipeline
+        const enriquecimento = await enriquecerComPipeline(job.title);
+
         // Validar se tem contato
         const hasContact = !!(
           job.application_link || 
@@ -126,6 +155,18 @@ ${texto}`,
         // Garantir que "Remoto" não seja usado como nome de cidade
         const cityFinal = (job.city && job.city.trim().toLowerCase() !== 'remoto') ? job.city : '';
 
+        // Montar descrição enriquecida
+        let descricaoEnriquecida = job.description || texto.slice(0, 500);
+        if (enriquecimento?.resumo) {
+          descricaoEnriquecida = `${enriquecimento.resumo}\n\n${descricaoEnriquecida}`;
+        }
+        if (enriquecimento?.atividades?.length > 0) {
+          descricaoEnriquecida += `\n\nAtividades comuns dessa área:\n${enriquecimento.atividades.map(a => `- ${a}`).join('\n')}`;
+        }
+        if (enriquecimento?.competencias?.length > 0) {
+          descricaoEnriquecida += `\n\nCompetências profissionais comuns:\n${enriquecimento.competencias.map(c => `- ${c}`).join('\n')}`;
+        }
+
         const vagaCriada = await base44.asServiceRole.entities.Job.create({
           title: job.title || 'Vaga',
           company: job.company || 'Empresa não informada',
@@ -137,7 +178,7 @@ ${texto}`,
           contact_whatsapp: job.contact_whatsapp || '',
           application_link: job.application_link || '',
           additional_info: job.contact_instagram ? `Instagram: ${job.contact_instagram}` : '',
-          description: job.description || texto.slice(0, 500),
+          description: descricaoEnriquecida,
           job_type: job.job_type || 'CLT',
           work_mode: isPremium ? (job.work_mode || 'Remoto') : (job.work_mode || 'Presencial'),
           category: job.category || 'Geral',
