@@ -264,7 +264,12 @@ export default function GeradorCurriculo() {
                 Visualizar Currículo <Eye className="w-4 h-4" />
               </Button>
             </div>
-            <AIResumeGenerator onGenerated={(data) => { setFormData(data); }} />
+            <AIResumeGenerator onGenerated={(data, suggestedTemplate) => {
+              setFormData(data);
+              if (suggestedTemplate) {
+                setSelectedTemplate(suggestedTemplate);
+              }
+            }} />
             <Card className="rounded-2xl border-0 shadow-lg">
               <CardContent className="p-5">
                 <ResumeForm data={formData} onChange={setFormData} />
