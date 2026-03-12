@@ -48,7 +48,8 @@ function buildSummaryText(jobs) {
     groups[key].count++;
   });
 
-  let text = `🟢 *${count} VAGA${count !== 1 ? 'S' : ''} DISPONÍV${count !== 1 ? 'EIS' : 'EL'} HOJE — ${today}*\n\n`;
+  const countPB = jobsFiltrados.length;
+  let text = `🟢 *${countPB} VAGA${countPB !== 1 ? 'S' : ''} DISPONÍV${countPB !== 1 ? 'EIS' : 'EL'} HOJE — ${today}*\n\n`;
 
   Object.values(groups).forEach(g => {
     const vagasLabel = g.count === 1 ? '1 Vaga' : `${g.count} Vagas`;
