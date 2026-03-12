@@ -267,8 +267,9 @@ EXTRAIA TUDO:`,
           alert('Vaga publicada com sucesso!');
         }
       }
-      
-      if (!publishedJobs) {
+      if (!wizardData.schedule && (currentUser.role === 'admin' || currentUser.subscription_type === 'admin')) {
+        // summary already set above
+      } else {
         setFormData({
           title: '', company: '', job_function: '', city: '', description: '',
           salary_range: '', contact_phone: '', contact_email: '', website: '', image_url: ''
