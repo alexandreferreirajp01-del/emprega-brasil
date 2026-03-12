@@ -26,9 +26,20 @@ function buildSummaryText(jobs) {
   const count = jobs.length;
   const today = new Date().toLocaleDateString('pt-BR');
 
+  // Filtrar apenas vagas da Paraíba (ou remotas/sem estado)
+  const PB_VARIANTS = ['pb', 'paraiba', 'paraíba'];
+  const jobsFiltrados = jobs.filter(job => {
+    const workMode = (job.work_mode || '').trim();
+    const jobType = (job.job_type || '').trim();
+    if (workMode === 'Remoto' || jobType === 'Home Office' || job.is_remote) return true;
+    const state = (job.state || job.uf_normalizada || '').trim().toLowerCase().replace(/\s/g, '');
+    if (!state) return true; // sem estado: inclui
+    return PB_VARIANTS.some(v => state === v);
+  });
+
   // Agrupar por título + localidade + empresa
   const groups = {};
-  jobs.forEach(job => {
+  jobsFiltrados.forEach(job => {
     const title = (job.title || job.titulo || '').trim() || 'Cargo não informado';
     const company = (job.company || '').trim();
     const location = getJobLocation(job);
