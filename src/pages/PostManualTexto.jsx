@@ -352,7 +352,11 @@ IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas context
         needs_review: false,
       });
       toast.success(status === 'ativa' ? '✅ Vaga publicada com sucesso!' : '💾 Salvo como rascunho!');
-      setPublished(true);
+      if (status === 'ativa') {
+        setPublishedJobs([{ title: form.title, city: form.city, state: form.state, salary_range: form.salary_range }]);
+      } else {
+        setPublished(true);
+      }
     } catch (e) {
       toast.error('Erro ao salvar: ' + e.message);
     } finally {
