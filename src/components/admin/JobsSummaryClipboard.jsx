@@ -4,27 +4,46 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Copy, CheckCircle, Plus, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
+function getJobLocation(job) {
+  const workMode = (job.work_mode || '').trim();
+  const jobType = (job.job_type || '').trim();
+  const city = (job.city || job.cidade_normalizada || '').trim();
+  const state = (job.state || job.uf_normalizada || '').trim();
+
+  // Se for remoto/home office, mostrar modalidade
+  if (workMode === 'Remoto' || jobType === 'Home Office' || job.is_remote) return 'Remoto';
+  if (workMode === 'Híbrido') return 'Híbrido';
+
+  // Se tiver cidade
+  if (city && state) return `${city} - ${state}`;
+  if (city) return city;
+
+  // Sem localidade
+  return 'Não Informado';
+}
+
 function buildSummaryText(jobs) {
   const count = jobs.length;
   const today = new Date().toLocaleDateString('pt-BR');
+
+  // Agrupar por título + localidade + empresa
+  const groups = {};
+  jobs.forEach(job => {
+    const title = (job.title || job.titulo || '').trim() || 'Cargo não informado';
+    const company = (job.company || '').trim();
+    const location = getJobLocation(job);
+    const key = `${title}||${location}||${company}`;
+    if (!groups[key]) groups[key] = { title, company, location, count: 0 };
+    groups[key].count++;
+  });
+
   let text = `🟢 *${count} VAGA${count !== 1 ? 'S' : ''} DISPONÍV${count !== 1 ? 'EIS' : 'EL'} HOJE — ${today}*\n\n`;
 
-  jobs.forEach((job, i) => {
-    const title = (job.title || job.titulo || '').trim() || 'Cargo não informado';
-    const city = (job.city || '').trim();
-    const state = (job.state || '').trim();
-    const salary = (job.salary_range || '').trim();
-
-    let location = '';
-    if (city && state) location = `${city} - ${state}`;
-    else if (city) location = city;
-    else if (job.job_type === 'Home Office') location = 'Home Office / Remoto';
-    else location = 'Local não informado';
-
-    text += `${i + 1}. *${title}*\n`;
-    text += `📍 ${location}\n`;
-    if (salary) text += `💰 ${salary}\n`;
-    text += '\n';
+  Object.values(groups).forEach(g => {
+    const vagasLabel = g.count === 1 ? '1 Vaga' : `${g.count} Vagas`;
+    text += `*${vagasLabel} de ${g.title}*\n`;
+    if (g.company) text += `🏢 ${g.company}\n`;
+    text += `📍 ${g.location}\n\n`;
   });
 
   text += `━━━━━━━━━━━━━━━━━━━━━\n`;
