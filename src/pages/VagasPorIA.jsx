@@ -23,6 +23,7 @@ export default function VagasPorIA() {
   const [extracting, setExtracting] = useState(false);
   const [extractedData, setExtractedData] = useState(null);
   const [publishing, setPublishing] = useState(false);
+  const [publishedJobs, setPublishedJobs] = useState(null);
 
   useEffect(() => {
     const init = async () => {
@@ -165,10 +166,11 @@ ${rawText}`,
             }).catch(() => {});
           }
           
+          setPublishedJobs([jobData]);
           alert('Vaga publicada!');
+          return;
         }
       }
-      
       setRawText('');
       setExtractedData(null);
       setStep(1);
@@ -269,7 +271,14 @@ ${rawText}`,
           </Card>
         )}
 
-        {step === 2 && extractedData && (
+        {publishedJobs && (
+          <JobsSummaryClipboard
+            jobs={publishedJobs}
+            onReset={() => { setPublishedJobs(null); setRawText(''); setExtractedData(null); setStep(1); }}
+          />
+        )}
+
+        {!publishedJobs && step === 2 && extractedData && (
           <UnifiedPostWizard
             jobsData={[extractedData]}
             onPublish={handlePublish}
