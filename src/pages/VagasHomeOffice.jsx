@@ -24,6 +24,7 @@ export default function VagasHomeOffice() {
   const [extracting, setExtracting] = useState(false);
   const [extractedJobs, setExtractedJobs] = useState([]);
   const [publishing, setPublishing] = useState(false);
+  const [publishedJobs, setPublishedJobs] = useState(null);
 
   useEffect(() => {
     const init = async () => {
@@ -208,10 +209,11 @@ ${rawText}`,
             }).catch(() => {});
           }
           
+          setPublishedJobs(jobsToCreate);
           alert(`${jobsToCreate.length} vagas publicadas!`);
+          return;
         }
       }
-      
       setRawText('');
       setExtractedJobs([]);
       setStep(1);
@@ -311,7 +313,14 @@ ${rawText}`,
           </Card>
         )}
 
-        {step === 2 && extractedJobs.length > 0 && (
+        {publishedJobs && (
+          <JobsSummaryClipboard
+            jobs={publishedJobs}
+            onReset={() => { setPublishedJobs(null); setRawText(''); setExtractedJobs([]); setStep(1); }}
+          />
+        )}
+
+        {!publishedJobs && step === 2 && extractedJobs.length > 0 && (
           <div className="space-y-4">
             <Card className="rounded-xl">
               <CardContent className="p-4">
