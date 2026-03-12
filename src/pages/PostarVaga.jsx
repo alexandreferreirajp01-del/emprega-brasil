@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
 import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
 import { extractQRCodeLink } from "@/components/admin/QRCodeExtractor";
+import JobsSummaryClipboard from "@/components/admin/JobsSummaryClipboard";
 
 export default function PostarVaga() {
   const [step, setStep] = useState(1);

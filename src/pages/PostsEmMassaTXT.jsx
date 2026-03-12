@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
 import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
 import { extractQRCodeLink } from "@/components/admin/QRCodeExtractor";
+import JobsSummaryClipboard from "@/components/admin/JobsSummaryClipboard";
 
 export default function PostsEmMassaTXT() {
   const { getStateFromCity } = useCityStateAutocomplete();

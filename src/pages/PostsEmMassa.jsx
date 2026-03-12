@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import UnifiedPostWizard from "@/components/admin/UnifiedPostWizard";
 import { useCityStateAutocomplete } from "@/components/admin/useCityStateAutocomplete";
 import { extractQRCodeLink } from "@/components/admin/QRCodeExtractor";
+import JobsSummaryClipboard from "@/components/admin/JobsSummaryClipboard";
 
 export default function PostsEmMassa() {
   const { getStateFromCity } = useCityStateAutocomplete();
