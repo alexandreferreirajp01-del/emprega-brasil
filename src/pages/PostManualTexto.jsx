@@ -11,6 +11,7 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import JobsSummaryClipboard from "@/components/admin/JobsSummaryClipboard";
 
 const JOB_TYPES = ['CLT', 'PJ', 'Estágio', 'Temporário', 'Freelancer', 'Jovem Aprendiz', 'Home Office', 'PCD'];
 const WORK_MODES = ['Presencial', 'Híbrido', 'Remoto'];
@@ -267,6 +268,7 @@ export default function PostManualTexto() {
   const [extracted, setExtracted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [published, setPublished] = useState(false);
+  const [publishedJobs, setPublishedJobs] = useState(null);
 
   const set = (field, val) => setForm(p => ({ ...p, [field]: val }));
 
