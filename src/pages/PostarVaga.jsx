@@ -265,17 +265,14 @@ EXTRAIA TUDO:`,
           
           setPublishedJobs([finalJobData]);
           alert('Vaga publicada com sucesso!');
+          return; // mostra o resumo antes de resetar
         }
       }
-      if (!wizardData.schedule && (currentUser.role === 'admin' || currentUser.subscription_type === 'admin')) {
-        // summary already set above
-      } else {
-        setFormData({
-          title: '', company: '', job_function: '', city: '', description: '',
-          salary_range: '', contact_phone: '', contact_email: '', website: '', image_url: ''
-        });
-        setStep(1);
-      }
+      setFormData({
+        title: '', company: '', job_function: '', city: '', description: '',
+        salary_range: '', contact_phone: '', contact_email: '', website: '', image_url: ''
+      });
+      setStep(1);
     } catch (err) {
       alert('Erro ao publicar: ' + err.message);
     } finally {
