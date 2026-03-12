@@ -515,7 +515,18 @@ EXTRAIA TUDO:`,
           </div>
         )}
 
-        {step === 2 && (
+        {publishedJobs && (
+          <JobsSummaryClipboard
+            jobs={publishedJobs}
+            onReset={() => {
+              setPublishedJobs(null);
+              setFormData({ title: '', company: '', job_function: '', city: '', description: '', salary_range: '', contact_phone: '', contact_email: '', website: '', image_url: '' });
+              setStep(1);
+            }}
+          />
+        )}
+
+        {!publishedJobs && step === 2 && (
           <UnifiedPostWizard
             jobsData={[formData]}
             onPublish={handlePublish}
