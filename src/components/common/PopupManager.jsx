@@ -138,10 +138,26 @@ export default function PopupManager() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex justify-center pt-4">
+        <div className="flex flex-col gap-3 pt-4">
+          {currentPopup.buttons?.filter(btn => btn.url && btn.label).map((btn, i) => (
+            <a key={i} href={btn.url} target="_blank" rel="noopener noreferrer" onClick={handleClose}>
+              <Button
+                className={`w-full rounded-xl ${
+                  btn.style === 'outline'
+                    ? 'bg-transparent border border-[#1E6FB6] text-[#1E6FB6] hover:bg-blue-50'
+                    : btn.style === 'ghost'
+                    ? 'bg-transparent text-[#1E6FB6] hover:bg-blue-50 shadow-none'
+                    : 'bg-[#1E6FB6] hover:bg-[#0B2F5B] text-white'
+                }`}
+              >
+                {btn.label}
+              </Button>
+            </a>
+          ))}
           <Button
             onClick={handleClose}
-            className="bg-[#1E6FB6] hover:bg-[#0B2F5B] rounded-xl px-8"
+            variant="outline"
+            className="w-full rounded-xl"
           >
             {currentPopup.button_text || 'Entendi'}
           </Button>
