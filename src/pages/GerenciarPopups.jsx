@@ -145,6 +145,28 @@ export default function GerenciarPopups() {
     }
   };
 
+  const TARGET_USER_OPTIONS = [
+    { value: 'todos', label: 'Todos', color: 'bg-slate-100 text-slate-700' },
+    { value: 'dono', label: 'Dono', color: 'bg-red-100 text-red-700' },
+    { value: 'admin', label: 'Administrador', color: 'bg-orange-100 text-orange-700' },
+    { value: 'premium', label: 'Premium', color: 'bg-yellow-100 text-yellow-700' },
+    { value: 'basico', label: 'Básico', color: 'bg-blue-100 text-blue-700' },
+    { value: 'visitante', label: 'Visitante', color: 'bg-green-100 text-green-700' },
+  ];
+
+  const toggleTargetUser = (value) => {
+    setFormData(prev => {
+      const current = prev.target_users || ['todos'];
+      if (value === 'todos') return { ...prev, target_users: ['todos'] };
+      const withoutTodos = current.filter(v => v !== 'todos');
+      if (withoutTodos.includes(value)) {
+        const next = withoutTodos.filter(v => v !== value);
+        return { ...prev, target_users: next.length === 0 ? ['todos'] : next };
+      }
+      return { ...prev, target_users: [...withoutTodos, value] };
+    });
+  };
+
   const typeLabels = {
     info: { label: 'Info', color: 'bg-blue-100 text-blue-800' },
     warning: { label: 'Alerta', color: 'bg-yellow-100 text-yellow-800' },
