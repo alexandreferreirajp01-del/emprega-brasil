@@ -381,8 +381,21 @@ export default function JobDetail() {
     }
   };
 
+  const jobSeoTitle = job ? `${job.title}${job.company ? ` na ${job.company}` : ''}${job.city ? ` em ${job.city}` : ''} - PB` : 'Detalhe da Vaga';
+  const jobSeoDescription = job ? `${job.title}${job.company ? ` - ${job.company}` : ''}. ${job.city ? `Vaga em ${job.city}/${job.state || 'PB'}. ` : ''}${job.job_type ? `Contrato: ${job.job_type}. ` : ''}${job.salary_range ? `Salário: ${job.salary_range}. ` : ''}Candidate-se agora no Vagas Abertas PB!` : '';
+  const jobSeoKeywords = job ? `${job.title}, ${job.company || ''}, vagas ${job.city || 'paraíba'}, emprego ${job.city || 'PB'}, ${job.job_type || ''}, ${job.category || ''}`.replace(/,\s*,/g, ',') : '';
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
+      {job && (
+        <SEOHead
+          title={jobSeoTitle}
+          description={jobSeoDescription}
+          keywords={jobSeoKeywords}
+          url={`/JobDetail?id=${job.id}`}
+          job={job}
+        />
+      )}
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-12 px-4">
         <div className="max-w-4xl mx-auto">
