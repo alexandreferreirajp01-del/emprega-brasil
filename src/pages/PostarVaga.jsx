@@ -22,6 +22,7 @@ export default function PostarVaga() {
   const [currentUser, setCurrentUser] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [publishedJobs, setPublishedJobs] = useState(null);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -262,15 +263,18 @@ EXTRAIA TUDO:`,
             }).catch(() => {});
           }
           
+          setPublishedJobs([finalJobData]);
           alert('Vaga publicada com sucesso!');
         }
       }
       
-      setFormData({
-        title: '', company: '', job_function: '', city: '', description: '',
-        salary_range: '', contact_phone: '', contact_email: '', website: '', image_url: ''
-      });
-      setStep(1);
+      if (!publishedJobs) {
+        setFormData({
+          title: '', company: '', job_function: '', city: '', description: '',
+          salary_range: '', contact_phone: '', contact_email: '', website: '', image_url: ''
+        });
+        setStep(1);
+      }
     } catch (err) {
       alert('Erro ao publicar: ' + err.message);
     } finally {
