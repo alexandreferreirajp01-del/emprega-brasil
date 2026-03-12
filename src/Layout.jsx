@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import FloatingButtons from "@/components/common/FloatingButtons";
 import AdSenseHead from "@/components/common/AdSenseHead";
+import SEOHead from "@/components/common/SEOHead";
 import FloatingChatButton from "@/components/chat/FloatingChatButton";
 import SupportButton from "@/components/support/SupportButton";
 import FloatingSupportChat from "@/components/support/FloatingSupportChat";
