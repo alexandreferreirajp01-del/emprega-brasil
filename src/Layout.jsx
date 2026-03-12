@@ -376,6 +376,14 @@ export default function Layout({ children, currentPageName }) {
 
   return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col notranslate" translate="no" lang="pt-BR">
+  {showDefaultSEO && (
+    <SEOHead
+      title={currentSEO.title}
+      description={currentSEO.description}
+      keywords={currentSEO.keywords}
+      url={currentSEO.url}
+    />
+  )}
   {['Home','Jobs','News','Blog','Feed','JobDetail','NewsDetail','BlogDetail','Groups','About','Contact','FAQ','Subscription','Profile','Favoritos','Historico','BibliotecaProfissional','Utilidades'].includes(currentPageName) && <AdSenseHead />}
   {/* AdsTerra Ads */}
   <PopunderAd pageName={currentPageName} />
