@@ -364,14 +364,32 @@ IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas context
     }
   };
 
+  if (publishedJobs) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+        <div className="bg-gradient-to-r from-[#1D2226] to-[#383E45] pt-4 pb-6 px-4">
+          <div className="max-w-5xl mx-auto">
+            <h1 className="text-xl font-bold text-white">Post Manual — Texto</h1>
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 py-6">
+          <JobsSummaryClipboard
+            jobs={publishedJobs}
+            onReset={handleReset}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (published) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
         <Card className="max-w-md w-full text-center">
           <CardContent className="p-10">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Vaga Publicada!</h2>
-            <p className="text-slate-500 mb-6">A vaga foi salva com sucesso no sistema.</p>
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Rascunho Salvo!</h2>
+            <p className="text-slate-500 mb-6">A vaga foi salva como rascunho.</p>
             <div className="flex gap-3 flex-col sm:flex-row">
               <Button onClick={handleReset} className="flex-1 gap-2">
                 <FileText className="w-4 h-4" /> Nova Vaga
