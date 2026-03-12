@@ -454,6 +454,33 @@ export default function GerenciarPopups() {
                 ))}
               </div>
 
+              {/* Usuários-alvo */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1">
+                  <Users className="w-4 h-4" /> Exibir para
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {TARGET_USER_OPTIONS.map(opt => {
+                    const isSelected = (formData.target_users || ['todos']).includes(opt.value);
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => toggleTargetUser(opt.value)}
+                        className={`px-3 py-1 rounded-full text-sm font-medium border-2 transition-all ${
+                          isSelected
+                            ? `${opt.color} border-current opacity-100`
+                            : 'bg-white text-slate-400 border-slate-200 opacity-60 hover:opacity-80'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-slate-400">Selecione "Todos" para exibir a todos os usuários, ou escolha tipos específicos.</p>
+              </div>
+
               <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <Label>Popup Ativo</Label>
                 <Switch
