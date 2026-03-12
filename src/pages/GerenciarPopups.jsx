@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye, EyeOff, Megaphone, Loader2, Link as LinkIcon, ExternalLink, X } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, Megaphone, Loader2, Link as LinkIcon, ExternalLink, X, Users } from "lucide-react";
 import { toast } from "sonner";
 
 export default function GerenciarPopups() {
@@ -38,7 +38,8 @@ export default function GerenciarPopups() {
     priority: 0,
     start_date: '',
     end_date: '',
-    buttons: []
+    buttons: [],
+    target_users: ['todos']
   });
 
   const queryClient = useQueryClient();
@@ -80,7 +81,7 @@ export default function GerenciarPopups() {
     setFormData({
       title: '', message: '', icon: '📢', type: 'info', frequency: 'once',
       is_active: true, button_text: 'Entendi', priority: 0,
-      start_date: '', end_date: '', buttons: []
+      start_date: '', end_date: '', buttons: [], target_users: ['todos']
     });
   };
 
@@ -119,7 +120,8 @@ export default function GerenciarPopups() {
       priority: popup.priority || 0,
       start_date: popup.start_date?.split('T')[0] || '',
       end_date: popup.end_date?.split('T')[0] || '',
-      buttons: popup.buttons || []
+      buttons: popup.buttons || [],
+      target_users: popup.target_users?.length ? popup.target_users : ['todos']
     });
     setIsOpen(true);
   };
