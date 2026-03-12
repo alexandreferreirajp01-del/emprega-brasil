@@ -22,6 +22,7 @@ export default function PostsEmMassaTXT() {
   const [processing, setProcessing] = useState(false);
   const [extractedJobs, setExtractedJobs] = useState([]);
   const [publishing, setPublishing] = useState(false);
+  const [publishedJobs, setPublishedJobs] = useState(null);
   const [pastedText, setPastedText] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
@@ -286,9 +287,10 @@ ${text}`,
           }).catch(() => {});
         }
         
+        setPublishedJobs(jobsToCreate);
         alert(`${jobsToCreate.length} vagas publicadas!`);
+        return;
       }
-      
       setFiles([]);
       setExtractedJobs([]);
       setStep(1);
@@ -475,7 +477,14 @@ ${text}`,
           </div>
         )}
 
-        {step === 2 && extractedJobs.length > 0 && (
+        {publishedJobs && (
+          <JobsSummaryClipboard
+            jobs={publishedJobs}
+            onReset={() => { setPublishedJobs(null); setFiles([]); setExtractedJobs([]); setStep(1); }}
+          />
+        )}
+
+        {!publishedJobs && step === 2 && extractedJobs.length > 0 && (
           <UnifiedPostWizard
             jobsData={extractedJobs}
             onPublish={handlePublish}
