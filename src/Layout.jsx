@@ -273,6 +273,59 @@ export default function Layout({ children, currentPageName }) {
     return children;
   }
 
+  // SEO padrão por página
+  const pageSEO = {
+    Home: {
+      title: 'Vagas Abertas PB - Empregos em João Pessoa, Campina Grande e Paraíba',
+      description: 'Encontre vagas de emprego em João Pessoa, Campina Grande e toda a Paraíba. Vagas CLT, estágio, home office e mais. Atualizado diariamente!',
+      keywords: 'vagas de emprego paraíba, emprego joão pessoa, emprego campina grande, vagas PB, emprego na paraíba',
+      url: '/',
+    },
+    Jobs: {
+      title: 'Vagas de Emprego na Paraíba - CLT, Estágio, Home Office',
+      description: 'Busque vagas de emprego em João Pessoa, Campina Grande e toda a Paraíba. Filtre por cidade, tipo de contrato, categoria e muito mais.',
+      keywords: 'vagas emprego paraíba, vagas CLT PB, estágio paraíba, home office PB, emprego joão pessoa, emprego campina grande',
+      url: '/Jobs',
+    },
+    News: {
+      title: 'Notícias sobre Mercado de Trabalho na Paraíba',
+      description: 'Acompanhe as últimas notícias sobre emprego, mercado de trabalho, dicas de carreira e oportunidades na Paraíba.',
+      keywords: 'notícias emprego paraíba, mercado de trabalho PB, dicas carreira, vagas PB',
+      url: '/News',
+    },
+    Blog: {
+      title: 'Blog - Dicas de Carreira e Emprego na Paraíba',
+      description: 'Artigos, dicas de carreira, como melhorar o currículo e se preparar para entrevistas. Tudo sobre emprego na Paraíba.',
+      keywords: 'blog emprego paraíba, dicas currículo, preparação entrevista, carreira PB',
+      url: '/Blog',
+    },
+    Groups: {
+      title: 'Grupos de WhatsApp e Telegram de Vagas na Paraíba',
+      description: 'Entre nos melhores grupos de WhatsApp e Telegram com vagas de emprego, negócios e oportunidades na Paraíba.',
+      keywords: 'grupos whatsapp vagas paraíba, grupos telegram emprego PB, comunidades vagas PB',
+      url: '/Groups',
+    },
+    About: {
+      title: 'Sobre Nós - Vagas Abertas PB',
+      description: 'Conheça o Vagas Abertas PB, o maior portal de empregos da Paraíba. Nossa missão é conectar talentos a oportunidades.',
+      url: '/About',
+    },
+    Subscription: {
+      title: 'Planos Premium - Vagas Abertas PB',
+      description: 'Assine o plano Premium e tenha acesso a vagas exclusivas, gerador de currículo e muito mais benefícios.',
+      url: '/Subscription',
+    },
+    GeradorCurriculo: {
+      title: 'Gerador de Currículo Online Grátis - Vagas Abertas PB',
+      description: 'Crie seu currículo profissional online grátis. 15 templates modernos, preencha e baixe em PDF na hora!',
+      keywords: 'gerador currículo online grátis, criar currículo PDF, templates currículo profissional',
+      url: '/GeradorCurriculo',
+    },
+  };
+
+  const currentSEO = pageSEO[currentPageName];
+  const showDefaultSEO = currentSEO && !['JobDetail', 'NewsDetail', 'BlogDetail'].includes(currentPageName);
+
   const isAdmin = user?.email === 'alexandreferreirajp01@gmail.com' || user?.role === 'admin' || user?.subscription_type === 'admin';
   const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || user?.subscription_type === 'dono';
   const showVagasButton = isDono || isAdmin;
