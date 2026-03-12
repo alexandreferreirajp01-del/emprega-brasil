@@ -21,6 +21,7 @@ export default function PostsEmMassa() {
   const [processing, setProcessing] = useState(false);
   const [extractedJobs, setExtractedJobs] = useState([]);
   const [publishing, setPublishing] = useState(false);
+  const [publishedJobs, setPublishedJobs] = useState(null);
 
   useEffect(() => {
     const init = async () => {
@@ -191,9 +192,10 @@ ${qrCodeLink ? `
           }).catch(() => {});
         }
         
+        setPublishedJobs(jobsToCreate);
         alert(`${jobsToCreate.length} vagas publicadas!`);
+        return;
       }
-      
       setImages([]);
       setExtractedJobs([]);
       setStep(1);
@@ -307,7 +309,14 @@ ${qrCodeLink ? `
           </div>
         )}
 
-        {step === 2 && extractedJobs.length > 0 && (
+        {publishedJobs && (
+          <JobsSummaryClipboard
+            jobs={publishedJobs}
+            onReset={() => { setPublishedJobs(null); setImages([]); setExtractedJobs([]); setStep(1); }}
+          />
+        )}
+
+        {!publishedJobs && step === 2 && extractedJobs.length > 0 && (
           <UnifiedPostWizard
             jobsData={extractedJobs}
             onPublish={handlePublish}
