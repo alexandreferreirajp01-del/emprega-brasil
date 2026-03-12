@@ -251,6 +251,16 @@ export default function GerenciarPopups() {
                             Prioridade: {popup.priority}
                           </Badge>
                         )}
+                        {popup.target_users?.length > 0 && !(popup.target_users.length === 1 && popup.target_users[0] === 'todos') && (
+                          popup.target_users.map(t => {
+                            const opt = TARGET_USER_OPTIONS.find(o => o.value === t);
+                            return opt ? (
+                              <Badge key={t} className={`${opt.color} flex items-center gap-1`}>
+                                <Users className="w-3 h-3" /> {opt.label}
+                              </Badge>
+                            ) : null;
+                          })
+                        )}
                       </div>
                       {popup.buttons?.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-2">
