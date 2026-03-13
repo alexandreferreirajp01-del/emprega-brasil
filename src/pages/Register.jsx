@@ -8,7 +8,7 @@ import { ArrowLeft, Loader2, Eye, EyeOff, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Register() {
-  const [step, setStep] = useState(1); // 1: escolha método, 2: formulário email
+  const [step, setStep] = useState(2); // 2: formulário direto no /register
   const [formData, setFormData] = useState({
     nome: '',
     sobrenome: '',
