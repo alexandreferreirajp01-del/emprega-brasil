@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
       }
 
       // Hash da senha
-      const senhaHash = await bcrypt.hash(password, 10);
+      const senhaHash = await bcrypt.hash(password, 6);
 
       // Gerar token de verificação
       const verificationToken = crypto.randomUUID();
