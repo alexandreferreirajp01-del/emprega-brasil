@@ -61,6 +61,7 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
+      <Route path="/AgenteAdSense" element={<LayoutWrapper currentPageName="AgenteAdSense"><AgenteAdSense /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
