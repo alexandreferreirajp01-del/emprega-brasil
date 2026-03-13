@@ -328,12 +328,12 @@ Deno.serve(async (req) => {
         verificationTokenExpiry
       });
 
-      const verificationLink = `${new URL(req.url).origin}/?page=VerifyEmail&token=${verificationToken}`;
+      const verificationLink = `https://vagasabertaspb.com.br/VerifyEmail?token=${verificationToken}`;
       
-      await base44.asServiceRole.integrations.Core.SendEmail({
+      await sendEmail({
         to: email.toLowerCase(),
         subject: 'Novo link de verificação - Vagas Abertas PB',
-        body: `
+        html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2>Olá, ${user.nome}!</h2>
             <p>Aqui está seu novo link de verificação:</p>
