@@ -7,9 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   ArrowLeft, Users, Loader2, CheckCircle, Search, Clock, UserX, 
-  ChevronLeft, ChevronRight, Eye, Mail, Phone, FileDown, RefreshCw, Filter, Edit, CheckCheck
+  ChevronLeft, ChevronRight, Eye, Mail, Phone, FileDown, RefreshCw, Filter, Edit, CheckCheck, UserPlus
 } from "lucide-react";
 import UserEditDialog from "@/components/admin/UserEditDialog";
+import CadastrarUsuarioModal from "@/components/admin/CadastrarUsuarioModal";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
