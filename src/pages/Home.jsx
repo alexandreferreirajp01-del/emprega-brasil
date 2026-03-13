@@ -340,6 +340,9 @@ export default function Home() {
               </CardContent>
             </Card>
 
+            {/* Instagram Banner */}
+            <InstagramBanner />
+
             {/* Banner Gerador de Currículos */}
             <Card
               className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#0F2744] to-[#1D4371] cursor-pointer hover:shadow-xl transition-all overflow-hidden"
