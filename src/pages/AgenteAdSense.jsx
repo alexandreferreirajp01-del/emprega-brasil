@@ -6,7 +6,32 @@ import { ArrowLeft, Send, Bot, Loader2, Trash2, Zap, CheckCircle, AlertTriangle,
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import MessageBubble from "@/components/chat/MessageBubble";
+import ReactMarkdown from "react-markdown";
+
+const MessageBubble = ({ message }) => {
+  const isUser = message.role === 'user';
+  if (!message.content && !message.tool_calls?.length) return null;
+  return (
+    <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
+      {!isUser && (
+        <div className="w-7 h-7 rounded-lg bg-yellow-100 flex items-center justify-center mt-1 flex-shrink-0">
+          <Bot className="w-4 h-4 text-yellow-600" />
+        </div>
+      )}
+      {message.content && (
+        <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${isUser ? 'bg-slate-800 text-white' : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white'}`}>
+          {isUser ? (
+            <p className="leading-relaxed">{message.content}</p>
+          ) : (
+            <ReactMarkdown className="prose prose-sm max-w-none dark:prose-invert [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+              {message.content}
+            </ReactMarkdown>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const QUICK_PROMPTS = [
   { label: "Análise Completa", text: "Faça uma análise completa do site Vagas Abertas PB verificando todos os requisitos do Google AdSense.", icon: Zap, color: "bg-blue-50 text-blue-700 border-blue-200" },
