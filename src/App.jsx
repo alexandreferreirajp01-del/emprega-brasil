@@ -62,6 +62,8 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/AgenteAdSense" element={<LayoutWrapper currentPageName="AgenteAdSense"><AgenteAdSense /></LayoutWrapper>} />
+      <Route path="/ForgotPassword" element={<LayoutWrapper currentPageName="ForgotPassword"><ForgotPasswordPage /></LayoutWrapper>} />
+      <Route path="/ResetPassword" element={<LayoutWrapper currentPageName="ResetPassword"><ResetPasswordPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

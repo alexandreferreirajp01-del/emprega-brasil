@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     console.log('[forgotPassword] Token salvo:', resetToken);
 
     // Gerar link de recuperação
-    const resetLink = `${new URL(req.url).origin}/?page=ResetPassword&token=${resetToken}`;
+    const resetLink = `https://vagasabertaspb.com.br/ResetPassword?token=${resetToken}`;
 
     // Enviar e-mail
     await base44.asServiceRole.integrations.Core.SendEmail({
