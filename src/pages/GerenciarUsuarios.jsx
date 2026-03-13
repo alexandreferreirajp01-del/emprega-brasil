@@ -31,6 +31,7 @@ export default function GerenciarUsuarios() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showCadastrarModal, setShowCadastrarModal] = useState(false);
   const [approvingAll, setApprovingAll] = useState(false);
   const queryClient = useQueryClient();
 
