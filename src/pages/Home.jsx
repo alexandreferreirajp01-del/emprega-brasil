@@ -18,6 +18,7 @@ import FeaturedJobsCarousel from "@/components/jobs/FeaturedJobsCarousel";
 import SupportButton from "@/components/support/SupportButton";
 import LatestJobsToday from "@/components/jobs/LatestJobsToday";
 import GoogleAdUnit from "@/components/ads/GoogleAdUnit";
+import InstagramBanner from "@/components/common/InstagramBanner";
 
 
 // Função de fetch com retry robusto
