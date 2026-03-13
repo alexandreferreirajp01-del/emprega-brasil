@@ -2,6 +2,27 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import bcryptjs from 'npm:bcryptjs@2.4.3';
 const bcrypt = bcryptjs;
 
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+
+async function sendEmail({ to, subject, html }) {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Vagas Abertas PB <noreply@vagasabertaspb.com.br>',
+      to: [to],
+      subject,
+      html,
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(`Resend error: ${JSON.stringify(data)}`);
+  return data;
+}
+
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
 
