@@ -411,7 +411,7 @@ export default function Register() {
 
             <Button
               type="submit"
-              disabled={loading || !usernameAvailable}
+              disabled={loading || usernameAvailable === false}
               className="w-full h-12 bg-[#1E6FB6] hover:bg-[#0B2F5B] text-white rounded-xl font-semibold"
             >
               {loading ? (
