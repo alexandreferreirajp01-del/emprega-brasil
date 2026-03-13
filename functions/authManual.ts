@@ -96,6 +96,16 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ===== VERIFICAR USERNAME =====
+    if (action === 'check_username') {
+      const { username } = body;
+      if (!username || username.length < 3) {
+        return Response.json({ available: false });
+      }
+      const existing = await base44.asServiceRole.entities.User.filter({ username });
+      return Response.json({ available: existing.length === 0 });
+    }
+
     // ===== REGISTRO =====
     if (action === 'register') {
       const { nome, sobrenome, idade, localidade, username, email, telefone, password } = body;
