@@ -289,6 +289,13 @@ export default function GerenciarUsuarios() {
       <div className="max-w-4xl mx-auto px-3 md:px-4 py-4 space-y-4">
         {/* Export Buttons */}
         <div className="flex flex-wrap gap-2">
+          <Button
+            onClick={() => setShowCadastrarModal(true)}
+            className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Cadastrar Usuário
+          </Button>
           <Button 
             onClick={handleRefresh} 
             variant="outline" 
