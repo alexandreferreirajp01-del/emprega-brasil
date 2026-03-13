@@ -199,45 +199,50 @@ Deno.serve(async (req) => {
 
       // Enviar email de verificação
       try {
-        const verificationLink = `${new URL(req.url).origin}/?page=VerifyEmail&token=${verificationToken}`;
+        const verificationLink = `https://vagasabertaspb.com.br/VerifyEmail?token=${verificationToken}`;
         
         await base44.asServiceRole.integrations.Core.SendEmail({
           to: email.toLowerCase(),
-          subject: 'Confirme seu cadastro - Vagas Abertas PB',
+          subject: '✅ Confirme seu cadastro - Vagas Abertas PB',
           body: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background: linear-gradient(135deg, #1D4371 0%, #0F2744 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="color: white; margin: 0;">Vagas Abertas PB</h1>
-                <p style="color: #e0e0e0; margin: 10px 0 0 0;">Empregos na Paraíba</p>
+                <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" alt="Vagas Abertas PB" style="height: 60px; margin-bottom: 10px;" />
+                <h1 style="color: white; margin: 0; font-size: 22px;">Vagas Abertas PB</h1>
+                <p style="color: #c8d8e8; margin: 6px 0 0 0; font-size: 14px;">Empregos na Paraíba</p>
               </div>
               
-              <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
-                <h2 style="color: #333;">Olá, ${nome}! 👋</h2>
+              <div style="background: #ffffff; padding: 36px 30px; border-radius: 0 0 10px 10px; border: 1px solid #e2e8f0; border-top: none;">
+                <h2 style="color: #1D4371; margin-top: 0;">Olá, ${nome}! 👋</h2>
                 
-                <p style="color: #555; line-height: 1.6;">
-                  Obrigado por se cadastrar no <strong>Vagas Abertas PB</strong>! 
+                <p style="color: #555; line-height: 1.7; font-size: 15px;">
+                  Seu cadastro no <strong>Vagas Abertas PB</strong> foi realizado com sucesso!<br>
+                  Agora, basta confirmar seu e-mail para ativar sua conta e começar a acessar as melhores vagas da Paraíba.
                 </p>
                 
-                <p style="color: #555; line-height: 1.6;">
-                  Para ativar sua conta, clique no botão abaixo:
-                </p>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="${verificationLink}" style="background-color: #1D4371; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold; display: inline-block;">
-                    Ativar Minha Conta
+                <div style="text-align: center; margin: 36px 0;">
+                  <a href="${verificationLink}" style="background-color: #1D4371; color: white; padding: 16px 44px; text-decoration: none; border-radius: 8px; font-size: 17px; font-weight: bold; display: inline-block; letter-spacing: 0.3px;">
+                    ✅ Confirmar meu e-mail
                   </a>
                 </div>
+
+                <div style="background: #f0f7ff; border-left: 4px solid #1D4371; padding: 14px 18px; border-radius: 6px; margin-bottom: 24px;">
+                  <p style="margin: 0; color: #1D4371; font-size: 14px; line-height: 1.6;">
+                    🔗 Após confirmar, você será levado direto para o aplicativo em<br>
+                    <a href="https://vagasabertaspb.com.br" style="color: #1D4371; font-weight: bold;">vagasabertaspb.com.br</a>
+                  </p>
+                </div>
                 
-                <p style="color: #888; font-size: 14px;">
-                  ⏰ Este link expira em 24 horas.<br>
-                  🔒 Se você não se cadastrou, ignore este email.
+                <p style="color: #999; font-size: 13px; line-height: 1.6;">
+                  ⏰ Este link expira em <strong>24 horas</strong>.<br>
+                  🔒 Se você não se cadastrou neste site, ignore este e-mail com segurança.
                 </p>
                 
-                <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 28px 0;">
                 
-                <p style="color: #888; font-size: 12px; text-align: center;">
-                  Equipe Vagas Abertas PB<br>
-                  CNPJ: 62.874.724/0001-11
+                <p style="color: #aaa; font-size: 12px; text-align: center; margin: 0;">
+                  Equipe Vagas Abertas PB &nbsp;|&nbsp; CNPJ: 62.874.724/0001-11<br>
+                  <a href="https://vagasabertaspb.com.br" style="color: #aaa;">vagasabertaspb.com.br</a>
                 </p>
               </div>
             </div>
