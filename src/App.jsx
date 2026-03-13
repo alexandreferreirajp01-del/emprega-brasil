@@ -1,5 +1,7 @@
 import './App.css'
 import AgenteAdSense from '@/pages/AgenteAdSense';
+import ForgotPasswordPage from '@/pages/ForgotPassword';
+import ResetPasswordPage from '@/pages/ResetPassword';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
