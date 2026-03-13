@@ -381,9 +381,40 @@ export default function JobDetail() {
     }
   };
 
-  const jobSeoTitle = job ? `${job.title}${job.company ? ` na ${job.company}` : ''}${job.city ? ` em ${job.city}` : ''} - PB` : 'Detalhe da Vaga';
-  const jobSeoDescription = job ? `${job.title}${job.company ? ` - ${job.company}` : ''}. ${job.city ? `Vaga em ${job.city}/${job.state || 'PB'}. ` : ''}${job.job_type ? `Contrato: ${job.job_type}. ` : ''}${job.salary_range ? `Salário: ${job.salary_range}. ` : ''}Candidate-se agora no Vagas Abertas PB!` : '';
-  const jobSeoKeywords = job ? `${job.title}, ${job.company || ''}, vagas ${job.city || 'paraíba'}, emprego ${job.city || 'PB'}, ${job.job_type || ''}, ${job.category || ''}`.replace(/,\s*,/g, ',') : '';
+  const jobSeoTitle = job
+    ? `${job.title}${job.company ? ` - ${job.company}` : ''}${job.city ? ` em ${job.city}` : ''}${job.state ? `/${job.state}` : ' - PB'}`
+    : 'Detalhe da Vaga';
+
+  const jobSeoDescription = job
+    ? [
+        `Vaga de ${job.title}`,
+        job.company ? `na empresa ${job.company}` : '',
+        job.city ? `em ${job.city}${job.state ? `/${job.state}` : ''}` : 'na Paraíba',
+        job.work_mode ? `(${job.work_mode})` : '',
+        job.job_type ? `Contrato ${job.job_type}.` : '',
+        job.salary_range ? `Salário: ${job.salary_range}.` : '',
+        job.category ? `Área: ${job.category}.` : '',
+        'Candidate-se agora no Vagas Abertas PB!'
+      ].filter(Boolean).join(' ')
+    : '';
+
+  const jobSeoKeywords = job
+    ? [
+        job.title,
+        job.company,
+        `vagas ${job.city || 'paraíba'}`,
+        `emprego ${job.city || 'PB'}`,
+        `vaga ${job.title} ${job.city || 'paraíba'}`,
+        job.job_type,
+        job.category,
+        job.job_function,
+        job.work_mode,
+        'vagas emprego paraíba',
+        'emprego joão pessoa',
+        'emprego campina grande',
+        'vagas abertas PB',
+      ].filter(Boolean).join(', ')
+    : '';
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
