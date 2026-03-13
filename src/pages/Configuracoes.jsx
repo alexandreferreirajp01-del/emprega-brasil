@@ -86,6 +86,10 @@ const menuItems = [
   { id: 'divider-analytics', type: 'divider', label: 'Analytics e Monitoramento', roles: ['admin', 'dono'] },
   { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
 
+  // Agentes de IA
+  { id: 'divider-agentes', type: 'divider', label: 'Agentes de IA', roles: ['admin', 'dono'] },
+  { id: 'agente-adsense', name: 'Agente AdSense', icon: Bot, color: 'amber', page: 'AgenteAdSense', description: 'Analisa o site e orienta sobre aprovação e otimização do Google AdSense', roles: ['admin', 'dono'] },
+
   // Documentação
   { id: 'divider-docs', type: 'divider', label: 'Documentação', roles: ['admin', 'dono'] },
   { id: 'documentacao-app', name: 'Documentação do Aplicativo', icon: BookOpen, color: 'slate', page: 'DocumentacaoApp', description: 'Baixar documentação técnica e prompt de recriação em PDF, Word ou TXT', roles: ['admin', 'dono'] },
