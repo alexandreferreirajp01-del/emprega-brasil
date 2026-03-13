@@ -274,10 +274,12 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 flex flex-col items-center justify-start pt-12 px-4 pb-8">
       <div className="w-full max-w-md mb-4">
-        <Button variant="ghost" onClick={() => setStep(1)} className="text-slate-600 hover:bg-slate-100 -ml-2">
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Voltar
-        </Button>
+        <Link to={createPageUrl('Splash')}>
+          <Button variant="ghost" className="text-slate-600 hover:bg-slate-100 -ml-2">
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Voltar
+          </Button>
+        </Link>
       </div>
 
       <div className="text-center mb-6">
