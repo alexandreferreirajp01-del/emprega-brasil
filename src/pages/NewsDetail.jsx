@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import SEOHead from "@/components/common/SEOHead";
 
 export default function NewsDetail() {
   const urlParams = new URLSearchParams(window.location.search);

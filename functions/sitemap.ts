@@ -28,19 +28,12 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Buscar vagas ativas
-    const jobs = await base44.asServiceRole.entities.Job.filter(
-      { status: 'ativa' },
-      '-created_date',
-      2000
-    );
-
-    // Buscar notícias publicadas
-    const news = await base44.asServiceRole.entities.News.filter(
-      { status: 'published' },
-      '-created_date',
-      500
-    );
+    // Buscar vagas ativas, notícias e blog em paralelo
+    const [jobs, news, blogPosts] = await Promise.all([
+      base44.asServiceRole.entities.Job.filter({ status: 'ativa' }, '-created_date', 2000),
+      base44.asServiceRole.entities.News.filter({ status: 'published' }, '-created_date', 500),
+      base44.asServiceRole.entities.BlogPost.filter({ status: 'published' }, '-created_date', 500).catch(() => []),
+    ]);
 
     const now = new Date().toISOString().split('T')[0];
 
