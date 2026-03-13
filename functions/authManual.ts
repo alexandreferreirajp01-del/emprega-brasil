@@ -235,10 +235,10 @@ Deno.serve(async (req) => {
       try {
         const verificationLink = `https://vagasabertaspb.com.br/VerifyEmail?token=${verificationToken}`;
         
-        await base44.asServiceRole.integrations.Core.SendEmail({
+        await sendEmail({
           to: email.toLowerCase(),
           subject: '✅ Confirme seu cadastro - Vagas Abertas PB',
-          body: `
+          html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background: linear-gradient(135deg, #1D4371 0%, #0F2744 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
                 <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692a4c2d5228a0792af288b2/95d6fd65b_222578-removebg-preview.png" alt="Vagas Abertas PB" style="height: 60px; margin-bottom: 10px;" />
