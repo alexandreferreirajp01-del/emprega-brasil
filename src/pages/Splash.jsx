@@ -232,11 +232,60 @@ export default function Splash() {
             </Button>
           </div>
 
-          <Link to={createPageUrl('Register')}>
-            <Button className="w-full h-12 rounded-xl bg-slate-100 text-[#1D4371] hover:bg-slate-200 font-semibold">
-              Criar Cadastro
+          <div className="relative flex items-center">
+            <div className="flex-grow border-t border-slate-200" />
+            <span className="mx-3 text-xs text-slate-400">ou entre com email</span>
+            <div className="flex-grow border-t border-slate-200" />
+          </div>
+
+          <form onSubmit={handleEmailLogin} className="space-y-3">
+            <Input
+              type="text"
+              placeholder="Email ou usuário"
+              value={identifier}
+              onChange={(e) => { setIdentifier(e.target.value); setError(''); }}
+              className="h-12 rounded-xl"
+            />
+            <div className="relative">
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                className="h-12 rounded-xl pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 bg-[#1D4371] hover:bg-[#0F2744] text-white rounded-xl font-semibold"
+            >
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Entrar'}
             </Button>
-          </Link>
+
+            <div className="flex justify-between text-xs text-slate-500">
+              <Link to={createPageUrl('ForgotPassword')} className="text-[#1D4371] hover:underline font-medium">
+                Esqueci minha senha
+              </Link>
+              <Link to={createPageUrl('Register')} className="text-[#1D4371] hover:underline font-medium">
+                Criar cadastro
+              </Link>
+            </div>
+          </form>
 
           <p className="text-center text-xs text-slate-500 pt-2">
             Ao entrar, você concorda com nossos{' '}
