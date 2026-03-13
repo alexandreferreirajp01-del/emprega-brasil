@@ -638,6 +638,16 @@ export default function GerenciarUsuarios() {
         </div>
       </div>
 
+      {/* Modal Cadastrar Usuário */}
+      <CadastrarUsuarioModal
+        open={showCadastrarModal}
+        onOpenChange={setShowCadastrarModal}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+          showToast('Usuário cadastrado com sucesso!');
+        }}
+      />
+
       {/* Dialog de Edição */}
       <UserEditDialog
         user={editingUser}
