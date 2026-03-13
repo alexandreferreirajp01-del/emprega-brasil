@@ -334,10 +334,10 @@ Deno.serve(async (req) => {
     }, { status: 400 });
 
   } catch (error) {
-    console.error('[authManual] Erro:', error);
+    console.error('[authManual] Erro:', error?.message || error);
     return Response.json({ 
       success: false, 
-      error: 'Erro no servidor. Tente novamente.' 
+      error: error?.message || 'Erro no servidor. Tente novamente.' 
     }, { status: 500 });
   }
 });
