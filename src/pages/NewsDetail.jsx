@@ -149,8 +149,23 @@ export default function NewsDetail() {
     );
   }
 
+  // Extrair primeira imagem dos blocos para SEO
+  const firstImage = news.blocks?.find(b => b.type === 'image')?.content || null;
+
   return (
     <div className="min-h-screen bg-white pb-20">
+      <SEOHead
+        title={news.title}
+        description={news.subtitle || `${news.title} - Leia a notícia completa no Vagas Abertas PB.`}
+        keywords={`${news.category}, mercado de trabalho paraíba, emprego PB, ${news.title}`}
+        url={`/NewsDetail?id=${newsId}`}
+        image={firstImage}
+        newsArticle={news}
+        publishedAt={news.created_date}
+        modifiedAt={news.updated_date}
+        author={news.author_name}
+        type="article"
+      />
       {/* Header - Estilo G1 */}
       <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] py-2 px-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">

@@ -77,8 +77,22 @@ Deno.serve(async (req) => {
       xml += `  <url>
     <loc>${BASE_URL}/NewsDetail?id=${item.id}</loc>
     <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+`;
+    }
+
+    // Páginas de blog individuais
+    for (const post of blogPosts) {
+      const lastmod = post.updated_date
+        ? new Date(post.updated_date).toISOString().split('T')[0]
+        : now;
+      xml += `  <url>
+    <loc>${BASE_URL}/BlogDetail?id=${post.id}</loc>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.65</priority>
   </url>
 `;
     }
