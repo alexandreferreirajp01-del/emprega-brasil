@@ -157,6 +157,7 @@ Deno.serve(async (req) => {
     const { action } = body;
 
     console.log('[coraPayment] Action:', action, '| User:', user.email);
+    debugSecrets();
 
     // ===== CRIAR COBRANÇA (Boleto + PIX) =====
     if (action === 'create_pix') {
