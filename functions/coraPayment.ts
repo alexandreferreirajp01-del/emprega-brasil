@@ -1,8 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import https from 'node:https';
 
 // URLs de Produção - Integração Direta Cora
 const CORA_TOKEN_HOST = 'matls-clients.api.cora.com.br';
-const CORA_TOKEN_PATH = '/oauth2/token';
 const CORA_API_BASE = 'https://api.cora.com.br';
 
 /**
@@ -10,87 +10,66 @@ const CORA_API_BASE = 'https://api.cora.com.br';
  */
 function normalizePem(pem) {
   if (!pem) return '';
-  // Se tem \n literal (escapado), converter para newline real
-  return pem.replace(/\\n/g, '\n');
+  return pem.replace(/\\n/g, '\n').trim();
 }
 
 /**
- * Faz uma requisição HTTP via Deno.connectTls com mTLS (certificado de cliente).
+ * Faz requisição HTTPS com certificado de cliente (mTLS) usando Node.js nativo
  */
-async function mtlsPost(host, path, bodyString, cert, key) {
-  const conn = await Deno.connectTls({
-    hostname: host,
-    port: 443,
-    cert: cert,
-    key: key,
+function httpsRequest(options, body) {
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            reject(new Error(`HTTP ${res.statusCode}: ${JSON.stringify(parsed)}`));
+          } else {
+            resolve(parsed);
+          }
+        } catch {
+          reject(new Error(`Parse error (${res.statusCode}): ${data}`));
+        }
+      });
+    });
+    req.on('error', reject);
+    if (body) req.write(body);
+    req.end();
   });
-
-  const request = [
-    `POST ${path} HTTP/1.1`,
-    `Host: ${host}`,
-    `Content-Type: application/x-www-form-urlencoded`,
-    `Content-Length: ${new TextEncoder().encode(bodyString).length}`,
-    `Connection: close`,
-    ``,
-    bodyString,
-  ].join('\r\n');
-
-  const encoder = new TextEncoder();
-  await conn.write(encoder.encode(request));
-
-  // Ler a resposta completa
-  const decoder = new TextDecoder();
-  let rawResponse = '';
-  const buf = new Uint8Array(4096);
-
-  while (true) {
-    const n = await conn.read(buf);
-    if (n === null) break;
-    rawResponse += decoder.decode(buf.subarray(0, n));
-  }
-
-  conn.close();
-
-  // Separar headers do body
-  const headerBodySplit = rawResponse.indexOf('\r\n\r\n');
-  const headerSection = rawResponse.substring(0, headerBodySplit);
-  let responseBody = rawResponse.substring(headerBodySplit + 4);
-
-  // Verificar status HTTP
-  const statusLine = headerSection.split('\r\n')[0];
-  const statusCode = parseInt(statusLine.split(' ')[1]);
-
-  // Se chunked, decodificar
-  if (headerSection.toLowerCase().includes('transfer-encoding: chunked')) {
-    responseBody = decodeChunked(responseBody);
-  }
-
-  if (statusCode < 200 || statusCode >= 300) {
-    throw new Error(`mTLS token request failed (${statusCode}): ${responseBody}`);
-  }
-
-  return JSON.parse(responseBody);
 }
 
 /**
- * Decodifica resposta HTTP chunked encoding
+ * Obtém token OAuth2 via mTLS usando Node.js https com cert+key
  */
-function decodeChunked(chunked) {
-  let result = '';
-  let remaining = chunked;
-  while (remaining.length > 0) {
-    const crlf = remaining.indexOf('\r\n');
-    if (crlf === -1) break;
-    const chunkSize = parseInt(remaining.substring(0, crlf), 16);
-    if (isNaN(chunkSize) || chunkSize === 0) break;
-    result += remaining.substring(crlf + 2, crlf + 2 + chunkSize);
-    remaining = remaining.substring(crlf + 2 + chunkSize + 2);
-  }
-  return result;
+async function getCoraToken(cert, key, clientId) {
+  const bodyStr = new URLSearchParams({
+    grant_type: 'client_credentials',
+    client_id: clientId,
+  }).toString();
+
+  console.log('[coraPayment] Obtendo token via mTLS (node:https)...');
+
+  const data = await httpsRequest({
+    hostname: CORA_TOKEN_HOST,
+    port: 443,
+    path: '/oauth2/token',
+    method: 'POST',
+    cert,
+    key,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': Buffer.byteLength(bodyStr),
+    },
+  }, bodyStr);
+
+  console.log('[coraPayment] Token obtido com sucesso!');
+  return data.access_token;
 }
 
 /**
- * Faz chamada autenticada à API Cora (Bearer token, sem mTLS)
+ * Faz chamada autenticada à API Cora (apenas Bearer token)
  */
 async function coraRequest(method, path, body, token) {
   const headers = {
@@ -128,31 +107,21 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { action } = body;
 
-    // Ler secrets dentro do handler para garantir que estão disponíveis
-    const clientId = Deno.env.get('CORA_CLIENT_ID');
+    // Ler e normalizar secrets dentro do handler
+    const clientId = Deno.env.get('CORA_CLIENT_ID') || '';
     const cert = normalizePem(Deno.env.get('CORA_CERTIFICATE'));
     const key = normalizePem(Deno.env.get('CORA_PRIVATE_KEY'));
 
     console.log('[coraPayment] Action:', action, '| User:', user.email);
     console.log('[coraPayment] cert length:', cert.length, '| key length:', key.length);
-    console.log('[coraPayment] cert[:40]:', cert.substring(0, 40));
-    console.log('[coraPayment] key[:40]:', key.substring(0, 40));
+    console.log('[coraPayment] cert starts:', cert.substring(0, 27));
 
     if (!cert || !key || !clientId) {
-      return Response.json({ error: 'Secrets CORA_CERTIFICATE, CORA_PRIVATE_KEY ou CORA_CLIENT_ID não configurados' }, { status: 500 });
+      return Response.json({ error: 'Secrets CORA não configurados corretamente' }, { status: 500 });
     }
 
     // Helper para obter token
-    const getToken = async () => {
-      const bodyStr = new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: clientId,
-      }).toString();
-      console.log('[coraPayment] Obtendo token via mTLS...');
-      const data = await mtlsPost(CORA_TOKEN_HOST, CORA_TOKEN_PATH, bodyStr, cert, key);
-      console.log('[coraPayment] Token obtido!');
-      return data.access_token;
-    };
+    const getToken = () => getCoraToken(cert, key, clientId);
 
     // ===== CRIAR COBRANÇA (Boleto + PIX) =====
     if (action === 'create_pix') {
