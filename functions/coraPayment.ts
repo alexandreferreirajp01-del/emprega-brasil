@@ -1,47 +1,34 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-const CORA_CLIENT_ID = Deno.env.get('CORA_CLIENT_ID');
-// Normalizar quebras de linha caso o secret tenha sido salvo com \n literal
-const CORA_PRIVATE_KEY = (Deno.env.get('CORA_PRIVATE_KEY') || '').replace(/\\n/g, '\n');
-const CORA_CERTIFICATE = (Deno.env.get('CORA_CERTIFICATE') || '').replace(/\\n/g, '\n');
-
 // URLs de Produção - Integração Direta Cora
 const CORA_TOKEN_HOST = 'matls-clients.api.cora.com.br';
 const CORA_TOKEN_PATH = '/oauth2/token';
 const CORA_API_BASE = 'https://api.cora.com.br';
 
 /**
- * DEBUG: Inspeciona o formato dos secrets PEM
+ * Normaliza PEM - converte \n literal em quebra de linha real
  */
-function debugSecrets() {
-  const certRaw = Deno.env.get('CORA_CERTIFICATE') || '';
-  const keyRaw = Deno.env.get('CORA_PRIVATE_KEY') || '';
-  console.log('[DEBUG] CERT length:', certRaw.length);
-  console.log('[DEBUG] CERT starts with:', certRaw.substring(0, 50));
-  console.log('[DEBUG] CERT has literal \\n:', certRaw.includes('\\n'));
-  console.log('[DEBUG] CERT has real newline:', certRaw.includes('\n'));
-  console.log('[DEBUG] KEY length:', keyRaw.length);
-  console.log('[DEBUG] KEY starts with:', keyRaw.substring(0, 50));
-  console.log('[DEBUG] KEY has literal \\n:', keyRaw.includes('\\n'));
-  console.log('[DEBUG] KEY has real newline:', keyRaw.includes('\n'));
+function normalizePem(pem) {
+  if (!pem) return '';
+  // Se tem \n literal (escapado), converter para newline real
+  return pem.replace(/\\n/g, '\n');
 }
 
 /**
  * Faz uma requisição HTTP via Deno.connectTls com mTLS (certificado de cliente).
- * Usado para o endpoint de token que exige mTLS.
  */
-async function mtlsPost(host, path, bodyString, contentType = 'application/x-www-form-urlencoded') {
+async function mtlsPost(host, path, bodyString, cert, key) {
   const conn = await Deno.connectTls({
     hostname: host,
     port: 443,
-    cert: CORA_CERTIFICATE,
-    key: CORA_PRIVATE_KEY,
+    cert: cert,
+    key: key,
   });
 
   const request = [
     `POST ${path} HTTP/1.1`,
     `Host: ${host}`,
-    `Content-Type: ${contentType}`,
+    `Content-Type: application/x-www-form-urlencoded`,
     `Content-Length: ${new TextEncoder().encode(bodyString).length}`,
     `Connection: close`,
     ``,
@@ -79,7 +66,7 @@ async function mtlsPost(host, path, bodyString, contentType = 'application/x-www
   }
 
   if (statusCode < 200 || statusCode >= 300) {
-    throw new Error(`mTLS request failed (${statusCode}): ${responseBody}`);
+    throw new Error(`mTLS token request failed (${statusCode}): ${responseBody}`);
   }
 
   return JSON.parse(responseBody);
@@ -103,22 +90,7 @@ function decodeChunked(chunked) {
 }
 
 /**
- * Obtém token OAuth2 via mTLS
- */
-async function getCoraToken() {
-  const bodyStr = new URLSearchParams({
-    grant_type: 'client_credentials',
-    client_id: CORA_CLIENT_ID,
-  }).toString();
-
-  console.log('[coraPayment] Obtendo token via mTLS...');
-  const data = await mtlsPost(CORA_TOKEN_HOST, CORA_TOKEN_PATH, bodyStr);
-  console.log('[coraPayment] Token obtido com sucesso');
-  return data.access_token;
-}
-
-/**
- * Faz chamada autenticada à API Cora (sem mTLS - apenas Bearer token)
+ * Faz chamada autenticada à API Cora (Bearer token, sem mTLS)
  */
 async function coraRequest(method, path, body, token) {
   const headers = {
@@ -156,8 +128,31 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { action } = body;
 
+    // Ler secrets dentro do handler para garantir que estão disponíveis
+    const clientId = Deno.env.get('CORA_CLIENT_ID');
+    const cert = normalizePem(Deno.env.get('CORA_CERTIFICATE'));
+    const key = normalizePem(Deno.env.get('CORA_PRIVATE_KEY'));
+
     console.log('[coraPayment] Action:', action, '| User:', user.email);
-    debugSecrets();
+    console.log('[coraPayment] cert length:', cert.length, '| key length:', key.length);
+    console.log('[coraPayment] cert[:40]:', cert.substring(0, 40));
+    console.log('[coraPayment] key[:40]:', key.substring(0, 40));
+
+    if (!cert || !key || !clientId) {
+      return Response.json({ error: 'Secrets CORA_CERTIFICATE, CORA_PRIVATE_KEY ou CORA_CLIENT_ID não configurados' }, { status: 500 });
+    }
+
+    // Helper para obter token
+    const getToken = async () => {
+      const bodyStr = new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+      }).toString();
+      console.log('[coraPayment] Obtendo token via mTLS...');
+      const data = await mtlsPost(CORA_TOKEN_HOST, CORA_TOKEN_PATH, bodyStr, cert, key);
+      console.log('[coraPayment] Token obtido!');
+      return data.access_token;
+    };
 
     // ===== CRIAR COBRANÇA (Boleto + PIX) =====
     if (action === 'create_pix') {
@@ -169,8 +164,7 @@ Deno.serve(async (req) => {
         }, { status: 400 });
       }
 
-      const token = await getCoraToken();
-
+      const token = await getToken();
       const dueDate = new Date(Date.now() + 30 * 60 * 1000).toISOString().split('T')[0];
 
       const payload = {
@@ -227,7 +221,7 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'invoice_id é obrigatório' }, { status: 400 });
       }
 
-      const token = await getCoraToken();
+      const token = await getToken();
       const invoice = await coraRequest('GET', `/v2/invoices/${invoice_id}`, null, token);
 
       console.log('[coraPayment] Status:', invoice.status);
