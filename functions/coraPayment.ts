@@ -1,8 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const CORA_CLIENT_ID = Deno.env.get('CORA_CLIENT_ID');
-const CORA_PRIVATE_KEY = Deno.env.get('CORA_PRIVATE_KEY');
-const CORA_CERTIFICATE = Deno.env.get('CORA_CERTIFICATE');
+// Normalizar quebras de linha caso o secret tenha sido salvo com \n literal
+const CORA_PRIVATE_KEY = (Deno.env.get('CORA_PRIVATE_KEY') || '').replace(/\\n/g, '\n');
+const CORA_CERTIFICATE = (Deno.env.get('CORA_CERTIFICATE') || '').replace(/\\n/g, '\n');
 
 // URLs de Produção - Integração Direta Cora
 const CORA_TOKEN_HOST = 'matls-clients.api.cora.com.br';
