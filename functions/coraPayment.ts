@@ -4,9 +4,9 @@ const CORA_CLIENT_ID = Deno.env.get('CORA_CLIENT_ID');
 const CORA_CERTIFICATE = Deno.env.get('CORA_CERTIFICATE');
 const CORA_PRIVATE_KEY = Deno.env.get('CORA_PRIVATE_KEY');
 
-// Cora API URLs (sandbox vs production)
-const CORA_TOKEN_URL = 'https://matls-clients.amazingbank.com.br/oauth2/token';
-const CORA_API_URL = 'https://charging.amazingbank.com.br';
+// Cora API URLs - Produção (Integração Direta)
+const CORA_TOKEN_URL = 'https://matls-clients.api.cora.com.br/oauth2/token';
+const CORA_API_URL = 'https://api.cora.com.br';
 
 /**
  * Obtém token OAuth2 do Banco Cora usando mTLS (mutual TLS)
