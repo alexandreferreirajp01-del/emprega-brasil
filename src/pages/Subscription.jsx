@@ -265,6 +265,16 @@ export default function Subscription() {
         </div>
       </div>
 
+      {/* Cora Checkout Modal */}
+      {checkoutPlan && (
+        <CoraCheckoutModal
+          isOpen={!!checkoutPlan}
+          onClose={() => setCheckoutPlan(null)}
+          plan={checkoutPlan}
+          user={user}
+        />
+      )}
+
       {/* Success Popup */}
       {showSuccessPopup && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
