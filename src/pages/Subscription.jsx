@@ -5,7 +5,7 @@ import { Check, Crown, Shield, Zap, MessageCircle, Sparkles, X, Briefcase, Users
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PromoCountdown from "@/components/subscription/PromoCountdown";
-import CoraCheckoutModal from "@/components/subscription/CoraCheckoutModal";
+import ModernCheckoutModal from "@/components/subscription/ModernCheckoutModal";
 
 const ICON_MAP = {
   Crown: Crown,
