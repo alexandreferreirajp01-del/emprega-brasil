@@ -11,6 +11,22 @@ const CORA_TOKEN_PATH = '/oauth2/token';
 const CORA_API_BASE = 'https://api.cora.com.br';
 
 /**
+ * DEBUG: Inspeciona o formato dos secrets PEM
+ */
+function debugSecrets() {
+  const certRaw = Deno.env.get('CORA_CERTIFICATE') || '';
+  const keyRaw = Deno.env.get('CORA_PRIVATE_KEY') || '';
+  console.log('[DEBUG] CERT length:', certRaw.length);
+  console.log('[DEBUG] CERT starts with:', certRaw.substring(0, 50));
+  console.log('[DEBUG] CERT has literal \\n:', certRaw.includes('\\n'));
+  console.log('[DEBUG] CERT has real newline:', certRaw.includes('\n'));
+  console.log('[DEBUG] KEY length:', keyRaw.length);
+  console.log('[DEBUG] KEY starts with:', keyRaw.substring(0, 50));
+  console.log('[DEBUG] KEY has literal \\n:', keyRaw.includes('\\n'));
+  console.log('[DEBUG] KEY has real newline:', keyRaw.includes('\n'));
+}
+
+/**
  * Faz uma requisição HTTP via Deno.connectTls com mTLS (certificado de cliente).
  * Usado para o endpoint de token que exige mTLS.
  */
