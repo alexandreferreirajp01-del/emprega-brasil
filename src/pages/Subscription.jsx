@@ -101,7 +101,13 @@ export default function Subscription() {
       return;
     }
 
-    // Abrir checkout Cora
+    // Se tiver link de pagamento direto, abre direto
+    if (plan.payment_link) {
+      window.open(plan.payment_link, '_blank');
+      return;
+    }
+
+    // Caso contrário, abre o modal de checkout
     if (!user) {
       sessionStorage.setItem('needs_login', 'true');
       sessionStorage.setItem('redirect_after_login', 'Subscription');
