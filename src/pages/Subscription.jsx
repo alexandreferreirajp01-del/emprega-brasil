@@ -92,10 +92,6 @@ export default function Subscription() {
     if (plan.plan_type === 'promotional') {
       const status = getPromoStatus(plan);
       if (status !== 'active') return;
-      if (plan.payment_link) {
-        window.open(plan.payment_link, '_blank');
-        return;
-      }
     }
 
     if (plan.billing_cycle === 'free') {
@@ -105,20 +101,15 @@ export default function Subscription() {
       return;
     }
 
-    if (plan.payment_link) {
-      window.open(plan.payment_link, '_blank');
+    // Abrir checkout Cora
+    if (!user) {
+      sessionStorage.setItem('needs_login', 'true');
+      sessionStorage.setItem('redirect_after_login', 'Subscription');
+      window.location.href = '/Splash';
       return;
     }
 
-    const mercadoPagoLinks = {
-      '9.90': 'https://mpago.la/2QMKuFo',
-      '19.90': 'https://mpago.la/2R3P5Qb',
-      '27.00': 'https://mpago.la/1EwRFu9'
-    };
-
-    const priceKey = plan.price.toFixed(2);
-    const link = mercadoPagoLinks[priceKey] || mercadoPagoLinks['27.00'];
-    window.open(link, '_blank');
+    setCheckoutPlan(plan);
   };
 
   if (isLoading) {
