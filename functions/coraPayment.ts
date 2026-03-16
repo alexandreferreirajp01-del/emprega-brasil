@@ -116,6 +116,7 @@ Deno.serve(async (req) => {
     console.log('[coraPayment] Action:', action, '| User:', user.email);
     console.log('[coraPayment] cert length:', cert.length, '| key length:', key.length);
     console.log('[coraPayment] cert starts:', cert.substring(0, 27));
+    console.log('[coraPayment] client_id:', clientId ? clientId.substring(0, 8) + '...' : 'VAZIO');
 
     if (!cert || !key || !clientId) {
       return Response.json({ error: 'Secrets CORA não configurados corretamente' }, { status: 500 });
