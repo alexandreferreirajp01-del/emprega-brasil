@@ -4,51 +4,104 @@ const CORA_CLIENT_ID = Deno.env.get('CORA_CLIENT_ID');
 const CORA_PRIVATE_KEY = Deno.env.get('CORA_PRIVATE_KEY');
 const CORA_CERTIFICATE = Deno.env.get('CORA_CERTIFICATE');
 
-// URLs de Produção - Integração Direta
-const CORA_TOKEN_URL = 'https://matls-clients.api.cora.com.br/oauth2/token';
+// URLs de Produção - Integração Direta Cora
+const CORA_TOKEN_HOST = 'matls-clients.api.cora.com.br';
+const CORA_TOKEN_PATH = '/oauth2/token';
 const CORA_API_BASE = 'https://api.cora.com.br';
 
 /**
- * Cria um HTTP client com mTLS (certificado de cliente) para o Banco Cora
+ * Faz uma requisição HTTP via Deno.connectTls com mTLS (certificado de cliente).
+ * Usado para o endpoint de token que exige mTLS.
  */
-function createMtlsClient() {
-  return Deno.createHttpClient({
+async function mtlsPost(host, path, bodyString, contentType = 'application/x-www-form-urlencoded') {
+  const conn = await Deno.connectTls({
+    hostname: host,
+    port: 443,
     cert: CORA_CERTIFICATE,
     key: CORA_PRIVATE_KEY,
   });
+
+  const request = [
+    `POST ${path} HTTP/1.1`,
+    `Host: ${host}`,
+    `Content-Type: ${contentType}`,
+    `Content-Length: ${new TextEncoder().encode(bodyString).length}`,
+    `Connection: close`,
+    ``,
+    bodyString,
+  ].join('\r\n');
+
+  const encoder = new TextEncoder();
+  await conn.write(encoder.encode(request));
+
+  // Ler a resposta completa
+  const decoder = new TextDecoder();
+  let rawResponse = '';
+  const buf = new Uint8Array(4096);
+
+  while (true) {
+    const n = await conn.read(buf);
+    if (n === null) break;
+    rawResponse += decoder.decode(buf.subarray(0, n));
+  }
+
+  conn.close();
+
+  // Separar headers do body
+  const headerBodySplit = rawResponse.indexOf('\r\n\r\n');
+  const headerSection = rawResponse.substring(0, headerBodySplit);
+  let responseBody = rawResponse.substring(headerBodySplit + 4);
+
+  // Verificar status HTTP
+  const statusLine = headerSection.split('\r\n')[0];
+  const statusCode = parseInt(statusLine.split(' ')[1]);
+
+  // Se chunked, decodificar
+  if (headerSection.toLowerCase().includes('transfer-encoding: chunked')) {
+    responseBody = decodeChunked(responseBody);
+  }
+
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error(`mTLS request failed (${statusCode}): ${responseBody}`);
+  }
+
+  return JSON.parse(responseBody);
+}
+
+/**
+ * Decodifica resposta HTTP chunked encoding
+ */
+function decodeChunked(chunked) {
+  let result = '';
+  let remaining = chunked;
+  while (remaining.length > 0) {
+    const crlf = remaining.indexOf('\r\n');
+    if (crlf === -1) break;
+    const chunkSize = parseInt(remaining.substring(0, crlf), 16);
+    if (isNaN(chunkSize) || chunkSize === 0) break;
+    result += remaining.substring(crlf + 2, crlf + 2 + chunkSize);
+    remaining = remaining.substring(crlf + 2 + chunkSize + 2);
+  }
+  return result;
 }
 
 /**
  * Obtém token OAuth2 via mTLS
  */
 async function getCoraToken() {
-  const client = createMtlsClient();
-
-  const body = new URLSearchParams({
+  const bodyStr = new URLSearchParams({
     grant_type: 'client_credentials',
     client_id: CORA_CLIENT_ID,
-  });
+  }).toString();
 
-  const response = await fetch(CORA_TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString(),
-    client,
-  });
-
-  client.close();
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Erro ao obter token Cora (${response.status}): ${errorText}`);
-  }
-
-  const data = await response.json();
+  console.log('[coraPayment] Obtendo token via mTLS...');
+  const data = await mtlsPost(CORA_TOKEN_HOST, CORA_TOKEN_PATH, bodyStr);
+  console.log('[coraPayment] Token obtido com sucesso');
   return data.access_token;
 }
 
 /**
- * Faz uma chamada autenticada à API Cora
+ * Faz chamada autenticada à API Cora (sem mTLS - apenas Bearer token)
  */
 async function coraRequest(method, path, body, token) {
   const headers = {
@@ -98,15 +151,13 @@ Deno.serve(async (req) => {
         }, { status: 400 });
       }
 
-      console.log('[coraPayment] Obtendo token mTLS...');
       const token = await getCoraToken();
 
-      // Data de vencimento: 30 minutos a partir de agora
       const dueDate = new Date(Date.now() + 30 * 60 * 1000).toISOString().split('T')[0];
 
       const payload = {
         code: `PAG-${Date.now()}`,
-        amount: Math.round(amount * 100), // em centavos
+        amount: Math.round(amount * 100),
         description: description || `Plano ${plan_id || ''} - Vagas Abertas PB`,
         payment_terms: {
           due_date: dueDate,
@@ -129,10 +180,8 @@ Deno.serve(async (req) => {
 
       console.log('[coraPayment] Criando cobrança...');
       const charge = await coraRequest('POST', '/v2/invoices', payload, token);
-
       console.log('[coraPayment] Cobrança criada:', charge.id);
 
-      // Registrar pagamento pendente
       await base44.entities.Payment.create({
         user_email: user.email,
         amount: amount,
@@ -152,7 +201,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ===== VERIFICAR STATUS DE COBRANÇA =====
+    // ===== VERIFICAR STATUS =====
     if (action === 'check_status') {
       const { invoice_id } = body;
 
@@ -160,13 +209,11 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'invoice_id é obrigatório' }, { status: 400 });
       }
 
-      console.log('[coraPayment] Verificando status:', invoice_id);
       const token = await getCoraToken();
       const invoice = await coraRequest('GET', `/v2/invoices/${invoice_id}`, null, token);
 
       console.log('[coraPayment] Status:', invoice.status);
 
-      // Se pago, atualizar entidade Payment
       if (invoice.status === 'PAID') {
         const payments = await base44.entities.Payment.filter({ external_id: invoice_id });
         if (payments.length > 0 && payments[0].status !== 'approved') {
