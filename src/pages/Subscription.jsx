@@ -29,6 +29,7 @@ export default function Subscription() {
   const [user, setUser] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showAlreadyPremiumPopup, setShowAlreadyPremiumPopup] = useState(false);
+  const [checkoutPlan, setCheckoutPlan] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
