@@ -1,19 +1,29 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const CORA_CLIENT_ID = Deno.env.get('CORA_CLIENT_ID');
-const CORA_CERTIFICATE = Deno.env.get('CORA_CERTIFICATE');
 const CORA_PRIVATE_KEY = Deno.env.get('CORA_PRIVATE_KEY');
+const CORA_CERTIFICATE = Deno.env.get('CORA_CERTIFICATE');
 
-// Cora API URLs - Produção (Integração Direta)
+// URLs de Produção - Integração Direta
 const CORA_TOKEN_URL = 'https://matls-clients.api.cora.com.br/oauth2/token';
-const CORA_API_URL = 'https://api.cora.com.br';
+const CORA_API_BASE = 'https://api.cora.com.br';
 
 /**
- * Obtém token OAuth2 do Banco Cora usando mTLS (mutual TLS)
- * O Deno não suporta mTLS nativamente via fetch(), então usamos a abordagem
- * de enviar o certificado como parte da autenticação via client_credentials
+ * Cria um HTTP client com mTLS (certificado de cliente) para o Banco Cora
+ */
+function createMtlsClient() {
+  return Deno.createHttpClient({
+    cert: CORA_CERTIFICATE,
+    key: CORA_PRIVATE_KEY,
+  });
+}
+
+/**
+ * Obtém token OAuth2 via mTLS
  */
 async function getCoraToken() {
+  const client = createMtlsClient();
+
   const body = new URLSearchParams({
     grant_type: 'client_credentials',
     client_id: CORA_CLIENT_ID,
@@ -21,15 +31,16 @@ async function getCoraToken() {
 
   const response = await fetch(CORA_TOKEN_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
+    client,
   });
+
+  client.close();
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Erro ao obter token Cora: ${response.status} - ${errorText}`);
+    throw new Error(`Erro ao obter token Cora (${response.status}): ${errorText}`);
   }
 
   const data = await response.json();
@@ -37,45 +48,27 @@ async function getCoraToken() {
 }
 
 /**
- * Cria uma cobrança PIX no Banco Cora
+ * Faz uma chamada autenticada à API Cora
  */
-async function createPixCharge({ token, amount, description, customer }) {
-  const payload = {
-    code: `PAG-${Date.now()}`,
-    amount,
-    description: description || 'Pagamento Vagas Abertas PB',
-    payment_terms: {
-      due_date: new Date(Date.now() + 30 * 60 * 1000).toISOString().split('T')[0], // 30 min
-      fine: { date: new Date(Date.now() + 30 * 60 * 1000).toISOString().split('T')[0], rate: 0 },
-      interest: { date: new Date(Date.now() + 30 * 60 * 1000).toISOString().split('T')[0], rate: 0 },
-    },
-    customer: {
-      name: customer.name,
-      email: customer.email,
-      document: {
-        identity: customer.cpf,
-        type: 'CPF',
-      },
-    },
-    payment_forms: ['PIX'],
-    notifications: [
-      { channel: 'EMAIL', destination: customer.email },
-    ],
+async function coraRequest(method, path, body, token) {
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
   };
 
-  const response = await fetch(`${CORA_API_URL}/v2/invoices`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      'Idempotency-Key': `idem-${Date.now()}-${Math.random().toString(36).substring(2)}`,
-    },
-    body: JSON.stringify(payload),
+  if (method !== 'GET') {
+    headers['Idempotency-Key'] = `idem-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  }
+
+  const response = await fetch(`${CORA_API_BASE}${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Erro ao criar cobrança: ${response.status} - ${errorText}`);
+    throw new Error(`Erro Cora API ${path} (${response.status}): ${errorText}`);
   }
 
   return await response.json();
@@ -95,48 +88,67 @@ Deno.serve(async (req) => {
 
     console.log('[coraPayment] Action:', action, '| User:', user.email);
 
-    // ===== CRIAR COBRANÇA PIX =====
+    // ===== CRIAR COBRANÇA (Boleto + PIX) =====
     if (action === 'create_pix') {
       const { amount, description, customer_name, customer_email, customer_cpf, plan_id } = body;
 
       if (!amount || !customer_name || !customer_email || !customer_cpf) {
-        return Response.json({ error: 'Dados incompletos: amount, customer_name, customer_email e customer_cpf são obrigatórios' }, { status: 400 });
+        return Response.json({
+          error: 'Dados incompletos: amount, customer_name, customer_email e customer_cpf são obrigatórios'
+        }, { status: 400 });
       }
 
-      console.log('[coraPayment] Obtendo token...');
+      console.log('[coraPayment] Obtendo token mTLS...');
       const token = await getCoraToken();
 
-      console.log('[coraPayment] Criando cobrança PIX...');
-      const charge = await createPixCharge({
-        token,
+      // Data de vencimento: 30 minutos a partir de agora
+      const dueDate = new Date(Date.now() + 30 * 60 * 1000).toISOString().split('T')[0];
+
+      const payload = {
+        code: `PAG-${Date.now()}`,
         amount: Math.round(amount * 100), // em centavos
         description: description || `Plano ${plan_id || ''} - Vagas Abertas PB`,
+        payment_terms: {
+          due_date: dueDate,
+          fine: { date: dueDate, rate: 0 },
+          interest: { date: dueDate, rate: 0 },
+        },
         customer: {
           name: customer_name,
           email: customer_email,
-          cpf: customer_cpf,
+          document: {
+            identity: customer_cpf.replace(/\D/g, ''),
+            type: 'CPF',
+          },
         },
-      });
+        payment_forms: ['PIX', 'BOLETO'],
+        notifications: [
+          { channel: 'EMAIL', destination: customer_email },
+        ],
+      };
+
+      console.log('[coraPayment] Criando cobrança...');
+      const charge = await coraRequest('POST', '/v2/invoices', payload, token);
 
       console.log('[coraPayment] Cobrança criada:', charge.id);
 
-      // Salvar pagamento pendente na entidade Payment
+      // Registrar pagamento pendente
       await base44.entities.Payment.create({
         user_email: user.email,
         amount: amount,
         status: 'pending',
         payment_method: 'pix',
         external_id: charge.id,
-        notes: `Plano: ${plan_id || 'desconhecido'} | Cora Invoice ID: ${charge.id}`,
+        notes: `Plano: ${plan_id || 'desconhecido'} | Cora Invoice: ${charge.id}`,
       });
 
       return Response.json({
         success: true,
         invoice_id: charge.id,
         pix_code: charge.pix?.emv || null,
-        pix_qr_code: charge.pix?.image_base64 || null,
+        pix_qr_code_base64: charge.pix?.image_base64 || null,
         payment_url: charge.payment_url || null,
-        due_date: charge.payment_terms?.due_date || null,
+        due_date: dueDate,
       });
     }
 
@@ -148,27 +160,16 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'invoice_id é obrigatório' }, { status: 400 });
       }
 
+      console.log('[coraPayment] Verificando status:', invoice_id);
       const token = await getCoraToken();
+      const invoice = await coraRequest('GET', `/v2/invoices/${invoice_id}`, null, token);
 
-      const response = await fetch(`${CORA_API_URL}/v2/invoices/${invoice_id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      console.log('[coraPayment] Status:', invoice.status);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erro ao verificar cobrança: ${response.status} - ${errorText}`);
-      }
-
-      const invoice = await response.json();
-
-      console.log('[coraPayment] Status da cobrança:', invoice.status);
-
-      // Se pago, atualizar Payment no banco
+      // Se pago, atualizar entidade Payment
       if (invoice.status === 'PAID') {
         const payments = await base44.entities.Payment.filter({ external_id: invoice_id });
-        if (payments.length > 0) {
+        if (payments.length > 0 && payments[0].status !== 'approved') {
           await base44.entities.Payment.update(payments[0].id, { status: 'approved' });
         }
       }
