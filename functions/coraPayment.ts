@@ -35,7 +35,13 @@ function httpsRequest(options, body) {
         }
       });
     });
-    req.on('error', reject);
+    req.setTimeout(15000, () => {
+      req.destroy(new Error(`Timeout conectando ao host ${options.hostname}`));
+    });
+    req.on('error', (err) => {
+      console.error('[coraPayment] httpsRequest error:', err.message);
+      reject(err);
+    });
     if (body) req.write(body);
     req.end();
   });
