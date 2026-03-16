@@ -271,13 +271,14 @@ export default function Subscription() {
         </div>
       </div>
 
-      {/* Cora Checkout Modal */}
+      {/* Checkout Modal */}
       {checkoutPlan && (
-        <CoraCheckoutModal
+        <ModernCheckoutModal
           isOpen={!!checkoutPlan}
           onClose={() => setCheckoutPlan(null)}
-          plan={checkoutPlan}
           user={user}
+          initialPlan={checkoutPlan.plan_id || 'premium'}
+          onSuccess={() => setCheckoutPlan(null)}
         />
       )}
 
