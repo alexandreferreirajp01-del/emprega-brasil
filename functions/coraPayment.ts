@@ -2,9 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import https from 'node:https';
 import { Buffer } from 'node:buffer';
 
-// URLs de Produção - Integração Direta Cora
-const CORA_TOKEN_HOST = 'matls-clients.api.cora.com.br';
-const CORA_API_BASE = 'https://api.cora.com.br';
+// URLs de Staging/Sandbox - Integração Direta Cora
+const CORA_TOKEN_HOST = 'matls-clients.api.stage.cora.com.br';
+const CORA_API_BASE = 'https://api.stage.cora.com.br';
 
 /**
  * Normaliza PEM - converte \n literal em quebra de linha real
