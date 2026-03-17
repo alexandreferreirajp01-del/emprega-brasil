@@ -36,7 +36,11 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
   }, [user]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const next = { ...prev, [field]: value };
+      formDataRef.current = next;
+      return next;
+    });
   };
 
   const handleSaveClick = () => {
