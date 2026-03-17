@@ -151,10 +151,11 @@ export default function Jobs() {
 
   const availableCities = React.useMemo(() => {
     if (selectedState === 'all') {
-      return allCities.map(c => c.name).sort();
+      return [...new Set(jobs.map(j => j.city).filter(Boolean))].sort();
     }
-    return allCities.filter(c => c.state === selectedState).map(c => c.name).sort();
-  }, [selectedState, allCities]);
+    if (selectedState === '__blank__') return [];
+    return [...new Set(jobs.filter(j => j.state === selectedState).map(j => j.city).filter(Boolean))].sort();
+  }, [selectedState, jobs]);
 
   useEffect(() => {
     if (selectedState !== 'all' && selectedCity !== 'all') {
