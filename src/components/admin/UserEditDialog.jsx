@@ -19,7 +19,7 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
 
   useEffect(() => {
     if (user) {
-      setFormData({
+      const initial = {
         full_name: user.full_name || '',
         email: user.email || '',
         phone: user.phone || '',
@@ -31,7 +31,9 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
         premium_tier: user.premium_tier || '',
         premium_activated_at: user.premium_activated_at ? user.premium_activated_at.slice(0, 10) : '',
         premium_expires_at: user.premium_expires_at ? user.premium_expires_at.slice(0, 10) : '',
-      });
+      };
+      setFormData(initial);
+      formDataRef.current = initial;
     }
   }, [user]);
 
