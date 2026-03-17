@@ -52,6 +52,8 @@ Deno.serve(async (req) => {
               exibir_no_mapa: false,
             });
             updated++;
+            // Evitar rate limit
+            await new Promise(r => setTimeout(r, 150));
           }
         }
       }
