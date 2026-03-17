@@ -383,12 +383,12 @@ export default function GerenciarUsuarios() {
                     id: u.id, 
                     data: { subscription_type: type, access_status: 'approved' } 
                   })}>
-                    <SelectTrigger className="w-full sm:w-28 h-9 text-xs rounded-lg">
+                    <SelectTrigger className="w-full sm:w-36 h-9 text-xs rounded-lg">
                       <SelectValue placeholder="Aprovar" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="basic">Básico</SelectItem>
-                      <SelectItem value="premium">Premium</SelectItem>
+                      <SelectItem value="premium">🟡 Premium Padrão</SelectItem>
                       <SelectItem value="recruiter">Recrutador</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="dono">Dono</SelectItem>
