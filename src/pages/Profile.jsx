@@ -257,42 +257,50 @@ export default function Profile() {
   const isRecruiter = displayUser?.subscription_type === 'recruiter';
   const isBasic = displayUser?.subscription_type === 'basic';
   const isPremium = displayUser?.subscription_type === 'premium';
-  const canEdit = true; // Todos podem editar perfil
+  const canEdit = true;
+
+  // Links de renovação por tier
+  const RENEW_LINKS = {
+    select: 'https://mpago.la/2QMKuFo',
+    padrao: 'https://mpago.la/1EwRFu9',
+    unlimited: 'https://mpago.la/2jBux69',
+  };
+
+  // Config visual por tier
+  const TIER_CONFIG = {
+    padrao: { label: 'Premium Padrão', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', icon: 'text-amber-600', renewLabel: 'Renovar — R$27,00' },
+    select: { label: 'Premium Select', bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', icon: 'text-blue-600', renewLabel: 'Renovar — R$9,90' },
+    unlimited: { label: 'Premium Unlimited', bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700', icon: 'text-purple-600', renewLabel: 'Renovar — R$59,00' },
+  };
+
+  const premiumTier = displayUser?.premium_tier || 'padrao';
+  const tierConfig = TIER_CONFIG[premiumTier] || TIER_CONFIG.padrao;
 
   const getSubscriptionBadge = () => {
-    if (isDono) {
-      return (
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200">
-          <Crown className="w-4 h-4 text-purple-600" />
-          <span className="text-sm font-medium text-purple-700">Dono</span>
-        </div>
-      );
-    }
-    if (isAdmin) {
-      return (
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-50 border border-purple-200">
-          <Shield className="w-4 h-4 text-purple-600" />
-          <span className="text-sm font-medium text-purple-700">Administrador</span>
-        </div>
-      );
-    }
-    if (isRecruiter) {
-      return (
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200">
-          <Briefcase className="w-4 h-4 text-blue-600" />
-          <span className="text-sm font-medium text-blue-700">Recrutador</span>
-        </div>
-      );
-    }
-    if (displayUser?.subscription_type === 'premium') {
-      return (
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200">
-          <Crown className="w-4 h-4 text-amber-600" />
-          <span className="text-sm font-medium text-amber-700">Premium</span>
-        </div>
-      );
-    }
-    // Básico (padrão)
+    if (isDono) return (
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200">
+        <Crown className="w-4 h-4 text-purple-600" />
+        <span className="text-sm font-medium text-purple-700">Dono</span>
+      </div>
+    );
+    if (isAdmin) return (
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-50 border border-purple-200">
+        <Shield className="w-4 h-4 text-purple-600" />
+        <span className="text-sm font-medium text-purple-700">Administrador</span>
+      </div>
+    );
+    if (isRecruiter) return (
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200">
+        <Briefcase className="w-4 h-4 text-blue-600" />
+        <span className="text-sm font-medium text-blue-700">Recrutador</span>
+      </div>
+    );
+    if (isPremium) return (
+      <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${tierConfig.bg} border ${tierConfig.border}`}>
+        <Crown className={`w-4 h-4 ${tierConfig.icon}`} />
+        <span className={`text-sm font-medium ${tierConfig.text}`}>{tierConfig.label}</span>
+      </div>
+    );
     return (
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200">
         <User className="w-4 h-4 text-slate-600" />
