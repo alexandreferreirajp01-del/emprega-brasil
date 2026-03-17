@@ -510,6 +510,41 @@ export default function Profile() {
                     </p>
                   </div>
                 </div>
+
+                {/* Datas e renovação para Premium */}
+                {isPremium && (
+                  <div className={`p-4 rounded-xl border ${tierConfig.border} ${tierConfig.bg}`}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Crown className={`w-4 h-4 ${tierConfig.icon}`} />
+                      <span className={`text-sm font-semibold ${tierConfig.text}`}>{tierConfig.label}</span>
+                    </div>
+                    <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300 mb-3">
+                      {displayUser?.premium_activated_at && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Ativado em:</span>
+                          <span className="font-medium">{new Date(displayUser.premium_activated_at).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                      )}
+                      {displayUser?.premium_expires_at && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Expira em:</span>
+                          <span className={`font-medium ${new Date(displayUser.premium_expires_at) < new Date() ? 'text-red-600' : 'text-green-600'}`}>
+                            {new Date(displayUser.premium_expires_at).toLocaleDateString('pt-BR')}
+                            {new Date(displayUser.premium_expires_at) < new Date() ? ' ⚠️ Expirado' : ''}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    {RENEW_LINKS[premiumTier] && (
+                      <a href={RENEW_LINKS[premiumTier]} target="_blank" rel="noopener noreferrer">
+                        <button className={`w-full h-9 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${premiumTier === 'select' ? 'from-blue-500 to-blue-600' : premiumTier === 'unlimited' ? 'from-purple-600 to-purple-700' : 'from-amber-500 to-amber-600'} hover:opacity-90 transition-opacity flex items-center justify-center gap-2`}>
+                          <Crown className="w-3.5 h-3.5" />
+                          {tierConfig.renewLabel}
+                        </button>
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
