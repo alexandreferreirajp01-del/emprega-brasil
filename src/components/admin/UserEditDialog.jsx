@@ -8,7 +8,7 @@ import { Loader2, Save, Eye, EyeOff, Lock } from "lucide-react";
 import { toast } from "sonner";
 import PasswordDialog from "@/components/common/PasswordDialog";
 
-const MASTER_PASSWORD = "Alex2026$";
+const MASTER_PASSWORD = "Vagas2026#";
 
 export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
   const [formData, setFormData] = useState({});
