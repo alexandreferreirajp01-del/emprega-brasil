@@ -44,6 +44,7 @@ const menuItems = [
   // Gestão de Vagas - Botão com Submenu
   { id: 'divider-vagas', type: 'divider', label: 'Gestão de Vagas' },
   { id: 'gestao-vagas-menu', name: 'Gestão de Vagas', icon: Briefcase, color: 'indigo', description: 'Central única de controle e manutenção', isSubmenu: true },
+  { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'slate', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros', roles: ['admin', 'dono'] },
 
   // Conteúdo
   { id: 'divider-conteudo', type: 'divider', label: 'Conteúdo' },
