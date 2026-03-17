@@ -586,6 +586,12 @@ export default function Jobs() {
               <Briefcase className="w-3 h-3" />
               Home Office
             </button>
+            <button
+              onClick={() => setShowPCDOnly(v => !v)}
+              className={`flex items-center gap-1.5 px-3 h-8 rounded-lg border text-[11px] font-medium transition-all active:scale-95 ${showPCDOnly ? 'bg-green-600 border-green-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-green-300'}`}
+            >
+              ♿ PCD
+            </button>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
