@@ -10,6 +10,7 @@ export default function PasswordDialog({
   open, 
   onOpenChange, 
   onSuccess, 
+  masterPassword,
   title = "Confirmação Necessária",
   description = "Digite a senha de administrador para continuar"
 }) {
@@ -21,9 +22,9 @@ export default function PasswordDialog({
     setLoading(true);
     setError('');
     
-    // Validação otimizada (sem delay artificial)
+    const correctPassword = masterPassword || ADMIN_PASSWORD;
     setTimeout(() => {
-      if (password === ADMIN_PASSWORD) {
+      if (password === correctPassword) {
         onSuccess();
         setPassword('');
         onOpenChange(false);
