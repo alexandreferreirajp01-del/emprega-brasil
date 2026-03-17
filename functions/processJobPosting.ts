@@ -17,20 +17,21 @@ Deno.serve(async (req) => {
 
     const { rawData, imageUrl, postType } = await req.json();
 
-    // ETAPA 1: IDENTIFICAÇÃO DE VAGAS
+    // ETAPA 1: IDENTIFICAÇÃO DE VAGAS E CIDADES
     const identificationResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `ANÁLISE CRÍTICA: Identifique QUANTAS VAGAS existem neste anúncio.
+      prompt: `ANÁLISE CRÍTICA: Identifique QUANTAS VAGAS existem neste anúncio e se há MÚLTIPLAS CIDADES/ESTADOS.
 
-REGRAS:
+REGRAS DE VAGAS:
 1. Se houver múltiplos CARGOS diferentes → criar vaga separada para cada
 2. Se houver apenas UM cargo mas múltiplas VAGAS dele → criar apenas UMA entrada
 
-Exemplos:
-- "Contrata-se: Vendedor, Caixa, Gerente" → 3 VAGAS SEPARADAS
-- "10 vagas de Vendedor" → 1 VAGA (quantidade não importa)
-- "Operador de Caixa e ASG" → 2 VAGAS SEPARADAS
+REGRAS DE CIDADES:
+3. Se o anúncio mencionar vagas em MÚLTIPLAS CIDADES ou ESTADOS diferentes → liste TODAS as cidades
+   Exemplo: "Vagas em João Pessoa, Campina Grande e Recife" → cities: ["João Pessoa|PB","Campina Grande|PB","Recife|PE"]
+4. Se houver apenas UMA cidade → cities: ["NomeCidade|UF"]
+5. Se for remoto/home office → cities: ["Remoto|"]
 
-IMPORTANTE: Liste APENAS os cargos/títulos, um por linha.
+IMPORTANTE: Liste APENAS os cargos/títulos na lista de jobs, e as cidades no formato Cidade|UF.
 
 ${imageUrl ? 'ANALISANDO IMAGEM E TEXTO' : 'ANALISANDO TEXTO'}`,
       file_urls: imageUrl ? [imageUrl] : undefined,
@@ -45,6 +46,11 @@ ${imageUrl ? 'ANALISANDO IMAGEM E TEXTO' : 'ANALISANDO TEXTO'}`,
           total_count: {
             type: "number",
             description: "Total de vagas diferentes"
+          },
+          cities: {
+            type: "array",
+            items: { type: "string" },
+            description: "Cidades no formato 'NomeCidade|UF'. Ex: ['João Pessoa|PB','Recife|PE']"
           }
         }
       }
