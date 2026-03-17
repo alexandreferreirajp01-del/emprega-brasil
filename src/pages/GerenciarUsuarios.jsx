@@ -107,15 +107,28 @@ export default function GerenciarUsuarios() {
     navigate(-1);
   };
 
-  const getTypeBadgeClass = (type) => {
+  const getTypeBadgeClass = (type, tier) => {
+    if (type === 'premium') {
+      if (tier === 'select') return 'bg-blue-100 text-blue-700';
+      if (tier === 'unlimited') return 'bg-purple-100 text-purple-700';
+      return 'bg-amber-100 text-amber-700'; // padrão
+    }
     switch (type) {
-      case 'dono': return 'bg-amber-100 text-amber-700';
+      case 'dono': return 'bg-orange-100 text-orange-700';
       case 'admin': return 'bg-purple-100 text-purple-700';
-      case 'premium': return 'bg-green-100 text-green-700';
-      case 'recruiter': return 'bg-blue-100 text-blue-700';
+      case 'recruiter': return 'bg-cyan-100 text-cyan-700';
       case 'basic': return 'bg-slate-100 text-slate-600';
       default: return 'bg-gray-100 text-gray-600';
     }
+  };
+
+  const getTypeLabel = (type, tier) => {
+    if (type === 'premium') {
+      if (tier === 'select') return 'Premium Select';
+      if (tier === 'unlimited') return 'Premium Unlimited';
+      return 'Premium Padrão';
+    }
+    return type || 'basic';
   };
 
   const handleExportExcel = () => {
