@@ -312,16 +312,14 @@ export default function Jobs() {
     const matchesFunction = selectedFunction === 'all' || job.job_function === selectedFunction;
     const matchesPremium = !showPremiumOnly || job.is_premium;
     const matchesFeatured = !showFeaturedOnly || job.is_featured;
-    const matchesHomeOffice = !showHomeOfficeOnly || 
-      job.work_mode === 'Remoto' || 
-      job.work_mode === 'Híbrido' ||
-      job.job_type === 'Home Office' || 
+    const isRemoteJob = 
       job.is_remote === true ||
+      job.work_mode === 'Remoto' ||
+      job.job_type === 'Home Office' ||
       (job.contract_types && job.contract_types.includes('Home Office')) ||
-      job.title?.toLowerCase().includes('home office') ||
-      job.title?.toLowerCase().includes('remoto') ||
-      job.description?.toLowerCase().includes('home office') ||
-      job.description?.toLowerCase().includes('trabalho remoto');
+      (job.title || '').toLowerCase().includes('home office') ||
+      (job.title || '').toLowerCase().includes('remoto');
+    const matchesHomeOffice = !showHomeOfficeOnly || isRemoteJob;
     const matchesCompany = selectedCompany === 'all' || job.company === selectedCompany;
     
     return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice && matchesCompany;
