@@ -214,7 +214,7 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
                   <Input
                     type="date"
                     value={formData.premium_expires_at || ''}
-                    onChange={(e) => handleChange('premium_expires_at', e.target.value ? new Date(e.target.value).toISOString() : '')}
+                    onChange={(e) => handleChange('premium_expires_at', e.target.value)}
                     className="mt-1"
                   />
                 </div>
