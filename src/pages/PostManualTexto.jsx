@@ -595,8 +595,8 @@ IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas context
                 <Textarea value={form.description} onChange={e => set('description', e.target.value)} rows={8} className="mt-1 text-sm" placeholder="Descrição da vaga..." />
               </div>
 
-              {/* Destaque e Premium */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Destaque, Premium e PCD */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <button
                   type="button"
                   onClick={() => set('is_featured', !form.is_featured)}
@@ -624,6 +624,21 @@ IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas context
                   </div>
                   <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${form.is_premium ? 'bg-purple-400 border-purple-400' : 'border-slate-300'}`}>
                     {form.is_premium && <div className="w-2 h-2 rounded-full bg-white" />}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => set('is_pcd', !form.is_pcd)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${form.is_pcd ? 'bg-green-50 border-green-400 dark:bg-green-900/20 dark:border-green-500' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 hover:border-green-300'}`}
+                >
+                  <span className="text-xl flex-shrink-0">♿</span>
+                  <div>
+                    <p className={`font-semibold text-sm ${form.is_pcd ? 'text-green-700 dark:text-green-400' : 'text-slate-700 dark:text-slate-300'}`}>Vaga PCD</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Para Pessoas com Deficiência</p>
+                  </div>
+                  <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${form.is_pcd ? 'bg-green-400 border-green-400' : 'border-slate-300'}`}>
+                    {form.is_pcd && <div className="w-2 h-2 rounded-full bg-white" />}
                   </div>
                 </button>
               </div>
