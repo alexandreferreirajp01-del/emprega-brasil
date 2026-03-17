@@ -101,7 +101,8 @@ ${qrCodeLink ? `
                     salary_range: { type: "string", description: "APENAS valor monetário" },
                     contact_phone: { type: "string" },
                     application_link: { type: "string" },
-                    description: { type: "string" }
+                    description: { type: "string" },
+                    is_pcd: { type: "boolean", description: "True se vaga mencionar PCD ou pessoa com deficiência" }
                   }
                 }
               }
