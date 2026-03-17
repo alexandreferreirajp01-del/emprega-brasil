@@ -123,6 +123,7 @@ IMPORTANTE:
         ).toLowerCase();
         const isHomeOfficeContent = /home\s*office|#home|híbrido|hibrido|#híbrido|#hibrido|remoto|#remoto|trabalhar\s*em\s*casa|trabalhe\s*em\s*casa/.test(textoCompleto);
         const isPremium = isHomeOfficeContent || vaga.home_office === true;
+        const isPCD = /\bpcd\b|pessoa com defici[êe]ncia|portador.*defici[êe]ncia|inclus[aã]o.*defici[êe]ncia/.test(textoCompleto);
 
         // ✅ CONDIÇÃO 2: detectar ausência de localização
         const hasLocation = !!(

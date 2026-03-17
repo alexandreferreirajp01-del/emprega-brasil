@@ -329,6 +329,7 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
         additional_info: (locationInfo + additionalContacts).trim(),
         is_premium: false,
         is_featured: false,
+        is_pcd: isPCD,
         status: jobStatus
       });
     }
