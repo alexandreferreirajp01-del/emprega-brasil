@@ -569,13 +569,12 @@ export default function Profile() {
 
             <div className="space-y-3">
               {isBasic && (
-                <Button 
-                  onClick={() => window.location.href = createPageUrl('Subscription')}
-                  className="w-full h-12 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white rounded-xl shadow-lg"
-                >
-                  <Crown className="w-5 h-5 mr-2" />
-                  Seja Premium
-                </Button>
+                <a href="https://vagasabertaspb.com.br/subscription" target="_blank" rel="noopener noreferrer" className="block">
+                  <Button className="w-full h-12 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white rounded-xl shadow-lg">
+                    <Crown className="w-5 h-5 mr-2" />
+                    Torne-se Premium
+                  </Button>
+                </a>
               )}
               <Button variant="outline" className="w-full h-12 rounded-xl text-[#C30000] dark:text-red-400 border-red-200 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/20" onClick={handleLogout}>
                 <LogOut className="w-5 h-5 mr-2" />Sair da Conta
