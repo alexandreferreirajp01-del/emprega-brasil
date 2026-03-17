@@ -196,7 +196,7 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
               <div>
                 <Label>Subtipo Premium</Label>
                 <select
-                  value={formData.premium_tier || 'padrao'}
+                  value={formData.premium_tier || ''}
                   onChange={(e) => handleChange('premium_tier', e.target.value)}
                   className="w-full h-10 px-3 rounded-md border border-slate-200 mt-1"
                 >
