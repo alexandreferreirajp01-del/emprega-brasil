@@ -36,6 +36,7 @@ const emptyForm = {
   contract_types: [],
   is_featured: false,
   is_premium: false,
+  is_pcd: false,
 };
 
 // Cidades comuns da Paraíba e outros estados para detecção sem prefixo
@@ -188,9 +189,14 @@ function extractFromText(rawInput) {
   }
 
   // ── TIPO DE CONTRATO ─────────────────────────────────────────────────────
+  // ── PCD ──────────────────────────────────────────────────────────────────
+  if (/\bpcd\b|pessoa com defici[êe]ncia|portador.*defici[êe]ncia|inclus[aã]o.*defici[êe]ncia/.test(textLower)) {
+    result.is_pcd = true;
+  }
+
   if (textLower.includes('jovem aprendiz')) result.job_type = 'Jovem Aprendiz';
   else if (textLower.includes('estágio') || textLower.includes('estagio') || textLower.includes('estagiário')) result.job_type = 'Estágio';
-  else if (textLower.includes('pcd') || textLower.includes('pessoa com deficiência')) result.job_type = 'PCD';
+  else if (textLower.includes('pcd') || textLower.includes('pessoa com deficiência')) { result.job_type = 'PCD'; result.is_pcd = true; }
   else if (textLower.includes('freelancer') || textLower.includes('free-lancer')) result.job_type = 'Freelancer';
   else if (textLower.includes('temporári') || textLower.includes('temporario')) result.job_type = 'Temporário';
   else if (textLower.match(/\bpj\b/) || textLower.includes('pessoa jurídica')) result.job_type = 'PJ';
@@ -347,6 +353,7 @@ IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas context
         status,
         is_premium: form.is_premium,
         is_featured: form.is_featured,
+        is_pcd: form.is_pcd,
         origem: 'post_manual_texto',
         published_at: status === 'ativa' ? new Date().toISOString() : null,
         needs_review: false,
