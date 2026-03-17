@@ -432,11 +432,22 @@ export default function Jobs() {
       <div className="bg-slate-50 border-b sticky top-[52px] z-10">
         <div className="max-w-6xl mx-auto px-3 py-3 space-y-2">
 
-          {/* Linha 1: PB fixo + Cidade + Tipo */}
+          {/* Linha 1: Estado + Cidade + Tipo */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="flex items-center justify-center h-9 rounded-lg bg-[#1D4371] text-white text-xs font-semibold px-2">
-              📍 Paraíba
-            </div>
+            <Select value={selectedState} onValueChange={(v) => { setSelectedState(v); setSelectedCity('all'); }}>
+              <SelectTrigger className={`h-9 rounded-lg text-xs ${selectedState !== 'all' ? 'border-[#1D4371] text-[#1D4371] font-semibold' : ''}`}>
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <ScrollArea className="h-[200px]">
+                  <SelectItem value="all">Todos os estados</SelectItem>
+                  <SelectItem value="__blank__">Não informado</SelectItem>
+                  {availableStates.map(s => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </ScrollArea>
+              </SelectContent>
+            </Select>
 
             <Popover open={cityOpen} onOpenChange={setCityOpen}>
               <PopoverTrigger asChild>
@@ -444,7 +455,7 @@ export default function Jobs() {
                   variant="outline"
                   className={`h-9 w-full rounded-lg text-xs px-2 truncate ${selectedCity !== 'all' ? 'border-[#1D4371] text-[#1D4371] font-semibold' : ''}`}
                 >
-                  {selectedCity === 'all' ? 'Cidade' : selectedCity}
+                  {selectedCity === 'all' ? 'Cidade' : selectedCity === '__blank__' ? 'Não informado' : selectedCity}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0" align="start">
@@ -454,6 +465,7 @@ export default function Jobs() {
                     <CommandEmpty>Nada encontrado</CommandEmpty>
                     <CommandGroup>
                       <CommandItem value="all" onSelect={() => { setSelectedCity('all'); setCityOpen(false); }}>Todas</CommandItem>
+                      <CommandItem value="__blank__" onSelect={() => { setSelectedCity('__blank__'); setCityOpen(false); }}>Não informado</CommandItem>
                       {filteredCities.map((city) => (
                         <CommandItem key={city} value={city} onSelect={() => { setSelectedCity(city); setCityOpen(false); }}>{city}</CommandItem>
                       ))}
