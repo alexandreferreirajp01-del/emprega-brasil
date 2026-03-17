@@ -68,6 +68,7 @@ export default function UnifiedPostWizard({
   const [selectedContractTypes, setSelectedContractTypes] = useState([]);
   const [individualPremiumFlags, setIndividualPremiumFlags] = useState({});
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isPCD, setIsPCD] = useState(false);
   
   // Etapa 2 - Notificações
   const [sendNotification, setSendNotification] = useState(null);
@@ -143,6 +144,7 @@ export default function UnifiedPostWizard({
       contract_types: selectedContractTypes,
       is_premium: individualPremiumFlags[idx] || false,
       is_featured: isFeatured,
+      is_pcd: isPCD || j.is_pcd || false,
       published_at: brasiliaTime
     }));
 
@@ -235,13 +237,20 @@ export default function UnifiedPostWizard({
             )}
 
             <div className="pt-4 border-t">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-semibold text-slate-700">Vagas para Publicar:</p>
-                <div className="flex items-center gap-2 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <p className="text-xs font-semibold text-slate-700">Vagas para Publicar:</p>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 p-2 bg-green-50 rounded-lg border border-green-200">
+                  <span className="text-sm">♿</span>
+                  <span className="text-xs font-medium text-green-800">PCD</span>
+                  <Switch checked={isPCD} onCheckedChange={setIsPCD} className="scale-75" />
+                </div>
+                <div className="flex items-center gap-1.5 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
                   <Star className="w-4 h-4 text-yellow-600" />
                   <span className="text-xs font-medium text-yellow-800">Destaque</span>
                   <Switch checked={isFeatured} onCheckedChange={setIsFeatured} className="scale-75" />
                 </div>
+              </div>
               </div>
               <div className="space-y-2 max-h-[300px] overflow-y-auto">
                 {jobsData.map((job, i) => (
@@ -570,6 +579,7 @@ export default function UnifiedPostWizard({
                 <p>• Tipos: {selectedContractTypes.join(', ')}</p>
                 <p>• Premium: {Object.values(individualPremiumFlags).filter(Boolean).length} de {jobCount}</p>
                 {isFeatured && <p>• ⭐ Em destaque</p>}
+                {isPCD && <p>• ♿ Vaga(s) PCD</p>}
                 <p>• Notificações: {sendNotification ? '✅ Ativadas' : '❌ Desativadas'}</p>
                 <p>• Modo: {publishMode === 'now' ? '⚡ Imediato' : '🕐 Agendado'}</p>
               </div>
