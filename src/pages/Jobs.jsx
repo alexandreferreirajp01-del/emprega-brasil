@@ -694,6 +694,11 @@ export default function Jobs() {
                               Premium
                             </Badge>
                           )}
+                          {(job.is_pcd || job.job_type === 'PCD' || (job.title || '').toLowerCase().includes('pcd')) && (
+                            <Badge className="bg-green-100 text-green-700 border-0 text-xs rounded-sm px-2 py-0.5">
+                              ♿ PCD
+                            </Badge>
+                          )}
                           {job.category && (
                             <Badge className="bg-[#1E6FB6]/10 text-[#1E6FB6] border-0 text-xs rounded-sm px-2 py-0.5">
                               {job.category}

@@ -303,6 +303,10 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
       // VALIDAÇÃO: Se não houver contato, marcar como pendente
       const hasContact = applicationLink && applicationLink.trim() !== '';
       const jobStatus = hasContact ? 'published' : 'pending_contact';
+
+      // Detectar PCD
+      const pcdText = (jobData.title + ' ' + fullDescription + ' ' + (rawData || '')).toLowerCase();
+      const isPCD = /\bpcd\b|pessoa com defici[êe]ncia|portador.*defici[êe]ncia|inclus[aã]o.*defici[êe]ncia|defici[êe]ncia f[ií]sica|defici[êe]ncia visual|defici[êe]ncia audit|defici[êe]ncia intelectual/.test(pcdText);
       
       // Salário: específico ou geral
       const finalSalary = jobData.specific_salary || generalInfoResult.salary_range || '';
