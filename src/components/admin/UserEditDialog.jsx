@@ -26,7 +26,10 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
         state: user.state || 'PB',
         password: user.password || '',
         subscription_type: user.subscription_type || 'basic',
-        access_status: user.access_status || 'approved'
+        access_status: user.access_status || 'approved',
+        premium_tier: user.premium_tier || 'padrao',
+        premium_activated_at: user.premium_activated_at ? user.premium_activated_at.slice(0, 10) : '',
+        premium_expires_at: user.premium_expires_at ? user.premium_expires_at.slice(0, 10) : '',
       });
     }
   }, [user]);
