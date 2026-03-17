@@ -1,3 +1,4 @@
+import React from 'react'
 import './App.css'
 import AgenteAdSense from '@/pages/AgenteAdSense';
 import ForgotPasswordPage from '@/pages/ForgotPassword';
