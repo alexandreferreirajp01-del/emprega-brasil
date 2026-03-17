@@ -274,9 +274,15 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
       let applicationLink = generalInfoResult.application_link || generalInfoResult.website || '';
       
       if (!applicationLink && (generalInfoResult.contact_whatsapp || generalInfoResult.contact_phone)) {
-        const phone = (generalInfoResult.contact_whatsapp || generalInfoResult.contact_phone).replace(/\D/g, '');
-        const finalPhone = phone.startsWith('55') ? phone : `55${phone}`;
-        applicationLink = `https://wa.me/${finalPhone}`;
+        const rawPhone = (generalInfoResult.contact_whatsapp || generalInfoResult.contact_phone).replace(/\D/g, '');
+        let phone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
+        // Corrigir celulares BR com 8 dígitos após DDD (adicionar 9)
+        if (phone.length === 12) {
+          const ddd = phone.substring(2, 4);
+          const num = phone.substring(4);
+          if (/^[6-9]/.test(num)) phone = `55${ddd}9${num}`;
+        }
+        applicationLink = `https://wa.me/${phone}`;
       } else if (!applicationLink && generalInfoResult.contact_email) {
         applicationLink = `mailto:${generalInfoResult.contact_email}`;
       }
