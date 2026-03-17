@@ -144,12 +144,17 @@ ${pastedText}`,
         
         // VALIDAÇÃO: marcar status baseado em contato
         const hasContact = finalLink && finalLink.trim() !== '';
+
+        // Detectar PCD
+        const pcdText = ((job.title || '') + ' ' + (job.description || '') + ' ' + pastedText).toLowerCase();
+        const isPCDJob = /\bpcd\b|pessoa com defici[êe]ncia|portador.*defici[êe]ncia/.test(pcdText);
         
         return {
           ...job,
           city: job.city || 'Não informado',
           state: job.state || autoState || '',
           application_link: finalLink,
+          is_pcd: isPCDJob,
           status: hasContact ? 'published' : 'pending_contact'
         };
       });

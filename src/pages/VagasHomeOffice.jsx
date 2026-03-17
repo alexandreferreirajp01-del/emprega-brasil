@@ -127,6 +127,10 @@ ${rawText}`,
         // VALIDAÇÃO: marcar status baseado em contato
         const hasContact = finalLink && finalLink.trim() !== '';
         
+        // Detectar PCD
+        const pcdText = ((v.titulo || '') + ' ' + (v.descricao || '') + ' ' + rawText).toLowerCase();
+        const isPCDJob = /\bpcd\b|pessoa com defici[êe]ncia|portador.*defici[êe]ncia/.test(pcdText);
+
         return {
           title: v.titulo,
           description: v.descricao || `Vaga Home Office - ${v.titulo}`,
@@ -134,6 +138,7 @@ ${rawText}`,
           job_type: 'Home Office',
           state: finalState,
           city: finalCity || 'Não informado',
+          is_pcd: isPCDJob,
           status: hasContact ? 'published' : 'pending_contact'
         };
       });

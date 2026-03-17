@@ -211,6 +211,9 @@ EXTRAIA TUDO:`,
         alert('⚠️ ATENÇÃO: Esta vaga não tem informação de contato e será enviada para PENDÊNCIAS. Adicione telefone, email ou site para publicar.');
       }
 
+      const descText = (formData.title + ' ' + formData.description).toLowerCase();
+      const isPCDJob = /\bpcd\b|pessoa com defici[êe]ncia|portador.*defici[êe]ncia/.test(descText);
+
       const finalJobData = {
         ...jobData,
         title: formData.title,
@@ -221,6 +224,7 @@ EXTRAIA TUDO:`,
         salary_range: formData.salary_range,
         image_url: formData.image_url,
         application_link: applicationLink,
+        is_pcd: isPCDJob || jobData.is_pcd || false,
         status: hasContact ? 'published' : 'pending_contact'
       };
 

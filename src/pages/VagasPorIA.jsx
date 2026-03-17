@@ -108,6 +108,10 @@ ${rawText}`,
       // VALIDAÇÃO: marcar status baseado em contato
       const hasContact = result.application_link && result.application_link.trim() !== '';
       result.status = hasContact ? 'published' : 'pending_contact';
+
+      // Detectar PCD automaticamente
+      const pcdText = (rawText + ' ' + (result.title || '') + ' ' + (result.description || '')).toLowerCase();
+      result.is_pcd = /\bpcd\b|pessoa com defici[êe]ncia|portador.*defici[êe]ncia|inclus[aã]o.*defici[êe]ncia/.test(pcdText);
       
       setExtractedData(result);
       setStep(2);
