@@ -222,11 +222,15 @@ ${text}`,
         (result.jobs || []).forEach(job => {
           // Fallback: auto-completar estado se não veio da IA
           const autoState = (job.city && !job.state) ? getStateFromCity(job.city) : null;
+          // Detectar PCD
+          const pcdText = ((job.title || '') + ' ' + (job.description || '') + ' ' + text).toLowerCase();
+          const isPCDJob = /\bpcd\b|pessoa com defici[êe]ncia|portador.*defici[êe]ncia/.test(pcdText);
           
           allJobs.push({
             ...job,
             city: job.city || 'Não informado',
-            state: job.state || autoState || ''
+            state: job.state || autoState || '',
+            is_pcd: isPCDJob
           });
         });
 
