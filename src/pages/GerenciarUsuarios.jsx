@@ -91,7 +91,12 @@ export default function GerenciarUsuarios() {
       (statusFilter === 'blocked' && u.access_status === 'blocked') ||
       (statusFilter === 'active' && u.access_status !== 'blocked');
     
-    const matchesType = typeFilter === 'all' || u.subscription_type === typeFilter;
+    const matchesType = typeFilter === 'all' || 
+      (typeFilter === 'premium' && u.subscription_type === 'premium') ||
+      (typeFilter === 'premium_padrao' && u.subscription_type === 'premium' && (!u.premium_tier || u.premium_tier === 'padrao')) ||
+      (typeFilter === 'premium_select' && u.subscription_type === 'premium' && u.premium_tier === 'select') ||
+      (typeFilter === 'premium_unlimited' && u.subscription_type === 'premium' && u.premium_tier === 'unlimited') ||
+      (!typeFilter.startsWith('premium_') && u.subscription_type === typeFilter);
     
     return matchesSearch && matchesStatus && matchesType;
   });
