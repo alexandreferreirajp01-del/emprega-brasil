@@ -43,35 +43,34 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
   };
 
   const handleConfirmSave = async () => {
+    setShowMasterDialog(false);
     setSaving(true);
     try {
       // Validação básica
       if (!formData.full_name || formData.full_name.trim().length < 3) {
         toast.error('Nome deve ter no mínimo 3 caracteres');
-        setSaving(false);
         return;
       }
 
       if (formData.password && formData.password.length < 6) {
         toast.error('Senha deve ter no mínimo 6 caracteres');
-        setSaving(false);
         return;
       }
 
+      // Montar payload limpo
+      const payload = { ...formData };
+      // Garantir que datas vazias sejam null
+      if (!payload.premium_activated_at) payload.premium_activated_at = null;
+      if (!payload.premium_expires_at) payload.premium_expires_at = null;
+      // Remover senha se vazia
+      if (!payload.password) delete payload.password;
+
       // Atualizar no banco
-      await base44.asServiceRole.entities.User.update(user.id, formData);
+      await base44.asServiceRole.entities.User.update(user.id, payload);
       
-      // Sucesso
-      toast.success('✅ Usuário atualizado com sucesso!', {
-        duration: 3000,
-      });
-      
+      toast.success('✅ Usuário atualizado com sucesso!');
       if (onSave) onSave();
-      
-      // Fechar após pequeno delay
-      setTimeout(() => {
-        onOpenChange(false);
-      }, 500);
+      onOpenChange(false);
       
     } catch (error) {
       console.error('Erro ao atualizar:', error);
