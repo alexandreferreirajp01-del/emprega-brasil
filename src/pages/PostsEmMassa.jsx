@@ -147,12 +147,17 @@ ${qrCodeLink ? `
           
           // VALIDAÇÃO: marcar status baseado em contato
           const hasContact = appLink && appLink.trim() !== '';
+
+          // Detectar PCD
+          const pcdText = ((job.title || '') + ' ' + (job.description || '')).toLowerCase();
+          const isPCDJob = /\bpcd\b|pessoa com defici[êe]ncia|portador.*defici[êe]ncia/.test(pcdText);
           
           allJobs.push({
             ...job,
             application_link: appLink,
             state: job.state || autoState || '',
             image_url: img.url,
+            is_pcd: isPCDJob,
             status: hasContact ? 'published' : 'pending_contact'
           });
         });
