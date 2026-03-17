@@ -128,23 +128,26 @@ export default function Jobs() {
   }, [refetchCategories]);
 
   const availableStates = React.useMemo(() => {
-    const states = new Set(allCities.map(c => c.state));
+    const states = new Set(jobs.map(j => j.state).filter(Boolean));
     const statesArray = Array.from(states);
-    const regionalOrder = ['PB', 'PE', 'RN', 'AL', 'CE', 'SE', 'BA', 'PI', 'MA'];
-    const orderedStates = [];
-    
-    regionalOrder.forEach(state => {
-      if (statesArray.includes(state)) {
-        orderedStates.push(state);
-      }
-    });
-    
-    statesArray.filter(s => !regionalOrder.includes(s)).sort().forEach(state => {
-      orderedStates.push(state);
-    });
-    
-    return orderedStates;
-  }, [allCities]);
+
+    const regionOrder = [
+      // Nordeste
+      'PB', 'PE', 'RN', 'AL', 'BA', 'SE', 'PI', 'CE', 'MA',
+      // Norte
+      'AM', 'PA', 'AC', 'RO', 'RR', 'AP', 'TO',
+      // Centro-Oeste
+      'GO', 'MT', 'MS', 'DF',
+      // Sul
+      'PR', 'SC', 'RS',
+      // Sudeste
+      'SP', 'RJ', 'MG', 'ES',
+    ];
+
+    const ordered = regionOrder.filter(s => statesArray.includes(s));
+    const remaining = statesArray.filter(s => !regionOrder.includes(s)).sort();
+    return [...ordered, ...remaining];
+  }, [jobs]);
 
   const availableCities = React.useMemo(() => {
     if (selectedState === 'all') {
