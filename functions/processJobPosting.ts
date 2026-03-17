@@ -57,6 +57,8 @@ ${imageUrl ? 'ANALISANDO IMAGEM E TEXTO' : 'ANALISANDO TEXTO'}`,
     });
 
     const jobTitles = identificationResult.job_titles || [];
+    // Cidades detectadas: se múltiplas, cria um post por cidade por cargo
+    const detectedCities = (identificationResult.cities || []).filter(Boolean);
     
     if (jobTitles.length === 0) {
       return Response.json({ 
