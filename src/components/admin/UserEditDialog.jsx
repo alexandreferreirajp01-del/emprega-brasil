@@ -182,6 +182,46 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
               </select>
             </div>
 
+            {/* Subtipo Premium */}
+            {formData.subscription_type === 'premium' && (
+              <div>
+                <Label>Subtipo Premium</Label>
+                <select
+                  value={formData.premium_tier || 'padrao'}
+                  onChange={(e) => handleChange('premium_tier', e.target.value)}
+                  className="w-full h-10 px-3 rounded-md border border-slate-200 mt-1"
+                >
+                  <option value="padrao">🟡 Premium Padrão — R$27,00/mês</option>
+                  <option value="select">🔵 Premium Select — R$9,90/mês</option>
+                  <option value="unlimited">🟣 Premium Unlimited — R$59,00/trimestral</option>
+                </select>
+              </div>
+            )}
+
+            {/* Datas do Premium */}
+            {formData.subscription_type === 'premium' && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Data de Ativação</Label>
+                  <Input
+                    type="date"
+                    value={formData.premium_activated_at || ''}
+                    onChange={(e) => handleChange('premium_activated_at', e.target.value ? new Date(e.target.value).toISOString() : '')}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label>Data de Expiração</Label>
+                  <Input
+                    type="date"
+                    value={formData.premium_expires_at || ''}
+                    onChange={(e) => handleChange('premium_expires_at', e.target.value ? new Date(e.target.value).toISOString() : '')}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Status de Acesso */}
             <div>
               <Label>Status de Acesso</Label>
