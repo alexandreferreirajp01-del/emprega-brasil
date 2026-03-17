@@ -53,19 +53,24 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
     setShowMasterDialog(false);
     setSaving(true);
     try {
+      // Usar ref para garantir dados mais recentes (evita closure stale)
+      const data = formDataRef.current;
+
       // Validação básica
-      if (!formData.full_name || formData.full_name.trim().length < 3) {
+      if (!data.full_name || data.full_name.trim().length < 3) {
         toast.error('Nome deve ter no mínimo 3 caracteres');
+        setSaving(false);
         return;
       }
 
-      if (formData.password && formData.password.length < 6) {
+      if (data.password && data.password.length < 6) {
         toast.error('Senha deve ter no mínimo 6 caracteres');
+        setSaving(false);
         return;
       }
 
       // Montar payload limpo
-      const payload = { ...formData };
+      const payload = { ...data };
       // Converter datas YYYY-MM-DD para ISO sem problema de timezone
       payload.premium_activated_at = payload.premium_activated_at
         ? `${payload.premium_activated_at}T12:00:00.000Z`
