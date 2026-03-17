@@ -186,6 +186,7 @@ IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas context
           job_function: job.job_function || '',
           is_premium: isPremium,
           is_featured: false,
+          is_pcd: isPCD,
           is_home_office: isPremium,
           status: statusFinal,
           contact_status: hasContact ? 'ok' : 'missing',
