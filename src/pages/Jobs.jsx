@@ -374,7 +374,7 @@ export default function Jobs() {
     }
   };
 
-  const featuredJobs = filteredJobs.filter(j => j.is_featured).slice(0, 3);
+  const featuredJobs = filteredJobs.filter(j => j.is_featured).slice(0, showHomeOfficeOnly ? 20 : 3);
   const regularJobs = filteredJobs.filter(j => !j.is_featured);
 
   return (
