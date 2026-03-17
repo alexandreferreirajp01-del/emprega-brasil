@@ -6,9 +6,8 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette, MapPin, Trash2, Image, AlertTriangle, Link as LinkIcon, TrendingUp, X
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette, MapPin, Trash2, Image, AlertTriangle, Link as LinkIcon, TrendingUp, X, Filter, Send, Megaphone, Wrench, Bell, UsersRound
 } from "lucide-react";
-// BookOpen já importado acima
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
@@ -19,81 +18,137 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+// ─── Submenus ─────────────────────────────────────────────────────────────────
+
+const submenuConfigs = {
+  sistema: {
+    title: 'Sistema & Aparência',
+    icon: Settings,
+    items: [
+      { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', icon: Settings, color: 'purple', page: 'GerenciarFuncoes', description: 'Habilitar/desabilitar funções do app', roles: ['admin', 'dono'] },
+      { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'purple', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'] },
+      { id: 'cores', name: 'Gerenciar Cores', icon: Palette, color: 'pink', page: 'GerenciarCores', description: 'Personalizar cores da aplicação', roles: ['admin', 'dono'] },
+      { id: 'popups', name: 'Gerenciar Popups', icon: AlertCircle, color: 'indigo', page: 'GerenciarPopups', description: 'Avisos e mensagens no app', roles: ['admin', 'dono'] },
+      { id: 'anuncios', name: 'Gerenciar Anúncios', icon: Image, color: 'orange', page: 'GerenciarAnuncios', description: 'Configurar anúncios do AdsTerra', roles: ['admin', 'dono'] },
+    ]
+  },
+  usuarios: {
+    title: 'Gestão de Usuários',
+    icon: Users,
+    items: [
+      { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'blue', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários', roles: ['admin', 'dono'] },
+      { id: 'acessos', name: 'Gerenciar Acessos', icon: Key, color: 'purple', page: 'GerenciarAcessos', description: 'Links de ativação únicos', roles: ['admin', 'dono'] },
+      { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores', roles: ['admin', 'dono'] },
+    ]
+  },
+  financeiro: {
+    title: 'Planos & Financeiro',
+    icon: CreditCard,
+    items: [
+      { id: 'precos', name: 'Gerenciar Preços', icon: CreditCard, color: 'emerald', page: 'GerenciarPrecos', description: 'Ajustar valores dos planos', roles: ['admin', 'dono'] },
+      { id: 'controle-financeiro', name: 'Controle Financeiro', icon: CreditCard, color: 'green', page: 'ControleFinanceiro', description: 'Gerenciar assinaturas, ciclos e receitas', roles: ['admin', 'dono'] },
+      { id: 'extrato', name: 'Extrato Financeiro', icon: FileText, color: 'emerald', page: 'Extrato', description: 'Lançamentos e relatório de extrato', roles: ['admin', 'dono'] },
+      { id: 'dashboard-financeiro', name: 'Dashboard Financeiro', icon: BarChart3, color: 'cyan', page: 'DashboardFinanceiro', description: 'Análise de receitas e despesas com gráficos', roles: ['admin', 'dono'] },
+    ]
+  },
+  vagas: {
+    title: 'Gestão de Vagas',
+    icon: Briefcase,
+    items: [
+      { id: 'gerenciar-vagas', name: 'Gerenciador de Vagas', icon: Briefcase, color: 'indigo', page: 'GerenciarVagas', description: 'Central única de controle e manutenção', roles: ['admin', 'dono'] },
+      { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Filter, color: 'slate', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros', roles: ['admin', 'dono'] },
+      { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego', permissionId: 'postar_vagas' },
+      { id: 'post-manual-texto-sub', name: 'Post Manual — Texto', icon: ClipboardList, color: 'amber', page: 'PostManualTexto', description: 'Cole texto de vaga e preencha manualmente', roles: ['admin', 'dono'] },
+      { id: 'post-manual', name: 'Vagas N8N (Revisão)', icon: PlusCircle, color: 'emerald', page: 'PostManual', description: 'Revisar e publicar vagas recebidas do N8N', roles: ['admin', 'dono'] },
+      { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA', permissionId: 'posts_massa' },
+      { id: 'posts-massa-txt', name: 'Posts em Massa TXT', icon: FileText, color: 'indigo', page: 'PostsEmMassaTXT', description: 'Upload arquivos TXT/DOC/PDF e extraia até 50 vagas', permissionId: 'posts_massa_txt' },
+      { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
+      { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'teal', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
+      { id: 'vagas-pendentes', name: 'Vagas Pendentes', icon: AlertTriangle, color: 'orange', page: 'VagasPendentes', description: 'Vagas aguardando revisão', roles: ['admin', 'dono'] },
+      { id: 'pendencias', name: 'Pendências de Contato', icon: AlertTriangle, color: 'red', page: 'Pendencias', description: 'Vagas sem contato que precisam revisão', roles: ['admin', 'dono'] },
+    ]
+  },
+  conteudo: {
+    title: 'Conteúdo & Comunidade',
+    icon: Newspaper,
+    items: [
+      { id: 'noticias', name: 'Gerenciar Notícias', icon: Newspaper, color: 'rose', page: 'GerenciarNoticias', description: 'Criar e gerenciar notícias', permissionId: 'noticias' },
+      { id: 'blog', name: 'Gerenciar Blog', icon: BookOpen, color: 'emerald', page: 'GerenciarBlog', description: 'Criar e gerenciar posts do blog', roles: ['admin', 'dono'] },
+      { id: 'feed', name: 'Feed da Comunidade', icon: MessageSquare, color: 'pink', page: 'GerenciarComunidade', description: 'Posts, comentários e chat', permissionId: 'gerenciar_comunidade' },
+      { id: 'grupos', name: 'Gerenciar Grupos', icon: UsersRound, color: 'green', page: 'GerenciarGrupos', description: 'WhatsApp, Telegram e Facebook', roles: ['admin', 'dono'] },
+      { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'orange', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos', permissionId: 'biblioteca_admin' },
+    ]
+  },
+  marketing: {
+    title: 'Marketing & Comunicação',
+    icon: Megaphone,
+    items: [
+      { id: 'central-promocoes', name: 'Central de Promoções', icon: Megaphone, color: 'purple', page: 'CentralPromocoes', description: 'Enviar campanhas de email e WhatsApp', roles: ['admin', 'dono'] },
+      { id: 'enviar-todos', name: 'Enviar para Todos', icon: Send, color: 'blue', page: 'EnviarParaTodos', description: 'Notificação + Push + Email em massa', roles: ['admin', 'dono'] },
+      { id: 'notificacoes-admin', name: 'Notificações de Admin', icon: Bell, color: 'amber', page: 'NotificacoesAdmin', description: 'Habilitar/desabilitar notificações do sininho', roles: ['admin', 'dono'] },
+      { id: 'links-especiais', name: 'Links Especiais', icon: LinkIcon, color: 'violet', page: 'GerenciarLinksEspeciais', description: 'Links que habilitam planos automaticamente', roles: ['admin', 'dono'] },
+      { id: 'gerenciar-prelander', name: 'Gerenciar Pre-lander', icon: Globe, color: 'blue', page: 'GerenciarPreLander', description: 'Configurar página de pré-acesso com link Encurta.net', roles: ['dono'] },
+    ]
+  },
+  automacao: {
+    title: 'Automação & Integrações',
+    icon: Plug,
+    items: [
+      { id: 'n8n-config', name: 'Configuração N8N', icon: Plug, color: 'emerald', page: 'N8NConfig', description: 'Conectar N8N para posts automáticos', roles: ['admin', 'dono'] },
+      { id: 'api-keys', name: 'API Keys & Secrets', icon: Shield, color: 'amber', page: 'GerenciarAPIKeys', description: 'Gerenciar chaves de API e secrets', roles: ['admin', 'dono'] },
+    ]
+  },
+  analytics: {
+    title: 'Analytics & IA',
+    icon: BarChart3,
+    items: [
+      { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
+      { id: 'agente-adsense', name: 'Agente AdSense', icon: Bot, color: 'amber', page: 'AgenteAdSense', description: 'Orienta sobre aprovação e otimização do Google AdSense', roles: ['admin', 'dono'] },
+    ]
+  },
+  recrutador: {
+    title: 'Área do Recrutador',
+    icon: Briefcase,
+    items: [
+      { id: 'recruiter-area', name: 'Painel do Recrutador', icon: Briefcase, color: 'blue', page: 'RecruiterArea', description: 'Ferramentas exclusivas para recrutadores', roles: ['recruiter', 'admin', 'dono'] },
+    ]
+  },
+  minhaarea: {
+    title: 'Minha Área',
+    icon: Heart,
+    items: [
+      { id: 'usuarios-mensagens', name: 'Central de Suporte', icon: MessageCircle, color: 'green', page: 'ResponderChat', description: 'Responder mensagens de suporte dos usuários', roles: ['admin', 'dono'] },
+      { id: 'favoritas', name: 'Favoritas', icon: Heart, color: 'rose', page: 'Favoritos', description: 'Vagas salvas como favoritas', permissionId: 'favoritas' },
+      { id: 'historico', name: 'Histórico', icon: History, color: 'violet', page: 'Historico', description: 'Vagas visualizadas recentemente', permissionId: 'historico' },
+      { id: 'curriculos', name: 'Ver Currículos', icon: FileText, color: 'teal', page: 'ProfessionalResume', description: 'Visualizar currículos de candidatos', permissionId: 'curriculos' },
+      { id: 'documentacao-app', name: 'Documentação do App', icon: BookOpen, color: 'slate', page: 'DocumentacaoApp', description: 'Documentação técnica em PDF, Word ou TXT', roles: ['admin', 'dono'] },
+    ]
+  },
+};
+
+// Menu principal — cada item abre um submenu
 const menuItems = [
-  // Sistema
-  { id: 'divider-sistema', type: 'divider', label: 'Sistema', roles: ['admin', 'dono'] },
-  { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', icon: Settings, color: 'purple', page: 'GerenciarFuncoes', description: 'Habilitar/desabilitar funções do app', roles: ['admin', 'dono'] },
-  { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'purple', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'], permissionId: 'permissoes' },
-  { id: 'cores', name: 'Gerenciar Cores', icon: Palette, color: 'pink', page: 'GerenciarCores', description: 'Personalizar cores da aplicação', roles: ['admin', 'dono'] },
-  { id: 'popups', name: 'Gerenciar Popups', icon: AlertCircle, color: 'indigo', page: 'GerenciarPopups', description: 'Avisos e mensagens no app', roles: ['admin', 'dono'] },
-  { id: 'anuncios', name: 'Gerenciar Anúncios', icon: Image, color: 'orange', page: 'GerenciarAnuncios', description: 'Configurar anúncios do AdsTerra', roles: ['admin', 'dono'] },
+  { id: 'divider-admin', type: 'divider', label: 'Administração', roles: ['admin', 'dono'] },
+  { id: 'sistema',     name: 'Sistema & Aparência',       icon: Settings,   color: 'purple',  submenuKey: 'sistema',    description: 'Funções, permissões, cores, popups e anúncios',   roles: ['admin', 'dono'] },
+  { id: 'usuarios',    name: 'Gestão de Usuários',         icon: Users,      color: 'blue',    submenuKey: 'usuarios',   description: 'Usuários, acessos e solicitações',                roles: ['admin', 'dono'] },
+  { id: 'financeiro',  name: 'Planos & Financeiro',        icon: CreditCard, color: 'emerald', submenuKey: 'financeiro', description: 'Preços, assinaturas, extrato e dashboard',         roles: ['admin', 'dono'] },
 
-  // Gestão de Usuários
-  { id: 'divider-usuarios', type: 'divider', label: 'Gestão de Usuários', roles: ['admin', 'dono'] },
-  { id: 'usuarios', name: 'Gerenciar Usuários', icon: Users, color: 'blue', page: 'GerenciarUsuarios', description: 'Aprovar e gerenciar usuários', roles: ['admin', 'dono'] },
-  { id: 'acessos', name: 'Gerenciar Acessos', icon: Key, color: 'purple', page: 'GerenciarAcessos', description: 'Links de ativação únicos', roles: ['admin', 'dono'] },
+  { id: 'divider-vagas', type: 'divider', label: 'Vagas & Conteúdo' },
+  { id: 'vagas',       name: 'Gestão de Vagas',            icon: Briefcase,  color: 'indigo',  submenuKey: 'vagas',      description: 'Publicar, revisar, filtros e vagas por IA',       roles: ['admin', 'dono'] },
+  { id: 'conteudo',    name: 'Conteúdo & Comunidade',      icon: Newspaper,  color: 'rose',    submenuKey: 'conteudo',   description: 'Notícias, blog, feed, grupos e biblioteca',        permissionId: 'noticias' },
 
-  // Planos e Pagamentos
-  { id: 'divider-planos', type: 'divider', label: 'Planos e Pagamentos', roles: ['admin', 'dono'] },
+  { id: 'divider-marketing', type: 'divider', label: 'Marketing & Automação', roles: ['admin', 'dono'] },
+  { id: 'marketing',   name: 'Marketing & Comunicação',    icon: Megaphone,  color: 'violet',  submenuKey: 'marketing',  description: 'Promoções, notificações, push e links especiais', roles: ['admin', 'dono'] },
+  { id: 'automacao',   name: 'Automação & Integrações',    icon: Plug,       color: 'teal',    submenuKey: 'automacao',  description: 'N8N, API Keys e secrets',                         roles: ['admin', 'dono'] },
 
-  { id: 'precos', name: 'Gerenciar Preços', icon: CreditCard, color: 'emerald', page: 'GerenciarPrecos', description: 'Ajustar valores dos planos', roles: ['admin', 'dono'] },
-  { id: 'controle-financeiro', name: 'Controle Financeiro', icon: CreditCard, color: 'green', page: 'ControleFinanceiro', description: 'Gerenciar assinaturas, ciclos e receitas', roles: ['admin', 'dono'] },
-  { id: 'extrato', name: 'Extrato Financeiro', icon: FileText, color: 'emerald', page: 'Extrato', description: 'Lançamentos e relatório de extrato', roles: ['admin', 'dono'] },
-  { id: 'dashboard-financeiro', name: 'Dashboard Financeiro', icon: BarChart3, color: 'cyan', page: 'DashboardFinanceiro', description: 'Análise de receitas e despesas com gráficos', roles: ['admin', 'dono'] },
+  { id: 'divider-dados', type: 'divider', label: 'Dados & IA', roles: ['admin', 'dono'] },
+  { id: 'analytics',   name: 'Analytics & IA',             icon: BarChart3,  color: 'purple',  submenuKey: 'analytics',  description: 'Métricas em tempo real e agente AdSense',         roles: ['admin', 'dono'] },
 
-  // Gestão de Vagas - Botão com Submenu
-  { id: 'divider-vagas', type: 'divider', label: 'Gestão de Vagas' },
-  { id: 'gestao-vagas-menu', name: 'Gestão de Vagas', icon: Briefcase, color: 'indigo', description: 'Central única de controle e manutenção', isSubmenu: true },
-  { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'slate', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros', roles: ['admin', 'dono'] },
-
-  // Conteúdo
-  { id: 'divider-conteudo', type: 'divider', label: 'Conteúdo' },
-  { id: 'noticias', name: 'Notícias', icon: Newspaper, color: 'rose', page: 'GerenciarNoticias', description: 'Criar e gerenciar notícias', permissionId: 'noticias' },
-  { id: 'blog', name: 'Gerenciar Blog', icon: BookOpen, color: 'emerald', page: 'GerenciarBlog', description: 'Criar e gerenciar posts do blog', roles: ['admin', 'dono'] },
-  { id: 'grupos', name: 'Gerenciar Grupos', icon: Users, color: 'green', page: 'GerenciarGrupos', description: 'Adicionar, editar e desativar grupos de WhatsApp, Telegram e Facebook', roles: ['admin', 'dono'] },
-  { id: 'feed', name: 'Feed', icon: MessageSquare, color: 'pink', page: 'GerenciarComunidade', description: 'Posts, comentários e chat', permissionId: 'gerenciar_comunidade' },
-  { id: 'biblioteca', name: 'Biblioteca', icon: BookOpen, color: 'orange', page: 'BibliotecaAdmin', description: 'Gerenciar materiais e recursos', permissionId: 'biblioteca_admin' },
-
-  // Pre-lander
-  { id: 'divider-prelander', type: 'divider', label: 'Pre-lander / Links Monetizados', roles: ['dono'] },
-  { id: 'gerenciar-prelander', name: 'Gerenciar Pre-lander', icon: LinkIcon, color: 'blue', page: 'GerenciarPreLander', description: 'Configurar página de pré-acesso com link Encurta.net', roles: ['dono'] },
-
-  // Marketing e Comunicação
-  { id: 'divider-marketing', type: 'divider', label: 'Marketing e Comunicação', roles: ['admin', 'dono'] },
-  { id: 'central-promocoes', name: 'Central de Promoções', icon: MessageSquare, color: 'purple', page: 'CentralPromocoes', description: 'Enviar campanhas de email e WhatsApp', roles: ['admin', 'dono'] },
-  { id: 'enviar-todos', name: 'Enviar para Todos', icon: Users, color: 'purple', page: 'EnviarParaTodos', description: 'Notificação + Push + Email em massa', roles: ['admin', 'dono'] },
-  { id: 'notificacoes-admin', name: 'Notificações de Admin', icon: AlertCircle, color: 'amber', page: 'NotificacoesAdmin', description: 'Habilitar/desabilitar notificações do sininho', roles: ['admin', 'dono'] },
-  { id: 'links-especiais', name: 'Links Especiais', icon: LinkIcon, color: 'purple', page: 'GerenciarLinksEspeciais', description: 'Gerencie links que habilitam planos automaticamente', roles: ['admin', 'dono'] },
-
-  // Automação & Integrações
-  { id: 'divider-automacao', type: 'divider', label: 'Automação & Integrações', roles: ['admin', 'dono'] },
-  { id: 'api-keys', name: 'API Keys & Secrets', icon: Shield, color: 'amber', page: 'GerenciarAPIKeys', description: 'Gerenciar chaves de API e secrets', roles: ['admin', 'dono'] },
-  { id: 'n8n-config', name: 'Configuração N8N', icon: Plug, color: 'emerald', page: 'N8NConfig', description: 'Conectar N8N para posts automáticos', roles: ['admin', 'dono'] },
-  { id: 'pendencias', name: 'Pendências de Vagas', icon: AlertTriangle, color: 'orange', page: 'Pendencias', description: 'Vagas sem contato que precisam revisão', roles: ['admin', 'dono'] },
-  
-  // Área do Recrutador
   { id: 'divider-recrutador', type: 'divider', label: 'Área do Recrutador', roles: ['recruiter', 'admin', 'dono'] },
-  { id: 'recruiter-area', name: 'Painel do Recrutador', icon: Briefcase, color: 'blue', page: 'RecruiterArea', description: 'Ferramentas exclusivas para recrutadores', roles: ['recruiter', 'admin', 'dono'], permissionId: 'recruiter_area' },
-  { id: 'solicitacoes', name: 'Solicitações', icon: ClipboardList, color: 'orange', page: 'GerenciarSolicitacoes', description: 'Aprovar conteúdos de recrutadores', roles: ['admin', 'dono'], permissionId: 'solicitacoes' },
-  
-  // Minha Área
-  { id: 'divider-minha-area', type: 'divider', label: 'Minha Área' },
-  { id: 'usuarios-mensagens', name: 'Central de Suporte', icon: MessageCircle, color: 'green', page: 'ResponderChat', description: 'Responder mensagens de suporte dos usuários', roles: ['admin', 'dono'] },
-  { id: 'favoritas', name: 'Favoritas', icon: Heart, color: 'rose', page: 'Favoritos', description: 'Vagas salvas como favoritas', permissionId: 'favoritas' },
-  { id: 'historico', name: 'Histórico', icon: History, color: 'violet', page: 'Historico', description: 'Vagas visualizadas recentemente', permissionId: 'historico' },
-  { id: 'curriculos', name: 'Ver Currículos', icon: FileText, color: 'teal', page: 'ProfessionalResume', description: 'Visualizar currículos de candidatos', permissionId: 'curriculos' },
-  
-  // Analytics
-  { id: 'divider-analytics', type: 'divider', label: 'Analytics e Monitoramento', roles: ['admin', 'dono'] },
-  { id: 'analytics-app', name: 'Analytics do App', icon: BarChart3, color: 'purple', page: 'AnalyticsPage', description: 'Análises em tempo real', permissionId: 'analytics' },
+  { id: 'recrutador',  name: 'Área do Recrutador',         icon: Briefcase,  color: 'blue',    submenuKey: 'recrutador', description: 'Painel exclusivo para recrutadores',              roles: ['recruiter', 'admin', 'dono'] },
 
-  // Agentes de IA
-  { id: 'divider-agentes', type: 'divider', label: 'Agentes de IA', roles: ['admin', 'dono'] },
-  { id: 'agente-adsense', name: 'Agente AdSense', icon: Bot, color: 'amber', page: 'AgenteAdSense', description: 'Analisa o site e orienta sobre aprovação e otimização do Google AdSense', roles: ['admin', 'dono'] },
-
-  // Documentação
-  { id: 'divider-docs', type: 'divider', label: 'Documentação', roles: ['admin', 'dono'] },
-  { id: 'documentacao-app', name: 'Documentação do Aplicativo', icon: BookOpen, color: 'slate', page: 'DocumentacaoApp', description: 'Baixar documentação técnica e prompt de recriação em PDF, Word ou TXT', roles: ['admin', 'dono'] },
+  { id: 'divider-minhaarea', type: 'divider', label: 'Minha Área' },
+  { id: 'minhaarea',   name: 'Minha Área',                 icon: Heart,      color: 'rose',    submenuKey: 'minhaarea',  description: 'Suporte, favoritas, histórico e documentação' },
 ];
 
 const colorClasses = {
@@ -112,47 +167,82 @@ const colorClasses = {
   teal: 'bg-gradient-to-br from-teal-50 to-teal-100 text-teal-600',
   lime: 'bg-gradient-to-br from-lime-50 to-lime-100 text-lime-600',
   emerald: 'bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-600',
+  violet: 'bg-gradient-to-br from-violet-50 to-violet-100 text-violet-600',
 };
 
-const vagasSubmenuItems = [
-  { id: 'gerenciar-vagas', name: 'Gerenciador de Vagas', icon: Briefcase, color: 'indigo', page: 'GerenciarVagas', description: 'Central única de controle e manutenção', roles: ['admin', 'dono'] },
-  { id: 'post-manual', name: 'Vagas N8N (Revisão)', icon: PlusCircle, color: 'emerald', page: 'PostManual', description: 'Revisar e publicar vagas recebidas do N8N', roles: ['admin', 'dono'] },
-  { id: 'post-manual-texto-sub', name: 'Post Manual — Texto', icon: ClipboardList, color: 'amber', page: 'PostManualTexto', description: 'Cole texto de vaga e preencha manualmente', roles: ['admin', 'dono'] },
-  { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'slate', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros', permissionId: 'gerenciador_filtros' },
-  { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego', permissionId: 'postar_vagas' },
-  { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA', permissionId: 'posts_massa' },
-  { id: 'posts-massa-txt', name: 'Posts em Massa TXT', icon: FileText, color: 'indigo', page: 'PostsEmMassaTXT', description: 'Upload arquivos TXT/DOC/PDF e extraia até 50 vagas', permissionId: 'posts_massa_txt' },
-  { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
-  { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'teal', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
-];
+// ─── Componente Submenu Dialog ────────────────────────────────────────────────
+function SubmenuDialog({ open, onClose, submenuKey, user }) {
+  const config = submenuConfigs[submenuKey];
+  if (!config) return null;
 
+  const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || user?.subscription_type === 'dono';
+  const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
+  const isRecruiter = user?.subscription_type === 'recruiter';
+
+  const visibleItems = config.items.filter(item => {
+    if (item.roles) {
+      return item.roles.some(r => {
+        if (r === 'dono') return isDono;
+        if (r === 'admin') return isAdmin;
+        if (r === 'recruiter') return isRecruiter;
+        return false;
+      });
+    }
+    if (!isDono && !isAdmin && item.permissionId) {
+      const perms = user?.permissions || {};
+      if (perms[item.permissionId] === false) return false;
+    }
+    return true;
+  });
+
+  const TitleIcon = config.icon;
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold flex items-center gap-2">
+            <TitleIcon className="w-6 h-6" />
+            {config.title}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="mt-4 space-y-1">
+          {visibleItems.map((item, index) => {
+            const Icon = item.icon;
+            const isLast = index === visibleItems.length - 1;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onClose();
+                  window.location.href = createPageUrl(item.page);
+                }}
+                className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left rounded-xl ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+              </button>
+            );
+          })}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Página Principal ─────────────────────────────────────────────────────────
 export default function Configuracoes() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [migrating, setMigrating] = useState(false);
-  const [migrationResult, setMigrationResult] = useState(null);
-  const [showVagasSubmenu, setShowVagasSubmenu] = useState(false);
-  const [items, setItems] = useState(() => {
-    // Sempre usar menuItems atualizados (prioriza código sobre cache)
-    // Tenta mesclar nomes customizados do localStorage, mas mantém estrutura atual
-    try {
-      const savedSettings = localStorage.getItem('app_settings_v2');
-      if (savedSettings) {
-        const parsed = JSON.parse(savedSettings);
-        return menuItems.map(item => {
-          const saved = parsed.find(s => s.id === item.id);
-          if (saved && saved.name) {
-            return { ...item, name: saved.name, description: saved.description || item.description };
-          }
-          return item;
-        });
-      }
-    } catch (e) {
-      console.warn('Erro ao carregar configurações:', e);
-    }
-    return menuItems;
-  });
+  const [activeSubmenu, setActiveSubmenu] = useState(null); // submenuKey string
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -178,60 +268,24 @@ export default function Configuracoes() {
     checkAuth();
   }, []);
 
-
-
-  const handleItemClick = async (item) => {
-    if (item.isSubmenu) {
-      setShowVagasSubmenu(true);
+  const handleItemClick = (item) => {
+    if (item.submenuKey) {
+      setActiveSubmenu(item.submenuKey);
       return;
     }
-    
-    if (item.action === 'updateJobs') {
-      if (!confirm('Atualizar cidade/UF de todas as vagas antigas? Pode levar alguns minutos.')) return;
-      
-      setMigrating(true);
-      try {
-        const response = await base44.functions.invoke('updateJobsLocation');
-        alert(response.data.message || 'Atualização concluída!');
-      } catch (error) {
-        alert('Erro: ' + error.message);
-      } finally {
-        setMigrating(false);
-      }
-    } else if (item.action === 'migrate') {
-      if (!confirm('Deseja migrar todas as notificações antigas? Isso pode levar alguns segundos.')) return;
-      
-      setMigrating(true);
-      setMigrationResult(null);
-      
-      try {
-        const response = await base44.functions.invoke('migrateNotifications');
-        setMigrationResult(response.data);
-        alert(response.data.message || 'Migração concluída com sucesso!');
-      } catch (error) {
-        alert('Erro na migração: ' + error.message);
-      } finally {
-        setMigrating(false);
-      }
-    } else if (item.action === 'deleteNoContact') {
-      if (!confirm('ATENÇÃO: Isso irá excluir TODAS as vagas sem informação de contato. Deseja continuar?')) return;
-      
-      setMigrating(true);
-      try {
-        const response = await base44.functions.invoke('deleteJobsWithoutContact');
-        alert(response.data.message || 'Exclusão concluída!');
-        console.log('Resultado:', response.data);
-      } catch (error) {
-        alert('Erro: ' + error.message);
-      } finally {
-        setMigrating(false);
-      }
-    } else if (item.page) {
+    if (item.page) {
       window.location.href = createPageUrl(item.page);
-    } else if (item.external) {
-      window.open(item.externalUrl || 'https://app.base44.com', '_blank');
     }
   };
+
+  // Pesquisa global — busca em todos os submenus
+  const allSearchableItems = Object.values(submenuConfigs).flatMap(c => c.items);
+  const searchResults = searchTerm.trim()
+    ? allSearchableItems.filter(item => {
+        const s = searchTerm.toLowerCase();
+        return item.name?.toLowerCase().includes(s) || item.description?.toLowerCase().includes(s);
+      })
+    : [];
 
   if (loading) {
     return (
@@ -240,6 +294,26 @@ export default function Configuracoes() {
       </div>
     );
   }
+
+  const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || user?.subscription_type === 'dono';
+  const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
+  const isRecruiter = user?.subscription_type === 'recruiter';
+
+  const isItemVisible = (item) => {
+    if (item.roles) {
+      return item.roles.some(r => {
+        if (r === 'dono') return isDono;
+        if (r === 'admin') return isAdmin;
+        if (r === 'recruiter') return isRecruiter;
+        return false;
+      });
+    }
+    if (!isDono && !isAdmin && item.permissionId) {
+      const perms = user?.permissions || {};
+      if (perms[item.permissionId] === false) return false;
+    }
+    return true;
+  };
 
   return (
     <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20 transition-colors">
@@ -251,7 +325,7 @@ export default function Configuracoes() {
             </Button>
           </Link>
           <h1 className="text-2xl font-bold text-white">Configurações Gerais</h1>
-          <p className="text-white/70 text-sm">Gerencie seu app e acesse o painel Base44</p>
+          <p className="text-white/70 text-sm">Gerencie seu app — selecione uma categoria</p>
         </div>
       </div>
 
@@ -263,168 +337,106 @@ export default function Configuracoes() {
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar configuração..."
+              placeholder="Buscar em todas as configurações..."
               className="pl-11 h-12 rounded-xl border-slate-200 text-base"
             />
+            {searchTerm && (
+              <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2">
+                <X className="w-5 h-5 text-slate-400 hover:text-slate-600" />
+              </button>
+            )}
           </div>
         </div>
 
-        <Card className="rounded-2xl overflow-hidden dark:bg-slate-800 transition-colors">
-          <CardContent className="p-0">
-            {items.filter(item => {
-              // Filtrar por busca
-              if (!searchTerm) return true;
-              if (item.type === 'divider') return false;
-              const search = searchTerm.toLowerCase();
-              return item.name?.toLowerCase().includes(search) || 
-                     item.description?.toLowerCase().includes(search);
-            }).map((item, index) => {
-              // Verificar permissão de acesso
-              const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || 
-                             user?.subscription_type === 'dono';
-              const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
-              const isRecruiter = user?.subscription_type === 'recruiter';
-              
-              // Dono e Admin têm acesso total
-              if (!isDono && !isAdmin) {
-                // Verificar permissões do usuário
-                if (item.permissionId) {
-                  const userPermissions = user?.permissions || {};
-                  // Se a permissão não está definida ou é false, esconder
-                  if (userPermissions[item.permissionId] === false) {
-                    return null;
-                  }
+        {/* Resultados da Pesquisa */}
+        {searchTerm.trim() ? (
+          searchResults.length > 0 ? (
+            <Card className="rounded-2xl overflow-hidden dark:bg-slate-800 transition-colors">
+              <CardContent className="p-0">
+                {searchResults.filter(isItemVisible).map((item, index, arr) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { window.location.href = createPageUrl(item.page); }}
+                      className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left ${index < arr.length - 1 ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}
+                    >
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                    </button>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="text-center py-8 text-slate-400">
+              <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p>Nenhuma configuração encontrada para "{searchTerm}"</p>
+            </div>
+          )
+        ) : (
+          /* Menu principal por categoria */
+          <Card className="rounded-2xl overflow-hidden dark:bg-slate-800 transition-colors">
+            <CardContent className="p-0">
+              {menuItems.map((item, index) => {
+                if (!isItemVisible(item)) return null;
+
+                if (item.type === 'divider') {
+                  return (
+                    <div key={item.id} className="px-4 py-3 bg-slate-50 dark:bg-slate-700/50 border-t border-b dark:border-slate-600 transition-colors">
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{item.label}</p>
+                    </div>
+                  );
                 }
-              }
-              
-              if (item.roles) {
-                const hasAccess = item.roles.some(role => {
-                  if (role === 'dono') return isDono;
-                  if (role === 'admin') return isAdmin;
-                  if (role === 'recruiter') return isRecruiter;
-                  return false;
-                });
-                if (!hasAccess) return null;
-              }
-              
-              if (item.type === 'divider') {
-                // Não renderizar dividers se houver busca ativa
-                if (searchTerm) return null;
+
+                const Icon = item.icon;
+                const submenuConfig = item.submenuKey ? submenuConfigs[item.submenuKey] : null;
+                const itemCount = submenuConfig
+                  ? submenuConfig.items.filter(isItemVisible).length
+                  : null;
+
                 return (
-                  <div key={item.id} className="px-4 py-3 bg-slate-50 dark:bg-slate-700/50 border-t border-b dark:border-slate-600 transition-colors">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{item.label}</p>
-                  </div>
+                  <button
+                    key={item.id}
+                    onClick={() => handleItemClick(item)}
+                    className="w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left border-b border-slate-100 dark:border-slate-700 last:border-0"
+                  >
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {itemCount !== null && (
+                        <span className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-full px-2 py-0.5 font-medium">
+                          {itemCount}
+                        </span>
+                      )}
+                      <ChevronRight className="w-5 h-5 text-slate-400" />
+                    </div>
+                  </button>
                 );
-              }
-
-              const Icon = item.icon;
-              const isLast = index === menuItems.length - 1;
-
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleItemClick(item)}
-                  disabled={migrating && item.action === 'migrate'}
-                  className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''} ${migrating && item.action === 'migrate' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
-                  </div>
-                  {migrating && item.action === 'migrate' ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-400 flex-shrink-0" />
-                  ) : item.external ? (
-                    <ExternalLink className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  ) : (
-                    <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                  )}
-                </button>
-              );
-            })}
-          </CardContent>
-        </Card>
-
-        {searchTerm && items.filter(item => {
-          if (item.type === 'divider') return false;
-          const search = searchTerm.toLowerCase();
-          return item.name?.toLowerCase().includes(search) || 
-                 item.description?.toLowerCase().includes(search);
-        }).length === 0 && (
-          <div className="text-center py-8 text-slate-400">
-            <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Nenhuma configuração encontrada</p>
-          </div>
+              })}
+            </CardContent>
+          </Card>
         )}
-
-        <p className="text-center text-xs text-slate-400 mt-4">
-          Itens com <ExternalLink className="w-3 h-3 inline" /> abrem o painel Base44
-        </p>
       </div>
 
-      {/* Submenu de Gestão de Vagas */}
-      <Dialog open={showVagasSubmenu} onOpenChange={setShowVagasSubmenu}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <Briefcase className="w-6 h-6" />
-              Gestão de Vagas
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-2 mt-4">
-            {vagasSubmenuItems.map((item, index) => {
-              // Verificar permissões
-              const isDono = user?.email === 'alexandreferreirajp01@gmail.com' || 
-                             user?.subscription_type === 'dono';
-              const isAdmin = user?.role === 'admin' || user?.subscription_type === 'admin';
-              
-              if (!isDono && !isAdmin) {
-                if (item.permissionId) {
-                  const userPermissions = user?.permissions || {};
-                  if (userPermissions[item.permissionId] === false) {
-                    return null;
-                  }
-                }
-              }
-              
-              if (item.roles) {
-                const hasAccess = item.roles.some(role => {
-                  if (role === 'dono') return isDono;
-                  if (role === 'admin') return isAdmin;
-                  return false;
-                });
-                if (!hasAccess) return null;
-              }
-              
-              const Icon = item.icon;
-              const isLast = index === vagasSubmenuItems.length - 1;
-              
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setShowVagasSubmenu(false);
-                    window.location.href = createPageUrl(item.page);
-                  }}
-                  className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left rounded-xl ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                </button>
-              );
-            })}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Submenu Dialog genérico */}
+      <SubmenuDialog
+        open={!!activeSubmenu}
+        onClose={() => setActiveSubmenu(null)}
+        submenuKey={activeSubmenu}
+        user={user}
+      />
     </div>
   );
 }
