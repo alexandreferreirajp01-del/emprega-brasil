@@ -96,6 +96,20 @@ IMPORTANTE:
     for (const vaga of vagasExtraidas) {
       try {
         // Validar se tem contato
+        // Normalizar link de WhatsApp se necessário
+        if (!vaga.link_candidatura && (vaga.contact_whatsapp || vaga.contact_phone)) {
+          const rawPhone = (vaga.contact_whatsapp || vaga.contact_phone).replace(/\D/g, '');
+          let phone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
+          if (phone.length === 12) {
+            const ddd = phone.substring(2, 4);
+            const num = phone.substring(4);
+            if (/^[6-9]/.test(num)) phone = `55${ddd}9${num}`;
+          }
+          if (phone.length >= 12) {
+            vaga.link_candidatura = `https://wa.me/${phone}`;
+          }
+        }
+
         const hasContact = !!(
           vaga.link_candidatura || 
           vaga.contact_phone || 
