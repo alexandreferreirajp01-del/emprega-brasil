@@ -497,8 +497,8 @@ export default function GerenciarUsuarios() {
                             <p className="font-medium text-sm truncate">
                               {u.full_name || 'Sem nome'}
                             </p>
-                            <Badge className={`text-[10px] px-1.5 py-0 ${getTypeBadgeClass(u.subscription_type)}`}>
-                              {u.subscription_type || 'basic'}
+                            <Badge className={`text-[10px] px-1.5 py-0 ${getTypeBadgeClass(u.subscription_type, u.premium_tier)}`}>
+                              {getTypeLabel(u.subscription_type, u.premium_tier)}
                             </Badge>
                             {u.access_status === 'blocked' && (
                               <Badge className="text-[10px] px-1.5 py-0 bg-red-100 text-red-600">
