@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ const MASTER_PASSWORD = "Vagas2026#";
 
 export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
   const [formData, setFormData] = useState({});
+  const formDataRef = useRef({});
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showMasterDialog, setShowMasterDialog] = useState(false);
