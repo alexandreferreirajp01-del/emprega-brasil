@@ -591,13 +591,6 @@ export default function Jobs() {
                       <Link to={canView ? createPageUrl('JobDetail') + `?id=${job.id}` : '#'}>
                         <div className="group flex gap-3">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              {job.is_premium && (
-                                <Badge className="bg-purple-100 text-purple-700 border-0 text-xs rounded-sm px-2 py-0.5">
-                                  Premium
-                                </Badge>
-                              )}
-                            </div>
                             <h3 className="font-bold text-slate-900 group-hover:text-[#1E6FB6] transition-colors text-base line-clamp-2 mb-1">
                               {job.title}
                             </h3>
