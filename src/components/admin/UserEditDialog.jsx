@@ -59,9 +59,19 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
 
       // Montar payload limpo
       const payload = { ...formData };
-      // Garantir que datas vazias sejam null
-      if (!payload.premium_activated_at) payload.premium_activated_at = null;
-      if (!payload.premium_expires_at) payload.premium_expires_at = null;
+      // Converter datas YYYY-MM-DD para ISO sem problema de timezone
+      payload.premium_activated_at = payload.premium_activated_at
+        ? `${payload.premium_activated_at}T12:00:00.000Z`
+        : null;
+      payload.premium_expires_at = payload.premium_expires_at
+        ? `${payload.premium_expires_at}T12:00:00.000Z`
+        : null;
+      // Se não é premium, limpar tier
+      if (payload.subscription_type !== 'premium') {
+        payload.premium_tier = null;
+        payload.premium_activated_at = null;
+        payload.premium_expires_at = null;
+      }
       // Remover senha se vazia
       if (!payload.password) delete payload.password;
 
