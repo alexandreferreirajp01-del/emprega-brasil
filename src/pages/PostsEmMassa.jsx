@@ -119,12 +119,38 @@ ${qrCodeLink ? `
         (result.jobs || []).forEach(job => {
           // Fallback: auto-completar estado se não veio da IA
           const autoState = (job.city && !job.state) ? getStateFromCity(job.city) : null;
+
+          // Normalizar WhatsApp: se application_link parece número ou wa.me malformado
+          let appLink = job.application_link || '';
+          if (!appLink && job.contact_phone) {
+            const rawPhone = job.contact_phone.replace(/\D/g, '');
+            let phone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
+            if (phone.length === 12) {
+              const ddd = phone.substring(2, 4);
+              const num = phone.substring(4);
+              if (/^[6-9]/.test(num)) phone = `55${ddd}9${num}`;
+            }
+            if (phone.length >= 12) appLink = `https://wa.me/${phone}`;
+          } else if (appLink && !appLink.startsWith('http') && !appLink.startsWith('mailto:')) {
+            // pode ser número solto
+            const digits = appLink.replace(/\D/g, '');
+            if (digits.length >= 10) {
+              let phone = digits.startsWith('55') ? digits : `55${digits}`;
+              if (phone.length === 12) {
+                const ddd = phone.substring(2, 4);
+                const num = phone.substring(4);
+                if (/^[6-9]/.test(num)) phone = `55${ddd}9${num}`;
+              }
+              appLink = `https://wa.me/${phone}`;
+            }
+          }
           
           // VALIDAÇÃO: marcar status baseado em contato
-          const hasContact = job.application_link && job.application_link.trim() !== '';
+          const hasContact = appLink && appLink.trim() !== '';
           
           allJobs.push({
             ...job,
+            application_link: appLink,
             state: job.state || autoState || '',
             image_url: img.url,
             status: hasContact ? 'published' : 'pending_contact'
