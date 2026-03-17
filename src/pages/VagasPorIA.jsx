@@ -89,7 +89,8 @@ ${rawText}`,
             description: { type: "string", description: "Descrição completa" },
             salary_range: { type: "string", description: "APENAS valor monetário" },
             contact_phone: { type: "string", description: "Telefone de contato" },
-            application_link: { type: "string", description: "Link de inscrição" }
+            application_link: { type: "string", description: "Link de inscrição" },
+            is_pcd: { type: "boolean", description: "True se mencionar PCD, pessoa com deficiência ou inclusão" }
           }
         }
       });
