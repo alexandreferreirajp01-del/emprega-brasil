@@ -235,7 +235,7 @@ export default function Jobs() {
       setIsLoading(true);
       
       const [jobsData, viewsData, favoritesData] = await Promise.all([
-        safeFetch(() => base44.entities.Job.list('-created_date', 500)),
+        safeFetch(() => base44.entities.Job.list('-created_date', 1000)),
         safeFetch(() => base44.entities.JobView.list('-created_date', 2000)),
         user ? safeFetch(() => base44.entities.FavoriteJob.list('-created_date', 500)) : Promise.resolve([])
       ]);
