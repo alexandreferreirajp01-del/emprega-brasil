@@ -329,15 +329,34 @@ ${imageUrl ? 'IMAGEM:' : 'TEXTO:'}`,
       });
     }
 
+    // Expandir por múltiplas cidades se detectadas
+    let expandedJobs = finalJobs;
+    if (detectedCities.length > 1) {
+      expandedJobs = [];
+      for (const job of finalJobs) {
+        for (const cityEntry of detectedCities) {
+          const [cityName, cityState] = cityEntry.split('|');
+          expandedJobs.push({
+            ...job,
+            city: cityName?.trim() || job.city,
+            state: cityState?.trim() || job.state,
+            title: job.title,
+          });
+        }
+      }
+    }
+
     return Response.json({
       success: true,
-      total_jobs: finalJobs.length,
-      jobs: finalJobs,
+      total_jobs: expandedJobs.length,
+      jobs: expandedJobs,
+      multiple_cities: detectedCities.length > 1,
+      cities_detected: detectedCities,
       processing_summary: {
         identified_titles: jobTitles,
         general_info_extracted: true,
         specific_info_extracted: true,
-        all_jobs_have_description: finalJobs.every(j => j.description?.length > 50)
+        all_jobs_have_description: expandedJobs.every(j => j.description?.length > 50)
       }
     });
 
