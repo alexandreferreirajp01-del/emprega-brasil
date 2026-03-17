@@ -159,6 +159,7 @@ IMPORTANTE:
           image_url: imagem_url || '',
           is_premium: isPremium,
           is_featured: false,
+          is_pcd: isPCD,
           is_home_office: isPremium,
           work_mode: isPremium ? 'Remoto' : 'Presencial',
           published_at: statusFinal === 'ativa' ? new Date().toISOString() : null,

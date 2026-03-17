@@ -142,6 +142,7 @@ IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas context
         ).toLowerCase();
         const isHomeOfficeContent = /home\s*office|#home|híbrido|hibrido|#híbrido|#hibrido|remoto|#remoto|trabalhar\s*em\s*casa|trabalhe\s*em\s*casa/.test(textoCompleto);
         const isPremium = isHomeOfficeContent || job.work_mode === 'Remoto' || job.work_mode === 'Híbrido';
+        const isPCD = /\bpcd\b|pessoa com defici[êe]ncia|portador.*defici[êe]ncia|inclus[aã]o.*defici[êe]ncia/.test(textoCompleto);
 
         // ✅ CONDIÇÃO 2: detectar ausência de localização → status pending_location
         const hasLocation = !!(
