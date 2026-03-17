@@ -304,8 +304,10 @@ export default function Jobs() {
       job.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.job_function?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesState = selectedState === 'all' || job.state === selectedState;
-    const matchesCity = selectedCity === 'all' || job.city === selectedCity;
+    const matchesState = selectedState === 'all' || 
+      (selectedState === '__blank__' ? !job.state : job.state === selectedState);
+    const matchesCity = selectedCity === 'all' || 
+      (selectedCity === '__blank__' ? !job.city : job.city === selectedCity);
     
     const matchesType = selectedType === 'all' || 
       job.job_type === selectedType ||
