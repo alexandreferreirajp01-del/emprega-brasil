@@ -200,6 +200,7 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
                   onChange={(e) => handleChange('premium_tier', e.target.value)}
                   className="w-full h-10 px-3 rounded-md border border-slate-200 mt-1"
                 >
+                  <option value="">— Selecione o tipo —</option>
                   <option value="padrao">🟡 Premium Padrão — R$27,00/mês</option>
                   <option value="select">🔵 Premium Select — R$9,90/mês</option>
                   <option value="unlimited">🟣 Premium Unlimited — R$59,00/trimestral</option>
