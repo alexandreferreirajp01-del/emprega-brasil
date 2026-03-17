@@ -422,13 +422,16 @@ export default function GerenciarUsuarios() {
                 </SelectContent>
               </Select>
               <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setCurrentPage(1); }}>
-                <SelectTrigger className="w-32 h-9 rounded-lg">
+                <SelectTrigger className="w-40 h-9 rounded-lg">
                   <SelectValue placeholder="Tipo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="basic">Básico</SelectItem>
-                  <SelectItem value="premium">Premium</SelectItem>
+                  <SelectItem value="premium">🟡 Premium (todos)</SelectItem>
+                  <SelectItem value="premium_padrao">🟡 Premium Padrão</SelectItem>
+                  <SelectItem value="premium_select">🔵 Premium Select</SelectItem>
+                  <SelectItem value="premium_unlimited">🟣 Premium Unlimited</SelectItem>
                   <SelectItem value="recruiter">Recrutador</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="dono">Dono</SelectItem>
