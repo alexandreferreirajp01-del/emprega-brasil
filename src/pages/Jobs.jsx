@@ -328,8 +328,15 @@ export default function Jobs() {
       (job.title || '').toLowerCase().includes('remoto');
     const matchesHomeOffice = !showHomeOfficeOnly || isRemoteJob;
     const matchesCompany = selectedCompany === 'all' || job.company === selectedCompany;
+    const isPCDJob = job.is_pcd === true ||
+      (job.job_type === 'PCD') ||
+      (job.title || '').toLowerCase().includes('pcd') ||
+      (job.title || '').toLowerCase().includes('pessoa com deficiência') ||
+      (job.description || '').toLowerCase().includes('pcd') ||
+      (job.description || '').toLowerCase().includes('pessoa com deficiência');
+    const matchesPCD = !showPCDOnly || isPCDJob;
     
-    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice && matchesCompany;
+    return matchesSearch && matchesState && matchesCity && matchesType && matchesCategory && matchesFunction && matchesPremium && matchesFeatured && matchesHomeOffice && matchesCompany && matchesPCD;
   });
 
   const filteredCities = availableCities.filter(city =>
@@ -352,6 +359,10 @@ export default function Jobs() {
     setCitySearch('');
     setFuncSearch('');
     setCompanySearch('');
+    setShowPCDOnly(false);
+    setShowHomeOfficeOnly(false);
+    setShowPremiumOnly(false);
+    setShowFeaturedOnly(false);
   };
 
   const activeFiltersCount = [selectedState, selectedCity, selectedType, selectedCategory, selectedFunction, selectedCompany].filter(f => f !== 'all').length;
