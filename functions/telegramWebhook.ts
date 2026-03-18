@@ -1,7 +1,10 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient } from 'npm:@base44/sdk@0.8.21';
 
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN");
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
+
+// Cliente service role — não depende de autenticação do usuário
+const base44Service = createClient({ appId: Deno.env.get("BASE44_APP_ID") });
 
 async function sendTelegramMessage(chatId, text) {
   await fetch(`${TELEGRAM_API}/sendMessage`, {
