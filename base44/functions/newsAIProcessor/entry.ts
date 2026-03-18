@@ -10,16 +10,20 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { source, sourceType = 'url', category = 'Geral', publishImmediately = false } = body;
+    const { source, sourceType = 'text', category = 'Geral', publishImmediately = false } = body;
 
     if (!source) {
-      return Response.json({ error: 'Source is required' }, { status: 400 });
+      return Response.json({ error: 'Source é obrigatório' }, { status: 400 });
     }
 
     let extractedContent = '';
 
-    // Extract content from URL or file
-    if (sourceType === 'url') {
+    // Extract content based on source type
+    if (sourceType === 'text') {
+      // Direct text input - use as is
+      extractedContent = source.trim();
+    } else if (sourceType === 'url') {
+      // Fetch from URL
       try {
         const response = await fetch(source, { 
           headers: { 
@@ -35,10 +39,11 @@ Deno.serve(async (req) => {
 
         let html = await response.text();
         
-        // More aggressive content extraction
+        // Extract main content
         let mainContent = html
           .match(/<main[^>]*>.*?<\/main>/is)?.[0] ||
           html.match(/<article[^>]*>.*?<\/article>/is)?.[0] ||
+          html.match(/<div[^>]*class="[^"]*content[^"]*"[^>]*>.*?<\/div>/is)?.[0] ||
           html;
         
         mainContent = mainContent
@@ -54,12 +59,13 @@ Deno.serve(async (req) => {
           .replace(/\s+/g, ' ')
           .trim();
         
-        extractedContent = mainContent.substring(0, 2500);
+        extractedContent = mainContent.substring(0, 3000);
       } catch (e) {
+        console.error('URL fetch error:', e);
         throw new Error(`Erro ao acessar URL: ${e.message}`);
       }
     } else if (sourceType === 'file') {
-      // Source is a file URL - fetch and extract text
+      // File URL from upload
       try {
         const response = await fetch(source, {
           signal: AbortSignal.timeout(8000)
@@ -69,97 +75,96 @@ Deno.serve(async (req) => {
           throw new Error(`HTTP ${response.status}`);
         }
         
-        const text = await response.text();
-        extractedContent = text.substring(0, 2500);
+        extractedContent = (await response.text()).substring(0, 3000);
       } catch (e) {
+        console.error('File fetch error:', e);
         throw new Error(`Erro ao ler arquivo: ${e.message}`);
       }
     }
 
-    if (!extractedContent || extractedContent.trim().length < 80) {
-      throw new Error('Conteúdo insuficiente (mínimo 80 caracteres)');
+    if (!extractedContent || extractedContent.trim().length < 50) {
+      throw new Error('Conteúdo insuficiente (mínimo 50 caracteres)');
     }
 
-    // Use LLM with timeout protection
+    console.log('Content extracted:', extractedContent.substring(0, 100) + '...');
+
+    // Call LLM to generate news
     let llmResponse;
     try {
-      llmResponse = await Promise.race([
-        base44.integrations.Core.InvokeLLM({
-          prompt: `Você é um jornalista profissional. Gere uma notícia completa em português (Brasil).
+      llmResponse = await base44.integrations.Core.InvokeLLM({
+        prompt: `Você é um jornalista profissional. Leia o conteúdo abaixo e gere uma notícia original.
 
-IMPORTANTE: Retorne APENAS JSON válido, nada mais.
+RETORNE APENAS JSON VÁLIDO, nada mais, nenhum markdown.
 
+Exemplo de resposta esperada:
 {
-  "title": "Título catchy (60-80 caracteres)",
-  "subtitle": "Subtítulo resumido (100-150 caracteres)",
-  "content": "Artigo completo com 600-800 palavras. Deve incluir: introdução, desenvolvimento em 2-3 parágrafos, conclusão. Use linguagem jornalística profissional.",
-  "keywords": "palavra1, palavra2, palavra3, palavra4, palavra5, palavra6, palavra7",
-  "metaDescription": "Descrição SEO (150-160 caracteres)"
+  "title": "Título atrativo com 60-80 caracteres",
+  "subtitle": "Subtítulo resumido com 100-150 caracteres",
+  "content": "Parágrafo 1... Parágrafo 2... Parágrafo 3...",
+  "keywords": "palavra1, palavra2, palavra3, palavra4, palavra5",
+  "metaDescription": "Descrição SEO com 150-160 caracteres"
 }
 
-CONTEÚDO PARA PROCESSAR:
+CONTEÚDO A PROCESSAR:
 ${extractedContent}`,
-          response_json_schema: {
-            type: 'object',
-            properties: {
-              title: { type: 'string' },
-              subtitle: { type: 'string' },
-              content: { type: 'string' },
-              keywords: { type: 'string' },
-              metaDescription: { type: 'string' }
-            },
-            required: ['title', 'subtitle', 'content']
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            title: { type: 'string', minLength: 10 },
+            subtitle: { type: 'string', minLength: 10 },
+            content: { type: 'string', minLength: 100 },
+            keywords: { type: 'string' },
+            metaDescription: { type: 'string' }
           },
-          model: 'gpt_5'
-        }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('LLM timeout')), 29000))
-      ]);
+          required: ['title', 'subtitle', 'content']
+        },
+        model: 'gpt_5'
+      });
     } catch (e) {
-      throw new Error(`LLM error: ${e.message}`);
+      console.error('LLM error:', e);
+      throw new Error(`Erro na geração: ${e.message}`);
     }
 
-    if (!llmResponse || !llmResponse.title || !llmResponse.content) {
-      throw new Error('LLM não gerou conteúdo completo');
+    console.log('LLM Response:', JSON.stringify(llmResponse).substring(0, 200));
+
+    if (!llmResponse || !llmResponse.title) {
+      throw new Error('LLM não retornou resposta válida');
     }
 
-    const { title, subtitle, keywords = '', metaDescription = '', content } = llmResponse;
+    const { title, subtitle, content, keywords = '', metaDescription = '' } = llmResponse;
 
-    const blocks = [
-      { type: 'content', content, order: 0 }
-    ];
-
+    // Create news record
     const newsData = {
-      title,
-      subtitle,
+      title: title.substring(0, 200),
+      subtitle: subtitle.substring(0, 300),
       category,
       author_name: user.full_name || 'Sistema IA',
-      blocks,
+      blocks: [
+        { type: 'content', content: content.substring(0, 5000), order: 0 }
+      ],
       is_featured: false,
       status: publishImmediately ? 'published' : 'draft',
-      external_link: sourceType === 'url' ? source : null,
-      additional_info: JSON.stringify({
-        keywords,
-        metaDescription,
-        sourceUrl: source,
-        generatedAt: new Date().toISOString()
-      })
+      external_link: sourceType === 'url' ? source : null
     };
 
     const news = await base44.asServiceRole.entities.News.create(newsData);
+
+    console.log('News created:', news.id);
 
     return Response.json({
       success: true,
       newsId: news.id,
       title,
       subtitle,
-      status: newsData.status
+      status: newsData.status,
+      message: publishImmediately ? 'Notícia publicada!' : 'Notícia salva como rascunho'
     });
 
   } catch (error) {
-    console.error('NewsAI Error:', error.message);
+    console.error('Full error:', error);
     return Response.json({
       success: false,
-      error: error.message || 'Error processing news'
+      error: error.message || 'Erro ao processar notícia'
     }, { status: 500 });
   }
 });
