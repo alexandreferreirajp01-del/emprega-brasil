@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import {
-  ArrowLeft, Upload, Link as LinkIcon, Loader2, CheckCircle2, AlertCircle, Sparkles, FileUp
+  ArrowLeft, Upload, Link as LinkIcon, Loader2, CheckCircle2, AlertCircle, Sparkles, FileUp, X
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
