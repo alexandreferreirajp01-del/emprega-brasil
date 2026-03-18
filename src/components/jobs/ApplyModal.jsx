@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MessageCircle, Mail, ExternalLink, Phone, Sparkles, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { X, MessageCircle, Mail, ExternalLink, Phone, Sparkles, ChevronRight, Copy, Check } from "lucide-react";
 
 function formatPhone(num) {
   const d = num.replace(/\D/g, '');
@@ -10,13 +9,47 @@ function formatPhone(num) {
   return num;
 }
 
+const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+function isEmail(str) {
+  return emailRegex.test(str?.trim());
+}
+
+function CopyButton({ value }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className="ml-1 p-1.5 rounded-lg hover:bg-black/10 transition-colors flex-shrink-0"
+      title="Copiar"
+    >
+      {copied
+        ? <Check className="w-4 h-4 text-green-500" />
+        : <Copy className="w-4 h-4 text-slate-400" />}
+    </button>
+  );
+}
+
 export default function ApplyModal({ job, contacts, open, onClose }) {
   if (!open || !job) return null;
 
   const whatsappMsg = encodeURIComponent(`Olá! Vi a vaga de ${job.title} e gostaria de me candidatar.`);
   const emailSubject = encodeURIComponent(`Candidatura - ${job.title}`);
 
-  const totalContacts = contacts.whatsapps.length + contacts.phones.length + contacts.emails.length + contacts.sites.length;
+  // Separar sites que são na verdade e-mails
+  const sitesReal = contacts.sites.filter(s => !isEmail(s));
+  const emailsFromSites = contacts.sites.filter(s => isEmail(s));
+  const allEmails = [...contacts.emails, ...emailsFromSites];
+
+  const totalContacts = contacts.whatsapps.length + contacts.phones.length + allEmails.length + sitesReal.length;
 
   return (
     <AnimatePresence>
@@ -68,93 +101,116 @@ export default function ApplyModal({ job, contacts, open, onClose }) {
               {/* Contact options */}
               <div className="px-4 py-4 space-y-3 max-h-[60vh] overflow-y-auto pb-safe">
 
-                {/* WhatsApp buttons */}
+                {/* WhatsApp */}
                 {contacts.whatsapps.map((num, i) => (
-                  <motion.a
+                  <motion.div
                     key={`wa-${i}`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    href={`https://wa.me/55${num.replace(/\D/g,'')}?text=${whatsappMsg}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-4 p-4 bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 rounded-2xl transition-all group cursor-pointer"
+                    className="flex items-center gap-3 p-4 bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 rounded-2xl transition-all group"
                   >
-                    <div className="w-12 h-12 bg-[#25D366] rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                      <MessageCircle className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-[#25D366] font-semibold uppercase tracking-wide">WhatsApp</p>
-                      <p className="text-slate-800 dark:text-white font-bold text-base">{formatPhone(num)}</p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-[#25D366] group-hover:translate-x-1 transition-transform" />
-                  </motion.a>
+                    <a
+                      href={`https://wa.me/55${num.replace(/\D/g,'')}?text=${whatsappMsg}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 flex-1 min-w-0"
+                    >
+                      <div className="w-12 h-12 bg-[#25D366] rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                        <MessageCircle className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-[#25D366] font-semibold uppercase tracking-wide">WhatsApp</p>
+                        <p className="text-slate-800 dark:text-white font-bold text-base">{formatPhone(num)}</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-[#25D366] group-hover:translate-x-1 transition-transform" />
+                    </a>
+                    <CopyButton value={num} />
+                  </motion.div>
                 ))}
 
-                {/* Phone buttons */}
+                {/* Telefone */}
                 {contacts.phones.map((num, i) => (
-                  <motion.a
+                  <motion.div
                     key={`tel-${i}`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: (contacts.whatsapps.length + i) * 0.05 }}
-                    href={`tel:${num}`}
-                    className="flex items-center gap-4 p-4 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl transition-all group cursor-pointer"
+                    className="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl transition-all group"
                   >
-                    <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                      <Phone className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-blue-500 font-semibold uppercase tracking-wide">Telefone</p>
-                      <p className="text-slate-800 dark:text-white font-bold text-base">{formatPhone(num)}</p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-blue-400 group-hover:translate-x-1 transition-transform" />
-                  </motion.a>
+                    <a
+                      href={`tel:${num}`}
+                      className="flex items-center gap-4 flex-1 min-w-0"
+                    >
+                      <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                        <Phone className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-blue-500 font-semibold uppercase tracking-wide">Telefone</p>
+                        <p className="text-slate-800 dark:text-white font-bold text-base">{formatPhone(num)}</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-blue-400 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                    <CopyButton value={num} />
+                  </motion.div>
                 ))}
 
-                {/* Email buttons */}
-                {contacts.emails.map((em, i) => (
-                  <motion.a
+                {/* E-mails (incluindo os que vieram do campo sites) */}
+                {allEmails.map((em, i) => (
+                  <motion.div
                     key={`em-${i}`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: (contacts.whatsapps.length + contacts.phones.length + i) * 0.05 }}
-                    href={`mailto:${em}?subject=${emailSubject}`}
-                    className="flex items-center gap-4 p-4 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl transition-all group cursor-pointer"
+                    className="flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl transition-all group"
                   >
-                    <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                      <Mail className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-purple-500 font-semibold uppercase tracking-wide">E-mail</p>
-                      <p className="text-slate-800 dark:text-white font-medium text-sm truncate">{em}</p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-purple-400 group-hover:translate-x-1 transition-transform" />
-                  </motion.a>
+                    <a
+                      href={`mailto:${em}?subject=${emailSubject}`}
+                      className="flex items-center gap-4 flex-1 min-w-0"
+                    >
+                      <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                        <Mail className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-purple-500 font-semibold uppercase tracking-wide">E-mail</p>
+                        <p className="text-slate-800 dark:text-white font-medium text-sm truncate">{em}</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-purple-400 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                    <CopyButton value={em} />
+                  </motion.div>
                 ))}
 
-                {/* Site/Link buttons */}
-                {contacts.sites.map((url, i) => (
-                  <motion.a
-                    key={`site-${i}`}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: (contacts.whatsapps.length + contacts.phones.length + contacts.emails.length + i) * 0.05 }}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-4 p-4 bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl transition-all group cursor-pointer"
-                  >
-                    <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                      <ExternalLink className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-orange-500 font-semibold uppercase tracking-wide">Link de Candidatura</p>
-                      <p className="text-slate-800 dark:text-white font-medium text-sm truncate">{url}</p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-orange-400 group-hover:translate-x-1 transition-transform" />
-                  </motion.a>
-                ))}
+                {/* Sites/Links reais */}
+                {sitesReal.map((url, i) => {
+                  const href = url.startsWith('http') ? url : `https://${url}`;
+                  return (
+                    <motion.div
+                      key={`site-${i}`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: (contacts.whatsapps.length + contacts.phones.length + allEmails.length + i) * 0.05 }}
+                      className="flex items-center gap-3 p-4 bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl transition-all group"
+                    >
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-4 flex-1 min-w-0"
+                      >
+                        <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                          <ExternalLink className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-orange-500 font-semibold uppercase tracking-wide">Link de Candidatura</p>
+                          <p className="text-slate-800 dark:text-white font-medium text-sm truncate">{url}</p>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-orange-400 group-hover:translate-x-1 transition-transform" />
+                      </a>
+                      <CopyButton value={url} />
+                    </motion.div>
+                  );
+                })}
 
                 {/* Nenhum contato */}
                 {totalContacts === 0 && (
