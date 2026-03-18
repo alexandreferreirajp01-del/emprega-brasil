@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import MobileSelect from '@/components/ui/mobile-select';
+import MobileBottomSheetSelect from '@/components/ui/mobile-bottom-sheet-select';
+import { useMobileOptimizationAudit } from '@/hooks/useMobileOptimizationAudit';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,6 +35,19 @@ export default function GerenciarNoticias2() {
   const [category, setCategory] = useState('Geral');
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
+  
+  useMobileOptimizationAudit();
+  
+  const categoryOptions = useMemo(() => 
+    CATEGORIES.map(cat => ({ value: cat, label: cat })),
+    []
+  );
+
+  const filterStatusOptions = useMemo(() => [
+    { value: 'all', label: 'Todos' },
+    { value: 'draft', label: 'Rascunhos' },
+    { value: 'published', label: 'Publicadas' },
+  ], []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -215,12 +229,13 @@ export default function GerenciarNoticias2() {
                   )}
 
                   {/* Category */}
-                  <MobileSelect
+                  <MobileBottomSheetSelect
                     label="Categoria"
                     value={category}
                     onChange={setCategory}
-                    options={CATEGORIES.map(cat => ({ value: cat, label: cat }))}
+                    options={categoryOptions}
                     disabled={loading}
+                    searchable={true}
                   />
 
                   {/* Submit */}
@@ -262,14 +277,10 @@ export default function GerenciarNoticias2() {
                 className="pl-10"
               />
             </div>
-            <MobileSelect
+            <MobileBottomSheetSelect
               value={filterStatus}
               onChange={setFilterStatus}
-              options={[
-                { value: 'all', label: 'Todos' },
-                { value: 'draft', label: 'Rascunhos' },
-                { value: 'published', label: 'Publicadas' },
-              ]}
+              options={filterStatusOptions}
             />
           </CardContent>
         </Card>
