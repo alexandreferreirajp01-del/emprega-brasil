@@ -9,10 +9,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Acesso negado' }, { status: 403 });
     }
 
-    const { targetEmail, targetName, messageContent } = await req.json();
+    const { targetEmail, targetName, messageContent, attachments = [] } = await req.json();
 
     if (!targetEmail || !messageContent) {
       return Response.json({ error: 'Parâmetros obrigatórios: targetEmail, messageContent' }, { status: 400 });
+    }
+
+    // Build attachments HTML
+    let attachmentsHtml = '';
+    if (attachments.length > 0) {
+      const items = attachments.map(a => {
+        if (a.type === 'image') {
+          return `<div style="margin: 8px 0;"><img src="${a.url}" alt="${a.name}" style="max-width: 100%; border-radius: 8px;" /><p style="font-size:11px;color:#94a3b8;margin:2px 0;">${a.name}</p></div>`;
+        }
+        return `<div style="margin: 6px 0;"><a href="${a.url}" target="_blank" style="color: #2563eb; text-decoration: none; font-size: 13px;">📎 ${a.name}</a></div>`;
+      }).join('');
+      attachmentsHtml = `<div style="margin-top: 16px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;"><p style="font-size: 12px; font-weight: 600; color: #475569; margin: 0 0 8px;">Anexos:</p>${items}</div>`;
     }
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
