@@ -86,11 +86,14 @@ Deno.serve(async (req) => {
 
         await base44.asServiceRole.entities.Job.update(jobId, updateData);
         
-        // Se foi ativada, enviar notificações
+        // Se foi ativada, criar notificações diretamente
         if (action === 'activate') {
           try {
             const updatedJob = await base44.asServiceRole.entities.Job.get(jobId);
-            await base44.asServiceRole.functions.invoke('createNotification', {
+            console.log(`[bulkJobActions] Criando notificação para vaga: ${updatedJob.title}`);
+            
+            // Criar notificação global
+            await base44.asServiceRole.entities.Notification.create({
               title: '✨ Nova Vaga Aprovada!',
               message: `${updatedJob.title} em ${updatedJob.city || 'local não informado'}`,
               type: 'job',
@@ -99,10 +102,13 @@ Deno.serve(async (req) => {
               job_id: updatedJob.id,
               sent_to_all: true,
               redirect_page: 'JobDetail',
-              redirect_params: { id: updatedJob.id }
+              redirect_params: { id: updatedJob.id },
+              is_read: false
             });
+            
+            console.log(`[bulkJobActions] ✅ Notificação criada para vaga ${jobId}`);
           } catch (notifyErr) {
-            console.error('Erro ao notificar vaga ativada:', notifyErr);
+            console.error(`[bulkJobActions] Erro ao criar notificação: ${notifyErr.message}`);
           }
         }
         
