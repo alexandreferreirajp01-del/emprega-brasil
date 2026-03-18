@@ -340,6 +340,30 @@ export default function Home() {
               </CardContent>
             </Card>
 
+            {/* Assistente WhatsApp */}
+            <Card className="rounded-2xl border-0 shadow-lg bg-gradient-to-br from-[#25D366] to-[#128C7E] overflow-hidden">
+              <CardContent className="p-6 text-center relative">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <MessageCircle className="w-7 h-7 text-white" />
+                </div>
+                <h3 className="font-bold text-lg text-white mb-2">Assistente de Vagas</h3>
+                <p className="text-white/85 text-sm mb-4">
+                  Fale com nosso assistente no WhatsApp e encontre a vaga ideal para você!
+                </p>
+                <a
+                  href={base44.agents.getWhatsAppConnectURL('assistente_vagas')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button className="w-full bg-white text-[#128C7E] hover:bg-white/90 rounded-xl font-bold">
+                    <MessageCircle className="w-5 h-5 mr-2" />
+                    Falar no WhatsApp
+                  </Button>
+                </a>
+              </CardContent>
+            </Card>
+
             {/* Instagram Banner */}
             <InstagramBanner />
 
