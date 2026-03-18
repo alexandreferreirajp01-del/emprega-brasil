@@ -9,8 +9,9 @@ const SEO_KEYWORDS = {
   'Geral': ['notícia', 'atualização', 'informação', 'destaque', 'notável']
 };
 
-async function extractContentFromUrl(url) {
+async function extractContentFromUrl(base44, url) {
   try {
+    // Primeira tentativa: fetch direto
     const response = await fetch(url, {
       headers: { 
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -20,9 +21,8 @@ async function extractContentFromUrl(url) {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const html = await response.text();
-    let content = '';
     
-    // Remove scripts, styles, noscript, iframes
+    // Remove scripts, styles, nav, header, footer
     let cleaned = html
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
@@ -32,61 +32,22 @@ async function extractContentFromUrl(url) {
       .replace(/<header[^>]*>[\s\S]*?<\/header>/gi, '')
       .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '');
     
-    // Múltiplas estratégias de extração
-    let contentMatch = 
+    // Extrair main content
+    let content = '';
+    const contentMatch = 
       cleaned.match(/<main[^>]*>([\s\S]*?)<\/main>/i) ||
       cleaned.match(/<article[^>]*>([\s\S]*?)<\/article>/i) ||
-      cleaned.match(/<div[^>]*class="[^"]*content[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
-      cleaned.match(/<div[^>]*class="[^"]*post[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
-      cleaned.match(/<div[^>]*class="[^"]*entry[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
-      cleaned.match(/<section[^>]*>([\s\S]*?)<\/section>/i) ||
-      cleaned.match(/<div[^>]*id="content"[^>]*>([\s\S]*?)<\/div>/i) ||
+      cleaned.match(/<div[^>]*class="[^"]*content[^"]*"[^>]*>([\s\S]{100,}?)<\/div>/i) ||
+      cleaned.match(/<div[^>]*class="[^"]*post[^"]*"[^>]*>([\s\S]{100,}?)<\/div>/i) ||
       cleaned.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
     
     if (contentMatch) {
       content = contentMatch[1];
-    } else {
-      content = cleaned;
     }
     
-    // Extrair texto preservando estrutura
-    const paragraphs = [];
-    
-    // Extrair H1-H6
-    const headings = content.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/gi) || [];
-    headings.forEach(h => {
-      const text = h.replace(/<[^>]+>/g, '').trim();
-      if (text.length > 0 && text.length < 500) paragraphs.push(text);
-    });
-    
-    // Extrair parágrafos
-    const paras = content.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) || [];
-    paras.forEach(p => {
-      const text = p.replace(/<[^>]+>/g, '').trim();
-      if (text.length > 20 && text.length < 1000) paragraphs.push(text);
-    });
-    
-    // Extrair divs com conteúdo
-    const divs = content.match(/<div[^>]*>([\s\S]*?)<\/div>/gi) || [];
-    divs.slice(0, 20).forEach(d => {
-      const text = d.replace(/<[^>]+>/g, '').trim();
-      if (text.length > 30 && text.length < 1000 && !text.includes('<')) paragraphs.push(text);
-    });
-    
-    // Extrair spans e outros elementos
-    const spans = content.match(/<(span|li|td|dd)[^>]*>([\s\S]*?)<\/\1>/gi) || [];
-    spans.slice(0, 10).forEach(s => {
-      const text = s.replace(/<[^>]+>/g, '').trim();
-      if (text.length > 20 && text.length < 500) paragraphs.push(text);
-    });
-    
-    // Limpar duplicatas e organizar
-    const uniqueParagraphs = [...new Set(paragraphs.map(p => p.trim()))].filter(p => p.length > 0);
-    content = uniqueParagraphs.join('\n\n');
-    
-    // Remover HTML residual
+    // Limpar HTML e extrair texto
     content = content
-      .replace(/<[^>]+>/g, '')
+      .replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/g, ' ')
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
@@ -95,15 +56,29 @@ async function extractContentFromUrl(url) {
       .replace(/\s+/g, ' ')
       .trim();
     
-    // Garantir que temos conteúdo suficiente
-    content = content.substring(0, 20000);
-    
-    if (!content || content.length < 200) {
-      throw new Error('Conteúdo insuficiente extraído da URL. Certifique-se que a página tem conteúdo de texto.');
+    // Se conseguiu conteúdo mínimo, retorna
+    if (content && content.length > 300) {
+      console.log(`[extractContentFromUrl] Extraído via HTML: ${content.length} caracteres`);
+      return content.substring(0, 20000);
     }
     
-    console.log(`[extractContentFromUrl] Extraído: ${content.length} caracteres`);
-    return content;
+    // Fallback: usar IA para ler o HTML completo
+    console.log(`[extractContentFromUrl] HTML extração insuficiente (${content.length}), usando IA...`);
+    const iaResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt: `Leia este HTML de uma página da web e extraia APENAS o conteúdo de texto principal (artigos, notícias, informações).
+Ignore navegação, rodapé, comentários e anúncios.
+Transcreva o conteúdo completo de forma limpa e organizada:
+
+${html.substring(0, 10000)}`,
+      add_context_from_internet: false
+    });
+    
+    if (iaResult && iaResult.length > 300) {
+      console.log(`[extractContentFromUrl] Extraído via IA: ${iaResult.length} caracteres`);
+      return iaResult;
+    }
+    
+    throw new Error('Não foi possível extrair conteúdo suficiente da URL');
   } catch (err) {
     throw new Error(`Erro ao extrair URL: ${err.message}`);
   }
