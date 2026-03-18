@@ -12,7 +12,6 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import { NavigationProvider } from '@/lib/NavigationProvider';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -86,10 +85,8 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <NavigationProvider>
-            <NavigationTracker />
-            <AuthenticatedApp />
-          </NavigationProvider>
+          <NavigationTracker />
+          <AuthenticatedApp />
         </Router>
         <Toaster />
         <VisualEditAgent />
