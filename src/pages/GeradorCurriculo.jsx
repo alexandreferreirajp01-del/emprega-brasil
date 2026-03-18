@@ -239,31 +239,42 @@ export default function GeradorCurriculo() {
               ))}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {filteredTemplates.map(t => (
-                <div
-                  key={t.id}
-                  onClick={() => { setSelectedTemplate(t.id); setStep('form'); }}
-                  className={`cursor-pointer rounded-xl overflow-hidden border-2 transition-all hover:scale-105 hover:shadow-xl ${selectedTemplate === t.id ? 'border-[#1D4371] shadow-xl' : 'border-slate-200 dark:border-slate-700'}`}
-                >
-                  {/* Template preview card */}
-                  <div style={{ background: t.preview_color, height: 120 }} className="flex flex-col items-center justify-center gap-2 relative">
-                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.3)', marginBottom: 4 }} />
-                    <div style={{ width: '60%', height: 6, background: 'rgba(255,255,255,0.6)', borderRadius: 3 }} />
-                    <div style={{ width: '40%', height: 4, background: 'rgba(255,255,255,0.4)', borderRadius: 2 }} />
-                    {[1, 2].map(j => (
-                      <div key={j} style={{ width: '70%', height: 3, background: 'rgba(255,255,255,0.25)', borderRadius: 2, marginTop: 2 }} />
-                    ))}
-                    {t.isNew && (
-                      <span className="absolute top-2 left-2 text-[9px] px-1.5 py-0.5 rounded font-bold" style={{ background: '#f59e0b', color: '#fff' }}>NOVO</span>
-                    )}
-                    <Badge className="absolute top-2 right-2 text-[9px] px-1.5 py-0.5" style={{ background: 'rgba(0,0,0,0.4)', color: '#fff', border: 'none' }}>{t.isNew ? 'Novo' : t.category}</Badge>
+              {filteredTemplates.map(t => {
+                const ps = templatePreviewStyles[t.id];
+                return (
+                  <div
+                    key={t.id}
+                    onClick={() => { setSelectedTemplate(t.id); setStep('form'); }}
+                    className={`cursor-pointer rounded-xl overflow-hidden border-2 transition-all hover:scale-105 hover:shadow-xl ${selectedTemplate === t.id ? 'border-[#1D4371] shadow-xl ring-2 ring-[#1D4371]' : 'border-slate-200 dark:border-slate-700'}`}
+                  >
+                    {/* Template preview card - mini layout fiel ao PDF */}
+                    <div style={{ height: 140, position: 'relative', overflow: 'hidden', background: ps?.main || '#fff' }} className="flex">
+                      {/* Sidebar preview (se tiver) */}
+                      {ps?.sidebar && ps.sidebar !== '#fff' && ps.sidebar !== ps.main && (
+                        <div style={{ width: '32%', background: ps.sidebar, padding: '6px 4px', flexShrink: 0 }}>
+                          <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', margin: '0 auto 4px' }} />
+                          {[1,2,3,4].map(j => <div key={j} style={{ height: 3, background: 'rgba(255,255,255,0.3)', borderRadius: 2, margin: '3px 0' }} />)}
+                        </div>
+                      )}
+                      {/* Main content preview */}
+                      <div style={{ flex: 1, padding: '8px 6px' }}>
+                        <div style={{ height: 7, width: '80%', background: ps?.accent || t.preview_color, borderRadius: 2, marginBottom: 3, opacity: 0.9 }} />
+                        <div style={{ height: 4, width: '55%', background: '#ccc', borderRadius: 2, marginBottom: 8 }} />
+                        {[1,2,3,4,5].map(j => (
+                          <div key={j} style={{ height: 3, width: `${55 + (j % 3) * 15}%`, background: j % 3 === 0 ? (ps?.accent || t.preview_color) : '#e0e0e0', borderRadius: 2, marginBottom: 4, opacity: j % 3 === 0 ? 0.7 : 1 }} />
+                        ))}
+                      </div>
+                      {t.isNew && (
+                        <span className="absolute top-1.5 left-1.5 text-[8px] px-1.5 py-0.5 rounded font-bold z-10" style={{ background: '#f59e0b', color: '#fff' }}>NOVO</span>
+                      )}
+                    </div>
+                    <div className="bg-white dark:bg-slate-800 p-2.5 border-t border-slate-100 dark:border-slate-700">
+                      <p className="font-semibold text-slate-800 dark:text-white text-xs truncate">{t.name}</p>
+                      <p className="text-[9px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{t.description}</p>
+                    </div>
                   </div>
-                  <div className="bg-white dark:bg-slate-800 p-3">
-                    <p className="font-semibold text-slate-800 dark:text-white text-xs truncate">{t.name}</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{t.description}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
