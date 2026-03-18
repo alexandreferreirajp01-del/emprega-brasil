@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
             updateData = { status: 'hidden', exibir_no_mapa: false };
             break;
           case 'activate':
-            updateData = { status: 'ativa', exibir_no_mapa: true };
+            updateData = { status: 'ativa', exibir_no_mapa: true, published_at: new Date().toISOString() };
             break;
           case 'delete':
             // Apagar favoritos relacionados à vaga
@@ -85,6 +85,27 @@ Deno.serve(async (req) => {
         }
 
         await base44.asServiceRole.entities.Job.update(jobId, updateData);
+        
+        // Se foi ativada, enviar notificações
+        if (action === 'activate') {
+          try {
+            const updatedJob = await base44.asServiceRole.entities.Job.get(jobId);
+            await base44.asServiceRole.functions.invoke('createNotification', {
+              title: '✨ Nova Vaga Aprovada!',
+              message: `${updatedJob.title} em ${updatedJob.city || 'local não informado'}`,
+              type: 'job',
+              reference_type: 'job',
+              reference_id: updatedJob.id,
+              job_id: updatedJob.id,
+              sent_to_all: true,
+              redirect_page: 'JobDetail',
+              redirect_params: { id: updatedJob.id }
+            });
+          } catch (notifyErr) {
+            console.error('Erro ao notificar vaga ativada:', notifyErr);
+          }
+        }
+        
         updated++;
       } catch (err) {
         errors.push({ jobId, error: err.message });
