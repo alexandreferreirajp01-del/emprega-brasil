@@ -14,12 +14,15 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 
 export default function GenerarNoticiasIA() {
-  const [tab, setTab] = useState('url'); // 'url' ou 'file'
+  const [tab, setTab] = useState('url');
   const [url, setUrl] = useState('');
   const [category, setCategory] = useState('Geral');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
   const [file, setFile] = useState(null);
+  const [draft, setDraft] = useState(null);
+  const [editData, setEditData] = useState(null);
+  const [publishing, setPublishing] = useState(false);
+  const [images, setImages] = useState([]);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0];
