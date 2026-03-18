@@ -1,5 +1,4 @@
 @import './lib/globalMobileOptimizations.css';
-@import './lib/focusStatesStandard.css';
 
 @tailwind base;
 @tailwind components;

@@ -8,7 +8,6 @@ import { Heart, MessageCircle, Bookmark, Share2, Send, Loader2, ChevronLeft, Che
 import { base44 } from "@/api/base44Client";
 import TimeAgo from "@/components/common/TimeAgo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useOptimisticUpdate } from "@/lib/useOptimisticUpdate";
 
 export default function FeedPostCard({ post, user, isSalvo }) {
   const [showComentarios, setShowComentarios] = useState(false);
@@ -39,9 +38,7 @@ export default function FeedPostCard({ post, user, isSalvo }) {
     enabled: showComentarios
   });
 
-  // Optimistic like update
-  const curtirMutation = useOptimisticUpdate({
-    queryKey: ['feed-posts'],
+  const curtirMutation = useMutation({
     mutationFn: async () => {
       const novasCurtidas = curtido
         ? post.curtidas.filter(e => e !== user.email)
@@ -50,19 +47,6 @@ export default function FeedPostCard({ post, user, isSalvo }) {
         curtidas: novasCurtidas,
         total_curtidas: novasCurtidas.length
       });
-    },
-    updateFn: (posts) => {
-      return posts.map(p =>
-        p.id === post.id
-          ? {
-              ...p,
-              curtidas: curtido
-                ? p.curtidas.filter(e => e !== user.email)
-                : [...(p.curtidas || []), user.email],
-              total_curtidas: curtido ? (p.total_curtidas || 1) - 1 : (p.total_curtidas || 0) + 1
-            }
-          : p
-      );
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['feed-posts'] })
   });
@@ -99,9 +83,7 @@ export default function FeedPostCard({ post, user, isSalvo }) {
     }
   });
 
-  // Optimistic save update
-  const salvarMutation = useOptimisticUpdate({
-    queryKey: ['feed-salvos', user?.email],
+  const salvarMutation = useMutation({
     mutationFn: async () => {
       if (isSalvo) {
         const salvos = await base44.entities.FeedSalvo.filter({ user_email: user.email, post_id: post.id });
@@ -110,13 +92,6 @@ export default function FeedPostCard({ post, user, isSalvo }) {
         }
       } else {
         await base44.entities.FeedSalvo.create({ user_email: user.email, post_id: post.id });
-      }
-    },
-    updateFn: (salvos) => {
-      if (isSalvo) {
-        return salvos.filter(s => s.post_id !== post.id);
-      } else {
-        return [...salvos, { post_id: post.id, user_email: user.email }];
       }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['feed-salvos'] })
@@ -213,18 +188,11 @@ export default function FeedPostCard({ post, user, isSalvo }) {
         )}
 
         <div className="p-4 flex items-center gap-4 border-t dark:border-slate-700 transition-colors">
-          <button 
-            onClick={() => curtirMutation.mutate()} 
-            disabled={curtirMutation.isPending}
-            className={`flex items-center gap-1 min-h-[44px] min-w-[44px] touch-feedback transition-transform ${curtido ? 'text-red-500 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'}`}
-          >
+          <button onClick={() => curtirMutation.mutate()} className={`flex items-center gap-1 ${curtido ? 'text-red-500 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'}`}>
             <Heart className={`w-5 h-5 ${curtido ? 'fill-current' : ''}`} />
             <span className="text-sm">{post.total_curtidas || 0}</span>
           </button>
-          <button 
-            onClick={() => setShowComentarios(!showComentarios)} 
-            className="flex items-center gap-1 min-h-[44px] min-w-[44px] touch-feedback transition-transform text-slate-500 dark:text-slate-400"
-          >
+          <button onClick={() => setShowComentarios(!showComentarios)} className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm">{post.total_comentarios || 0}</span>
           </button>
@@ -232,17 +200,10 @@ export default function FeedPostCard({ post, user, isSalvo }) {
             <Eye className="w-4 h-4" />
             <span className="text-sm">{viewCount}</span>
           </div>
-          <button 
-            onClick={() => salvarMutation.mutate()} 
-            disabled={salvarMutation.isPending}
-            className={`flex items-center gap-1 min-h-[44px] min-w-[44px] touch-feedback transition-transform ${isSalvo ? 'text-purple-500 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400'}`}
-          >
+          <button onClick={() => salvarMutation.mutate()} className={`flex items-center gap-1 ${isSalvo ? 'text-purple-500 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400'}`}>
             <Bookmark className={`w-5 h-5 ${isSalvo ? 'fill-current' : ''}`} />
           </button>
-          <button 
-            onClick={handleCompartilhar} 
-            className="text-slate-500 dark:text-slate-400 ml-auto min-h-[44px] min-w-[44px] touch-feedback transition-transform flex items-center justify-center"
-          >
+          <button onClick={handleCompartilhar} className="text-slate-500 dark:text-slate-400 ml-auto">
             <Share2 className="w-5 h-5" />
           </button>
         </div>

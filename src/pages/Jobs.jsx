@@ -10,8 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useOptimisticUpdate, optimisticHelpers } from "@/lib/useOptimisticUpdate";
+import { useQuery } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -369,53 +368,28 @@ export default function Jobs() {
   const activeFiltersCount = [selectedState, selectedCity, selectedType, selectedCategory, selectedFunction, selectedCompany].filter(f => f !== 'all').length;
   const hasActiveFilters = searchTerm || activeFiltersCount > 0;
 
-  // Optimistic favorite toggle
-  const favoriteMutation = useOptimisticUpdate({
-    queryKey: ['favorites', user?.email],
-    mutationFn: async (payload) => {
-      const existing = favorites.find(f => f.job_id === payload.jobId);
-      if (existing) {
-        return await base44.entities.FavoriteJob.delete(existing.id);
-      } else {
-        return await base44.entities.FavoriteJob.create({
-          job_id: payload.jobId,
-          user_email: user.email,
-          job_title: payload.title,
-          job_company: payload.company
-        });
-      }
-    },
-    updateFn: (old, { jobId, isFavoriting }) => {
-      if (isFavoriting) {
-        return [...old, { job_id: jobId, user_email: user.email }];
-      } else {
-        return old.filter(f => f.job_id !== jobId);
-      }
-    },
-    onSuccess: () => {
-      // Refetch favorites from server
-      const existing = favorites.find(f => f.job_id === arguments[2]?.jobId);
-      if (existing) {
-        setFavorites(prev => prev.filter(f => f.id !== existing.id));
-      } else {
-        const job = jobs.find(j => j.id === arguments[2]?.jobId);
-        setFavorites(prev => [...prev, { job_id: job.id, user_email: user.email }]);
-      }
-    },
-  });
-
   const handleFavorite = async (job, e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!user) return;
 
     const existing = favorites.find(f => f.job_id === job.id);
-    favoriteMutation.mutate({
-      jobId: job.id,
-      title: job.title,
-      company: job.company,
-      isFavoriting: !existing,
-    });
+    try {
+      if (existing) {
+        await base44.entities.FavoriteJob.delete(existing.id);
+        setFavorites(prev => prev.filter(f => f.id !== existing.id));
+      } else {
+        const newFav = await base44.entities.FavoriteJob.create({
+          job_id: job.id,
+          user_email: user.email,
+          job_title: job.title,
+          job_company: job.company
+        });
+        setFavorites(prev => [...prev, newFav]);
+      }
+    } catch (e) {
+      console.warn('Erro ao favoritar:', e);
+    }
   };
 
   const featuredJobs = filteredJobs.filter(j => j.is_featured).slice(0, showHomeOfficeOnly ? 20 : 3);
