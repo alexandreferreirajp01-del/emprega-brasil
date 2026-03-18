@@ -57,6 +57,7 @@ const vagasSubmenuItems = [
   { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA', permissionId: 'posts_massa' },
   { id: 'posts-massa-txt', name: 'Posts em Massa TXT', icon: FileText, color: 'indigo', page: 'PostsEmMassaTXT', description: 'Upload arquivos TXT/DOC/PDF e extraia até 50 vagas', permissionId: 'posts_massa_txt' },
   { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
+  { id: 'vagas-pendentes-ia', name: 'Vagas Pendentes IA', icon: Bot, color: 'purple', page: 'VagasPendentesIA', description: 'Revisar vagas capturadas pelo agente WhatsApp', roles: ['admin', 'dono'] },
   { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'teal', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
   { id: 'gerenciar-grupos', name: 'Gerenciar Grupos', icon: UsersRound, color: 'green', page: 'GerenciarGrupos', description: 'Adicionar e editar grupos de WhatsApp/Telegram', roles: ['admin', 'dono'] },
 ];
