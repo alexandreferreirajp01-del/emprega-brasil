@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import UserEditDialog from "@/components/admin/UserEditDialog";
 import CadastrarUsuarioModal from "@/components/admin/CadastrarUsuarioModal";
+import AdminSendMessageModal from "@/components/admin/AdminSendMessageModal";
+import UserProfileViewModal from "@/components/admin/UserProfileViewModal";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
