@@ -18,11 +18,14 @@ Deno.serve(async (req) => {
 
     let extractedContent = '';
 
-    // Extract content from URL
+    // Extract content from URL or file
     if (sourceType === 'url') {
       try {
         const response = await fetch(source, { 
-          headers: { 'User-Agent': 'Mozilla/5.0' },
+          headers: { 
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml'
+          },
           signal: AbortSignal.timeout(8000)
         });
         
@@ -32,29 +35,49 @@ Deno.serve(async (req) => {
 
         let html = await response.text();
         
-        // Remove scripts and styles
-        html = html.replace(/<script[^>]*>.*?<\/script>/gs, '')
+        // More aggressive content extraction
+        let mainContent = html
+          .match(/<main[^>]*>.*?<\/main>/is)?.[0] ||
+          html.match(/<article[^>]*>.*?<\/article>/is)?.[0] ||
+          html;
+        
+        mainContent = mainContent
+          .replace(/<script[^>]*>.*?<\/script>/gs, '')
           .replace(/<style[^>]*>.*?<\/style>/gs, '')
           .replace(/<nav[^>]*>.*?<\/nav>/gs, '')
-          .replace(/<footer[^>]*>.*?<\/footer>/gs, '');
-        
-        extractedContent = html
+          .replace(/<footer[^>]*>.*?<\/footer>/gs, '')
+          .replace(/<header[^>]*>.*?<\/header>/gs, '')
           .replace(/<[^>]*>/g, ' ')
           .replace(/&nbsp;/g, ' ')
           .replace(/&quot;/g, '"')
           .replace(/&amp;/g, '&')
           .replace(/\s+/g, ' ')
-          .trim()
-          .substring(0, 2000);
+          .trim();
+        
+        extractedContent = mainContent.substring(0, 2500);
       } catch (e) {
-        throw new Error(`Failed to fetch URL: ${e.message}`);
+        throw new Error(`Erro ao acessar URL: ${e.message}`);
       }
     } else if (sourceType === 'file') {
-      extractedContent = source;
+      // Source is a file URL - fetch and extract text
+      try {
+        const response = await fetch(source, {
+          signal: AbortSignal.timeout(8000)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const text = await response.text();
+        extractedContent = text.substring(0, 2500);
+      } catch (e) {
+        throw new Error(`Erro ao ler arquivo: ${e.message}`);
+      }
     }
 
-    if (!extractedContent || extractedContent.length < 80) {
-      throw new Error('Content too short (min 80 chars)');
+    if (!extractedContent || extractedContent.trim().length < 80) {
+      throw new Error('Conteúdo insuficiente (mínimo 80 caracteres)');
     }
 
     // Use LLM with timeout protection
