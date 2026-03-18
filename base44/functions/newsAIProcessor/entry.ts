@@ -62,26 +62,32 @@ Deno.serve(async (req) => {
     try {
       llmResponse = await Promise.race([
         base44.integrations.Core.InvokeLLM({
-          prompt: `Generate a news article in Portuguese (Brazil). Return ONLY valid JSON:
+          prompt: `Você é um jornalista profissional. Gere uma notícia completa em português (Brasil).
+
+IMPORTANTE: Retorne APENAS JSON válido, nada mais.
+
 {
-  "title": "Title (60-80 chars)",
-  "subtitle": "Summary (100-150 chars)",
-  "keywords": "5-7 keywords",
-  "metaDescription": "Meta (150-160 chars)",
-  "content": "Article (400-600 words)"
+  "title": "Título catchy (60-80 caracteres)",
+  "subtitle": "Subtítulo resumido (100-150 caracteres)",
+  "content": "Artigo completo com 600-800 palavras. Deve incluir: introdução, desenvolvimento em 2-3 parágrafos, conclusão. Use linguagem jornalística profissional.",
+  "keywords": "palavra1, palavra2, palavra3, palavra4, palavra5, palavra6, palavra7",
+  "metaDescription": "Descrição SEO (150-160 caracteres)"
 }
 
-Content: ${extractedContent}`,
+CONTEÚDO PARA PROCESSAR:
+${extractedContent}`,
           response_json_schema: {
             type: 'object',
             properties: {
               title: { type: 'string' },
               subtitle: { type: 'string' },
+              content: { type: 'string' },
               keywords: { type: 'string' },
-              metaDescription: { type: 'string' },
-              content: { type: 'string' }
-            }
-          }
+              metaDescription: { type: 'string' }
+            },
+            required: ['title', 'subtitle', 'content']
+          },
+          model: 'gpt_5'
         }),
         new Promise((_, reject) => setTimeout(() => reject(new Error('LLM timeout')), 29000))
       ]);
@@ -89,14 +95,14 @@ Content: ${extractedContent}`,
       throw new Error(`LLM error: ${e.message}`);
     }
 
-    if (!llmResponse || !llmResponse.title) {
-      throw new Error('Invalid LLM response');
+    if (!llmResponse || !llmResponse.title || !llmResponse.content) {
+      throw new Error('LLM não gerou conteúdo completo');
     }
 
     const { title, subtitle, keywords = '', metaDescription = '', content } = llmResponse;
 
     const blocks = [
-      { type: 'content', content: content || subtitle, order: 0 }
+      { type: 'content', content, order: 0 }
     ];
 
     const newsData = {
