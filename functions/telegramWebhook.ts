@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
   }
 
   // Salvar vaga como pending_review
-  const newJob = await base44.asServiceRole.entities.Job.create({
+  const newJob = await base44Service.asServiceRole.entities.Job.create({
     title: jobData.title || 'Vaga sem título',
     company: jobData.company || '',
     city: jobData.city || '',
