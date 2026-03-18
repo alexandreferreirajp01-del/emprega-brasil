@@ -25,12 +25,26 @@ export default function NotificationBell({ user, className }) {
     queryFn: async () => {
       if (!user?.email) return [];
       try {
-        const personal = await base44.entities.Notification.filter(
-          { user_email: user.email },
-          '-created_date',
-          100
-        ) || [];
-        return personal;
+        const [personal, global] = await Promise.all([
+          base44.entities.Notification.filter(
+            { user_email: user.email },
+            '-created_date',
+            50
+          ).catch(() => []),
+          base44.entities.Notification.filter(
+            { sent_to_all: true },
+            '-created_date',
+            50
+          ).catch(() => []),
+        ]);
+        // Merge and deduplicate by id
+        const all = [...(personal || []), ...(global || [])];
+        const seen = new Set();
+        return all.filter(n => {
+          if (seen.has(n.id)) return false;
+          seen.set(n.id, true);
+          return true;
+        });
       } catch (e) {
         return [];
       }
