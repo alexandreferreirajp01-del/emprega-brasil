@@ -729,6 +729,16 @@ export default function GerenciarUsuarios() {
         onOpenChange={setShowProfileModal}
         targetUser={viewingUser}
       />
+
+      {/* Wizard de Mensagem em Massa */}
+      <Dialog open={showBulkWizard} onOpenChange={setShowBulkWizard}>
+        <DialogContent className="p-0 max-w-2xl w-full h-[85vh] flex flex-col overflow-hidden rounded-2xl">
+          <BulkMessageWizard
+            users={users}
+            onClose={() => setShowBulkWizard(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
