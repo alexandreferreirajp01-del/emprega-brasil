@@ -336,8 +336,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'sourceType inválido' }, { status: 400 });
     }
 
-    if (!content || content.length < 100) {
-      return Response.json({ error: 'Conteúdo insuficiente extraído' }, { status: 400 });
+    if (!content || content.length < 200) {
+      return Response.json({ error: 'Conteúdo insuficiente para gerar notícia. Use URL com mais texto ou PDF/imagem com conteúdo legível.' }, { status: 400 });
     }
 
     console.log(`[generateNewsFromContent] Conteúdo extraído: ${content.length} caracteres`);
