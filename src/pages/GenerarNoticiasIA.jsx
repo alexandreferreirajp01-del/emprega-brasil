@@ -44,6 +44,19 @@ export default function GenerarNoticiasIA() {
     setFile(selectedFile);
   };
 
+  const handleImageUpload = async (e) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: selectedFile });
+      setImages([...images, { url: file_url, name: selectedFile.name }]);
+      toast.success('Imagem adicionada!');
+    } catch (error) {
+      toast.error('Erro ao enviar imagem');
+    }
+  };
+
   const handleGenerate = async () => {
     if (tab === 'url' && !url.trim()) {
       toast.error('Cole uma URL válida');
@@ -56,7 +69,7 @@ export default function GenerarNoticiasIA() {
     }
 
     setLoading(true);
-    setResult(null);
+    setDraft(null);
 
     try {
       let source = '';
@@ -66,17 +79,11 @@ export default function GenerarNoticiasIA() {
         source = url.trim();
         sourceType = 'url';
       } else {
-        // Upload do arquivo
-        console.log('Enviando arquivo...');
         const { file_url } = await base44.integrations.Core.UploadFile({ file });
         source = file_url;
         sourceType = 'file';
-        console.log('Arquivo enviado:', file_url);
       }
 
-      console.log('Gerando notícia com', { source, sourceType, category });
-
-      // Chamar função backend
       const response = await base44.functions.invoke('generateNewsFromContent', {
         source,
         sourceType,
@@ -87,21 +94,85 @@ export default function GenerarNoticiasIA() {
         throw new Error(response.data?.error || 'Erro ao gerar notícia');
       }
 
-      setResult(response.data);
-      toast.success('✅ Notícia gerada e publicada com sucesso!');
-
-      // Limpar
-      setUrl('');
-      setFile(null);
-      setTimeout(() => {
-        window.location.href = createPageUrl('GerenciarNoticias');
-      }, 1500);
+      // Armazena draft para edição
+      setDraft({
+        ...response.data,
+        category
+      });
+      setEditData({
+        title: response.data.title,
+        subtitle: response.data.subtitle,
+        content: response.data.content || '',
+        category
+      });
+      toast.success('✅ Notícia gerada! Revise antes de publicar.');
 
     } catch (error) {
       console.error('Erro:', error);
       toast.error('Erro: ' + error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!editData?.title || !editData?.subtitle || !editData?.content) {
+      toast.error('Preencha título, subtítulo e conteúdo');
+      return;
+    }
+
+    setPublishing(true);
+    try {
+      // Formatar blocos de conteúdo
+      const blocks = editData.content
+        .split('\n\n')
+        .filter(p => p.trim())
+        .map((text, i) => ({
+          id: Date.now() + i,
+          type: 'content',
+          content: text.trim(),
+          order: i
+        }));
+
+      // Adicionar imagens aos blocos
+      const allBlocks = [
+        ...blocks,
+        ...images.map((img, i) => ({
+          id: Date.now() + blocks.length + i,
+          type: 'image',
+          image_url: img.url,
+          order: blocks.length + i
+        }))
+      ];
+
+      // Publicar
+      const news = await base44.asServiceRole.entities.News.create({
+        title: editData.title,
+        subtitle: editData.subtitle,
+        category: editData.category,
+        author_name: 'NewsIA',
+        blocks: allBlocks,
+        status: 'published',
+        is_featured: false,
+        views_count: 0
+      });
+
+      toast.success('✅ Notícia publicada com sucesso!');
+      setDraft(null);
+      setEditData(null);
+      setUrl('');
+      setFile(null);
+      setImages([]);
+
+      setTimeout(() => {
+        window.location.href = createPageUrl('GerenciarNoticias');
+      }, 1500);
+
+    } catch (error) {
+      console.error('Erro:', error);
+      toast.error('Erro ao publicar: ' + error.message);
+    } finally {
+      setPublishing(false);
     }
   };
 
