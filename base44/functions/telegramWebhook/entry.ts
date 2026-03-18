@@ -40,23 +40,47 @@ Deno.serve(async (req) => {
     }
 
     const chatId = message.chat.id;
-    const messageText = message.text || message.caption || '';
+    const base44 = createClientFromRequest(req);
+    let contentToProcess = message.text || message.caption || '';
 
-    // Ignorar mensagens vazias
-    if (!messageText || messageText.trim().length === 0) {
-      console.log('[Telegram] Mensagem vazia, ignorando');
+    // Se for imagem, fazer OCR/IA para extrair texto
+    if (message.photo && !contentToProcess) {
+      console.log('[Telegram] Imagem recebida, processando com IA...');
+      const photoId = message.photo[message.photo.length - 1].file_id;
+      
+      try {
+        const fileRes = await fetch(`${TELEGRAM_API}/getFile?file_id=${photoId}`);
+        const fileData = await fileRes.json();
+        const imagePath = fileData.result.file_path;
+        const imageUrl = `https://api.telegram.org/file/bot${TELEGRAM_BOT_TOKEN}/${imagePath}`;
+        
+        // Usar IA para ler a imagem
+        const aiResponse = await base44.integrations.Core.InvokeLLM({
+          prompt: 'Extraia todo o texto visível nesta imagem de forma completa e detalhada.',
+          file_urls: [imageUrl]
+        });
+        
+        contentToProcess = aiResponse || '';
+        console.log('[Telegram] Texto extraído da imagem:', contentToProcess.substring(0, 200));
+      } catch (err) {
+        console.error('[Telegram] Erro ao processar imagem:', err.message);
+        await sendTelegramMessage(chatId, '❌ Erro ao processar a imagem. Tente novamente.');
+        return Response.json({ ok: true });
+      }
+    }
+
+    // Validar se tem conteúdo
+    if (!contentToProcess || contentToProcess.trim().length === 0) {
+      console.log('[Telegram] Nenhum conteúdo válido');
       return Response.json({ ok: true });
     }
 
-    console.log('[Telegram] Chat ID:', chatId, 'Texto:', messageText.substring(0, 100));
+    console.log('[Telegram] Chat ID:', chatId, 'Conteúdo:', contentToProcess.substring(0, 100));
 
-    // Usar LLM para extrair dados da vaga do texto/mensagem
-    const base44 = createClientFromRequest(req);
-    
     const extractResponse = await base44.integrations.Core.InvokeLLM({
       prompt: `Extraia os dados de uma vaga de emprego do seguinte texto em português:
 
-"${messageText}"
+"${contentToProcess}"
 
 Retorne APENAS um JSON válido (sem markdown) com esses campos (deixe em branco se não encontrar):
 {
