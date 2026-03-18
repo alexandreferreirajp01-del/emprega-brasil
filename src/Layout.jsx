@@ -394,11 +394,14 @@ export default function Layout({ children, currentPageName }) {
   <NativePermissionModal />
   <ApplyBasicPermissions user={user} />
 
-  {/* Top Navigation - Fixed com safe-area */}
-  <header className="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 fixed top-0 left-0 right-0 z-[9999] safe-area-top" translate="no" style={{
-    paddingTop: 'max(0px, var(--sat, env(safe-area-inset-top, 0px)))',
-    paddingLeft: 'var(--sal, env(safe-area-inset-left, 0px))',
-    paddingRight: 'var(--sar, env(safe-area-inset-right, 0px))'
+  {/* Top Navigation - Fixed com z-index máximo */}
+  <header className="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 fixed top-0 left-0 right-0 z-[9999]" translate="no" style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 9999,
+    paddingTop: 'var(--sat, env(safe-area-inset-top, 0px))'
   }}>
     <div className="max-w-7xl mx-auto px-4">
       <div className="flex items-center h-16 lg:h-20 relative">
@@ -791,11 +794,14 @@ export default function Layout({ children, currentPageName }) {
     </div>
   </footer>
 
-  {/* Bottom Navigation (Mobile) - Fixed com safe-area */}
-  <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 shadow-lg z-[9998] safe-area-bottom" translate="no" style={{
-    paddingBottom: 'max(0px, var(--sab, env(safe-area-inset-bottom, 0px)))',
-    paddingLeft: 'var(--sal, env(safe-area-inset-left, 0px))',
-    paddingRight: 'var(--sar, env(safe-area-inset-right, 0px))'
+  {/* Bottom Navigation (Mobile) - Fixed com z-index alto */}
+  <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 shadow-lg z-[9998]" translate="no" style={{
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 9998,
+    paddingBottom: 'var(--sab, env(safe-area-inset-bottom, 0px))'
   }}>
     <div className="flex items-center justify-around h-16">
       {navItems.slice(0, 5).map((item) => (
@@ -814,13 +820,11 @@ export default function Layout({ children, currentPageName }) {
   </nav>
 
   {/* AdsTerra Banner 320x50 - Mobile Footer */}
-  <div className="md:hidden fixed z-[9997] bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-1 safe-area-sides" style={{
+  <div className="md:hidden fixed z-[9997] bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-1" style={{
     bottom: 'calc(64px + var(--sab, env(safe-area-inset-bottom, 0px)))',
     left: 0,
     right: 0,
-    zIndex: 9997,
-    paddingLeft: 'var(--sal, env(safe-area-inset-left, 0px))',
-    paddingRight: 'var(--sar, env(safe-area-inset-right, 0px))'
+    zIndex: 9997
   }}>
     <BannerAd size="320x50" pageName={currentPageName} location="footer" className="mx-auto" />
   </div>
