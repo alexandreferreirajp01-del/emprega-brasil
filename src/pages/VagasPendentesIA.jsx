@@ -61,7 +61,7 @@ export default function VagasPendentesIA() {
       await base44.entities.Job.update(jobId, {
         ...updates,
         published_at: new Date().toISOString(),
-        status: 'published'
+        status: 'ativa'
       });
     },
     onSuccess: () => {
