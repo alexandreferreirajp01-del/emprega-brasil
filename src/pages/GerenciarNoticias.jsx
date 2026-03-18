@@ -102,12 +102,21 @@ export default function GerenciarNoticias() {
               <h1 className="text-2xl font-bold text-white">Notícias</h1>
               <p className="text-white/80 text-sm">Criar e gerenciar notícias</p>
             </div>
-            <Button 
-              onClick={handleNew}
-              className="bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl"
-            >
-              <Plus className="w-4 h-4 mr-2" />Nova Notícia
-            </Button>
+            <div className="flex gap-3">
+              <Link to={createPageUrl('GenerarNoticiasIA')}>
+                <Button 
+                  className="bg-emerald-500 text-white hover:bg-emerald-600 rounded-xl"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />Gerar com IA
+                </Button>
+              </Link>
+              <Button 
+                onClick={handleNew}
+                className="bg-white text-[#0A66C2] hover:bg-white/90 rounded-xl"
+              >
+                <Plus className="w-4 h-4 mr-2" />Nova Notícia
+              </Button>
+            </div>
           </div>
         </div>
       </div>
