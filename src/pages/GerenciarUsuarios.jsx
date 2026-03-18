@@ -245,6 +245,16 @@ export default function GerenciarUsuarios() {
     setShowEditDialog(true);
   };
 
+  const handleSendMessage = (u) => {
+    setMessagingUser(u);
+    setShowMessageModal(true);
+  };
+
+  const handleViewProfile = (u) => {
+    setViewingUser(u);
+    setShowProfileModal(true);
+  };
+
   const handleApproveAllPending = async () => {
     if (!pendingUsers.length) return;
     setApprovingAll(true);
