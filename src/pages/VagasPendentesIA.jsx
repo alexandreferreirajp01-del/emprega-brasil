@@ -124,7 +124,7 @@ export default function VagasPendentesIA() {
       const allJobs = await base44.entities.Job.list('-created_date', 1000);
       return allJobs.filter(job =>
         (job.status === 'pending_review' || job.status === 'pending_ai') &&
-        job.origem === 'whatsapp_agent'
+        (job.origem === 'whatsapp_agent' || job.origem === 'telegram_bot')
       );
     },
     enabled: !!user
