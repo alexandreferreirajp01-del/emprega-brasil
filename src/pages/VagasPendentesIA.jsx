@@ -117,17 +117,15 @@ export default function VagasPendentesIA() {
     checkAuth();
   }, []);
 
-  // Fetch pending jobs
+  // Fetch pending jobs via backend (service role para garantir acesso)
   const { data: pendingJobs = [], isLoading: loadingJobs, refetch } = useQuery({
     queryKey: ['pending-ai-jobs'],
     queryFn: async () => {
-      const allJobs = await base44.entities.Job.list('-created_date', 1000);
-      return allJobs.filter(job =>
-        (job.status === 'pending_review' || job.status === 'pending_ai') &&
-        (job.origem === 'whatsapp_agent' || job.origem === 'telegram_bot')
-      );
+      const res = await base44.functions.invoke('getPendingJobs', {});
+      return res.data?.jobs || [];
     },
-    enabled: !!user
+    enabled: !!user,
+    refetchInterval: 30000, // auto-refresh a cada 30s
   });
 
   const filteredJobs = pendingJobs.filter(job =>
