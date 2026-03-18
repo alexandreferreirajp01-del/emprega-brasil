@@ -196,53 +196,153 @@ export default function GenerarNoticiasIA() {
         </div>
       </div>
 
-      {/* Resultado */}
-      {result && (
-        <Dialog open={true} onOpenChange={() => setResult(null)}>
-          <DialogContent className="max-w-2xl">
+      {/* Modal de Edição */}
+      {draft && editData && (
+        <Dialog open={true} onOpenChange={() => { setDraft(null); setEditData(null); }}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-green-600">
-                <CheckCircle2 className="w-6 h-6" />
-                Notícia Gerada com Sucesso!
+              <DialogTitle className="flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-blue-600" />
+                Revisar e Editar Notícia
               </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+
+            <div className="space-y-6">
+              {/* Título */}
               <div>
-                <Label className="text-sm font-semibold">Título</Label>
-                <p className="text-lg font-bold mt-1">{result.title}</p>
+                <Label className="text-sm font-semibold mb-2 block">Título</Label>
+                <Input
+                  value={editData.title}
+                  onChange={(e) => setEditData({...editData, title: e.target.value})}
+                  className="rounded-lg h-11"
+                  maxLength={70}
+                />
+                <p className="text-xs text-slate-500 mt-1">{editData.title.length}/70 caracteres</p>
               </div>
+
+              {/* Subtítulo */}
               <div>
-                <Label className="text-sm font-semibold">Subtítulo</Label>
-                <p className="text-sm text-slate-600 mt-1">{result.subtitle}</p>
+                <Label className="text-sm font-semibold mb-2 block">Subtítulo</Label>
+                <textarea
+                  value={editData.subtitle}
+                  onChange={(e) => setEditData({...editData, subtitle: e.target.value})}
+                  className="w-full rounded-lg p-3 border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
+                  rows={2}
+                  maxLength={170}
+                />
+                <p className="text-xs text-slate-500 mt-1">{editData.subtitle.length}/170 caracteres</p>
               </div>
+
+              {/* Conteúdo */}
               <div>
-                <Label className="text-sm font-semibold">Palavras-chave SEO</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {result.keywords?.map((kw, i) => (
-                    <span key={i} className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">
-                      {kw}
-                    </span>
-                  ))}
+                <Label className="text-sm font-semibold mb-2 block">Conteúdo</Label>
+                <textarea
+                  value={editData.content}
+                  onChange={(e) => setEditData({...editData, content: e.target.value})}
+                  className="w-full rounded-lg p-3 border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
+                  rows={12}
+                />
+                <p className="text-xs text-slate-500 mt-1">{editData.content.length} caracteres</p>
+              </div>
+
+              {/* Imagens */}
+              <div>
+                <Label className="text-sm font-semibold mb-2 block">Adicionar Imagens</Label>
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-blue-500 transition cursor-pointer"
+                  onClick={() => document.getElementById('imageInput')?.click()}
+                >
+                  <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-sm text-slate-600 mb-1">Clique ou arraste para enviar imagens</p>
+                  <p className="text-xs text-slate-500">JPG, PNG, GIF (máx. 5MB)</p>
+                  <input
+                    id="imageInput"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
                 </div>
+
+                {/* Imagens Adicionadas */}
+                {images.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 gap-4">
+                    {images.map((img, i) => (
+                      <div key={i} className="relative rounded-lg overflow-hidden border">
+                        <img src={img.url} alt={img.name} className="w-full h-40 object-cover" />
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="absolute top-2 right-2"
+                          onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                        >
+                          ✕
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              {result.internalLinks?.length > 0 && (
+
+              {/* Categoria */}
+              <div>
+                <Label className="text-sm font-semibold mb-2 block">Categoria</Label>
+                <Select value={editData.category} onValueChange={(val) => setEditData({...editData, category: val})}>
+                  <SelectTrigger className="rounded-lg">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Mercado de Trabalho">Mercado de Trabalho</SelectItem>
+                    <SelectItem value="Dicas de Emprego">Dicas de Emprego</SelectItem>
+                    <SelectItem value="Economia">Economia</SelectItem>
+                    <SelectItem value="Cursos">Cursos</SelectItem>
+                    <SelectItem value="Eventos">Eventos</SelectItem>
+                    <SelectItem value="Geral">Geral</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Palavras-chave */}
+              {draft.keywords && (
                 <div>
-                  <Label className="text-sm font-semibold">Tópicos Relacionados</Label>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {result.internalLinks.map((link, i) => (
-                      <span key={i} className="bg-slate-100 text-slate-700 text-xs px-3 py-1 rounded-full">
-                        {link}
+                  <Label className="text-sm font-semibold mb-2 block">Palavras-chave SEO</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {draft.keywords.map((kw, i) => (
+                      <span key={i} className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">
+                        {kw}
                       </span>
                     ))}
                   </div>
                 </div>
               )}
-              <Button 
-                onClick={() => window.location.href = createPageUrl('GerenciarNoticias')}
-                className="w-full bg-[#0A66C2] hover:bg-[#004182]"
-              >
-                Ver em Gerenciar Notícias
-              </Button>
+
+              {/* Botões */}
+              <div className="flex gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => { setDraft(null); setEditData(null); }}
+                  disabled={publishing}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handlePublish}
+                  disabled={publishing}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  {publishing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Publicando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Publicar Notícia
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
