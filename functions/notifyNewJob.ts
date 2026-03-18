@@ -236,9 +236,17 @@ Deno.serve(async (req) => {
     if (body.event && body.data) {
       // Chamada via automação de entidade
       const job = body.data;
+      const oldJob = body.old_data;
+
       if (!job || job.status !== 'ativa') {
         return Response.json({ skipped: true, reason: 'Vaga não ativa, notificação ignorada' });
       }
+
+      // Se for update, só notifica se o status MUDOU para 'ativa' (evita duplicatas em re-saves)
+      if (body.event.type === 'update' && oldJob && oldJob.status === 'ativa') {
+        return Response.json({ skipped: true, reason: 'Vaga já estava ativa, notificação ignorada para evitar duplicata' });
+      }
+
       jobId = body.event.entity_id || job.id;
       jobTitle = job.title;
       jobCompany = job.company;
