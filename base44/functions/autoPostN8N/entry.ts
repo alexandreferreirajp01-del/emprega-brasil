@@ -174,18 +174,39 @@ IMPORTANTE:
           origin_date: data_recebimento || new Date().toISOString(),
         });
 
-        // ✅ Notificar todos os usuários (email + sininho + push)
+        // ✅ Notificar todos os usuários quando vaga é ativa
         if (vagaPendente?.status === 'ativa' && !noLocation) {
           try {
-            await base44.asServiceRole.functions.invoke('notifyNewJob', {
-              jobId: vagaPendente.id,
-              jobTitle: vagaPendente.title,
-              jobCompany: vagaPendente.company,
-              jobCity: vagaPendente.city,
-              isHomeOffice: !!(vagaPendente.is_home_office || vagaPendente.work_mode === 'Remoto')
+            // Notificação no sininho para todos os usuários
+            await base44.asServiceRole.functions.invoke('createNotification', {
+              title: '✨ Nova Vaga no WhatsApp!',
+              message: `${vagaPendente.title} em ${vagaPendente.city || 'local não informado'}`,
+              type: 'job',
+              reference_type: 'job',
+              reference_id: vagaPendente.id,
+              job_id: vagaPendente.id,
+              sent_to_all: true,
+              redirect_page: 'JobDetail',
+              redirect_params: { id: vagaPendente.id }
             });
           } catch (notifyErr) {
             console.error('Erro ao notificar vaga:', notifyErr.message);
+          }
+        } else if (vagaPendente?.status === 'pending_review') {
+          // Notificar apenas admins sobre vagas pendentes de revisão
+          try {
+            await base44.asServiceRole.functions.invoke('createNotification', {
+              title: '⏳ Vaga Aguardando Revisão',
+              message: `"${vagaPendente.title}" chegou via WhatsApp e precisa de revisão`,
+              type: 'admin',
+              reference_type: 'job',
+              reference_id: vagaPendente.id,
+              job_id: vagaPendente.id,
+              sent_to_all: false,
+              redirect_page: 'VagasPendentes'
+            });
+          } catch (notifyErr) {
+            console.error('Erro ao notificar admin:', notifyErr.message);
           }
         }
 
