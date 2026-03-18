@@ -50,7 +50,6 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
   };
 
   const handleConfirmSave = async () => {
-    setShowMasterDialog(false);
     setSaving(true);
     try {
       // Usar ref para garantir dados mais recentes (evita closure stale)
