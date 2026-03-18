@@ -88,7 +88,7 @@ export default function UserEditDialog({ user, open, onOpenChange, onSave }) {
       if (!payload.password) delete payload.password;
 
       // Atualizar no banco
-      await base44.asServiceRole.entities.User.update(user.id, payload);
+      await base44.entities.User.update(user.id, payload);
       
       toast.success('✅ Usuário atualizado com sucesso!');
       if (onSave) onSave();
