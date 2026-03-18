@@ -95,6 +95,7 @@ const submenuConfigs = {
     icon: Plug,
     items: [
       { id: 'n8n-config', name: 'Configuração N8N', icon: Plug, color: 'emerald', page: 'N8NConfig', description: 'Conectar N8N para posts automáticos', roles: ['admin', 'dono'] },
+      { id: 'telegram-config', name: 'Bot Telegram', icon: Bot, color: 'cyan', page: 'TelegramConfig', description: 'Configurar webhook e monitorar bot do Telegram', roles: ['admin', 'dono'] },
       { id: 'api-keys', name: 'API Keys & Secrets', icon: Shield, color: 'amber', page: 'GerenciarAPIKeys', description: 'Gerenciar chaves de API e secrets', roles: ['admin', 'dono'] },
       { id: 'auditoria-links', name: 'Auditoria de Links', icon: Search, color: 'slate', page: 'AuditoriaLinks', description: 'Verificar e corrigir links quebrados nas vagas', roles: ['admin', 'dono'] },
     ]
