@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigationHistory } from '@/hooks/useNavigationHistory';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { createPageUrl } from "@/utils";
 import { 
         Home, Briefcase, User, Menu, X, 
@@ -79,6 +81,8 @@ export default function Layout({ children, currentPageName }) {
   const [mountedTabs, setMountedTabs] = useState(new Set([currentPageName]));
   const navigate = useNavigate();
   const location = useLocation();
+  const { canGoBack, goBack, isBackNavigation } = useNavigationHistory();
+  const { isPulling, pullProgress } = usePullToRefresh(() => window.location.reload());
 
   const isTabPage = TAB_PAGES.includes(currentPageName);
 
@@ -95,10 +99,12 @@ export default function Layout({ children, currentPageName }) {
     'RecruiterArea', 'Favoritos', 'Historico', 'ProfessionalResume', 'AnalyticsPage'];
   const isChildRoute = childRoutes.includes(currentPageName);
 
-  // Scroll para o topo ao mudar de página
+  // Scroll para o topo ao mudar de página (exceto back navigation)
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [currentPageName]);
+    if (!isBackNavigation) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  }, [currentPageName, isBackNavigation]);
 
   // Carregar itens de navegação e escutar mudanças
   useEffect(() => {
