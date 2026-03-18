@@ -70,9 +70,11 @@ export default function GerenciarNoticias2() {
 
   const processMutation = useMutation({
     mutationFn: async () => {
-      if (!sourceInput.trim()) {
-        throw new Error('Preencha a URL ou arquivo');
+      if (!sourceInput || !sourceInput.trim()) {
+        throw new Error('Preencha o conteúdo');
       }
+      
+      console.log('Invoking newsAIProcessor with:', { sourceType, contentLength: sourceInput.length });
       
       const res = await base44.functions.invoke('newsAIProcessor', {
         source: sourceInput,
@@ -81,8 +83,10 @@ export default function GerenciarNoticias2() {
         publishImmediately: false
       });
       
+      console.log('Response:', res.data);
+      
       if (!res.data?.success) {
-        throw new Error(res.data?.error || 'Erro ao processar');
+        throw new Error(res.data?.error || 'Erro desconhecido');
       }
       
       return res.data;
@@ -90,12 +94,12 @@ export default function GerenciarNoticias2() {
     onSuccess: (data) => {
       toast.success(`✨ Notícia criada: "${data.title}"`);
       setSourceInput('');
+      setSourceType('text');
       setShowNewModal(false);
-      setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['news-management'] });
     },
     onError: (error) => {
-      setLoading(false);
+      console.error('Mutation error:', error);
       toast.error('❌ ' + (error.message || 'Erro ao processar'));
     }
   });
