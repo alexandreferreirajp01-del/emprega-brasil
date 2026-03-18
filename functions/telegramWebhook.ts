@@ -82,29 +82,33 @@ Deno.serve(async (req) => {
 
   // Salvar vaga como pending_review usando service role
   console.log('[telegramWebhook] Salvando vaga:', jobData.title);
-  const newJob = await base44.asServiceRole.entities.Job.create({
-    title: jobData.title || 'Vaga sem título',
-    company: jobData.company || '',
-    city: jobData.city || '',
-    state: jobData.state || 'PB',
-    neighborhood: jobData.neighborhood || '',
-    salary_range: jobData.salary_range || '',
-    job_type: jobData.job_type || '',
-    work_mode: jobData.work_mode || 'Presencial',
-    description: jobData.description || text,
-    contact_phone: jobData.contact_phone || '',
-    contact_whatsapp: jobData.contact_whatsapp || '',
-    contact_email: jobData.contact_email || '',
-    application_link: jobData.application_link || '',
-    is_pcd: jobData.is_pcd || false,
-    is_premium: false,
-    is_featured: false,
-    status: 'pending_review',
-    origem: 'telegram_bot',
-    origin_channel: `telegram_${chatType}`,
-    origin_group_name: chatTitle
-  });
-  console.log('[telegramWebhook] Vaga criada com ID:', newJob?.id);
+  let newJob;
+  try {
+    newJob = await base44.asServiceRole.entities.Job.create({
+      title: jobData.title || 'Vaga sem título',
+      company: jobData.company || '',
+      city: jobData.city || '',
+      state: jobData.state || 'PB',
+      neighborhood: jobData.neighborhood || '',
+      salary_range: jobData.salary_range || '',
+      job_type: jobData.job_type || '',
+      work_mode: jobData.work_mode || 'Presencial',
+      description: jobData.description || text,
+      contact_phone: jobData.contact_phone || '',
+      contact_whatsapp: jobData.contact_whatsapp || '',
+      contact_email: jobData.contact_email || '',
+      application_link: jobData.application_link || '',
+      is_pcd: jobData.is_pcd || false,
+      is_premium: false,
+      is_featured: false,
+      status: 'pending_review',
+      origem: 'telegram_bot',
+    });
+    console.log('[telegramWebhook] Vaga criada com ID:', newJob?.id);
+  } catch (err) {
+    console.error('[telegramWebhook] ERRO ao criar vaga:', err.message, JSON.stringify(err.data || {}));
+    return Response.json({ ok: true });
+  }
 
   // Confirmar no chat privado
   if (chatType === 'private') {
