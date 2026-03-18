@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   ArrowLeft, Search, Rocket, Trash2, Crown, Star,
-  Loader2, MapPin, Building2, Calendar, MessageCircle, CheckCircle,
-  CheckSquare, Square, ChevronDown, Zap, Users, Shield
+  Loader2, MapPin, Building2, Calendar, MessageCircle,
+  CheckSquare, Square, ChevronDown, Zap, Bot, Key,
+  ToggleLeft, ToggleRight, Info
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -23,20 +24,82 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// ─── Chaves de AutoPost ────────────────────────────────────────────────────────
+const AUTOPOST_KEYS = [
+  {
+    id: 'premium',
+    label: 'Premium',
+    icon: Crown,
+    color: 'yellow',
+    desc: 'Publica todas as pendentes como Premium automaticamente',
+    classes: { active: 'bg-yellow-500 text-white border-yellow-500', inactive: 'bg-white text-yellow-700 border-yellow-300' }
+  },
+  {
+    id: 'geral',
+    label: 'Geral',
+    icon: Rocket,
+    color: 'blue',
+    desc: 'Publica todas as pendentes como Geral automaticamente',
+    classes: { active: 'bg-blue-500 text-white border-blue-500', inactive: 'bg-white text-blue-700 border-blue-300' }
+  },
+  {
+    id: 'premium_destaque',
+    label: 'Premium+Destaque',
+    icon: Zap,
+    color: 'purple',
+    desc: 'Publica todas as pendentes como Premium+Destaque automaticamente',
+    classes: { active: 'bg-purple-500 text-white border-purple-500', inactive: 'bg-white text-purple-700 border-purple-300' }
+  },
+  {
+    id: 'geral_destaque',
+    label: 'Geral+Destaque',
+    icon: Star,
+    color: 'amber',
+    desc: 'Publica todas as pendentes como Geral+Destaque automaticamente',
+    classes: { active: 'bg-amber-500 text-white border-amber-500', inactive: 'bg-white text-amber-700 border-amber-300' }
+  },
+  {
+    id: 'auto_ia',
+    label: 'Auto IA',
+    icon: Bot,
+    color: 'emerald',
+    desc: 'IA classifica: salário>2500/cargo especializado/PJ → Premium+Destaque | Remoto/Híbrido → Premium | Demais → Geral',
+    classes: { active: 'bg-emerald-500 text-white border-emerald-500', inactive: 'bg-white text-emerald-700 border-emerald-300' }
+  },
+];
 
 const BULK_OPTIONS = [
-  { label: 'Publicar como Geral', icon: Rocket, isPremium: false, isFeatured: false, color: 'text-blue-600' },
-  { label: 'Publicar como Premium', icon: Crown, isPremium: true, isFeatured: false, color: 'text-yellow-600' },
-  { label: 'Publicar como Destaque', icon: Star, isPremium: false, isFeatured: true, color: 'text-amber-600' },
-  { label: 'Publicar como Premium + Destaque', icon: Zap, isPremium: true, isFeatured: true, color: 'text-purple-600' },
+  { label: 'Publicar como Geral', mode: 'geral', icon: Rocket, color: 'text-blue-600' },
+  { label: 'Publicar como Premium', mode: 'premium', icon: Crown, color: 'text-yellow-600' },
+  { label: 'Publicar como Geral+Destaque', mode: 'geral_destaque', icon: Star, color: 'text-amber-600' },
+  { label: 'Publicar como Premium+Destaque', mode: 'premium_destaque', icon: Zap, color: 'text-purple-600' },
+  { label: 'Auto IA', mode: 'auto_ia', icon: Bot, color: 'text-emerald-600' },
 ];
+
+const STORAGE_KEY = 'autopost_keys_active';
 
 export default function VagasPendentesIA() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [autopostKeys, setAutopostKeys] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+  });
+  const [autopostRunning, setAutopostRunning] = useState(false);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(autopostKeys));
+  }, [autopostKeys]);
 
   // Auth check
   useEffect(() => {
@@ -46,22 +109,16 @@ export default function VagasPendentesIA() {
         const hasAccess = currentUser?.email === 'alexandreferreirajp01@gmail.com' ||
           currentUser?.role === 'admin' ||
           currentUser?.subscription_type === 'admin';
-        if (!hasAccess) {
-          window.location.href = createPageUrl('Home');
-          return;
-        }
+        if (!hasAccess) { window.location.href = createPageUrl('Home'); return; }
         setUser(currentUser);
-      } catch {
-        window.location.href = createPageUrl('Splash');
-      } finally {
-        setLoading(false);
-      }
+      } catch { window.location.href = createPageUrl('Splash'); }
+      finally { setLoading(false); }
     };
     checkAuth();
   }, []);
 
   // Fetch pending jobs
-  const { data: pendingJobs = [], isLoading: loadingJobs } = useQuery({
+  const { data: pendingJobs = [], isLoading: loadingJobs, refetch } = useQuery({
     queryKey: ['pending-ai-jobs'],
     queryFn: async () => {
       const allJobs = await base44.entities.Job.list('-created_date', 1000);
@@ -78,6 +135,45 @@ export default function VagasPendentesIA() {
     job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     job.city?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Verificar se alguma chave de autopost está ativa e executar
+  useEffect(() => {
+    if (!user || loadingJobs || pendingJobs.length === 0 || autopostRunning) return;
+    const activeKey = AUTOPOST_KEYS.find(k => autopostKeys[k.id]);
+    if (!activeKey) return;
+    runAutopost(activeKey.id);
+  }, [user, pendingJobs, loadingJobs]);
+
+  const runAutopost = async (mode) => {
+    if (autopostRunning || pendingJobs.length === 0) return;
+    setAutopostRunning(true);
+    try {
+      const ids = pendingJobs.map(j => j.id);
+      const res = await base44.functions.invoke('autoPublishPending', { mode, jobIds: ids });
+      const { published, errors } = res.data;
+      if (published > 0) {
+        toast.success(`🤖 AutoPost (${mode}): ${published} vaga(s) publicadas!${errors > 0 ? ` ${errors} erro(s).` : ''}`);
+        queryClient.invalidateQueries({ queryKey: ['pending-ai-jobs'] });
+      }
+    } catch (e) {
+      toast.error('Erro no AutoPost: ' + e.message);
+    } finally {
+      setAutopostRunning(false);
+    }
+  };
+
+  const toggleAutopostKey = (keyId) => {
+    setAutopostKeys(prev => {
+      const newKeys = {};
+      // Desativa todas as outras, ativa só a clicada (ou desativa se já estava ativa)
+      if (prev[keyId]) {
+        // Desativar
+        return newKeys;
+      }
+      newKeys[keyId] = true;
+      return newKeys;
+    });
+  };
 
   // Send notification after publishing
   const sendNotification = async (job) => {
@@ -109,58 +205,40 @@ export default function VagasPendentesIA() {
       queryClient.invalidateQueries({ queryKey: ['pending-ai-jobs'] });
       toast.success('✅ Vaga publicada e notificação enviada!');
     },
-    onError: (error) => {
-      toast.error('❌ Erro ao publicar: ' + error.message);
-    }
+    onError: (error) => toast.error('❌ Erro ao publicar: ' + error.message)
   });
 
   // Delete single job
   const deleteMutation = useMutation({
-    mutationFn: async (jobId) => {
-      await base44.entities.Job.delete(jobId);
-    },
+    mutationFn: async (jobId) => base44.entities.Job.delete(jobId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-ai-jobs'] });
       toast.success('✅ Vaga descartada!');
     },
-    onError: (error) => {
-      toast.error('❌ Erro ao descartar: ' + error.message);
-    }
+    onError: (error) => toast.error('❌ Erro ao descartar: ' + error.message)
   });
 
-  // Bulk publish
-  const [bulkLoading, setBulkLoading] = useState(false);
-  const handleBulkPublish = async (isPremium, isFeatured) => {
+  // Bulk publish via backend (com notificações)
+  const handleBulkPublish = async (mode) => {
     if (selectedIds.size === 0) return toast.error('Selecione ao menos uma vaga');
-    const label = isPremium && isFeatured ? 'Premium + Destaque' : isPremium ? 'Premium' : isFeatured ? 'Destaque' : 'Geral';
-    if (!confirm(`Publicar ${selectedIds.size} vaga(s) como "${label}"?`)) return;
+    const opt = BULK_OPTIONS.find(o => o.mode === mode);
+    if (!confirm(`Publicar ${selectedIds.size} vaga(s) como "${opt?.label}"?`)) return;
 
     setBulkLoading(true);
-    let success = 0, errors = 0;
-    const jobsToPublish = filteredJobs.filter(j => selectedIds.has(j.id));
-
-    for (const job of jobsToPublish) {
-      try {
-        await base44.entities.Job.update(job.id, {
-          is_premium: isPremium,
-          is_featured: isFeatured,
-          published_at: new Date().toISOString(),
-          status: 'ativa'
-        });
-        await sendNotification(job);
-        success++;
-      } catch {
-        errors++;
-      }
+    try {
+      const ids = Array.from(selectedIds);
+      const res = await base44.functions.invoke('autoPublishPending', { mode, jobIds: ids });
+      const { published, errors } = res.data;
+      toast.success(`✅ ${published} vaga(s) publicadas${errors > 0 ? `, ${errors} erro(s)` : ''}!`);
+      setSelectedIds(new Set());
+      queryClient.invalidateQueries({ queryKey: ['pending-ai-jobs'] });
+    } catch (e) {
+      toast.error('Erro: ' + e.message);
+    } finally {
+      setBulkLoading(false);
     }
-
-    setBulkLoading(false);
-    setSelectedIds(new Set());
-    queryClient.invalidateQueries({ queryKey: ['pending-ai-jobs'] });
-    toast.success(`✅ ${success} vaga(s) publicadas${errors > 0 ? `, ${errors} erro(s)` : ''}!`);
   };
 
-  // Bulk delete
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return toast.error('Selecione ao menos uma vaga');
     if (!confirm(`Descartar ${selectedIds.size} vaga(s)?`)) return;
@@ -176,6 +254,13 @@ export default function VagasPendentesIA() {
     toast.success(`✅ ${success} vaga(s) descartadas!`);
   };
 
+  const handlePublish = (job, isPremium = false, isFeatured = false) => {
+    const label = isPremium && isFeatured ? 'Premium+Destaque' : isPremium ? 'Premium' : isFeatured ? 'Destaque' : 'Geral';
+    if (confirm(`Publicar "${job.title}" como ${label}?`)) {
+      publishMutation.mutate({ job, isPremium, isFeatured });
+    }
+  };
+
   const toggleSelect = (id) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -185,24 +270,8 @@ export default function VagasPendentesIA() {
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.size === filteredJobs.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredJobs.map(j => j.id)));
-    }
-  };
-
-  const handlePublish = (job, isPremium = false, isFeatured = false) => {
-    const label = isPremium && isFeatured ? 'Premium + Destaque' : isPremium ? 'Premium' : isFeatured ? 'Destaque' : '';
-    if (confirm(`Publicar "${job.title}"${label ? ` como ${label}` : ''}?`)) {
-      publishMutation.mutate({ job, isPremium, isFeatured });
-    }
-  };
-
-  const handleDelete = (job) => {
-    if (confirm(`Descartar vaga "${job.title}"?`)) {
-      deleteMutation.mutate(job.id);
-    }
+    if (selectedIds.size === filteredJobs.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filteredJobs.map(j => j.id)));
   };
 
   if (loading) {
@@ -215,8 +284,10 @@ export default function VagasPendentesIA() {
 
   const allSelected = filteredJobs.length > 0 && selectedIds.size === filteredJobs.length;
   const someSelected = selectedIds.size > 0;
+  const activeKeyId = Object.keys(autopostKeys).find(k => autopostKeys[k]);
 
   return (
+    <TooltipProvider>
     <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-20">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] pt-6 pb-8 px-4">
@@ -231,14 +302,69 @@ export default function VagasPendentesIA() {
               <h1 className="text-2xl font-bold text-white">Vagas Pendentes da IA</h1>
               <p className="text-white/80 text-sm">Vagas recebidas via WhatsApp aguardando revisão</p>
             </div>
-            <Badge className="bg-white/20 text-white border-0 text-lg px-4 py-2">
-              {pendingJobs.length} {pendingJobs.length === 1 ? 'vaga' : 'vagas'}
-            </Badge>
+            <div className="flex items-center gap-2">
+              {autopostRunning && (
+                <Badge className="bg-emerald-400 text-white border-0 flex items-center gap-1">
+                  <Loader2 className="w-3 h-3 animate-spin" /> AutoPost rodando...
+                </Badge>
+              )}
+              <Badge className="bg-white/20 text-white border-0 text-lg px-4 py-2">
+                {pendingJobs.length} {pendingJobs.length === 1 ? 'vaga' : 'vagas'}
+              </Badge>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 -mt-4 space-y-4">
+
+        {/* ─── Chaves de AutoPost ─── */}
+        <Card className="shadow-lg rounded-2xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Key className="w-4 h-4 text-slate-500" />
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Chaves de AutoPost</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="w-4 h-4 text-slate-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  Quando ativada, publica automaticamente todas as vagas pendentes sem precisar aprovar manualmente. Só uma chave pode estar ativa por vez.
+                </TooltipContent>
+              </Tooltip>
+              {activeKeyId && (
+                <Badge className="ml-auto bg-emerald-100 text-emerald-700 text-xs">
+                  Ativa: {AUTOPOST_KEYS.find(k => k.id === activeKeyId)?.label}
+                </Badge>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {AUTOPOST_KEYS.map((key) => {
+                const Icon = key.icon;
+                const isActive = !!autopostKeys[key.id];
+                return (
+                  <Tooltip key={key.id}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => toggleAutopostKey(key.id)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-sm font-semibold transition-all ${isActive ? key.classes.active : key.classes.inactive}`}
+                      >
+                        {isActive
+                          ? <ToggleRight className="w-4 h-4" />
+                          : <ToggleLeft className="w-4 h-4 opacity-50" />}
+                        <Icon className="w-4 h-4" />
+                        {key.label}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs text-xs">
+                      {key.desc}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Search + Select All */}
         <Card className="shadow-lg rounded-2xl">
@@ -253,11 +379,7 @@ export default function VagasPendentesIA() {
               />
             </div>
             {filteredJobs.length > 0 && (
-              <Button
-                variant="outline"
-                onClick={toggleSelectAll}
-                className="rounded-xl whitespace-nowrap"
-              >
+              <Button variant="outline" onClick={toggleSelectAll} className="rounded-xl whitespace-nowrap">
                 {allSelected ? <CheckSquare className="w-4 h-4 mr-2 text-blue-600" /> : <Square className="w-4 h-4 mr-2" />}
                 {allSelected ? 'Desmarcar tudo' : `Selecionar tudo (${filteredJobs.length})`}
               </Button>
@@ -274,13 +396,9 @@ export default function VagasPendentesIA() {
                   {selectedIds.size} vaga(s) selecionada(s)
                 </span>
                 <div className="flex flex-wrap gap-2 ml-auto">
-                  {/* Dropdown de publicação em massa */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
-                        disabled={bulkLoading}
-                      >
+                      <Button className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl" disabled={bulkLoading}>
                         {bulkLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Rocket className="w-4 h-4 mr-2" />}
                         Publicar selecionadas
                         <ChevronDown className="w-4 h-4 ml-2" />
@@ -290,26 +408,20 @@ export default function VagasPendentesIA() {
                       <DropdownMenuLabel>Tipo de publicação</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       {BULK_OPTIONS.map((opt) => (
-                        <DropdownMenuItem
-                          key={opt.label}
-                          onClick={() => handleBulkPublish(opt.isPremium, opt.isFeatured)}
-                          className="cursor-pointer"
-                        >
+                        <DropdownMenuItem key={opt.mode} onClick={() => handleBulkPublish(opt.mode)} className="cursor-pointer">
                           <opt.icon className={`w-4 h-4 mr-2 ${opt.color}`} />
                           {opt.label}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-
                   <Button
                     variant="outline"
                     onClick={handleBulkDelete}
                     disabled={bulkLoading}
                     className="rounded-xl text-red-600 hover:bg-red-50 border-red-200"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Descartar selecionadas
+                    <Trash2 className="w-4 h-4 mr-2" />Descartar selecionadas
                   </Button>
                 </div>
               </div>
@@ -331,7 +443,6 @@ export default function VagasPendentesIA() {
               >
                 <CardContent className="p-6">
                   <div className="flex flex-col gap-4">
-                    {/* Header with checkbox */}
                     <div className="flex items-start gap-4">
                       <Checkbox
                         checked={selectedIds.has(job.id)}
@@ -344,93 +455,46 @@ export default function VagasPendentesIA() {
                           {(job.work_mode === 'Remoto' || job.is_remote) && (
                             <Badge className="bg-teal-100 text-teal-700">🏠 Home Office</Badge>
                           )}
+                          {job.salary_range && (
+                            <Badge variant="outline" className="text-green-700 border-green-300">💰 {job.salary_range}</Badge>
+                          )}
                           <Badge className="bg-yellow-100 text-yellow-700">⏳ Pendente</Badge>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-slate-400 mb-3">
                           {job.company && (
-                            <span className="flex items-center gap-1">
-                              <Building2 className="w-4 h-4" />{job.company}
-                            </span>
+                            <span className="flex items-center gap-1"><Building2 className="w-4 h-4" />{job.company}</span>
                           )}
                           {job.city && (
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-4 h-4" />{job.city}{job.state ? `, ${job.state}` : ''}
-                            </span>
+                            <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{job.city}{job.state ? `, ${job.state}` : ''}</span>
                           )}
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            <TimeAgo date={job.created_date} />
+                            <Calendar className="w-4 h-4" /><TimeAgo date={job.created_date} />
                           </span>
-                          {job.salary_range && (
-                            <Badge variant="outline" className="text-green-700 border-green-300">
-                              💰 {job.salary_range}
-                            </Badge>
-                          )}
                         </div>
 
-                        {job.origin_group_name && (
-                          <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg mb-2">
-                            <MessageCircle className="w-3 h-3" />
-                            <span>Origem: {job.origin_group_name}</span>
-                            {job.origin_channel && <span>• {job.origin_channel}</span>}
-                          </div>
-                        )}
-
                         {job.description && (
-                          <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3">
-                            {job.description}
-                          </p>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3">{job.description}</p>
                         )}
                       </div>
                     </div>
 
                     {/* Actions */}
                     <div className="flex flex-wrap gap-2 pt-4 border-t dark:border-slate-700">
-                      <Button
-                        onClick={() => handlePublish(job, false, false)}
-                        disabled={publishMutation.isPending}
-                        className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl"
-                        size="sm"
-                      >
-                        <Rocket className="w-4 h-4 mr-2" />Publicar
+                      <Button onClick={() => handlePublish(job, false, false)} disabled={publishMutation.isPending} className="bg-[#0A66C2] hover:bg-[#004182] rounded-xl" size="sm">
+                        <Rocket className="w-4 h-4 mr-2" />Geral
                       </Button>
-                      <Button
-                        onClick={() => handlePublish(job, true, false)}
-                        disabled={publishMutation.isPending}
-                        variant="outline"
-                        size="sm"
-                        className="rounded-xl border-yellow-300 text-yellow-700 hover:bg-yellow-50"
-                      >
+                      <Button onClick={() => handlePublish(job, true, false)} disabled={publishMutation.isPending} variant="outline" size="sm" className="rounded-xl border-yellow-300 text-yellow-700 hover:bg-yellow-50">
                         <Crown className="w-4 h-4 mr-2" />Premium
                       </Button>
-                      <Button
-                        onClick={() => handlePublish(job, false, true)}
-                        disabled={publishMutation.isPending}
-                        variant="outline"
-                        size="sm"
-                        className="rounded-xl border-amber-300 text-amber-700 hover:bg-amber-50"
-                      >
-                        <Star className="w-4 h-4 mr-2" />Destaque
+                      <Button onClick={() => handlePublish(job, false, true)} disabled={publishMutation.isPending} variant="outline" size="sm" className="rounded-xl border-amber-300 text-amber-700 hover:bg-amber-50">
+                        <Star className="w-4 h-4 mr-2" />Geral+Destaque
                       </Button>
-                      <Button
-                        onClick={() => handlePublish(job, true, true)}
-                        disabled={publishMutation.isPending}
-                        variant="outline"
-                        size="sm"
-                        className="rounded-xl border-purple-300 text-purple-700 hover:bg-purple-50"
-                      >
-                        <Zap className="w-4 h-4 mr-2" />Premium + Destaque
+                      <Button onClick={() => handlePublish(job, true, true)} disabled={publishMutation.isPending} variant="outline" size="sm" className="rounded-xl border-purple-300 text-purple-700 hover:bg-purple-50">
+                        <Zap className="w-4 h-4 mr-2" />Premium+Destaque
                       </Button>
-
                       <div className="ml-auto">
-                        <Button
-                          onClick={() => handleDelete(job)}
-                          disabled={deleteMutation.isPending}
-                          variant="outline"
-                          size="sm"
-                          className="rounded-xl text-red-600 hover:bg-red-50 border-red-200"
-                        >
+                        <Button onClick={() => { if (confirm(`Descartar "${job.title}"?`)) deleteMutation.mutate(job.id); }} disabled={deleteMutation.isPending} variant="outline" size="sm" className="rounded-xl text-red-600 hover:bg-red-50 border-red-200">
                           <Trash2 className="w-4 h-4 mr-2" />Descartar
                         </Button>
                       </div>
@@ -451,5 +515,6 @@ export default function VagasPendentesIA() {
         )}
       </div>
     </div>
+    </TooltipProvider>
   );
 }
