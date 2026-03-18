@@ -111,34 +111,67 @@ async function extractContentFromUrl(url) {
 
 async function extractContentFromFile(base44, fileUrl) {
   try {
-    // Detectar tipo de arquivo
     const ext = fileUrl.split('.').pop().toLowerCase();
     
     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
-      // Para imagens, usar OCR via IA
+      // Para imagens, usar OCR via IA com prompt melhorado
       const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: 'Leia o texto e conteúdo visível nesta imagem e transcreva tudo que conseguir ver com precisão.',
+        prompt: `Leia TODA a imagem com atenção e transcreva CADA palavra, número, símbolo e informação visível. 
+Inclua:
+- Todos os textos e títulos
+- Parágrafos completos
+- Listas e enumerações
+- Números e dados
+- Não resuma, transcreva na íntegra`,
         file_urls: [fileUrl]
       });
-      return result || 'Imagem não contém texto legível';
+      
+      const content = result || '';
+      if (content.length < 100) {
+        throw new Error('Imagem não contém texto legível suficiente');
+      }
+      return content;
     }
     
     if (ext === 'pdf' || ext === 'docx') {
-      // Para PDF e DOCX, usar ExtractDataFromUploadedFile
-      const result = await base44.asServiceRole.integrations.Core.ExtractDataFromUploadedFile({
-        file_url: fileUrl,
-        json_schema: {
-          type: 'object',
-          properties: {
-            content: { type: 'string', description: 'Todo o texto e conteúdo do arquivo' }
+      // Para PDF e DOCX, tentar ExtractDataFromUploadedFile
+      try {
+        const result = await base44.asServiceRole.integrations.Core.ExtractDataFromUploadedFile({
+          file_url: fileUrl,
+          json_schema: {
+            type: 'object',
+            properties: {
+              content: { 
+                type: 'string', 
+                description: 'Extrai TODO o texto, parágrafos, títulos, listas - tudo que está no documento' 
+              }
+            }
           }
+        });
+        
+        if (result.status === 'success' && result.output?.content && result.output.content.length > 100) {
+          console.log(`[extractContentFromFile] PDF/DOCX extraído: ${result.output.content.length} caracteres`);
+          return result.output.content;
         }
+      } catch (e) {
+        console.log(`[extractContentFromFile] ExtractData falhou, tentando IA...`, e.message);
+      }
+      
+      // Fallback: usar IA para ler PDF como imagem
+      const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: `Este é um arquivo PDF ou DOCX. Leia TODO o conteúdo de texto e transcreva completamente:
+- Todos os títulos e subtítulos
+- Todos os parágrafos
+- Listas, tabelas e dados
+- Não resuma, extraia o máximo possível de informação textual`,
+        file_urls: [fileUrl]
       });
       
-      if (result.status === 'success' && result.output?.content) {
-        return result.output.content;
+      const content = result || '';
+      if (content.length < 100) {
+        throw new Error('Arquivo não contém conteúdo de texto legível suficiente');
       }
-      throw new Error('Erro ao extrair arquivo');
+      return content;
     }
     
     throw new Error(`Tipo de arquivo não suportado: ${ext}`);
