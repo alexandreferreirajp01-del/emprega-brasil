@@ -37,15 +37,13 @@ import WelcomePopup from "@/components/common/WelcomePopup";
 const HomeTabPage = React.lazy(() => import("@/pages/Home"));
 const JobsTabPage = React.lazy(() => import("@/pages/Jobs"));
 const NewsTabPage = React.lazy(() => import("@/pages/News"));
-const BlogTabPage = React.lazy(() => import("@/pages/Blog"));
 const FeedTabPage = React.lazy(() => import("@/pages/Feed"));
 
-const TAB_PAGES = ['Home', 'Jobs', 'News', 'Blog', 'Feed'];
+const TAB_PAGES = ['Home', 'Jobs', 'News', 'Feed'];
 const TAB_COMPONENTS = {
   Home: HomeTabPage,
   Jobs: JobsTabPage,
   News: NewsTabPage,
-  Blog: BlogTabPage,
   Feed: FeedTabPage,
 };
 
@@ -109,7 +107,6 @@ export default function Layout({ children, currentPageName }) {
         { name: 'Início', icon: Home, page: 'Home' },
         { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
         { name: 'Notícias', icon: Newspaper, page: 'News' },
-        { name: 'Blog', icon: BookOpen, page: 'Blog' },
         { name: 'Feed', icon: MessageCircle, page: 'Feed' },
       ];
       
@@ -294,12 +291,7 @@ export default function Layout({ children, currentPageName }) {
       keywords: 'notícias emprego paraíba, mercado de trabalho PB, dicas carreira, vagas PB',
       url: '/News',
     },
-    Blog: {
-      title: 'Blog - Dicas de Carreira e Emprego na Paraíba',
-      description: 'Artigos, dicas de carreira, como melhorar o currículo e se preparar para entrevistas. Tudo sobre emprego na Paraíba.',
-      keywords: 'blog emprego paraíba, dicas currículo, preparação entrevista, carreira PB',
-      url: '/Blog',
-    },
+
     Groups: {
       title: 'Grupos de WhatsApp e Telegram de Vagas na Paraíba',
       description: 'Entre nos melhores grupos de WhatsApp e Telegram com vagas de emprego, negócios e oportunidades na Paraíba.',
@@ -385,7 +377,7 @@ export default function Layout({ children, currentPageName }) {
       url={currentSEO.url}
     />
   )}
-  {['Home','Jobs','News','Blog','Feed','JobDetail','NewsDetail','BlogDetail','Groups','About','Contact','FAQ','Subscription','Profile','Favoritos','Historico','BibliotecaProfissional','Utilidades'].includes(currentPageName) && <AdSenseHead />}
+  {['Home','Jobs','News','Feed','JobDetail','NewsDetail','Groups','About','Contact','FAQ','Subscription','Profile','Favoritos','Historico','BibliotecaProfissional','Utilidades'].includes(currentPageName) && <AdSenseHead />}
   {/* AdsTerra Ads */}
   <PopunderAd pageName={currentPageName} />
   <SocialBarAd pageName={currentPageName} />
