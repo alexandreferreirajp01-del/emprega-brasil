@@ -41,6 +41,7 @@ export default function GerenciarUsuarios() {
   const [viewingUser, setViewingUser] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [approvingAll, setApprovingAll] = useState(false);
+  const [showBulkWizard, setShowBulkWizard] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -331,6 +332,13 @@ export default function GerenciarUsuarios() {
           >
             <UserPlus className="w-4 h-4 mr-2" />
             Cadastrar Usuário
+          </Button>
+          <Button
+            onClick={() => setShowBulkWizard(true)}
+            className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            Mensagem em Massa
           </Button>
           <Button 
             onClick={handleRefresh} 
