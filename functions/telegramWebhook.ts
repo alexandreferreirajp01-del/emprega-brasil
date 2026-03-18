@@ -69,9 +69,16 @@ Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
 
   // Extrair dados da vaga com IA
-  const jobData = await extractJobData(base44, text);
+  let jobData;
+  try {
+    jobData = await extractJobData(base44, text);
+    console.log('[telegramWebhook] IA resultado is_job:', jobData?.is_job, 'title:', jobData?.title);
+  } catch (err) {
+    console.error('[telegramWebhook] ERRO no LLM:', err.message);
+    return Response.json({ ok: true });
+  }
 
-  if (!jobData.is_job) {
+  if (!jobData || !jobData.is_job) {
     if (chatType === 'private') {
       await sendTelegramMessage(chatId,
         '⚠️ Não consegui identificar uma vaga de emprego nessa mensagem.\n\nEnvie o texto completo da vaga com título, empresa, localização e contato.'
