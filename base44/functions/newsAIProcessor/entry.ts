@@ -17,110 +17,88 @@ Deno.serve(async (req) => {
     }
 
     let extractedContent = '';
-    let sourceTitle = '';
 
     // Extract content from URL
     if (sourceType === 'url') {
       try {
         const response = await fetch(source, { 
-          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
-          signal: AbortSignal.timeout(10000)
+          headers: { 'User-Agent': 'Mozilla/5.0' },
+          signal: AbortSignal.timeout(8000)
         });
         
-        if (response.ok) {
-          let html = await response.text();
-          
-          // Extract title from meta og:title or title tag
-          const ogTitleMatch = html.match(/<meta property="og:title" content="([^"]+)"/i);
-          const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
-          sourceTitle = ogTitleMatch?.[1] || titleMatch?.[1] || '';
-          
-          // Remove scripts, styles and unnecessary tags
-          html = html.replace(/<script[^>]*>.*?<\/script>/gs, '')
-            .replace(/<style[^>]*>.*?<\/style>/gs, '')
-            .replace(/<nav[^>]*>.*?<\/nav>/gs, '')
-            .replace(/<footer[^>]*>.*?<\/footer>/gs, '')
-            .replace(/<header[^>]*>.*?<\/header>/gs, '');
-          
-          // Extract main content
-          extractedContent = html
-            .replace(/<[^>]*>/g, ' ')
-            .replace(/&nbsp;/g, ' ')
-            .replace(/&quot;/g, '"')
-            .replace(/&amp;/g, '&')
-            .replace(/\s+/g, ' ')
-            .trim()
-            .substring(0, 3000);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
         }
+
+        let html = await response.text();
+        
+        // Remove scripts and styles
+        html = html.replace(/<script[^>]*>.*?<\/script>/gs, '')
+          .replace(/<style[^>]*>.*?<\/style>/gs, '')
+          .replace(/<nav[^>]*>.*?<\/nav>/gs, '')
+          .replace(/<footer[^>]*>.*?<\/footer>/gs, '');
+        
+        extractedContent = html
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&quot;/g, '"')
+          .replace(/&amp;/g, '&')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .substring(0, 2000);
       } catch (e) {
-        return Response.json({ error: 'Failed to extract content from URL: ' + e.message }, { status: 400 });
+        throw new Error(`Failed to fetch URL: ${e.message}`);
       }
     } else if (sourceType === 'file') {
-      // For file uploads, assume content is already extracted
       extractedContent = source;
     }
 
-    if (!extractedContent || extractedContent.length < 100) {
-      return Response.json({ error: 'Insufficient content extracted' }, { status: 400 });
+    if (!extractedContent || extractedContent.length < 80) {
+      throw new Error('Content too short (min 80 chars)');
     }
 
-    // Use LLM to generate comprehensive article
-    const llmResponse = await base44.integrations.Core.InvokeLLM({
-      prompt: `Analyze this content and generate a professional news article in Portuguese (Brazil). 
-Be original, avoid plagiarism. Return ONLY valid JSON with NO markdown:
+    // Use LLM with timeout protection
+    let llmResponse;
+    try {
+      llmResponse = await Promise.race([
+        base44.integrations.Core.InvokeLLM({
+          prompt: `Generate a news article in Portuguese (Brazil). Return ONLY valid JSON:
 {
-  "title": "SEO-optimized title (60-80 chars, catchy)",
-  "subtitle": "Brief engaging summary (100-150 chars)",
-  "keywords": "5-7 comma-separated keywords for SEO",
-  "metaDescription": "SEO meta description (150-160 chars)",
-  "slug": "url-friendly-slug-format",
-  "content": "Main article (800-1200 words, 3-4 paragraphs with H2 headers, scannable, original)",
-  "summary": "Brief 2-3 line summary",
-  "mainImageCaption": "Suggested image caption if any"
+  "title": "Title (60-80 chars)",
+  "subtitle": "Summary (100-150 chars)",
+  "keywords": "5-7 keywords",
+  "metaDescription": "Meta (150-160 chars)",
+  "content": "Article (400-600 words)"
 }
 
-IMPORTANT:
-- Original content, NOT copied
-- Professional journalism style
-- Include relevant data/statistics if present
-- Structure with clear paragraphs
-- AdSense-friendly (no explicit adult content, political extremism, or violence)
-- SEO optimized with keyword density 1-2%
-
-Source content:
-${extractedContent}`,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          title: { type: 'string' },
-          subtitle: { type: 'string' },
-          keywords: { type: 'string' },
-          metaDescription: { type: 'string' },
-          slug: { type: 'string' },
-          content: { type: 'string' },
-          summary: { type: 'string' },
-          mainImageCaption: { type: 'string' }
-        }
-      },
-      model: 'gpt_5'
-    });
+Content: ${extractedContent}`,
+          response_json_schema: {
+            type: 'object',
+            properties: {
+              title: { type: 'string' },
+              subtitle: { type: 'string' },
+              keywords: { type: 'string' },
+              metaDescription: { type: 'string' },
+              content: { type: 'string' }
+            }
+          }
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('LLM timeout')), 29000))
+      ]);
+    } catch (e) {
+      throw new Error(`LLM error: ${e.message}`);
+    }
 
     if (!llmResponse || !llmResponse.title) {
       throw new Error('Invalid LLM response');
     }
 
-    const { title, subtitle, keywords, metaDescription, slug, content, summary, mainImageCaption } = llmResponse;
+    const { title, subtitle, keywords = '', metaDescription = '', content } = llmResponse;
 
-    // Create structured content blocks
     const blocks = [
-      { 
-        type: 'content', 
-        content: content,
-        order: 0 
-      }
+      { type: 'content', content: content || subtitle, order: 0 }
     ];
 
-    // Save to database
     const newsData = {
       title,
       subtitle,
@@ -129,44 +107,27 @@ ${extractedContent}`,
       blocks,
       is_featured: false,
       status: publishImmediately ? 'published' : 'draft',
-      external_link: sourceType === 'url' ? source : null
+      external_link: sourceType === 'url' ? source : null,
+      additional_info: JSON.stringify({
+        keywords,
+        metaDescription,
+        sourceUrl: source,
+        generatedAt: new Date().toISOString()
+      })
     };
 
-    // Store SEO data in additional_info
-    newsData.additional_info = JSON.stringify({
-      keywords,
-      metaDescription,
-      slug,
-      summary,
-      mainImageCaption,
-      sourceUrl: source,
-      generatedAt: new Date().toISOString()
-    });
-
     const news = await base44.asServiceRole.entities.News.create(newsData);
-
-    // Send admin notification
-    try {
-      await base44.functions.invoke('notifyAdmins', {
-        title: `Nova Notícia ${publishImmediately ? 'Publicada' : 'Rascunho'}`,
-        message: `Notícia "${title}" foi ${publishImmediately ? 'publicada' : 'criada como rascunho'}.`,
-        type: 'news'
-      });
-    } catch (e) {
-      console.warn('Could not send notification:', e);
-    }
 
     return Response.json({
       success: true,
       newsId: news.id,
       title,
       subtitle,
-      status: newsData.status,
-      seoData: { keywords, metaDescription, slug }
+      status: newsData.status
     });
 
   } catch (error) {
-    console.error('NewsAI Error:', error);
+    console.error('NewsAI Error:', error.message);
     return Response.json({
       success: false,
       error: error.message || 'Error processing news'

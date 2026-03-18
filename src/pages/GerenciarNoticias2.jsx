@@ -74,26 +74,29 @@ export default function GerenciarNoticias2() {
         throw new Error('Preencha a URL ou arquivo');
       }
       
-      setLoading(true);
       const res = await base44.functions.invoke('newsAIProcessor', {
         source: sourceInput,
         sourceType,
         category,
         publishImmediately: false
       });
+      
+      if (!res.data?.success) {
+        throw new Error(res.data?.error || 'Erro ao processar');
+      }
+      
       return res.data;
     },
     onSuccess: (data) => {
       toast.success(`✨ Notícia criada: "${data.title}"`);
       setSourceInput('');
       setShowNewModal(false);
+      setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['news-management'] });
     },
     onError: (error) => {
-      toast.error('Erro: ' + error.message);
-    },
-    onSettled: () => {
       setLoading(false);
+      toast.error('❌ ' + (error.message || 'Erro ao processar'));
     }
   });
 
@@ -230,14 +233,17 @@ export default function GerenciarNoticias2() {
 
                   {/* Submit */}
                   <Button
-                    onClick={() => processMutation.mutate()}
-                    disabled={loading || !sourceInput}
+                    onClick={() => {
+                      setLoading(true);
+                      processMutation.mutate();
+                    }}
+                    disabled={loading || !sourceInput || processMutation.isPending}
                     className="w-full bg-blue-600 hover:bg-blue-700"
                   >
-                    {loading ? (
+                    {loading || processMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Processando...
+                        Processando (pode levar 30s)...
                       </>
                     ) : (
                       <>
