@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import MobileSelect from '@/components/ui/mobile-select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -214,19 +215,13 @@ export default function GerenciarNoticias2() {
                   )}
 
                   {/* Category */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Categoria</label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full border rounded-lg p-2"
-                      disabled={loading}
-                    >
-                      {CATEGORIES.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <MobileSelect
+                    label="Categoria"
+                    value={category}
+                    onChange={setCategory}
+                    options={CATEGORIES.map(cat => ({ value: cat, label: cat }))}
+                    disabled={loading}
+                  />
 
                   {/* Submit */}
                   <Button
@@ -267,15 +262,15 @@ export default function GerenciarNoticias2() {
                 className="pl-10"
               />
             </div>
-            <select
+            <MobileSelect
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="border rounded-lg p-2"
-            >
-              <option value="all">Todos</option>
-              <option value="draft">Rascunhos</option>
-              <option value="published">Publicadas</option>
-            </select>
+              onChange={setFilterStatus}
+              options={[
+                { value: 'all', label: 'Todos' },
+                { value: 'draft', label: 'Rascunhos' },
+                { value: 'published', label: 'Publicadas' },
+              ]}
+            />
           </CardContent>
         </Card>
 
