@@ -69,6 +69,7 @@ const AuthenticatedApp = () => {
       <Route path="/VagasPendentesIA" element={<LayoutWrapper currentPageName="VagasPendentesIA"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/VagasPendentesIA')))}</React.Suspense></LayoutWrapper>} />
       <Route path="/TelegramConfig" element={<LayoutWrapper currentPageName="TelegramConfig"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/TelegramConfig')))}</React.Suspense></LayoutWrapper>} />
       <Route path="/PostarNoticiasIA" element={<LayoutWrapper currentPageName="PostarNoticiasIA"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/PostarNoticiasIA')))}</React.Suspense></LayoutWrapper>} />
+      <Route path="/GerenciarNoticias2" element={<LayoutWrapper currentPageName="GerenciarNoticias2"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/GerenciarNoticias2')))}</React.Suspense></LayoutWrapper>} />
       <Route path="/ForgotPassword" element={<LayoutWrapper currentPageName="ForgotPassword"><ForgotPasswordPage /></LayoutWrapper>} />
       <Route path="/ResetPassword" element={<LayoutWrapper currentPageName="ResetPassword"><ResetPasswordPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
