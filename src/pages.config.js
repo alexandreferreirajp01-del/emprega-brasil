@@ -57,7 +57,6 @@ import ApagarVagasPorPeriodo from './pages/ApagarVagasPorPeriodo';
 import BancoDadosAssistente from './pages/BancoDadosAssistente';
 import BibliotecaAdmin from './pages/BibliotecaAdmin';
 import BibliotecaProfissional from './pages/BibliotecaProfissional';
-import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
 import Careers from './pages/Careers';
 import CentralPromocoes from './pages/CentralPromocoes';
@@ -161,7 +160,6 @@ export const PAGES = {
     "BancoDadosAssistente": BancoDadosAssistente,
     "BibliotecaAdmin": BibliotecaAdmin,
     "BibliotecaProfissional": BibliotecaProfissional,
-    "Blog": Blog,
     "BlogDetail": BlogDetail,
     "Careers": Careers,
     "CentralPromocoes": CentralPromocoes,
