@@ -107,6 +107,7 @@ export default function Layout({ children, currentPageName }) {
         { name: 'Início', icon: Home, page: 'Home' },
         { name: 'Vagas', icon: Briefcase, page: 'Jobs' },
         { name: 'Notícias', icon: Newspaper, page: 'News' },
+        { name: 'Grupos', icon: UsersRound, page: 'Groups' },
         { name: 'Feed', icon: MessageCircle, page: 'Feed' },
       ];
       
