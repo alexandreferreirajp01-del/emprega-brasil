@@ -9,7 +9,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -70,6 +70,7 @@ const AuthenticatedApp = () => {
       <Route path="/TelegramConfig" element={<LayoutWrapper currentPageName="TelegramConfig"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/TelegramConfig')))}</React.Suspense></LayoutWrapper>} />
       <Route path="/PostarNoticiasIA" element={<LayoutWrapper currentPageName="PostarNoticiasIA"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/PostarNoticiasIA')))}</React.Suspense></LayoutWrapper>} />
       <Route path="/GerenciarNoticias2" element={<LayoutWrapper currentPageName="GerenciarNoticias2"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/GerenciarNoticias2')))}</React.Suspense></LayoutWrapper>} />
+      <Route path="/generarnoticiasia" element={<Navigate to="/GerenciarNoticias2" replace />} />
       <Route path="/ForgotPassword" element={<LayoutWrapper currentPageName="ForgotPassword"><ForgotPasswordPage /></LayoutWrapper>} />
       <Route path="/ResetPassword" element={<LayoutWrapper currentPageName="ResetPassword"><ResetPasswordPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
