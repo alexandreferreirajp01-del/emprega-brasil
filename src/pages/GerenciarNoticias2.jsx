@@ -156,27 +156,28 @@ export default function GerenciarNoticias2() {
                   <Plus className="w-5 h-5 mr-2" />Nova Notícia com IA
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Criar Notícia com IA</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   {/* Source Type Selection */}
-                  <div className="flex gap-3">
+                  <div className="flex gap-2">
                     {[
                       { id: 'url', label: 'URL Web', icon: Globe },
-                      { id: 'file', label: 'Arquivo', icon: FileText }
+                      { id: 'file', label: 'Arquivo', icon: FileText },
+                      { id: 'text', label: 'Colar Texto', icon: FileText }
                     ].map(type => (
                       <button
                         key={type.id}
                         onClick={() => { setSourceType(type.id); setSourceInput(''); }}
-                        className={`flex-1 p-3 rounded-lg border-2 transition ${
+                        className={`flex-1 p-3 rounded-lg border-2 transition text-sm ${
                           sourceType === type.id
                             ? 'border-blue-600 bg-blue-50 text-blue-700'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <type.icon className="w-5 h-5 mx-auto mb-1" />
+                        <type.icon className="w-4 h-4 mx-auto mb-1" />
                         {type.label}
                       </button>
                     ))}
@@ -193,7 +194,7 @@ export default function GerenciarNoticias2() {
                         disabled={loading}
                       />
                     </div>
-                  ) : (
+                  ) : sourceType === 'file' ? (
                     <div>
                       <label className="block text-sm font-medium mb-2">Arquivo (PDF, DOCX, Imagem)</label>
                       <input
@@ -213,6 +214,18 @@ export default function GerenciarNoticias2() {
                         }}
                         disabled={loading}
                       />
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Cole o texto aqui</label>
+                      <textarea
+                        placeholder="Cole aqui o conteúdo da notícia (mínimo 80 caracteres)..."
+                        value={sourceInput}
+                        onChange={(e) => setSourceInput(e.target.value)}
+                        disabled={loading}
+                        className="w-full border rounded-lg p-3 min-h-[200px] resize-none"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">{sourceInput.length} caracteres</p>
                     </div>
                   )}
 
