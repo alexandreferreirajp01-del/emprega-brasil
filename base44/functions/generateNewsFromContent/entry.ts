@@ -12,61 +12,97 @@ const SEO_KEYWORDS = {
 async function extractContentFromUrl(url) {
   try {
     const response = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+      headers: { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
     });
     
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const html = await response.text();
-    
-    // Estratégia 1: Tenta extrair conteúdo de tags semânticas
     let content = '';
     
-    // Remove scripts e styles
+    // Remove scripts, styles, noscript, iframes
     let cleaned = html
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, '')
+      .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '')
+      .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
+      .replace(/<header[^>]*>[\s\S]*?<\/header>/gi, '')
+      .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '');
     
-    // Tenta extrair main content
-    const mainMatch = cleaned.match(/<main[^>]*>([\s\S]*?)<\/main>/i) ||
-                      cleaned.match(/<article[^>]*>([\s\S]*?)<\/article>/i) ||
-                      cleaned.match(/<div[^>]*class="content"[^>]*>([\s\S]*?)<\/div>/i) ||
-                      cleaned.match(/<div[^>]*class="[^"]*post[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
+    // Múltiplas estratégias de extração
+    let contentMatch = 
+      cleaned.match(/<main[^>]*>([\s\S]*?)<\/main>/i) ||
+      cleaned.match(/<article[^>]*>([\s\S]*?)<\/article>/i) ||
+      cleaned.match(/<div[^>]*class="[^"]*content[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
+      cleaned.match(/<div[^>]*class="[^"]*post[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
+      cleaned.match(/<div[^>]*class="[^"]*entry[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
+      cleaned.match(/<section[^>]*>([\s\S]*?)<\/section>/i) ||
+      cleaned.match(/<div[^>]*id="content"[^>]*>([\s\S]*?)<\/div>/i) ||
+      cleaned.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
     
-    if (mainMatch) {
-      content = mainMatch[1];
+    if (contentMatch) {
+      content = contentMatch[1];
     } else {
-      // Fallback: extrai body completo
-      const bodyMatch = cleaned.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-      content = bodyMatch ? bodyMatch[1] : cleaned;
+      content = cleaned;
     }
     
-    // Remove HTML tags mantendo estrutura
+    // Extrair texto preservando estrutura
+    const paragraphs = [];
+    
+    // Extrair H1-H6
+    const headings = content.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/gi) || [];
+    headings.forEach(h => {
+      const text = h.replace(/<[^>]+>/g, '').trim();
+      if (text.length > 0 && text.length < 500) paragraphs.push(text);
+    });
+    
+    // Extrair parágrafos
+    const paras = content.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) || [];
+    paras.forEach(p => {
+      const text = p.replace(/<[^>]+>/g, '').trim();
+      if (text.length > 20 && text.length < 1000) paragraphs.push(text);
+    });
+    
+    // Extrair divs com conteúdo
+    const divs = content.match(/<div[^>]*>([\s\S]*?)<\/div>/gi) || [];
+    divs.slice(0, 20).forEach(d => {
+      const text = d.replace(/<[^>]+>/g, '').trim();
+      if (text.length > 30 && text.length < 1000 && !text.includes('<')) paragraphs.push(text);
+    });
+    
+    // Extrair spans e outros elementos
+    const spans = content.match(/<(span|li|td|dd)[^>]*>([\s\S]*?)<\/\1>/gi) || [];
+    spans.slice(0, 10).forEach(s => {
+      const text = s.replace(/<[^>]+>/g, '').trim();
+      if (text.length > 20 && text.length < 500) paragraphs.push(text);
+    });
+    
+    // Limpar duplicatas e organizar
+    const uniqueParagraphs = [...new Set(paragraphs.map(p => p.trim()))].filter(p => p.length > 0);
+    content = uniqueParagraphs.join('\n\n');
+    
+    // Remover HTML residual
     content = content
-      .replace(/<h[1-6][^>]*>[\s\S]*?<\/h[1-6]>/gi, (match) => {
-        const text = match.replace(/<[^>]+>/g, '').trim();
-        return text ? '\n\n' + text + '\n\n' : '';
-      })
-      .replace(/<p[^>]*>[\s\S]*?<\/p>/gi, (match) => {
-        const text = match.replace(/<[^>]+>/g, '').trim();
-        return text ? '\n' + text + '\n' : '';
-      })
-      .replace(/<br[^>]*>/gi, '\n')
-      .replace(/<[^>]+>/g, ' ')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
       .replace(/\s+/g, ' ')
       .trim();
     
-    // Remove linhas vazias excessivas
-    content = content
-      .split('\n')
-      .filter(line => line.trim().length > 0)
-      .join('\n')
-      .substring(0, 15000); // Aumenta limite para capturar mais conteúdo
+    // Garantir que temos conteúdo suficiente
+    content = content.substring(0, 20000);
     
     if (!content || content.length < 200) {
-      throw new Error('Conteúdo insuficiente extraído da URL');
+      throw new Error('Conteúdo insuficiente extraído da URL. Certifique-se que a página tem conteúdo de texto.');
     }
     
+    console.log(`[extractContentFromUrl] Extraído: ${content.length} caracteres`);
     return content;
   } catch (err) {
     throw new Error(`Erro ao extrair URL: ${err.message}`);
