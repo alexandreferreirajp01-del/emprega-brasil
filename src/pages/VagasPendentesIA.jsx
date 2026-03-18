@@ -50,7 +50,7 @@ export default function VagasPendentesIA() {
     queryKey: ['pending-ai-jobs'],
     queryFn: async () => {
       const allJobs = await base44.entities.Job.list('-created_date', 1000);
-      return allJobs.filter(job => job.status === 'pending_ai');
+      return allJobs.filter(job => job.status === 'pending_review' && job.origem === 'whatsapp_agent');
     },
     enabled: !!user
   });
