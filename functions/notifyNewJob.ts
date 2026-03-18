@@ -237,15 +237,37 @@ Deno.serve(async (req) => {
     if (body.event && body.data) {
       // Chamada via automação de entidade
       const job = body.data;
-      const oldJob = body.old_data;
+      let oldJob = body.old_data;
 
+      // Se o status atual não é 'ativa', ignora sempre
       if (!job || job.status !== 'ativa') {
         return Response.json({ skipped: true, reason: 'Vaga não ativa, notificação ignorada' });
       }
 
-      // Se for update, só notifica se o status MUDOU para 'ativa' (evita duplicatas em re-saves)
-      if (body.event.type === 'update' && oldJob && oldJob.status === 'ativa') {
-        return Response.json({ skipped: true, reason: 'Vaga já estava ativa, notificação ignorada para evitar duplicata' });
+      // Para eventos de update:
+      // - Se old_data chegou, verifica se o status mudou para 'ativa'
+      // - Se old_data é null (payload_too_large), busca do banco para confirmar a transição
+      if (body.event.type === 'update') {
+        if (oldJob) {
+          // Temos o old_data: só notifica se o status MUDOU de não-ativa para ativa
+          if (oldJob.status === 'ativa') {
+            return Response.json({ skipped: true, reason: 'Vaga já estava ativa, ignorado para evitar duplicata' });
+          }
+        } else {
+          // old_data é null (payload_too_large): buscar a vaga antes da alteração não é possível
+          // Estratégia: verificar se já existe notificação recente para essa vaga (últimas 2 horas)
+          const recentNotifs = await base44.asServiceRole.entities.Notification.filter({
+            reference_id: body.event.entity_id,
+            type: 'job'
+          }, '-created_date', 5);
+          if (recentNotifs.length > 0) {
+            const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+            const hasRecent = recentNotifs.some(n => new Date(n.created_date) > twoHoursAgo);
+            if (hasRecent) {
+              return Response.json({ skipped: true, reason: 'Notificação recente já existe para esta vaga' });
+            }
+          }
+        }
       }
 
       jobId = body.event.entity_id || job.id;
