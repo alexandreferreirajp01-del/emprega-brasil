@@ -1,0 +1,183 @@
+/* Global Mobile Optimizations */
+
+/* 1. Safe Area Insets - Standardized */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+}
+
+/* 2. Fixed Elements with Safe Area Padding */
+header,
+nav[class*="fixed"],
+.sticky-top {
+  padding-top: max(1rem, var(--sat));
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+}
+
+nav[class*="fixed"][class*="bottom"],
+.sticky-bottom,
+footer[class*="fixed"] {
+  padding-bottom: max(1rem, var(--sab));
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+}
+
+/* 3. Prevent Content Clipping */
+body {
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+}
+
+/* 4. Global User Select - Disable for UI, Enable for Content */
+/* Disable for UI elements */
+button,
+[role="button"],
+input[type="button"],
+input[type="checkbox"],
+input[type="radio"],
+select,
+textarea,
+a,
+label,
+nav,
+header,
+footer,
+[class*="btn"],
+[class*="button"],
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Allow selection in content areas */
+article,
+.content,
+.post,
+.article,
+p,
+span.selectable,
+[data-selectable="true"],
+.prose,
+.prose * {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+/* 5. Minimum Touch Target Sizes (44px x 44px) */
+button,
+a,
+input[type="button"],
+input[type="checkbox"],
+input[type="radio"],
+[role="button"],
+.touch-feedback {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Input fields also need minimum height */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
+/* 6. Touch Feedback */
+.touch-feedback {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+.touch-feedback:active {
+  transform: scale(0.97);
+  opacity: 0.8;
+}
+
+/* 7. Prevent Double Tap Zoom on Buttons */
+button,
+a,
+input[type="button"] {
+  touch-action: manipulation;
+}
+
+/* 8. Optimize Scrolling Performance */
+.scrollable,
+[class*="overflow-y"],
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* 9. Safe Area for Bottom Navigation */
+.bottom-nav,
+nav[class*="bottom"] {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding-bottom: var(--sab);
+  z-index: 40;
+}
+
+/* 10. Safe Area for Header/Top Navigation */
+header,
+nav[class*="top"] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-top: var(--sat);
+  z-index: 50;
+}
+
+/* 11. Content Padding to Account for Fixed Elements */
+main,
+.main-content {
+  padding-top: max(4rem, calc(4rem + var(--sat)));
+  padding-bottom: max(5rem, calc(5rem + var(--sab)));
+}
+
+/* 12. Dark Mode Safe Area Colors */
+.dark header,
+.dark nav[class*="fixed"],
+.dark .sticky-top {
+  background-color: var(--slate-800, #1e293b);
+}
+
+.dark nav[class*="bottom"],
+.dark footer[class*="fixed"] {
+  background-color: var(--slate-800, #1e293b);
+}
+
+/* 13. Responsive Typography for Mobile */
+@media (max-width: 640px) {
+  body {
+    font-size: 16px; /* Prevents auto-zoom on iOS */
+  }
+  
+  button,
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* 14. Prevent Layout Shift from Scrollbars */
+html {
+  scrollbar-gutter: stable;
+}
