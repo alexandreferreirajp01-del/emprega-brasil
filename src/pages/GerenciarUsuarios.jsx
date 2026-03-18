@@ -552,17 +552,29 @@ export default function GerenciarUsuarios() {
                           size="sm"
                           onClick={() => handleEditUser(u)}
                           className="h-8 w-8 p-0 rounded-lg"
+                          title="Editar usuário"
                         >
                           <Edit className="w-3.5 h-3.5" />
                         </Button>
-                        
+
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setSelectedUser(selectedUser?.id === u.id ? null : u)}
-                          className="h-8 w-8 p-0 rounded-lg"
+                          onClick={() => handleViewProfile(u)}
+                          className="h-8 w-8 p-0 rounded-lg text-blue-600 hover:bg-blue-50 border-blue-200"
+                          title="Ver perfil do usuário"
                         >
                           <Eye className="w-3.5 h-3.5" />
+                        </Button>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSendMessage(u)}
+                          className="h-8 w-8 p-0 rounded-lg text-indigo-600 hover:bg-indigo-50 border-indigo-200"
+                          title="Enviar mensagem"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
                         </Button>
 
                         <Button
