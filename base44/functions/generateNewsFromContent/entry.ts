@@ -304,7 +304,7 @@ Deno.serve(async (req) => {
     console.log(`[generateNewsFromContent] Iniciando extração: ${sourceType} = ${source}`);
     
     if (sourceType === 'url') {
-      content = await extractContentFromUrl(source);
+      content = await extractContentFromUrl(base44, source);
     } else if (sourceType === 'file') {
       content = await extractContentFromFile(base44, source);
     } else {
