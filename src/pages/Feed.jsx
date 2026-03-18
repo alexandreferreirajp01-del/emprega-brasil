@@ -7,9 +7,11 @@ import { Loader2, Image, Send, X, Crown, Shield, ArrowLeft } from "lucide-react"
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import FeedPostCard from "@/components/feed/FeedPostCard";
 import PremiumModal from "@/components/subscription/PremiumModal";
+import { useGlobalNavigation } from "@/lib/useGlobalNavigation";
+import { useMobileOptimizationAudit } from "@/hooks/useMobileOptimizationAudit";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
@@ -20,6 +22,10 @@ export default function Feed() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const queryClient = useQueryClient();
+  const { push, goBack } = useGlobalNavigation();
+  
+  // Dev audit (only runs in development)
+  useMobileOptimizationAudit();
 
   useEffect(() => {
     const init = async () => {
