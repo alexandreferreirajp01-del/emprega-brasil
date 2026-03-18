@@ -104,6 +104,7 @@ Deno.serve(async (req) => {
     origin_channel: `telegram_${chatType}`,
     origin_group_name: chatTitle
   });
+  console.log('[telegramWebhook] Vaga criada com ID:', newJob?.id);
 
   // Confirmar no chat privado
   if (chatType === 'private') {
