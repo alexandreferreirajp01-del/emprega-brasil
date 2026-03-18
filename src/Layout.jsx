@@ -454,6 +454,14 @@ export default function Layout({ children, currentPageName }) {
           {/* Desktop: Notification Bell + Alerta Pendências + Settings + Users Button + Vagas Button + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
 
+          {isDono && (
+            <a href="https://vagasabertaspb.com.br/vagaspendentesia" title="Vagas Pendentes IA" className="hidden lg:inline-flex">
+              <Button variant="ghost" size="icon" className="text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20">
+                <Bot className="w-5 h-5" />
+              </Button>
+            </a>
+          )}
+
           {showVagasButton && (
             <Link to={createPageUrl('VagasPendentes')} title="Vagas Pendentes" className="hidden lg:inline-flex">
               <Button variant="ghost" size="icon" className="text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20">
