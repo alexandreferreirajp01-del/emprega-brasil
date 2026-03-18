@@ -156,7 +156,7 @@ Um JSON válido com APENAS estas propriedades (sem campos extras, sem markdown e
       properties: {
         title: { type: 'string', minLength: 10, maxLength: 70 },
         subtitle: { type: 'string', minLength: 20, maxLength: 160 },
-        content: { type: 'string', minLength: 500 },
+        content: { type: 'string', minLength: 2000 },
         keywords: {
           type: 'array',
           items: { type: 'string' },
