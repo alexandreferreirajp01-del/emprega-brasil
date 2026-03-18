@@ -9,76 +9,24 @@ const SEO_KEYWORDS = {
   'Geral': ['notícia', 'atualização', 'informação', 'destaque', 'notável']
 };
 
-async function extractContentFromUrl(base44, url) {
+async function extractContentFromUrl(url) {
   try {
-    // Primeira tentativa: fetch direto
     const response = await fetch(url, {
-      headers: { 
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
+      headers: { 'User-Agent': 'Mozilla/5.0' }
     });
     
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const html = await response.text();
-    
-    // Remove scripts, styles, nav, header, footer
-    let cleaned = html
+    // Remove scripts, styles
+    const cleaned = html
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-      .replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, '')
-      .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '')
-      .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
-      .replace(/<header[^>]*>[\s\S]*?<\/header>/gi, '')
-      .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '');
-    
-    // Extrair main content
-    let content = '';
-    const contentMatch = 
-      cleaned.match(/<main[^>]*>([\s\S]*?)<\/main>/i) ||
-      cleaned.match(/<article[^>]*>([\s\S]*?)<\/article>/i) ||
-      cleaned.match(/<div[^>]*class="[^"]*content[^"]*"[^>]*>([\s\S]{100,}?)<\/div>/i) ||
-      cleaned.match(/<div[^>]*class="[^"]*post[^"]*"[^>]*>([\s\S]{100,}?)<\/div>/i) ||
-      cleaned.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-    
-    if (contentMatch) {
-      content = contentMatch[1];
-    }
-    
-    // Limpar HTML e extrair texto
-    content = content
       .replace(/<[^>]+>/g, ' ')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
       .replace(/\s+/g, ' ')
       .trim();
     
-    // Se conseguiu conteúdo mínimo, retorna
-    if (content && content.length > 300) {
-      console.log(`[extractContentFromUrl] Extraído via HTML: ${content.length} caracteres`);
-      return content.substring(0, 20000);
-    }
-    
-    // Fallback: usar IA para ler o HTML completo
-    console.log(`[extractContentFromUrl] HTML extração insuficiente (${content.length}), usando IA...`);
-    const iaResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `Leia este HTML de uma página da web e extraia APENAS o conteúdo de texto principal (artigos, notícias, informações).
-Ignore navegação, rodapé, comentários e anúncios.
-Transcreva o conteúdo completo de forma limpa e organizada:
-
-${html.substring(0, 10000)}`,
-      add_context_from_internet: false
-    });
-    
-    if (iaResult && iaResult.length > 300) {
-      console.log(`[extractContentFromUrl] Extraído via IA: ${iaResult.length} caracteres`);
-      return iaResult;
-    }
-    
-    throw new Error('Não foi possível extrair conteúdo suficiente da URL');
+    return cleaned.substring(0, 8000);
   } catch (err) {
     throw new Error(`Erro ao extrair URL: ${err.message}`);
   }
@@ -86,67 +34,34 @@ ${html.substring(0, 10000)}`,
 
 async function extractContentFromFile(base44, fileUrl) {
   try {
+    // Detectar tipo de arquivo
     const ext = fileUrl.split('.').pop().toLowerCase();
     
     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
-      // Para imagens, usar OCR via IA com prompt melhorado
+      // Para imagens, usar OCR via IA
       const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: `Leia TODA a imagem com atenção e transcreva CADA palavra, número, símbolo e informação visível. 
-Inclua:
-- Todos os textos e títulos
-- Parágrafos completos
-- Listas e enumerações
-- Números e dados
-- Não resuma, transcreva na íntegra`,
+        prompt: 'Leia o texto e conteúdo visível nesta imagem e transcreva tudo que conseguir ver com precisão.',
         file_urls: [fileUrl]
       });
-      
-      const content = result || '';
-      if (content.length < 100) {
-        throw new Error('Imagem não contém texto legível suficiente');
-      }
-      return content;
+      return result || 'Imagem não contém texto legível';
     }
     
     if (ext === 'pdf' || ext === 'docx') {
-      // Para PDF e DOCX, tentar ExtractDataFromUploadedFile
-      try {
-        const result = await base44.asServiceRole.integrations.Core.ExtractDataFromUploadedFile({
-          file_url: fileUrl,
-          json_schema: {
-            type: 'object',
-            properties: {
-              content: { 
-                type: 'string', 
-                description: 'Extrai TODO o texto, parágrafos, títulos, listas - tudo que está no documento' 
-              }
-            }
+      // Para PDF e DOCX, usar ExtractDataFromUploadedFile
+      const result = await base44.asServiceRole.integrations.Core.ExtractDataFromUploadedFile({
+        file_url: fileUrl,
+        json_schema: {
+          type: 'object',
+          properties: {
+            content: { type: 'string', description: 'Todo o texto e conteúdo do arquivo' }
           }
-        });
-        
-        if (result.status === 'success' && result.output?.content && result.output.content.length > 100) {
-          console.log(`[extractContentFromFile] PDF/DOCX extraído: ${result.output.content.length} caracteres`);
-          return result.output.content;
         }
-      } catch (e) {
-        console.log(`[extractContentFromFile] ExtractData falhou, tentando IA...`, e.message);
-      }
-      
-      // Fallback: usar IA para ler PDF como imagem
-      const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: `Este é um arquivo PDF ou DOCX. Leia TODO o conteúdo de texto e transcreva completamente:
-- Todos os títulos e subtítulos
-- Todos os parágrafos
-- Listas, tabelas e dados
-- Não resuma, extraia o máximo possível de informação textual`,
-        file_urls: [fileUrl]
       });
       
-      const content = result || '';
-      if (content.length < 100) {
-        throw new Error('Arquivo não contém conteúdo de texto legível suficiente');
+      if (result.status === 'success' && result.output?.content) {
+        return result.output.content;
       }
-      return content;
+      throw new Error('Erro ao extrair arquivo');
     }
     
     throw new Error(`Tipo de arquivo não suportado: ${ext}`);
@@ -159,80 +74,42 @@ async function generateNewsWithAI(base44, content, category) {
   const seoKeywords = SEO_KEYWORDS[category] || SEO_KEYWORDS['Geral'];
   const keywordString = seoKeywords.join(', ');
   
-  const prompt = `Você é um editor premium de notícias especializado em conteúdo para portais de emprego no Brasil.
+  const prompt = `Você é um editor de notícias especializado em SEO e conteúdo para aplicativos de emprego.
 
-TAREFA: Transformar o conteúdo abaixo em uma notícia COMPLETA, ROBUSTA e MUITO DIFERENTE do original, mantendo o foco mas agregando muito mais valor.
+Leia o conteúdo abaixo e crie uma notícia profissional otimizada para SEO com as seguintes características:
 
-ESTRUTURA OBRIGATÓRIA (MÍNIMO 8-10 PARÁGRAFOS LONGOS):
+1. **Título** (60-70 caracteres): Deve ser chamativo, conter 1-2 palavras-chave (${keywordString}) e transmitir urgência/relevância
+2. **Subtítulo** (120-160 caracteres): Resumo impactante que complementa o título, contendo contexto importante
+3. **Conteúdo** (5-7 parágrafos estruturados):
+   - Parágrafo 1: Introdução com gancho - comece com estatística, pergunta ou fato relevante
+   - Parágrafos 2-4: Desenvolvimento detalhado - explique o conceito principal, adicione contextualizações profissionais e insights
+   - Parágrafo 5: Implicações/Oportunidades - mostre como isso afeta profissionais na Paraíba/Brasil
+   - Parágrafo 6: Chamado à ação - encoraje leitura completa ou engajamento
+   - Parágrafo 7: Conclusão com reflexão final
 
-1. **Título** (55-75 caracteres): Deve incluir 1-2 palavras-chave naturalmente (${keywordString}), ser impactante e transmitir urgência ou oportunidade
+4. **Critérios SEO obrigatórios**:
+   - Incluir naturalmente as palavras-chave: ${keywordString}
+   - H2/H3 headings: Use subtítulos formatados com "## Título" para estrutura
+   - Primeira frase do primeiro parágrafo deve conter palavra-chave principal
+   - Meta description (será copiada do subtítulo)
+   - 5-7 relacionadas: [relacionada1, relacionada2, ...]
 
-2. **Subtítulo** (130-170 caracteres): Hook poderoso que resume a essência da notícia e faz o leitor querer saber mais. Deve incluir números, estatísticas ou benefícios quando possível.
+5. **Tom e estilo**:
+   - Profissional mas acessível
+   - Direto e bem estruturado
+   - Sem jargão excessivo
+   - Diferenciado do original - reescreva com suas próprias palavras e adicione valor
 
-3. **Conteúdo** (MÍNIMO 2000-3000 caracteres, estruturado em 8-12 parágrafos):
+6. **Conteúdo diferenciado**:
+   - Expanda ideias principais com contexto adicional
+   - Cite implicações práticas para quem busca emprego
+   - Adicione perspectivas profissionais que não estavam no original
+   - Mantenha foco no tema mas crie novo ângulo de abordagem
 
-   - **Parágrafo 1 (GANCHO IMPACTANTE)**: Comece com uma pergunta retórica, estatística surpreendente ou afirmação impactante. Deve conter 1-2 palavras-chave. Capture a atenção do leitor imediatamente.
-   
-   - **Parágrafo 2 (CONTEXTO GERAL)**: Desenvolva o contexto do assunto. Explique O QUÊ está acontecendo, onde está acontecendo (Paraíba/Brasil), e por que é importante AGORA. Adicione dados numéricos se disponível.
-   
-   - **Parágrafo 3 (DETALHE #1)**: Primeiro aspecto detalhado. Explique causas, razões ou motivações. Use exemplos práticos. Mantenha tom profissional mas acessível.
-   
-   - **Parágrafo 4 (DETALHE #2)**: Segundo aspecto importante. Pode ser: tendências, números específicos, declarações de especialistas imaginadas, ou implicações diretas. Adicione perspectiva profissional.
-   
-   - **Parágrafo 5 (DETALHE #3)**: Terceiro aspecto crucial. Aprofunde em análise. Diferencie-se do original com insights próprios, contextualizações relevantes para profissionais e candidatos.
-   
-   - **Parágrafo 6 (IMPACTO DIRETO NA CARREIRA)**: Como isso afeta PROFISSIONAIS NA PARAÍBA? Como afeta quem busca emprego? Quais habilidades ficam mais valorizadas? Que oportunidades surgem?
-   
-   - **Parágrafo 7 (IMPLICAÇÕES SETORIAIS)**: Qual é o impacto em empresas, setores ou mercado de trabalho local? Como as organizações estão respondendo? Cite setores específicos se relevante.
-   
-   - **Parágrafo 8 (AÇÃO E ORIENTAÇÃO)**: O que os candidatos/profissionais devem fazer? Que atitudes tomar? Como se preparar? Que habilidades desenvolver? Seja prático e acionável.
-   
-   - **Parágrafo 9 (PERSPECTIVA FUTURA)**: Para onde isso tende? Qual é o cenário esperado nos próximos meses/anos? Mantenha otimismo profissional mas realista.
-   
-   - **Parágrafo 10+ (CONCLUSÃO COM REFLEXÃO)**: Finalize com reflexão que conecte tudo. Reforce a importância. Termine com chamado à ação ou motivação para engajamento.
-
-4. **CRITÉRIOS DE QUALIDADE OBRIGATÓRIOS**:
-   - Conteúdo DEVE ser 60-80% DIFERENTE do original (reescreva, não copie)
-   - Inclua NATURALMENTE as palavras-chave: ${keywordString}
-   - Use subtítulos secundários com "##" para estruturar seções
-   - Primeira frase do primeiro parágrafo DEVE conter palavra-chave principal
-   - Adicione pelo menos 3-5 contextualizações que NÃO estavam no original
-   - Mantenha tom profissional mas conversacional e engajante
-   - Use números, estatísticas ou exemplos específicos quando necessário
-   - Faça transições suaves entre parágrafos
-   - Cada parágrafo deve ter 150-250 palavras
-
-5. **DIFERENCIAÇÃO CRUCIAL**:
-   - NÃO simplesmente resuma o original
-   - EXPANDA com análises profundas, contexto local (Paraíba), e implicações práticas
-   - ADICIONE valor: perspectivas que faltam, conexões com mercado de trabalho, insights profissionais
-   - CRIE novo ângulo mesmo mantendo foco no tema original
-   - Seja ORIGINAL na abordagem e explicações
-
-6. **SEO INTEGRADO**:
-   - Palavras-chave distribuídas naturalmente (não forçadas)
-   - Densidade de keywords 1-2% (natural)
-   - H2 headings para estrutura (use ## no markdown)
-   - Texto descritivo e rico em contexto (bom para busca)
-
----
-
-**CONTEÚDO ORIGINAL A SER TRANSFORMADO:**
+**Conteúdo original a ser processado:**
 ${content}
 
----
-
-**RETORNE OBRIGATORIAMENTE:**
-Um JSON válido com APENAS estas propriedades (sem campos extras, sem markdown extra):
-{
-  "title": "string 55-75 caracteres",
-  "subtitle": "string 130-170 caracteres",
-  "content": "string com 8-12 parágrafos, 2000+ caracteres, muito diferente do original",
-  "keywords": ["palavra1", "palavra2", ...],
-  "internal_links": ["tópico1", "tópico2", ...]
-}
-
-**CRÍTICO**: Retorne APENAS JSON válido. Sem explicações, sem markdown extra, sem codeback. JSON puro.`;
+**Importante**: Retorne APENAS um JSON válido, sem markdown, sem explicações adicionais.`;
 
   const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
     prompt,
@@ -241,7 +118,7 @@ Um JSON válido com APENAS estas propriedades (sem campos extras, sem markdown e
       properties: {
         title: { type: 'string', minLength: 10, maxLength: 70 },
         subtitle: { type: 'string', minLength: 20, maxLength: 160 },
-        content: { type: 'string', minLength: 2000 },
+        content: { type: 'string', minLength: 500 },
         keywords: {
           type: 'array',
           items: { type: 'string' },
@@ -304,15 +181,15 @@ Deno.serve(async (req) => {
     console.log(`[generateNewsFromContent] Iniciando extração: ${sourceType} = ${source}`);
     
     if (sourceType === 'url') {
-      content = await extractContentFromUrl(base44, source);
+      content = await extractContentFromUrl(source);
     } else if (sourceType === 'file') {
       content = await extractContentFromFile(base44, source);
     } else {
       return Response.json({ error: 'sourceType inválido' }, { status: 400 });
     }
 
-    if (!content || content.length < 200) {
-      return Response.json({ error: 'Conteúdo insuficiente para gerar notícia. Use URL com mais texto ou PDF/imagem com conteúdo legível.' }, { status: 400 });
+    if (!content || content.length < 100) {
+      return Response.json({ error: 'Conteúdo insuficiente extraído' }, { status: 400 });
     }
 
     console.log(`[generateNewsFromContent] Conteúdo extraído: ${content.length} caracteres`);
