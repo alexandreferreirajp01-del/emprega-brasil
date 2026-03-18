@@ -14,13 +14,13 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 // Importar sub-componentes do editor
-import EditorPersonal from '@/components/resume/editor/EditorPersonal';
-import EditorExperience from '@/components/resume/editor/EditorExperience';
-import EditorEducation from '@/components/resume/editor/EditorEducation';
-import EditorSkills from '@/components/resume/editor/EditorSkills';
-import EditorExtras from '@/components/resume/editor/EditorExtras';
-import AIResumePanel from '@/components/resume/editor/AIResumePanel';
-import TemplatePicker from '@/components/resume/editor/TemplatePicker';
+import EditorPersonal from '@/components/resume/editor/EditorPersonal.jsx';
+import EditorExperience from '@/components/resume/editor/EditorExperience.jsx';
+import EditorEducation from '@/components/resume/editor/EditorEducation.jsx';
+import EditorSkills from '@/components/resume/editor/EditorSkills.jsx';
+import EditorExtras from '@/components/resume/editor/EditorExtras.jsx';
+import AIResumePanel from '@/components/resume/editor/AIResumePanel.jsx';
+import TemplatePicker from '@/components/resume/editor/TemplatePicker.jsx';
 
 const EMPTY_DATA = {
   name: '', title: '', email: '', phone: '', location: '',
