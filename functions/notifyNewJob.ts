@@ -293,14 +293,35 @@ Deno.serve(async (req) => {
       is_read: false
     });
 
-    // 2. Buscar todos os usuários e enfileirar emails
+    // 2. Enviar email via Resend para todos os usuários cadastrados
     const users = await base44.asServiceRole.entities.User.list('-created_date', 10000);
     let emailsSent = 0, emailErrors = 0, pushSent = 0, pushErrors = 0;
 
-    // EMAIL DESABILITADO — enfileiramento de emails desativado
-    // const LOTE = 100;
-    // for (let i = 0; i < users.length; i += LOTE) { ... }
-    emailsSent = 0;
+    const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
+    const emailHtml = buildEmailHtml(template, vars, jobUrl);
+    const emailSubject = template.subject(vars);
+
+    const EMAIL_BATCH = 50;
+    for (let i = 0; i < users.length; i += EMAIL_BATCH) {
+      const batch = users.slice(i, i + EMAIL_BATCH);
+      await Promise.allSettled(
+        batch.map(async (u) => {
+          if (!u.email) return;
+          try {
+            await resend.emails.send({
+              from: 'Vagas Abertas PB <noreply@vagasabertasparaiba.info>',
+              to: u.email,
+              subject: emailSubject,
+              html: emailHtml,
+            });
+            emailsSent++;
+          } catch (e) {
+            console.warn('Email error for', u.email, e.message);
+            emailErrors++;
+          }
+        })
+      );
+    }
 
     // 4. Enviar push notification para todos os inscritos
     const subscriptions = await base44.asServiceRole.entities.PushSubscription.filter({ is_active: true }, '-created_date', 10000);
