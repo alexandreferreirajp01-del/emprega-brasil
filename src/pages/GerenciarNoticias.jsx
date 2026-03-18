@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { 
   ArrowLeft, Plus, Edit2, Trash2, Search, Loader2, 
-  Image, Eye, X, Save, ChevronUp, ChevronDown, FileText, Film, Link as LinkIcon
+  Image, Eye, X, Save, ChevronUp, ChevronDown, FileText, Film, Link as LinkIcon, Sparkles
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
