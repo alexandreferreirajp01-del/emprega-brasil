@@ -81,7 +81,8 @@ Deno.serve(async (req) => {
   }
 
   // Salvar vaga como pending_review usando service role
-  await base44.asServiceRole.entities.Job.create({
+  console.log('[telegramWebhook] Salvando vaga:', jobData.title);
+  const newJob = await base44.asServiceRole.entities.Job.create({
     title: jobData.title || 'Vaga sem título',
     company: jobData.company || '',
     city: jobData.city || '',
