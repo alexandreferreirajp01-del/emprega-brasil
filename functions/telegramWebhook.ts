@@ -14,8 +14,8 @@ async function sendTelegramMessage(chatId, text) {
   });
 }
 
-async function extractJobData(base44, text) {
-  const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+async function extractJobData(text) {
+  const result = await base44Service.asServiceRole.integrations.Core.InvokeLLM({
     prompt: `Analise o texto abaixo e extraia os dados de uma vaga de emprego.
 Se o texto NÃO for uma vaga de emprego, retorne { "is_job": false }.
 Se for uma vaga, retorne { "is_job": true } com todos os campos encontrados.
