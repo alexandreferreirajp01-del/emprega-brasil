@@ -7,8 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   ArrowLeft, Users, Loader2, CheckCircle, Search, Clock, UserX, 
-  ChevronLeft, ChevronRight, Eye, Mail, Phone, FileDown, RefreshCw, Filter, Edit, CheckCheck, UserPlus, MessageCircle
+  ChevronLeft, ChevronRight, Eye, Mail, Phone, FileDown, RefreshCw, Filter, Edit, CheckCheck, UserPlus, MessageCircle, Send
 } from "lucide-react";
+import BulkMessageWizard from "@/components/admin/BulkMessageWizard";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import UserEditDialog from "@/components/admin/UserEditDialog";
 import CadastrarUsuarioModal from "@/components/admin/CadastrarUsuarioModal";
 import AdminSendMessageModal from "@/components/admin/AdminSendMessageModal";

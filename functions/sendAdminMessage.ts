@@ -42,8 +42,9 @@ Deno.serve(async (req) => {
           <p style="color: #475569; font-size: 16px;">Olá, <strong>${targetName || 'usuário'}</strong>!</p>
           <p style="color: #475569;">Você recebeu uma mensagem do Administrador da plataforma:</p>
           <div style="background: #f1f5f9; border-left: 4px solid #1D4371; padding: 16px; border-radius: 8px; margin: 20px 0;">
-            <p style="color: #1e293b; margin: 0; font-size: 15px; line-height: 1.6;">${messageContent}</p>
+            <p style="color: #1e293b; margin: 0; font-size: 15px; line-height: 1.6;">${messageContent.replace(/\n/g, '<br/>')}</p>
           </div>
+          ${attachmentsHtml}
           <p style="color: #475569;">Para responder, acesse sua caixa de mensagens na plataforma.</p>
           <div style="text-align: center; margin-top: 24px;">
             <a href="https://vagasabertaspb.com.br/Mensagens" style="background: #1D4371; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px;">
