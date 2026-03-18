@@ -704,6 +704,21 @@ export default function GerenciarUsuarios() {
         onOpenChange={setShowEditDialog}
         onSave={handleSaveUser}
       />
+
+      {/* Modal Enviar Mensagem */}
+      <AdminSendMessageModal
+        open={showMessageModal}
+        onOpenChange={setShowMessageModal}
+        targetUser={messagingUser}
+        adminUser={user}
+      />
+
+      {/* Modal Ver Perfil */}
+      <UserProfileViewModal
+        open={showProfileModal}
+        onOpenChange={setShowProfileModal}
+        targetUser={viewingUser}
+      />
     </div>
   );
 }
