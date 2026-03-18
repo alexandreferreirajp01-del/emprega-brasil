@@ -35,6 +35,19 @@ export default function GeradorCurriculo() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [formData, setFormData] = useState(EMPTY_DATA);
   const [filterCat, setFilterCat] = useState('🆕 Novos');
+
+  const templatePreviewStyles = {
+    turquoise_medical: { sidebar: '#4DC8C8', main: '#fff', accent: '#4DC8C8' },
+    sales_gray: { sidebar: '#D8DEE6', main: '#fff', accent: '#888' },
+    dark_navy_cover: { sidebar: '#2D3748', main: '#fff', accent: '#2D3748' },
+    magenta_minimal: { sidebar: '#fff', main: '#fff', accent: '#9B2163' },
+    gray_photo_classic: { sidebar: '#DADADA', main: '#fff', accent: '#555' },
+    engineering_cream_blue: { sidebar: '#fff', main: '#fff', accent: '#2B4F9E' },
+    industrial_gray: { sidebar: '#F3F4F6', main: '#fff', accent: '#4B5563' },
+    bw_labeled: { sidebar: '#F9FAFB', main: '#F9FAFB', accent: '#111' },
+    beige_education: { sidebar: '#F5F2EB', main: '#F5F2EB', accent: '#3D5A3E' },
+    systems_blue: { sidebar: '#fff', main: '#fff', accent: '#4169E1' },
+  };
   const [downloading, setDownloading] = useState(false);
   const [downloadsThisMonth, setDownloadsThisMonth] = useState(0);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
