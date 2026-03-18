@@ -69,10 +69,8 @@ Deno.serve(async (req) => {
     return Response.json({ ok: true });
   }
 
-  const base44 = createClientFromRequest(req);
-
   // Extrair dados da vaga com IA
-  const jobData = await extractJobData(base44, text);
+  const jobData = await extractJobData(text);
 
   if (!jobData.is_job) {
     // Se for chat privado, responder que não é uma vaga
