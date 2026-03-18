@@ -12,21 +12,62 @@ const SEO_KEYWORDS = {
 async function extractContentFromUrl(url) {
   try {
     const response = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0' }
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
     });
     
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const html = await response.text();
-    // Remove scripts, styles
-    const cleaned = html
+    
+    // Estratégia 1: Tenta extrair conteúdo de tags semânticas
+    let content = '';
+    
+    // Remove scripts e styles
+    let cleaned = html
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+    
+    // Tenta extrair main content
+    const mainMatch = cleaned.match(/<main[^>]*>([\s\S]*?)<\/main>/i) ||
+                      cleaned.match(/<article[^>]*>([\s\S]*?)<\/article>/i) ||
+                      cleaned.match(/<div[^>]*class="content"[^>]*>([\s\S]*?)<\/div>/i) ||
+                      cleaned.match(/<div[^>]*class="[^"]*post[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
+    
+    if (mainMatch) {
+      content = mainMatch[1];
+    } else {
+      // Fallback: extrai body completo
+      const bodyMatch = cleaned.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+      content = bodyMatch ? bodyMatch[1] : cleaned;
+    }
+    
+    // Remove HTML tags mantendo estrutura
+    content = content
+      .replace(/<h[1-6][^>]*>[\s\S]*?<\/h[1-6]>/gi, (match) => {
+        const text = match.replace(/<[^>]+>/g, '').trim();
+        return text ? '\n\n' + text + '\n\n' : '';
+      })
+      .replace(/<p[^>]*>[\s\S]*?<\/p>/gi, (match) => {
+        const text = match.replace(/<[^>]+>/g, '').trim();
+        return text ? '\n' + text + '\n' : '';
+      })
+      .replace(/<br[^>]*>/gi, '\n')
       .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
     
-    return cleaned.substring(0, 8000);
+    // Remove linhas vazias excessivas
+    content = content
+      .split('\n')
+      .filter(line => line.trim().length > 0)
+      .join('\n')
+      .substring(0, 15000); // Aumenta limite para capturar mais conteúdo
+    
+    if (!content || content.length < 200) {
+      throw new Error('Conteúdo insuficiente extraído da URL');
+    }
+    
+    return content;
   } catch (err) {
     throw new Error(`Erro ao extrair URL: ${err.message}`);
   }
