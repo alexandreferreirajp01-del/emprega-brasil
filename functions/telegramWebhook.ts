@@ -1,10 +1,7 @@
-import { createClient } from 'npm:@base44/sdk@0.8.21';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN");
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
-
-// Cliente service role — não depende de autenticação do usuário
-const base44Service = createClient({ appId: Deno.env.get("BASE44_APP_ID") });
 
 async function sendTelegramMessage(chatId, text) {
   await fetch(`${TELEGRAM_API}/sendMessage`, {
@@ -14,8 +11,8 @@ async function sendTelegramMessage(chatId, text) {
   });
 }
 
-async function extractJobData(text) {
-  const result = await base44Service.asServiceRole.integrations.Core.InvokeLLM({
+async function extractJobData(base44, text) {
+  const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
     prompt: `Analise o texto abaixo e extraia os dados de uma vaga de emprego.
 Se o texto NÃO for uma vaga de emprego, retorne { "is_job": false }.
 Se for uma vaga, retorne { "is_job": true } com todos os campos encontrados.
@@ -62,18 +59,19 @@ Deno.serve(async (req) => {
   const text = message.text || message.caption || '';
   const chatTitle = message.chat?.title || 'Chat privado';
   const chatType = message.chat?.type || 'private';
-  const fromName = message.from?.first_name || message.from?.username || 'Usuário';
 
   // Ignorar mensagens muito curtas
   if (!text || text.length < 30) {
     return Response.json({ ok: true });
   }
 
+  // Webhook vem sem auth de usuário — usar service role
+  const base44 = createClientFromRequest(req);
+
   // Extrair dados da vaga com IA
-  const jobData = await extractJobData(text);
+  const jobData = await extractJobData(base44, text);
 
   if (!jobData.is_job) {
-    // Se for chat privado, responder que não é uma vaga
     if (chatType === 'private') {
       await sendTelegramMessage(chatId,
         '⚠️ Não consegui identificar uma vaga de emprego nessa mensagem.\n\nEnvie o texto completo da vaga com título, empresa, localização e contato.'
@@ -82,8 +80,8 @@ Deno.serve(async (req) => {
     return Response.json({ ok: true });
   }
 
-  // Salvar vaga como pending_review
-  const newJob = await base44Service.asServiceRole.entities.Job.create({
+  // Salvar vaga como pending_review usando service role
+  await base44.asServiceRole.entities.Job.create({
     title: jobData.title || 'Vaga sem título',
     company: jobData.company || '',
     city: jobData.city || '',
@@ -102,11 +100,11 @@ Deno.serve(async (req) => {
     is_featured: false,
     status: 'pending_review',
     origem: 'telegram_bot',
-    origin_group_name: chatTitle,
-    origin_channel: `telegram_${chatType}`
+    origin_channel: `telegram_${chatType}`,
+    origin_group_name: chatTitle
   });
 
-  // Confirmar no chat privado, ou silencioso em grupos
+  // Confirmar no chat privado
   if (chatType === 'private') {
     await sendTelegramMessage(chatId,
       `✅ <b>Vaga recebida com sucesso!</b>\n\n` +
