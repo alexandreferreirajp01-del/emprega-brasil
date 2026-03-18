@@ -250,17 +250,14 @@ export default function GerenciarNoticias2() {
 
                   {/* Submit */}
                   <Button
-                    onClick={() => {
-                      setLoading(true);
-                      processMutation.mutate();
-                    }}
-                    disabled={loading || !sourceInput || processMutation.isPending}
+                    onClick={() => processMutation.mutate()}
+                    disabled={!sourceInput?.trim() || processMutation.isPending}
                     className="w-full bg-blue-600 hover:bg-blue-700"
                   >
-                    {loading || processMutation.isPending ? (
+                    {processMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Processando (pode levar 30s)...
+                        Gerando (pode levar 30s)...
                       </>
                     ) : (
                       <>
