@@ -2,15 +2,25 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { createPageUrl } from '@/utils';
-import { FileText, Download, Crown, ChevronRight, ChevronLeft, Eye, Lock, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
-import ResumeForm from '@/components/resume/ResumeForm';
+import {
+  FileText, Download, Crown, ChevronLeft, AlertTriangle, CheckCircle,
+  Loader2, Sparkles, User, Briefcase, GraduationCap, Award, Globe,
+  LayoutTemplate, Wand2, Lock, RotateCcw, Eye, EyeOff
+} from 'lucide-react';
 import ResumeRenderer from '@/components/resume/ResumeRenderer';
-import AIResumeGenerator from '@/components/resume/AIResumeGenerator';
 import { TEMPLATES, CATEGORIES } from '@/components/resume/ResumeTemplates';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+
+// Importar sub-componentes do editor
+import EditorPersonal from '@/components/resume/editor/EditorPersonal';
+import EditorExperience from '@/components/resume/editor/EditorExperience';
+import EditorEducation from '@/components/resume/editor/EditorEducation';
+import EditorSkills from '@/components/resume/editor/EditorSkills';
+import EditorExtras from '@/components/resume/editor/EditorExtras';
+import AIResumePanel from '@/components/resume/editor/AIResumePanel';
+import TemplatePicker from '@/components/resume/editor/TemplatePicker';
 
 const EMPTY_DATA = {
   name: '', title: '', email: '', phone: '', location: '',
@@ -25,32 +35,28 @@ function getPlanLimits(user) {
   if (role === 'admin' || sub === 'admin' || sub === 'dono') return { canCreate: true, limit: Infinity, watermark: false };
   if (sub === 'premium_trimestral') return { canCreate: true, limit: 4, watermark: false };
   if (sub === 'premium' || sub === 'premium_mensal') return { canCreate: true, limit: 2, watermark: false };
-  // basic / free
   return { canCreate: true, limit: 1, watermark: true };
 }
 
+const EDITOR_TABS = [
+  { id: 'ai', label: 'IA', icon: Sparkles, color: 'text-violet-600' },
+  { id: 'templates', label: 'Template', icon: LayoutTemplate, color: 'text-blue-600' },
+  { id: 'personal', label: 'Dados', icon: User, color: 'text-slate-600' },
+  { id: 'experience', label: 'Experiência', icon: Briefcase, color: 'text-slate-600' },
+  { id: 'education', label: 'Formação', icon: GraduationCap, color: 'text-slate-600' },
+  { id: 'skills', label: 'Habilidades', icon: Award, color: 'text-slate-600' },
+  { id: 'extras', label: 'Idiomas & +', icon: Globe, color: 'text-slate-600' },
+];
+
 export default function GeradorCurriculo() {
   const [user, setUser] = useState(undefined);
-  const [step, setStep] = useState('templates'); // templates | form | preview
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [activeTab, setActiveTab] = useState('ai');
+  const [selectedTemplate, setSelectedTemplate] = useState('turquoise_medical');
   const [formData, setFormData] = useState(EMPTY_DATA);
-  const [filterCat, setFilterCat] = useState('🆕 Novos');
-
-  const templatePreviewStyles = {
-    turquoise_medical: { sidebar: '#4DC8C8', main: '#fff', accent: '#4DC8C8' },
-    sales_gray: { sidebar: '#D8DEE6', main: '#fff', accent: '#888' },
-    dark_navy_cover: { sidebar: '#2D3748', main: '#fff', accent: '#2D3748' },
-    magenta_minimal: { sidebar: '#fff', main: '#fff', accent: '#9B2163' },
-    gray_photo_classic: { sidebar: '#DADADA', main: '#fff', accent: '#555' },
-    engineering_cream_blue: { sidebar: '#fff', main: '#fff', accent: '#2B4F9E' },
-    industrial_gray: { sidebar: '#F3F4F6', main: '#fff', accent: '#4B5563' },
-    bw_labeled: { sidebar: '#F9FAFB', main: '#F9FAFB', accent: '#111' },
-    beige_education: { sidebar: '#F5F2EB', main: '#F5F2EB', accent: '#3D5A3E' },
-    systems_blue: { sidebar: '#fff', main: '#fff', accent: '#4169E1' },
-  };
   const [downloading, setDownloading] = useState(false);
   const [downloadsThisMonth, setDownloadsThisMonth] = useState(0);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [mobileShowPreview, setMobileShowPreview] = useState(false);
   const previewRef = useRef(null);
 
   useEffect(() => {
@@ -68,7 +74,6 @@ export default function GeradorCurriculo() {
   };
 
   const planInfo = getPlanLimits(user);
-  const filteredTemplates = filterCat === 'Todos' ? TEMPLATES : filterCat === '🆕 Novos' ? TEMPLATES.filter(t => t.isNew) : TEMPLATES.filter(t => t.category === filterCat);
 
   const canDownloadMore = () => {
     if (!user) return false;
@@ -90,8 +95,6 @@ export default function GeradorCurriculo() {
         backgroundColor: '#ffffff',
         width: element.scrollWidth,
         height: element.scrollHeight,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
       });
 
       const imgData = canvas.toDataURL('image/jpeg', 0.97);
@@ -124,7 +127,6 @@ export default function GeradorCurriculo() {
       const filename = `curriculo-${(formData.name || 'sem-nome').replace(/\s+/g, '-').toLowerCase()}.pdf`;
       pdf.save(filename);
 
-      // Track download
       const monthYear = new Date().toISOString().slice(0, 7);
       try {
         const recs = await base44.entities.ResumeDownload.filter({ user_email: user.email, month_year: monthYear });
@@ -154,223 +156,193 @@ export default function GeradorCurriculo() {
 
   if (!user) return (
     <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center p-6">
-      <Card className="max-w-md w-full rounded-2xl border-0 shadow-xl text-center p-8">
+      <div className="bg-white max-w-md w-full rounded-2xl shadow-xl text-center p-8">
         <FileText className="w-16 h-16 text-[#1D4371] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Gerador de Currículos</h2>
         <p className="text-slate-500 mb-6">Faça login para criar seu currículo profissional</p>
         <Button onClick={() => { sessionStorage.setItem('needs_login', 'true'); sessionStorage.setItem('redirect_after_login', 'GeradorCurriculo'); window.location.href = createPageUrl('Splash'); }} className="w-full bg-[#1D4371] text-white">
           Entrar / Cadastrar
         </Button>
-      </Card>
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F3F2EF] dark:bg-slate-900 pb-16">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#1D4371] to-[#2B5A8F] text-white px-4 py-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-3 mb-1">
-            <FileText className="w-6 h-6" />
-            <h1 className="text-xl font-bold">Gerador de Currículos Profissional</h1>
+    <div className="h-screen flex flex-col bg-slate-100 dark:bg-slate-900 overflow-hidden">
+      {/* TOP BAR */}
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-3 py-2 flex-shrink-0 z-50">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => window.history.back()} className="gap-1 text-slate-600 dark:text-slate-300 hidden sm:flex">
+            <ChevronLeft className="w-4 h-4" /> Sair
+          </Button>
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[#1D4371]" />
+            <span className="font-bold text-slate-800 dark:text-white text-sm">Editor de Currículo</span>
           </div>
-          <p className="text-white/70 text-sm ml-9">Crie seu currículo com templates modernos e baixe em PDF</p>
+          {formData.name && (
+            <span className="text-xs text-slate-500 hidden sm:block">— {formData.name}</span>
+          )}
+        </div>
 
-          {/* Plano info */}
-          <div className="ml-9 mt-3 flex flex-wrap gap-2 items-center">
-            {planInfo.watermark && (
-              <Badge className="bg-yellow-500/20 text-yellow-200 border-yellow-400/30 text-xs">
-                <AlertTriangle className="w-3 h-3 mr-1" />
-                Plano Básico — 1 currículo com marca d'água
-              </Badge>
-            )}
-            {!planInfo.watermark && planInfo.limit !== Infinity && (
-              <Badge className="bg-green-500/20 text-green-200 border-green-400/30 text-xs">
-                <Crown className="w-3 h-3 mr-1" />
-                {downloadsThisMonth}/{planInfo.limit} currículos este mês
-              </Badge>
-            )}
-            {planInfo.limit === Infinity && (
-              <Badge className="bg-green-500/20 text-green-200 border-green-400/30 text-xs">
-                <Crown className="w-3 h-3 mr-1" /> Downloads ilimitados
-              </Badge>
-            )}
-          </div>
+        <div className="flex items-center gap-2">
+          {/* Mobile: toggle preview */}
+          <button
+            onClick={() => setMobileShowPreview(v => !v)}
+            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300"
+          >
+            {mobileShowPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {mobileShowPreview ? 'Editor' : 'Preview'}
+          </button>
+
+          {/* Plan badge */}
+          {planInfo.watermark && (
+            <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300 text-xs hidden sm:flex">
+              <AlertTriangle className="w-3 h-3 mr-1" /> Básico
+            </Badge>
+          )}
+          {planInfo.limit === Infinity && (
+            <Badge className="bg-green-100 text-green-700 border-green-300 text-xs hidden sm:flex">
+              <Crown className="w-3 h-3 mr-1" /> Ilimitado
+            </Badge>
+          )}
+
+          {downloadSuccess && (
+            <Badge className="bg-green-100 text-green-700 gap-1 text-xs">
+              <CheckCircle className="w-3 h-3" /> Salvo!
+            </Badge>
+          )}
+
+          {/* Download button */}
+          {planInfo.watermark ? (
+            <Button onClick={handleDownload} disabled={downloading} size="sm" className="bg-[#1D4371] text-white gap-1.5">
+              {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              <span className="hidden sm:inline">{downloading ? 'Gerando...' : 'Baixar PDF'}</span>
+            </Button>
+          ) : !canDownloadMore() ? (
+            <Button size="sm" onClick={() => window.location.href = createPageUrl('Subscription')} className="bg-amber-500 text-white gap-1.5">
+              <Lock className="w-4 h-4" /> Upgrade
+            </Button>
+          ) : (
+            <Button onClick={handleDownload} disabled={downloading} size="sm" className="bg-[#1D4371] text-white gap-1.5">
+              {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              <span className="hidden sm:inline">{downloading ? 'Gerando...' : 'Baixar PDF'}</span>
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Steps nav */}
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-[64px] z-40">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3 overflow-x-auto">
-          {[
-            { id: 'templates', label: '1. Escolher Template' },
-            { id: 'form', label: '2. Preencher Dados' },
-            { id: 'preview', label: '3. Visualizar & Baixar' },
-          ].map((s, i) => (
-            <React.Fragment key={s.id}>
-              <button
-                onClick={() => {
-                  if (s.id === 'form' && !selectedTemplate) return;
-                  if (s.id === 'preview' && !selectedTemplate) return;
-                  setStep(s.id);
-                }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
-                  step === s.id ? 'bg-[#1D4371] text-white' : 'text-slate-500 hover:text-slate-800'
-                } ${(s.id === 'form' || s.id === 'preview') && !selectedTemplate ? 'opacity-40 cursor-not-allowed' : ''}`}
-              >
-                {s.label}
-              </button>
-              {i < 2 && <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
+      {/* MAIN EDITOR LAYOUT */}
+      <div className="flex flex-1 overflow-hidden">
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
+        {/* LEFT PANEL — Editor */}
+        <div className={`${mobileShowPreview ? 'hidden' : 'flex'} lg:flex flex-col w-full lg:w-[380px] xl:w-[420px] flex-shrink-0 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700`}>
 
-        {/* STEP 1: Templates */}
-        {step === 'templates' && (
-          <div>
-            <div className="flex flex-wrap gap-2 mb-6">
-              {CATEGORIES.map(cat => (
-                <button key={cat} onClick={() => setFilterCat(cat)} className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filterCat === cat ? 'bg-[#1D4371] text-white' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100'}`}>
-                  {cat}
-                </button>
-              ))}
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {filteredTemplates.map(t => {
-                const ps = templatePreviewStyles[t.id];
-                return (
-                  <div
-                    key={t.id}
-                    onClick={() => { setSelectedTemplate(t.id); setStep('form'); }}
-                    className={`cursor-pointer rounded-xl overflow-hidden border-2 transition-all hover:scale-105 hover:shadow-xl ${selectedTemplate === t.id ? 'border-[#1D4371] shadow-xl ring-2 ring-[#1D4371]' : 'border-slate-200 dark:border-slate-700'}`}
-                  >
-                    {/* Template preview card - mini layout fiel ao PDF */}
-                    <div style={{ height: 140, position: 'relative', overflow: 'hidden', background: ps?.main || '#fff' }} className="flex">
-                      {/* Sidebar preview (se tiver) */}
-                      {ps?.sidebar && ps.sidebar !== '#fff' && ps.sidebar !== ps.main && (
-                        <div style={{ width: '32%', background: ps.sidebar, padding: '6px 4px', flexShrink: 0 }}>
-                          <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', margin: '0 auto 4px' }} />
-                          {[1,2,3,4].map(j => <div key={j} style={{ height: 3, background: 'rgba(255,255,255,0.3)', borderRadius: 2, margin: '3px 0' }} />)}
-                        </div>
-                      )}
-                      {/* Main content preview */}
-                      <div style={{ flex: 1, padding: '8px 6px' }}>
-                        <div style={{ height: 7, width: '80%', background: ps?.accent || t.preview_color, borderRadius: 2, marginBottom: 3, opacity: 0.9 }} />
-                        <div style={{ height: 4, width: '55%', background: '#ccc', borderRadius: 2, marginBottom: 8 }} />
-                        {[1,2,3,4,5].map(j => (
-                          <div key={j} style={{ height: 3, width: `${55 + (j % 3) * 15}%`, background: j % 3 === 0 ? (ps?.accent || t.preview_color) : '#e0e0e0', borderRadius: 2, marginBottom: 4, opacity: j % 3 === 0 ? 0.7 : 1 }} />
-                        ))}
-                      </div>
-                      {t.isNew && (
-                        <span className="absolute top-1.5 left-1.5 text-[8px] px-1.5 py-0.5 rounded font-bold z-10" style={{ background: '#f59e0b', color: '#fff' }}>NOVO</span>
-                      )}
-                    </div>
-                    <div className="bg-white dark:bg-slate-800 p-2.5 border-t border-slate-100 dark:border-slate-700">
-                      <p className="font-semibold text-slate-800 dark:text-white text-xs truncate">{t.name}</p>
-                      <p className="text-[9px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{t.description}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* STEP 2: Form */}
-        {step === 'form' && (
-          <div className="max-w-3xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-slate-800 dark:text-white">Preencha seus dados</h2>
-              <Button onClick={() => setStep('preview')} className="bg-[#1D4371] text-white gap-2">
-                Visualizar Currículo <Eye className="w-4 h-4" />
-              </Button>
-            </div>
-            <AIResumeGenerator onGenerated={(data, suggestedTemplate) => {
-              setFormData(data);
-              if (suggestedTemplate) {
-                setSelectedTemplate(suggestedTemplate);
-              }
-            }} />
-            <Card className="rounded-2xl border-0 shadow-lg">
-              <CardContent className="p-5">
-                <ResumeForm data={formData} onChange={setFormData} />
-              </CardContent>
-            </Card>
-            <div className="flex gap-3 mt-6">
-              <Button variant="outline" onClick={() => setStep('templates')} className="gap-2">
-                <ChevronLeft className="w-4 h-4" /> Trocar Template
-              </Button>
-              <Button onClick={() => setStep('preview')} className="bg-[#1D4371] text-white flex-1 gap-2">
-                Visualizar e Baixar <Eye className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 3: Preview */}
-        {step === 'preview' && (
-          <div>
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep('form')} className="gap-2">
-                  <ChevronLeft className="w-4 h-4" /> Editar
-                </Button>
-                <Button variant="outline" onClick={() => setStep('templates')} className="gap-2">
-                  Trocar Template
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-3">
-                {planInfo.watermark && (
-                  <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-xs text-yellow-800">
-                    <AlertTriangle className="w-4 h-4" />
-                    <span>Currículo com marca d'água — <button onClick={() => window.location.href = createPageUrl('Subscription')} className="font-bold underline">Assine Premium</button> para remover</span>
-                  </div>
-                )}
-                {!canDownloadMore() && !planInfo.watermark && (
-                  <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-xs text-red-800">
-                    <Lock className="w-4 h-4" />
-                    <span>Limite mensal atingido — <button onClick={() => window.location.href = createPageUrl('Subscription')} className="font-bold underline">Upgrade</button></span>
-                  </div>
-                )}
-                {downloadSuccess && (
-                  <Badge className="bg-green-100 text-green-700 border-green-200 gap-1">
-                    <CheckCircle className="w-3 h-3" /> Baixado com sucesso!
-                  </Badge>
-                )}
-                <Button
-                  onClick={handleDownload}
-                  disabled={downloading || (!canDownloadMore() && !planInfo.watermark)}
-                  className="bg-[#1D4371] text-white gap-2 px-6"
+          {/* Tab navigation */}
+          <div className="flex items-center gap-0.5 px-2 pt-2 pb-0 border-b border-slate-200 dark:border-slate-700 overflow-x-auto flex-shrink-0">
+            {EDITOR_TABS.map(tab => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold rounded-t-lg whitespace-nowrap transition-colors border-b-2 ${
+                    isActive
+                      ? 'border-[#1D4371] text-[#1D4371] bg-blue-50 dark:bg-blue-900/20 dark:text-blue-300'
+                      : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                  } ${tab.id === 'ai' ? 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 hover:text-violet-700' : ''}`}
                 >
-                  {downloading ? <><Loader2 className="w-4 h-4 animate-spin" /> Gerando PDF...</> : <><Download className="w-4 h-4" /> Baixar PDF</>}
-                </Button>
+                  <Icon className={`w-3.5 h-3.5 ${tab.id === 'ai' && !isActive ? 'text-violet-500' : ''}`} />
+                  {tab.label}
+                  {tab.id === 'ai' && <span className="ml-0.5 text-[9px] bg-violet-200 text-violet-700 px-1 rounded font-bold">IA</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Tab content */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {activeTab === 'ai' && (
+              <AIResumePanel
+                onGenerated={(data, tpl) => {
+                  setFormData(data);
+                  if (tpl) setSelectedTemplate(tpl);
+                  setActiveTab('personal');
+                }}
+              />
+            )}
+            {activeTab === 'templates' && (
+              <TemplatePicker
+                selected={selectedTemplate}
+                onSelect={(id) => { setSelectedTemplate(id); }}
+              />
+            )}
+            {activeTab === 'personal' && (
+              <EditorPersonal data={formData} onChange={setFormData} />
+            )}
+            {activeTab === 'experience' && (
+              <EditorExperience data={formData} onChange={setFormData} />
+            )}
+            {activeTab === 'education' && (
+              <EditorEducation data={formData} onChange={setFormData} />
+            )}
+            {activeTab === 'skills' && (
+              <EditorSkills data={formData} onChange={setFormData} />
+            )}
+            {activeTab === 'extras' && (
+              <EditorExtras data={formData} onChange={setFormData} />
+            )}
+          </div>
+
+          {/* Watermark warning */}
+          {planInfo.watermark && (
+            <div className="px-4 pb-3 flex-shrink-0">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2.5 flex items-start gap-2 text-xs text-yellow-800">
+                <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                <span>PDF com marca d'água. <button onClick={() => window.location.href = createPageUrl('Subscription')} className="font-bold underline">Assine Premium</button> para remover.</span>
               </div>
             </div>
+          )}
+        </div>
 
-            {/* Watermark notice */}
-            {planInfo.watermark && (
-              <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-3 mb-4 flex items-center gap-2 text-sm text-yellow-800">
-                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                <span>Este currículo terá a marca d'água <b>VAGAS ABERTAS PB</b>. Para remover, assine o plano Premium.</span>
-              </div>
-            )}
-
-            {/* A4 Preview */}
-            <div className="overflow-auto">
-              <div
-                ref={previewRef}
-                className="bg-white shadow-2xl mx-auto overflow-hidden"
-                style={{ width: 794, minHeight: 1123 }}
+        {/* RIGHT PANEL — A4 Preview */}
+        <div className={`${!mobileShowPreview ? 'hidden' : 'flex'} lg:flex flex-1 bg-slate-200 dark:bg-slate-900 overflow-auto items-start justify-center p-6`}>
+          <div className="w-full flex flex-col items-center">
+            {/* Scale hint */}
+            <div className="mb-4 flex items-center gap-3 flex-wrap justify-center">
+              <span className="text-xs text-slate-500 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full shadow-sm">
+                📄 Prévia A4 em tempo real
+              </span>
+              <span className="text-xs text-slate-500 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full shadow-sm">
+                Template: <b>{TEMPLATES.find(t => t.id === selectedTemplate)?.name || selectedTemplate}</b>
+              </span>
+              <button
+                onClick={() => setFormData(EMPTY_DATA)}
+                className="text-xs text-slate-500 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full shadow-sm hover:bg-red-50 hover:text-red-600 flex items-center gap-1.5 transition-colors"
               >
-                <ResumeRenderer data={formData} templateId={selectedTemplate} watermark={planInfo.watermark} />
-              </div>
+                <RotateCcw className="w-3 h-3" /> Limpar
+              </button>
+            </div>
+
+            {/* A4 Canvas */}
+            <div
+              ref={previewRef}
+              className="bg-white shadow-2xl"
+              style={{
+                width: 794,
+                minHeight: 1123,
+                maxWidth: '100%',
+                transformOrigin: 'top center',
+              }}
+            >
+              <ResumeRenderer
+                data={formData}
+                templateId={selectedTemplate}
+                watermark={planInfo.watermark}
+              />
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
