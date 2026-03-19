@@ -345,14 +345,12 @@ export default function OnlineUsersPanel({ adminUser, open, onClose }) {
         onOpenChange={setShowProfile}
         targetUser={selectedUser}
       />
-      {adminUser && selectedUser && (
-        <AdminSendMessageModal
-          open={showMessage}
-          onOpenChange={setShowMessage}
-          targetUser={selectedUser}
-          adminUser={adminUser}
-        />
-      )}
+      <AdminSendMessageModal
+        open={showMessage && !!selectedUser}
+        onOpenChange={setShowMessage}
+        targetUser={selectedUser}
+        adminUser={adminUser}
+      />
     </>
   );
 }
