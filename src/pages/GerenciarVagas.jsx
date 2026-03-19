@@ -882,6 +882,106 @@ export default function GerenciarVagas() {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Excluir por Período de Publicação */}
+            <Card className="border-red-200">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-red-700">
+                  <Calendar className="w-5 h-5" />
+                  Excluir Vagas por Período de Publicação
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-3 bg-red-50 rounded-lg border border-red-200 text-sm text-red-800">
+                  ⚠️ <strong>Atenção:</strong> Esta ação exclui permanentemente todas as vagas publicadas no período selecionado, incluindo favoritos, histórico de visualizações e notificações associadas.
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-sm font-medium">Data de Início</Label>
+                    <Input
+                      type="date"
+                      value={deleteByPeriod.dateStart}
+                      onChange={(e) => setDeleteByPeriod(prev => ({ ...prev, dateStart: e.target.value }))}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Data de Fim</Label>
+                    <Input
+                      type="date"
+                      value={deleteByPeriod.dateEnd}
+                      onChange={(e) => setDeleteByPeriod(prev => ({ ...prev, dateEnd: e.target.value }))}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                {deleteByPeriod.dateStart && deleteByPeriod.dateEnd && (
+                  <div className="p-3 bg-slate-50 rounded-lg border text-sm text-slate-700">
+                    📅 Período: <strong>{new Date(deleteByPeriod.dateStart + 'T00:00:00').toLocaleDateString('pt-BR')}</strong> a <strong>{new Date(deleteByPeriod.dateEnd + 'T00:00:00').toLocaleDateString('pt-BR')}</strong>
+                    <br />
+                    <span className="text-slate-500 text-xs mt-1 block">
+                      Total estimado: <strong>{jobs.filter(job => {
+                        const d = new Date(job.published_at || job.created_date);
+                        const s = new Date(deleteByPeriod.dateStart);
+                        const e = new Date(deleteByPeriod.dateEnd); e.setHours(23,59,59,999);
+                        return d >= s && d <= e;
+                      }).length} vagas</strong>
+                    </span>
+                  </div>
+                )}
+
+                {!showDeleteConfirm ? (
+                  <Button
+                    onClick={handlePreviewDeleteByPeriod}
+                    disabled={!deleteByPeriod.dateStart || !deleteByPeriod.dateEnd || deleteByPeriodLoading}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    {deleteByPeriodLoading ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Excluindo...</>
+                    ) : (
+                      <><Trash2 className="w-4 h-4 mr-2" />Excluir Vagas do Período</>
+                    )}
+                  </Button>
+                ) : (
+                  <div className="p-4 bg-red-50 border-2 border-red-400 rounded-xl space-y-3">
+                    <p className="text-red-800 font-semibold text-center text-base">
+                      ⚠️ Confirma que deseja excluir <strong>{deleteByPeriodPreview}</strong> vagas?
+                    </p>
+                    <p className="text-red-600 text-xs text-center">Esta ação não pode ser desfeita. Todos os dados associados serão removidos.</p>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleDeleteByPeriod}
+                        variant="destructive"
+                        className="flex-1"
+                      >
+                        Sim, Excluir {deleteByPeriodPreview} Vagas
+                      </Button>
+                      <Button
+                        onClick={() => setShowDeleteConfirm(false)}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5 invisible" />
+                  <span className="invisible">placeholder</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 hidden">
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Saúde do Sistema */}
