@@ -459,6 +459,20 @@ export default function VagasPendentesIA() {
                             <Badge variant="outline" className="text-green-700 border-green-300">💰 {job.salary_range}</Badge>
                           )}
                           <Badge className="bg-yellow-100 text-yellow-700">⏳ Pendente</Badge>
+                          {/* Badge de origem — visível apenas para admin/dono */}
+                          {job.origem?.toLowerCase().includes('telegram') ? (
+                            <Badge className="bg-blue-100 text-blue-700 border border-blue-200 flex items-center gap-1">
+                              <Send className="w-3 h-3" />Telegram
+                            </Badge>
+                          ) : job.origem?.toLowerCase().includes('whatsapp') || job.origem?.toLowerCase().includes('n8n') || job.origem?.toLowerCase().includes('zapi') || !job.origem || job.origem === '' ? (
+                            <Badge className="bg-green-100 text-green-700 border border-green-200 flex items-center gap-1">
+                              <MessageCircle className="w-3 h-3" />WhatsApp
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-slate-100 text-slate-600 border border-slate-200 text-xs">
+                              📌 {job.origem}
+                            </Badge>
+                          )}
                         </div>
 
                         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-slate-400 mb-3">
