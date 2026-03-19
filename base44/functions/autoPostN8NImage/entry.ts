@@ -174,11 +174,30 @@ Para CADA VAGA na imagem, extraia com MÁXIMA PRECISÃO:
       });
     }
 
+    // Dedup: buscar vagas das últimas 2h (agente envia p/ múltiplos grupos em sequência)
+    const duasHorasAtras = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+    let vagasRecentes = [];
+    try {
+      vagasRecentes = await base44.asServiceRole.entities.Job.filter({ created_date: { $gte: duasHorasAtras } });
+    } catch (e) {
+      console.warn('Erro ao buscar vagas recentes:', e.message);
+    }
+    const norm = (s) => (s || '').toLowerCase().trim().replace(/\s+/g, ' ');
+    const isDuplicata = (title, company) => {
+      if (!title || title.length < 4) return false;
+      return vagasRecentes.some(v => norm(v.title) === norm(title) && norm(v.company) === norm(company));
+    };
+
     // Criar vagas no banco
     const vagasCriadas = [];
 
     for (const job of jobs) {
       try {
+        if (isDuplicata(job.title, job.company)) {
+          console.log(`[DEDUP] Ignorada: ${job.title} - ${job.company}`);
+          continue;
+        }
+
         // Enriquecimento com pipeline
         const enriquecimento = await enriquecerComPipeline(job.title);
 
