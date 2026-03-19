@@ -578,15 +578,55 @@ export default function JobDetail() {
                 </div>
               )}
 
-              {/* Botão Reportar */}
-              <Button 
-                variant="outline"
-                onClick={() => setShowReportModal(true)}
-                className="w-full md:w-auto rounded-xl h-12 px-6 text-orange-600 border-orange-300 hover:bg-orange-50 mt-3"
-              >
-                <AlertCircle className="w-5 h-5 mr-2" />
-                Reportar Vaga
-              </Button>
+              {/* Botões de ação secundários */}
+              <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t">
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowReportModal(true)}
+                  className="rounded-xl h-10 px-4 text-orange-600 border-orange-300 hover:bg-orange-50 text-sm"
+                >
+                  <AlertCircle className="w-4 h-4 mr-2" />
+                  Reportar Vaga
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowShareDialog(true)}
+                  className="rounded-xl h-10 px-4 text-slate-600 text-sm"
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Compartilhar
+                </Button>
+                {user && (
+                  <Button
+                    variant="outline"
+                    onClick={handleFavorite}
+                    className={`rounded-xl h-10 px-4 text-sm ${isFavorite ? 'text-red-500 border-red-200 bg-red-50' : 'text-slate-600'}`}
+                  >
+                    <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
+                    {isFavorite ? 'Favoritado' : 'Favoritar'}
+                  </Button>
+                )}
+                {isAdmin && (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowEditModal(true)}
+                      className="rounded-xl h-10 px-4 text-slate-600 text-sm"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleDelete}
+                      className="rounded-xl h-10 px-4 text-red-600 border-red-200 hover:bg-red-50 text-sm"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Excluir
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
