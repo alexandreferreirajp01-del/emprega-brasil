@@ -130,7 +130,7 @@ const PLAN_FILTERS = [
   { value: 'basic',     label: 'Básico' },
 ];
 
-export default function OnlineUsersPanel({ adminUser, open, onClose }) {
+export default function OnlineUsersPanel({ adminUser, open, onClose, compact = false }) {
   const [search, setSearch] = useState('');
   const [planFilter, setPlanFilter] = useState('all');
   const [selectedUser, setSelectedUser] = useState(null);
