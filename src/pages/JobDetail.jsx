@@ -494,9 +494,7 @@ export default function JobDetail() {
             {job.description && (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-slate-800 mb-4">Descrição da Vaga</h2>
-                <p className="text-slate-600 whitespace-pre-line leading-relaxed">
-                  {job.description}
-                </p>
+                <JobTextFormatter text={job.description} />
                 <NativeBannerAd pageName="JobDetail" location="content" className="my-6" />
               </div>
             )}
@@ -505,9 +503,7 @@ export default function JobDetail() {
             {job.additional_info && !job.additional_info.startsWith('__HOME_OFFICE_LINKS__') && (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-slate-800 mb-4">Informações Adicionais</h2>
-                <p className="text-slate-600 whitespace-pre-line leading-relaxed">
-                  {job.additional_info}
-                </p>
+                <JobTextFormatter text={job.additional_info} />
               </div>
             )}
 
