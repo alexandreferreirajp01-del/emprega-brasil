@@ -26,6 +26,7 @@ import PushManager from "@/components/push/PushManager";
 import PopupManager from "@/components/common/PopupManager";
 import ServiceWorkerManager from "@/components/push/ServiceWorkerManager";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import OnlineUsersTrigger from "@/components/admin/OnlineUsersTrigger";
 import ApplyBasicPermissions from "@/components/common/ApplyBasicPermissions";
 import CookieConsent from "@/components/common/CookieConsent";
 import RouteGuard from "@/components/common/RouteGuard";
