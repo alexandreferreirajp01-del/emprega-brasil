@@ -102,8 +102,18 @@ function UserRow({ user, isOnline, onViewProfile, onSendMessage }) {
   );
 }
 
+const PLAN_FILTERS = [
+  { value: 'all',       label: 'Todos' },
+  { value: 'online',    label: 'Online' },
+  { value: 'premium',   label: 'Premium' },
+  { value: 'recruiter', label: 'Recrutador' },
+  { value: 'admin',     label: 'Admin' },
+  { value: 'basic',     label: 'Básico' },
+];
+
 export default function OnlineUsersPanel({ adminUser, open, onClose }) {
   const [search, setSearch] = useState('');
+  const [planFilter, setPlanFilter] = useState('all');
   const [selectedUser, setSelectedUser] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
