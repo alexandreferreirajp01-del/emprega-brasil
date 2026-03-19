@@ -16,10 +16,13 @@ Deno.serve(async (req) => {
       500
     );
 
-    // Filtrar apenas as de agentes (whatsapp_agent, telegram_bot) OU sem origem definida mas pendentes
+    // Filtrar vagas pendentes de agentes + N8N + sem contato
+    // Inclui: whatsapp_agent, telegram_bot, n8n_automatico, e qualquer origem pendente
     const agentJobs = jobs.filter(job =>
       job.origem === 'whatsapp_agent' ||
-      job.origem === 'telegram_bot'
+      job.origem === 'telegram_bot' ||
+      job.origem === 'n8n_automatico' ||
+      job.status === 'pending_review' // Caso tenha sido salva via N8N sem origem clara
     );
 
     return Response.json({ jobs: agentJobs, total: agentJobs.length });
