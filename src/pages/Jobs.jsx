@@ -5,8 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, MapPin, Calendar, Briefcase, Building2, 
-  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Heart, Clock, AlertCircle, MessageCircle
+  Lock, Star, X, Eye, Share2, RefreshCw, Loader2, Bookmark, Clock, AlertCircle, MessageCircle
 } from "lucide-react";
+import SavedJobsModal from "@/components/jobs/SavedJobsModal";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";

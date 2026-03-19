@@ -9,8 +9,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, Mail, Phone, Crown, Camera, LogOut, 
   Shield, Calendar, Loader2, CheckCircle, Edit, Save, X,
-  Lock, Briefcase, Settings, MapPin, Eye, EyeOff, Trash2, Wrench
+  Lock, Briefcase, Settings, MapPin, Eye, EyeOff, Trash2, Wrench, Bookmark
 } from "lucide-react";
+import SavedJobsModal from "@/components/jobs/SavedJobsModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
