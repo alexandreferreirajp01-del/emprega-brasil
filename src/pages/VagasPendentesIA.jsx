@@ -94,7 +94,7 @@ export default function VagasPendentesIA() {
   const [autopostKeys, setAutopostKeys] = useState(() => {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
   });
-  const [autopostRunning, setAutopostRunning] = useState(false);
+  // autopostRunning removido - automação agora é serverless (24/7)
   const queryClient = useQueryClient();
 
   useEffect(() => {
