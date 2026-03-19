@@ -403,19 +403,32 @@ export default function Jobs() {
       <div className="bg-gradient-to-r from-[#1E6FB6] to-[#0B2F5B] py-3 px-4 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <h1 className="text-xl font-bold text-white">Vagas</h1>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRefresh}
-            className="text-white hover:bg-white/20 h-8"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <RefreshCw className="w-4 h-4" />
+          <div className="flex items-center gap-1">
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowSavedModal(true)}
+                className="text-white hover:bg-white/20 h-8 gap-1.5 text-xs font-medium"
+              >
+                <Bookmark className="w-4 h-4" />
+                Salvas
+              </Button>
             )}
-          </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              className="text-white hover:bg-white/20 h-8"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
