@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bookmark } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 
