@@ -37,12 +37,13 @@ export default function NotificationBell({ user, className }) {
             50
           ).catch(() => []),
         ]);
-        // Merge and deduplicate by id
+        // Merge and deduplicate by id, ordenado por mais recente
         const all = [...(personal || []), ...(global || [])];
+        all.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
         const seen = new Set();
         return all.filter(n => {
           if (seen.has(n.id)) return false;
-          seen.set(n.id, true);
+          seen.add(n.id);
           return true;
         });
       } catch (e) {
