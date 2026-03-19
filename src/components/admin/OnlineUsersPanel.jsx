@@ -81,8 +81,8 @@ function UserRow({ user, isOnline, onViewProfile, onSendMessage }) {
         </div>
       </div>
 
-      {/* Ações rápidas - aparecem no hover */}
-      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+      {/* Ações rápidas */}
+      <div className="flex gap-1 flex-shrink-0">
         <button
           onClick={(e) => { e.stopPropagation(); onViewProfile(user); }}
           className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors"
