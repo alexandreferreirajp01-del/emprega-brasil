@@ -602,16 +602,7 @@ export default function JobDetail() {
                   <Share2 className="w-4 h-4 mr-2" />
                   Compartilhar
                 </Button>
-                {user && (
-                  <Button
-                    variant="outline"
-                    onClick={handleFavorite}
-                    className={`rounded-xl h-10 px-4 text-sm ${isFavorite ? 'text-red-500 border-red-200 bg-red-50' : 'text-slate-600'}`}
-                  >
-                    <Save className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
-                    {isFavorite ? 'Salvo' : 'Salvar'}
-                  </Button>
-                )}
+
                 {isAdmin && (
                   <>
                     <Button
