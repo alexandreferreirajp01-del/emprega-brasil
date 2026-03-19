@@ -93,30 +93,29 @@ IMPORTANTE:
     // Criar vagas pendentes no sistema
     const vagasCriadas = [];
 
-    // Buscar vagas criadas nas últimas 24h para checar duplicatas
-    const ontem = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    // Buscar vagas criadas nas últimas 2h para checar duplicatas
+    // O agente envia a mesma vaga para múltiplos grupos em sequência rápida
+    const duasHorasAtras = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
     let vagasRecentes = [];
     try {
-      vagasRecentes = await base44.asServiceRole.entities.Job.filter({ created_date: { $gte: ontem } });
+      vagasRecentes = await base44.asServiceRole.entities.Job.filter({ created_date: { $gte: duasHorasAtras } });
     } catch (e) {
       console.warn('Erro ao buscar vagas recentes para dedup:', e.message);
     }
 
     const normalizar = (str) => (str || '').toLowerCase().trim().replace(/\s+/g, ' ');
 
-    const isDuplicata = (vaga) => {
-      const tituloNovo = normalizar(vaga.titulo);
-      const empresaNova = normalizar(vaga.empresa);
-      const cidadeNova = normalizar(vaga.cidade);
+    // Duplicata = mesmo título + mesma empresa (ignora cidade — agente manda p/ múltiplos grupos)
+    const isDuplicata = (titulo, empresa) => {
+      const tituloNovo = normalizar(titulo);
+      const empresaNova = normalizar(empresa);
+      if (!tituloNovo || tituloNovo.length < 4) return false;
       return vagasRecentes.some(v => {
         const tituloExist = normalizar(v.title);
         const empresaExist = normalizar(v.company);
-        const cidadeExist = normalizar(v.city);
-        // Considera duplicata se título E (empresa OU cidade) forem iguais
-        const tituloBate = tituloExist === tituloNovo || (tituloNovo.length > 5 && tituloExist.includes(tituloNovo));
+        const tituloBate = tituloExist === tituloNovo;
         const empresaBate = empresaNova && empresaExist && empresaExist === empresaNova;
-        const cidadeBate = cidadeNova && cidadeExist && cidadeExist === cidadeNova;
-        return tituloBate && (empresaBate || cidadeBate);
+        return tituloBate && empresaBate;
       });
     };
     
