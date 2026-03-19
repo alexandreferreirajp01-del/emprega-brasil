@@ -114,17 +114,20 @@ export default function NotificationBell({ user, className }) {
     if (notifications.length === 0) return;
     
     try {
-      // Deletar TODAS as notificações do usuário, não apenas as únicas
-      await Promise.all(notifications.map(n => 
-        base44.entities.Notification.delete(n.id)
-      ));
+      // Salvar timestamp de limpeza para filtrar notificações globais (sent_to_all)
+      localStorage.setItem(CLEAR_TS_KEY(user.email), new Date().toISOString());
+
+      // Deletar notificações pessoais (user_email) do banco
+      const pessoais = notifications.filter(n => n.user_email === user.email);
+      if (pessoais.length > 0) {
+        await Promise.all(pessoais.map(n => base44.entities.Notification.delete(n.id)));
+      }
       
       // Limpar cache e forçar recarga
       queryClient.removeQueries({ queryKey: ['user-notifications'] });
       await refetchNotifications();
       
-      // Fechar o popover após limpar
-      setTimeout(() => setOpen(false), 500);
+      setTimeout(() => setOpen(false), 300);
     } catch (e) {
       console.error('Erro ao deletar notificações:', e);
     }
