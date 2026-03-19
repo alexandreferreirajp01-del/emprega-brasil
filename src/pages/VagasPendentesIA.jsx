@@ -99,6 +99,9 @@ export default function VagasPendentesIA() {
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(autopostKeys));
+    // Sincronizar com backend para que a automação acesse
+    base44.functions.invoke('saveAutopostKeys', { activeKeys: autopostKeys })
+      .catch(e => console.warn('Erro ao sincronizar chaves:', e));
   }, [autopostKeys]);
 
   // Auth check
