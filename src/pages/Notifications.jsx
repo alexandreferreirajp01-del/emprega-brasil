@@ -99,6 +99,19 @@ export default function Notifications() {
     } catch (e) {}
   };
 
+  const deleteAllNotifications = async () => {
+    if (!user?.email || notifications.length === 0) return;
+    // Salvar timestamp para esconder notificações globais
+    localStorage.setItem(CLEAR_TS_KEY(user.email), new Date().toISOString());
+    // Deletar só as pessoais do banco
+    const pessoais = notifications.filter(n => n.user_email === user.email);
+    if (pessoais.length > 0) {
+      await Promise.all(pessoais.map(n => base44.entities.Notification.delete(n.id).catch(() => {})));
+    }
+    queryClient.removeQueries({ queryKey: ['user-notifications'] });
+    await refetch();
+  };
+
   const formatTimeAgo = (date) => {
     if (!date) return '';
     const now = new Date();
