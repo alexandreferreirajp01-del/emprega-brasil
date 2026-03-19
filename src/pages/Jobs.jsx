@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -83,6 +83,7 @@ export default function Jobs() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [reportJob, setReportJob] = useState(null);
   const [isPulling, setIsPulling] = useState(false);
+  const [showSavedModal, setShowSavedModal] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
