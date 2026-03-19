@@ -90,6 +90,10 @@ function UserRow({ user, isOnline, onViewProfile, onSendMessage }) {
           </span>
           {isOnline ? (
             <span className="text-[10px] text-emerald-600 font-medium">● Online</span>
+          ) : lastSeen ? (
+            <span className="text-[10px] text-slate-400 flex items-center gap-0.5">
+              <Clock className="w-2.5 h-2.5" /> visto {lastSeen}
+            </span>
           ) : (
             <span className="text-[10px] text-slate-400">Offline</span>
           )}
