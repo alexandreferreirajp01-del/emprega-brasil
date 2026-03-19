@@ -296,16 +296,16 @@ export default function NotificacoesAdmin() {
 
       <div className="max-w-5xl mx-auto px-4 -mt-6">
         <Tabs defaultValue="bell" className="w-full">
-          <TabsList className="w-full mb-6 rounded-2xl h-12 shadow-lg">
-            <TabsTrigger value="bell" className="flex-1 rounded-xl gap-2 text-sm">
-              <Bell className="w-4 h-4" />
-              Notificações Sininho
-              <Badge className="bg-blue-100 text-blue-700 text-xs">{activeBellCount}</Badge>
+          <TabsList className="w-full mb-6 rounded-2xl h-auto shadow-lg">
+            <TabsTrigger value="bell" className="flex-1 rounded-xl gap-1.5 text-xs sm:text-sm py-3">
+              <Bell className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden xs:inline">Notificações </span>Sininho
+              <Badge className="bg-blue-100 text-blue-700 text-xs ml-1">{activeBellCount}</Badge>
             </TabsTrigger>
-            <TabsTrigger value="email" className="flex-1 rounded-xl gap-2 text-sm">
-              <Mail className="w-4 h-4" />
-              Notificações Email
-              <Badge className="bg-green-100 text-green-700 text-xs">{activeEmailCount}</Badge>
+            <TabsTrigger value="email" className="flex-1 rounded-xl gap-1.5 text-xs sm:text-sm py-3">
+              <Mail className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden xs:inline">Notificações </span>Email
+              <Badge className="bg-green-100 text-green-700 text-xs ml-1">{activeEmailCount}</Badge>
             </TabsTrigger>
           </TabsList>
 
