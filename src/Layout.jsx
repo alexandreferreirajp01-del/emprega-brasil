@@ -459,7 +459,7 @@ export default function Layout({ children, currentPageName }) {
             variant="ghost" 
             size="icon" 
             onClick={toggleTheme}
-            className="text-[#1D2226] dark:text-white hidden lg:block"
+            className="text-[#1D2226] dark:text-white"
           >
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
