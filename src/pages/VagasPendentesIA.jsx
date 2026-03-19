@@ -179,23 +179,7 @@ export default function VagasPendentesIA() {
   // Nota: O AutoPost agora roda em automação scheduled a cada 5 minutos (24/7)
   // não precisa mais da lógica React aqui
 
-  const runAutopost = async (mode) => {
-    if (autopostRunning || pendingJobs.length === 0) return;
-    setAutopostRunning(true);
-    try {
-      const ids = pendingJobs.map(j => j.id);
-      const res = await base44.functions.invoke('autoPublishPending', { mode, jobIds: ids });
-      const { published, errors } = res.data;
-      if (published > 0) {
-        toast.success(`🤖 AutoPost (${mode}): ${published} vaga(s) publicadas!${errors > 0 ? ` ${errors} erro(s).` : ''}`);
-        queryClient.invalidateQueries({ queryKey: ['pending-ai-jobs'] });
-      }
-    } catch (e) {
-      toast.error('Erro no AutoPost: ' + e.message);
-    } finally {
-      setAutopostRunning(false);
-    }
-  };
+  // AutoPost agora é controlado por automação scheduled (não por React)
 
   const toggleAutopostKey = (keyId) => {
     setAutopostKeys(prev => {
