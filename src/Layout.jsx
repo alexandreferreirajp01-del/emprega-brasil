@@ -513,6 +513,7 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Mobile: Chat + Settings + Theme + Users Button + Vagas Button + Menu */}
           <div className="lg:hidden flex items-center gap-1">
+            {showVagasButton && <OnlineUsersTrigger user={user} />}
 
             {isDono && (
               <a href="https://vagasabertaspb.com.br/vagaspendentesia" title="Vagas Pendentes IA">
