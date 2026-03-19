@@ -33,23 +33,29 @@ export default function Notifications() {
     checkAuth();
   }, []);
 
-  const { data: notifications = [] } = useQuery({
+  const { data: notifications = [], refetch } = useQuery({
     queryKey: ['user-notifications', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
       try {
-        const personal = await base44.entities.Notification.filter(
-          { user_email: user.email },
-          '-created_date',
-          200
-        ) || [];
-        return personal;
+        const clearedAt = localStorage.getItem(CLEAR_TS_KEY(user.email));
+        const [personal, global] = await Promise.all([
+          base44.entities.Notification.filter({ user_email: user.email }, '-created_date', 200).catch(() => []),
+          base44.entities.Notification.filter({ sent_to_all: true }, '-created_date', 100).catch(() => []),
+        ]);
+        const all = [...(personal || []), ...(global || [])].filter(n => {
+          if (!clearedAt) return true;
+          return new Date(n.created_date) > new Date(clearedAt);
+        });
+        const seen = new Set();
+        return all.filter(n => { if (seen.has(n.id)) return false; seen.add(n.id); return true; });
       } catch (e) {
         return [];
       }
     },
     enabled: !!user?.email,
     refetchInterval: 30000,
+    staleTime: 0,
   });
 
   const uniqueNotifications = useMemo(() => {
