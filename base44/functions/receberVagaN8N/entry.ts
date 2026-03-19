@@ -270,18 +270,28 @@ ${body.application_link ? `Link: ${body.application_link}` : ''}
   // Se conseguiu processar com IA, usar dados enriquecidos, senão usar dados brutos
   const extraida = processamentoIA?.vaga_extraida || {};
   const enriquecimento = processamentoIA?.enriquecimento_ia || {};
-  
+
+  // ── Fallback: usar regex para extrair contatos se IA não conseguiu ──
+  const textoParaExtracao = `${body.description || ''} ${body.additional_info || ''}`;
+  const contatosRegex = extractContactsWithRegex(textoParaExtracao);
+
   // Construir descrição enriquecida
   let descricaoFinal = body.description || extraida.descricao || '';
-  
+
   if (enriquecimento.resumo_da_funcao) {
     descricaoFinal = `${enriquecimento.resumo_da_funcao}\n\n${descricaoFinal}`.trim();
   }
-  
+
   if (enriquecimento.atividades_comuns?.length > 0) {
     descricaoFinal += `\n\nAtividades comuns dessa área:\n${enriquecimento.atividades_comuns.map(a => `- ${a}`).join('\n')}`;
   }
-  
+
+  // ── Extrair contatos: prioridade body > IA > regex ──
+  const emailFinal = body.contact_email || extraida.contato?.email || contatosRegex.email || '';
+  const phoneFinal = body.contact_phone || extraida.contato?.telefone || contatosRegex.telefone || '';
+  const whatsappFinal = body.contact_whatsapp || extraida.contato?.whatsapp || contatosRegex.whatsapp || '';
+  const linkFinal = body.application_link || extraida.contato?.site || contatosRegex.site || '';
+
   const jobData = {
     title: body.title.trim(),
     company: body.company || extraida.empresa || '',
@@ -292,10 +302,10 @@ ${body.application_link ? `Link: ${body.application_link}` : ''}
     salary_range: body.salary_range || extraida.salario || '',
     description: descricaoFinal,
     additional_info: body.additional_info || '',
-    contact_email: body.contact_email || extraida.contato?.email || '',
-    contact_phone: body.contact_phone || extraida.contato?.telefone || '',
-    contact_whatsapp: body.contact_whatsapp || extraida.contato?.whatsapp || '',
-    application_link: body.application_link || extraida.contato?.outro || '',
+    contact_email: emailFinal,
+    contact_phone: phoneFinal,
+    contact_whatsapp: whatsappFinal,
+    application_link: linkFinal,
     category: body.category || '',
     job_function: body.job_function || '',
     is_featured: body.is_featured === true,
@@ -306,7 +316,7 @@ ${body.application_link ? `Link: ${body.application_link}` : ''}
     contract_types: body.job_type ? [body.job_type] : (extraida.tipo_contratacao ? [extraida.tipo_contratacao] : []),
     nivel_localizacao: body.city || extraida.cidade ? 'cidade' : 'pendente',
     geocode_status: body.city || extraida.cidade ? 'manual' : 'pending',
-    contact_status: (body.contact_email || body.contact_phone || body.contact_whatsapp || body.application_link) ? 'ok' : 'missing',
+    contact_status: (emailFinal || phoneFinal || whatsappFinal || linkFinal) ? 'ok' : 'missing',
   };
 
   // ── Atualizar o rascunho com todos os dados enriquecidos ──
