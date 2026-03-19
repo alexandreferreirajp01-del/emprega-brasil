@@ -122,7 +122,7 @@ IMPORTANTE:
     for (const vaga of vagasExtraidas) {
       try {
         // Verificar duplicata antes de criar
-        if (isDuplicata(vaga)) {
+        if (isDuplicata(vaga.titulo, vaga.empresa)) {
           console.log(`[DEDUP] Vaga duplicada ignorada: ${vaga.titulo} - ${vaga.empresa}`);
           continue;
         }
