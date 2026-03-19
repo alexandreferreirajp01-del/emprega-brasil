@@ -448,62 +448,12 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Right side actions */}
         <div className="flex items-center gap-1 absolute right-0 lg:relative lg:ml-auto">
-          {/* Desktop: Notification Bell + Alerta Pendências + Settings + Users Button + Vagas Button + Theme */}
+          {/* Desktop: Notification Bell + Admin Drawer + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
           {showVagasButton && (
             <div className="hidden lg:block">
-              <OnlineUsersTrigger user={user} />
+              <AdminQuickAccessDrawer />
             </div>
-          )}
-
-          {isDono && (
-            <a href="https://vagasabertaspb.com.br/vagaspendentesia" title="Vagas Pendentes IA" className="hidden lg:inline-flex">
-              <Button variant="ghost" size="icon" className="text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20">
-                <Bot className="w-5 h-5" />
-              </Button>
-            </a>
-          )}
-
-          {showVagasButton && (
-            <Link to={createPageUrl('VagasPendentes')} title="Vagas Pendentes" className="hidden lg:inline-flex">
-              <Button variant="ghost" size="icon" className="text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20">
-                <AlertTriangle className="w-5 h-5" />
-              </Button>
-            </Link>
-          )}
-
-          {showVagasButton && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => window.location.href = createPageUrl('Configuracoes')}
-              className="text-[#1D2226] dark:text-white hidden lg:block"
-              title="Configurações Gerais"
-            >
-              <Wrench className="w-5 h-5" />
-            </Button>
-          )}
-          {showVagasButton && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => window.location.href = createPageUrl('GerenciarUsuarios')}
-              className="text-[#1D2226] dark:text-white hidden lg:block"
-              title="Gerenciar Usuários"
-            >
-              <Users className="w-5 h-5" />
-            </Button>
-          )}
-          {showVagasButton && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setShowVagasSubmenu(true)}
-              className="text-[#1D2226] dark:text-white hidden lg:block"
-              title="Gestão de Vagas"
-            >
-              <Send className="w-5 h-5" />
-            </Button>
           )}
           <Button 
             variant="ghost" 
