@@ -62,6 +62,16 @@ Deno.serve(async (req) => {
               console.log(`Aviso ao apagar histórico da vaga ${jobId}:`, e.message);
             }
 
+            // Apagar notificações referenciando a vaga
+            try {
+              const notifications = await base44.asServiceRole.entities.Notification.filter({ reference_id: jobId });
+              for (const notif of notifications) {
+                await base44.asServiceRole.entities.Notification.delete(notif.id);
+              }
+            } catch (e) {
+              console.log(`Aviso ao apagar notificações da vaga ${jobId}:`, e.message);
+            }
+
             // Finalmente, apagar a vaga em si
             await base44.asServiceRole.entities.Job.delete(jobId);
             updated++;
