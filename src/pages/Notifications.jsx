@@ -252,16 +252,28 @@ export default function Notifications() {
                 {unreadCount > 0 ? `${unreadCount} não lidas` : 'Todas lidas'}
               </p>
             </div>
-            {unreadCount > 0 && (
-              <Button 
-                variant="ghost" 
-                onClick={markAllAsRead}
-                className="text-white hover:bg-white/20 text-sm"
-              >
-                <Check className="w-4 h-4 mr-2" />
-                Marcar todas
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {unreadCount > 0 && (
+                <Button 
+                  variant="ghost" 
+                  onClick={markAllAsRead}
+                  className="text-white hover:bg-white/20 text-sm"
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  Marcar todas
+                </Button>
+              )}
+              {uniqueNotifications.length > 0 && (
+                <Button 
+                  variant="ghost" 
+                  onClick={deleteAllNotifications}
+                  className="text-white hover:bg-red-500/30 text-sm"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Limpar
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
