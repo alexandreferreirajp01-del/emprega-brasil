@@ -205,24 +205,17 @@ Mantenha 100% fidelidade ao anúncio original.`,
     contact_status: (body.contact_email || body.contact_phone || body.contact_whatsapp || body.application_link) ? 'ok' : 'missing',
   };
 
-  // ── Verificação de duplicata (últimas 24h) ──────────────────
-  const ontem = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-  const normalizar = (s) => (s || '').toLowerCase().trim().replace(/\s+/g, ' ');
-  const tituloNovo = normalizar(jobData.title);
-  const empresaNova = normalizar(jobData.company);
-  const cidadeNova = normalizar(jobData.city);
+  // ── Verificação de duplicata (últimas 2h — agente envia p/ múltiplos grupos) ──
+  const duasHorasAtras = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+  const norm = (s) => (s || '').toLowerCase().trim().replace(/\s+/g, ' ');
+  const tituloNovo = norm(jobData.title);
+  const empresaNova = norm(jobData.company);
 
   try {
-    const vagasRecentes = await base44.asServiceRole.entities.Job.filter({ created_date: { $gte: ontem } });
-    const duplicata = vagasRecentes.find(v => {
-      const tituloExist = normalizar(v.title);
-      const empresaExist = normalizar(v.company);
-      const cidadeExist = normalizar(v.city);
-      const tituloBate = tituloExist === tituloNovo || (tituloNovo.length > 5 && tituloExist.includes(tituloNovo));
-      const empresaBate = empresaNova && empresaExist && empresaExist === empresaNova;
-      const cidadeBate = cidadeNova && cidadeExist && cidadeExist === cidadeNova;
-      return tituloBate && (empresaBate || cidadeBate);
-    });
+    const vagasRecentes = await base44.asServiceRole.entities.Job.filter({ created_date: { $gte: duasHorasAtras } });
+    const duplicata = vagasRecentes.find(v =>
+      norm(v.title) === tituloNovo && norm(v.company) === empresaNova
+    );
 
     if (duplicata) {
       return Response.json({
