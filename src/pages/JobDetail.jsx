@@ -443,59 +443,13 @@ export default function JobDetail() {
           <CardContent className="p-6 md:p-8">
             {/* Title Section */}
             <div className="mb-6">
-              <div className="flex items-start justify-between flex-wrap gap-4">
-                <div className="flex-1">
-                  <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">
-                    {job.title || 'Não informado'}
-                  </h1>
-                  <p className="text-lg text-slate-500 flex items-center gap-2">
-                    <Building2 className="w-5 h-5" />
-                    {job.company || 'Empresa confidencial'}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {isAdmin && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setShowEditModal(true)}
-                        className="rounded-full"
-                        title="Editar Vaga"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleDelete}
-                        className="rounded-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                        title="Excluir Vaga"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </Button>
-                    </>
-                  )}
-                  {user && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleFavorite}
-                      className={`rounded-full ${isFavorite ? 'text-red-500 border-red-200' : ''}`}
-                    >
-                      <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                    </Button>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setShowShareDialog(true)}
-                    className="rounded-full"
-                  >
-                    <Share2 className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2 leading-tight">
+                {job.title || 'Não informado'}
+              </h1>
+              <p className="text-lg text-slate-500 flex items-center gap-2">
+                <Building2 className="w-5 h-5 flex-shrink-0" />
+                <span>{job.company || 'Empresa confidencial'}</span>
+              </p>
               {job.salary_range && (
                 <div className="mt-3 bg-green-50 px-4 py-2 rounded-xl inline-block">
                   <p className="text-green-700 font-semibold flex items-center gap-2">
