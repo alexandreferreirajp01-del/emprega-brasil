@@ -464,67 +464,9 @@ export default function Layout({ children, currentPageName }) {
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
 
-          {/* Mobile: Chat + Settings + Theme + Users Button + Vagas Button + Menu */}
+          {/* Mobile: Admin Drawer + Theme + Menu */}
           <div className="lg:hidden flex items-center gap-1">
-            {showVagasButton && <OnlineUsersTrigger user={user} />}
-
-            {isDono && (
-              <a href="https://vagasabertaspb.com.br/vagaspendentesia" title="Vagas Pendentes IA">
-                <Button variant="ghost" size="icon" className="text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20">
-                  <Bot className="w-5 h-5" />
-                </Button>
-              </a>
-            )}
-
-            {showVagasButton && (
-              <Link to={createPageUrl('VagasPendentes')} title="Vagas Pendentes">
-                <Button variant="ghost" size="icon" className="text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20">
-                  <AlertTriangle className="w-5 h-5" />
-                </Button>
-              </Link>
-            )}
-
-            {showVagasButton && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => window.location.href = createPageUrl('Configuracoes')}
-                className="text-[#1D2226] dark:text-white"
-                title="Configurações Gerais"
-              >
-                <Wrench className="w-5 h-5" />
-              </Button>
-            )}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleTheme}
-              className="text-[#1D2226] dark:text-white"
-            >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </Button>
-            {showVagasButton && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => window.location.href = createPageUrl('GerenciarUsuarios')}
-                className="text-[#1D2226] dark:text-white"
-                title="Gerenciar Usuários"
-              >
-                <Users className="w-5 h-5" />
-              </Button>
-            )}
-            {showVagasButton && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setShowVagasSubmenu(true)}
-                className="text-[#1D2226] dark:text-white"
-                title="Gestão de Vagas"
-              >
-                <Send className="w-5 h-5" />
-              </Button>
-            )}
+            {showVagasButton && <AdminQuickAccessDrawer />}
             <Button 
               variant="ghost" 
               size="icon" 
