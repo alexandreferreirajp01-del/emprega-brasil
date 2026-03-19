@@ -10,7 +10,7 @@ import { toast } from "sonner";
 export default function AdminSendMessageModal({ open, onOpenChange, targetUser, adminUser: adminUserProp }) {
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
-  const [currentUser, setCurrentUser] = React.useState(adminUserProp || null);
+  const [currentUser, setCurrentUser] = useState(adminUserProp || null);
 
   useEffect(() => {
     if (adminUserProp) { setCurrentUser(adminUserProp); return; }
