@@ -416,39 +416,40 @@ export default function NotificacoesAdmin() {
                 return (
                   <Card key={fn.id} className={`dark:bg-slate-800 dark:border-slate-700 transition-all ${!isEnabled ? 'opacity-70' : ''}`}>
                     <CardContent className="p-4">
-                      <div className="flex items-start gap-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colors.bg}`}>
-                          <Icon className={`w-5 h-5 ${colors.text}`} />
+                      <div className="flex items-start gap-3">
+                       <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${colors.bg}`}>
+                          <Icon className={`w-4 h-4 ${colors.text}`} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <span className="font-semibold text-slate-800 dark:text-white text-sm">{fn.label}</span>
-                            {isEnabled
-                              ? <Badge className="bg-green-100 text-green-700 text-xs flex items-center gap-1"><CheckCircle className="w-3 h-3" />Ativa</Badge>
-                              : <Badge className="bg-slate-100 text-slate-600 text-xs flex items-center gap-1"><MailOpen className="w-3 h-3" />Padrão desativado</Badge>
-                            }
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <div className="flex items-center gap-2 flex-wrap min-w-0">
+                              <span className="font-semibold text-slate-800 dark:text-white text-sm leading-tight">{fn.label}</span>
+                              {isEnabled
+                                ? <Badge className="bg-green-100 text-green-700 text-xs flex items-center gap-1 whitespace-nowrap"><CheckCircle className="w-3 h-3" />Ativa</Badge>
+                                : <Badge className="bg-slate-100 text-slate-600 text-xs flex items-center gap-1 whitespace-nowrap"><MailOpen className="w-3 h-3" />Off</Badge>
+                              }
+                            </div>
+                            <Switch
+                              checked={isEnabled}
+                              onCheckedChange={(v) => setEmailSettings(prev => ({ ...prev, [fn.id]: v }))}
+                              className="flex-shrink-0 mt-0.5"
+                            />
                           </div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{fn.description}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1 leading-relaxed">{fn.description}</p>
                           {fn.note && (
                             <p className="text-xs text-amber-700 dark:text-amber-400 mb-2">⚠️ {fn.note}</p>
                           )}
-                          <div className="flex flex-wrap gap-2">
-                            <Badge variant="outline" className="text-xs text-slate-500">
+                          <div className="flex flex-wrap gap-1.5">
+                            <Badge variant="outline" className="text-xs text-slate-500 max-w-full truncate">
                               🔧 {fn.function}
                             </Badge>
-                            <Badge variant="outline" className="text-xs text-slate-500">
+                            <Badge variant="outline" className="text-xs text-slate-500 max-w-full">
                               ⚡ {fn.trigger}
                             </Badge>
-                            <Badge className={`${colors.badge} text-xs`}>
+                            <Badge className={`${colors.badge} text-xs whitespace-nowrap`}>
                               👥 {fn.target}
                             </Badge>
                           </div>
-                        </div>
-                        <div className="flex-shrink-0">
-                          <Switch
-                            checked={isEnabled}
-                            onCheckedChange={(v) => setEmailSettings(prev => ({ ...prev, [fn.id]: v }))}
-                          />
                         </div>
                       </div>
                     </CardContent>
