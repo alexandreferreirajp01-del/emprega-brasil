@@ -270,6 +270,43 @@ export default function GerenciarVagas() {
     }
   };
 
+  const handlePreviewDeleteByPeriod = () => {
+    if (!deleteByPeriod.dateStart || !deleteByPeriod.dateEnd) {
+      alert('Selecione a data de início e fim');
+      return;
+    }
+    const start = new Date(deleteByPeriod.dateStart);
+    const end = new Date(deleteByPeriod.dateEnd);
+    end.setHours(23, 59, 59, 999);
+
+    const matching = jobs.filter(job => {
+      const jobDate = new Date(job.published_at || job.created_date);
+      return jobDate >= start && jobDate <= end;
+    });
+
+    setDeleteByPeriodPreview(matching.length);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteByPeriod = async () => {
+    setShowDeleteConfirm(false);
+    setDeleteByPeriodLoading(true);
+    try {
+      const response = await base44.functions.invoke('deleteJobsByPeriod', {
+        dateStart: deleteByPeriod.dateStart,
+        dateEnd: deleteByPeriod.dateEnd
+      });
+      await loadData();
+      setDeleteByPeriod({ dateStart: '', dateEnd: '' });
+      setDeleteByPeriodPreview(null);
+      alert(response.data?.message || `Vagas excluídas com sucesso!`);
+    } catch (err) {
+      alert('Erro: ' + err.message);
+    } finally {
+      setDeleteByPeriodLoading(false);
+    }
+  };
+
   const handleDeleteOld = async (days) => {
     if (!confirm(`Excluir vagas publicadas há mais de ${days} dias?`)) {
       return;
