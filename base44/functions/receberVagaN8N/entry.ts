@@ -191,30 +191,76 @@ ${body.contact_whatsapp ? `WhatsApp: ${body.contact_whatsapp}` : ''}
 ${body.application_link ? `Link: ${body.application_link}` : ''}
   `;
 
+  // ── Função auxiliar: extrair contatos com regex ──────────────────────
+  const extractContactsWithRegex = (text) => {
+    if (!text) return { email: '', telefone: '', whatsapp: '', site: '' };
+
+    // Email: padrão comum
+    const emailMatch = text.match(/([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    const email = emailMatch ? emailMatch[1] : '';
+
+    // Telefone/WhatsApp: (XX) 9XXXX-XXXX ou XX 99999-9999 ou similares
+    const phoneMatch = text.match(/(?:\(?\d{2}\)?\s?)?\d{4,5}[-\s]?\d{4}/);
+    const telefone = phoneMatch ? phoneMatch[0].trim() : '';
+
+    // URL/Site: http/https ou www
+    const siteMatch = text.match(/(https?:\/\/[^\s]+|www\.[^\s]+)/i);
+    const site = siteMatch ? siteMatch[1] : '';
+
+    return { email, telefone, whatsapp: telefone, site };
+  };
+
   let processamentoIA = null;
   try {
     processamentoIA = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `Você é um especialista em estruturação de vagas de emprego.
+      prompt: `Você é um ESPECIALISTA em EXTRAIR DADOS DE VAGAS DE EMPREGO.
 
-NUNCA invente: salário, benefícios, empresa, cidade, email, telefone. Se não existir, marque como "não informado".
+  TAREFA: Extrair TODOS os contatos da vaga (email, telefone, WhatsApp, site/link).
 
-PIPELINE:
-1. NORMALIZAÇÃO: limpar text
-2. EXTRAÇÃO: título, empresa, cidade, estado, modalidade, tipo contratação, salário, benefícios, requisitos, atividades, contatos
-3. CLASSIFICAÇÃO: cargo, área, nível, tags
-4. ENRIQUECIMENTO: resumo, atividades comuns, competências comuns (APENAS contexto genérico da profissão)
-5. GERAÇÃO: post final estruturado
+  ⚠️ CRÍTICO — CONTATOS:
+  - Procure: email (@gmail, @hotmail, empresa.com), telefone (XX 9XXXX-XXXX), WhatsApp, links (http, www)
+  - Podem estar em: descrição, final do texto, "entre em contato", "candidato", "envie CV"
+  - NÃO INVENTE contatos! Mas PROCURE AGRESSIVAMENTE!
 
-ANÚNCIO:
-${vagaTexto}
+  PIPELINE:
+  1. EXTRAÇÃO DE CONTATOS: email, telefone, WhatsApp, site, endereço
+  2. NORMALIZAÇÃO: limpar, validar
+  3. EXTRAÇÃO: título, empresa, cidade, estado, modalidade, tipo contratação, salário, requisitos, atividades
+  4. CLASSIFICAÇÃO: cargo, área, nível
+  5. ENRIQUECIMENTO: resumo genérico (APENAS contexto da profissão, sem dados específicos da vaga)
 
-Retorne JSON com:
-- vaga_extraida: {titulo, empresa, cidade, estado, modalidade, tipo_contratacao, salario, beneficios[], requisitos[], atividades_informadas[], contato{}, etc}
-- classificacao_ia: {cargo_padronizado, area_profissional, nivel, tags[]}
-- enriquecimento_ia: {resumo_da_funcao, atividades_comuns[], competencias_comuns[]}
-- controle_processamento: {confianca_extracao: 0-100, campos_nao_identificados[], observacoes}
+  ANÚNCIO:
+  ${vagaTexto}
 
-Mantenha 100% fidelidade ao anúncio original.`,
+  RETORNE JSON:
+  {
+  "vaga_extraida": {
+   "titulo": "...",
+   "empresa": "...",
+   "cidade": "...",
+   "estado": "...",
+   "modalidade": "Presencial|Híbrido|Remoto",
+   "tipo_contratacao": "CLT|PJ|...",
+   "salario": "...",
+   "contato": {
+     "email": "...",
+     "telefone": "...",
+     "whatsapp": "...",
+     "site": "..."
+   },
+   "requisitos": [],
+   "atividades": []
+  },
+  "classificacao_ia": {
+   "cargo_padronizado": "...",
+   "area_profissional": "..."
+  },
+  "enriquecimento_ia": {
+   "resumo_da_funcao": "..."
+  }
+  }
+
+  Mantenha 100% fidelidade ao anúncio.`,
       model: 'gpt_5',
     });
   } catch (e) {
