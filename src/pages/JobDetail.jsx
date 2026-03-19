@@ -21,6 +21,7 @@ import PremiumModal from "@/components/subscription/PremiumModal";
 import EditJobModal from "@/components/admin/EditJobModal";
 import NativeBannerAd from "@/components/ads/NativeBannerAd";
 import ReportJobModal from "@/components/jobs/ReportJobModal";
+import JobTextFormatter from "@/components/jobs/JobTextFormatter";
 import ApplyModal from "@/components/jobs/ApplyModal";
 import SEOHead from "@/components/common/SEOHead";
 
