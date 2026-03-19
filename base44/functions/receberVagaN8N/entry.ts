@@ -272,15 +272,15 @@ ${body.application_link ? `Link: ${body.application_link}` : ''}
   const textoParaExtracao = `${body.description || ''} ${body.additional_info || ''}`;
   const contatosRegex = extractContactsWithRegex(textoParaExtracao);
 
-  // Construir descrição enriquecida
-  let descricaoFinal = body.description || extraida.descricao || '';
+  // ── Usar descrição com valor da IA ou description original ──
+  let descricaoFinal = extraida.descricao_real || body.description || extraida.descricao || '';
 
-  if (enriquecimento.resumo_da_funcao) {
-    descricaoFinal = `${enriquecimento.resumo_da_funcao}\n\n${descricaoFinal}`.trim();
-  }
-
-  if (enriquecimento.atividades_comuns?.length > 0) {
-    descricaoFinal += `\n\nAtividades comuns dessa área:\n${enriquecimento.atividades_comuns.map(a => `- ${a}`).join('\n')}`;
+  // Se houver requisitos reais da IA, adicionar à descrição
+  if (extraida.requisitos_reais?.length > 0) {
+    const reqTexto = extraida.requisitos_reais.join(', ');
+    if (descricaoFinal && !descricaoFinal.includes(reqTexto)) {
+      descricaoFinal += `\n\nRequisitos: ${reqTexto}`;
+    }
   }
 
   // ── Extrair contatos: prioridade body > IA > regex ──
