@@ -263,31 +263,11 @@ Mantenha 100% fidelidade ao anúncio original.`,
     contact_status: (body.contact_email || body.contact_phone || body.contact_whatsapp || body.application_link) ? 'ok' : 'missing',
   };
 
-  // ── Verificação de duplicata (últimas 2h — agente envia p/ múltiplos grupos) ──
-  const duasHorasAtras = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
-  const norm = (s) => (s || '').toLowerCase().trim().replace(/\s+/g, ' ');
-  const tituloNovo = norm(jobData.title);
-  const empresaNova = norm(jobData.company);
-
-  try {
-    const vagasRecentes = await base44.asServiceRole.entities.Job.filter({ created_date: { $gte: duasHorasAtras } });
-    const duplicata = vagasRecentes.find(v =>
-      norm(v.title) === tituloNovo && norm(v.company) === empresaNova
-    );
-
-    if (duplicata) {
-      return Response.json({
-        success: true,
-        job_id: duplicata.id,
-        message: 'Vaga duplicada ignorada. Já existe uma vaga similar nas últimas 24h.',
-        duplicate: true,
-      }, { status: 200, headers: { 'Access-Control-Allow-Origin': '*' } });
-    }
-  } catch (e) {
-    console.warn('Erro ao verificar duplicatas:', e.message);
-  }
-
-  const newJob = await base44.asServiceRole.entities.Job.create(jobData);
+  // ── Atualizar o rascunho com todos os dados enriquecidos ──
+  const newJob = await base44.asServiceRole.entities.Job.update(jobRascunho.id, {
+    ...jobData,
+    id: undefined, // não enviar id no update
+  });
 
   return Response.json({
     success: true,
