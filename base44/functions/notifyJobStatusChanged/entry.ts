@@ -12,73 +12,43 @@ Deno.serve(async (req) => {
 
     if (!job || !job.title) return Response.json({ ok: true });
 
-    // Notificar admins e usuários se vaga foi aprovada
+    // Notificar se vaga foi aprovada (status mudou para 'ativa')
     if (oldJob?.status !== 'ativa' && job.status === 'ativa') {
-      // Notificar ADMINS
-      const admins = await base44.asServiceRole.entities.User.filter(
-        { role: 'admin' }
-      ).catch(() => []);
+      // UMA notificação global (sent_to_all) — sem loop por usuário
+      await base44.asServiceRole.entities.Notification.create({
+        title: '🚨 Nova Vaga Disponível!',
+        message: `${job.title}${job.company ? ` · ${job.company}` : ''}${job.city ? ` em ${job.city}` : ''}`,
+        type: 'job',
+        reference_type: 'job',
+        reference_id: job.id,
+        job_id: job.id,
+        sent_to_all: true,
+        redirect_page: 'JobDetail',
+        redirect_params: { id: job.id },
+        is_read: false
+      });
 
-      for (const admin of admins) {
-        await base44.asServiceRole.entities.Notification.create({
-          title: '✅ Vaga Publicada',
-          message: `"${job.title}" foi publicada`,
-          type: 'job',
-          reference_type: 'job',
-          reference_id: job.id,
-          job_id: job.id,
-          user_email: admin.email,
-          redirect_page: 'JobDetail',
-          redirect_params: { id: job.id },
-          is_read: false
-        });
-      }
-
-      // Notificar USUÁRIOS sobre vaga aprovada
-      const users = await base44.asServiceRole.entities.User.list('-created_date', 5000)
-        .catch(() => []);
-
-      for (const user of users) {
-        if (user.role === 'admin') continue; // Skip admins
-        
-        await base44.asServiceRole.entities.Notification.create({
-          title: '✨ Nova Vaga Aprovada!',
-          message: `${job.title} em ${job.city || 'Local não informado'}`,
-          type: 'job',
-          reference_type: 'job',
-          reference_id: job.id,
-          job_id: job.id,
-          user_email: user.email,
-          redirect_page: 'JobDetail',
-          redirect_params: { id: job.id },
-          is_read: false
-        });
-      }
+      console.log(`[notifyJobStatusChanged] ✅ Notificação global criada para vaga: ${job.title}`);
     }
 
-    // Notificar se vaga foi expirada
+    // Notificar admins se vaga expirou
     if (oldJob?.status !== 'expirada' && job.status === 'expirada') {
-      const admins = await base44.asServiceRole.entities.User.filter(
-        { role: 'admin' }
-      ).catch(() => []);
-
-      for (const admin of admins) {
-        await base44.asServiceRole.entities.Notification.create({
-          title: '⏰ Vaga Expirada',
-          message: `"${job.title}" expirou`,
-          type: 'system',
-          reference_type: 'job',
-          reference_id: job.id,
-          job_id: job.id,
-          user_email: admin.email,
-          is_read: false
-        });
-      }
+      await base44.asServiceRole.entities.Notification.create({
+        title: '⏰ Vaga Expirada',
+        message: `"${job.title}" expirou automaticamente`,
+        type: 'system',
+        reference_type: 'job',
+        reference_id: job.id,
+        job_id: job.id,
+        sent_to_all: false,
+        user_email: 'alexandreferreirajp01@gmail.com',
+        is_read: false
+      });
     }
 
     return Response.json({ ok: true });
   } catch (error) {
-    console.error('[notifyJobStatusChanged]', error);
+    console.error('[notifyJobStatusChanged]', error.message);
     return Response.json({ ok: true });
   }
 });

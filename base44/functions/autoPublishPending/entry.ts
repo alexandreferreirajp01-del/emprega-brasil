@@ -57,7 +57,7 @@ async function notifyJob(base44, job) {
   const title = `🚨 Nova vaga disponível!`;
   const body = `${job.title} em ${job.company || 'Empresa'}${job.city ? ` · ${job.city}` : ''}. Clique e candidate-se agora!`;
 
-  // 1. Criar notificação no sininho (sent_to_all = aparece para todos)
+  // 1. Criar notificação global no sininho (sent_to_all = aparece para todos sem loop)
   await base44.asServiceRole.entities.Notification.create({
     title,
     message: body,
@@ -70,6 +70,7 @@ async function notifyJob(base44, job) {
     sent_to_all: true,
     is_read: false
   });
+  console.log(`[autoPublishPending] ✅ Notificação global criada para: ${job.title}`);
 
   // 2. Push notifications
   const subscriptions = await base44.asServiceRole.entities.PushSubscription.filter({ is_active: true }, '-created_date', 5000);
