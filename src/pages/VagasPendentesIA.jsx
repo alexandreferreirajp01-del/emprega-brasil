@@ -173,31 +173,15 @@ export default function VagasPendentesIA() {
     });
   };
 
-  // Send notification after publishing
-  const sendNotification = async (job) => {
-    try {
-      await base44.functions.invoke('notifyNewJob', {
-        jobId: job.id,
-        jobTitle: job.title,
-        jobCompany: job.company,
-        jobCity: job.city,
-        isHomeOffice: job.work_mode === 'Remoto' || job.is_remote === true,
-      });
-    } catch (e) {
-      console.warn('Erro ao enviar notificação:', e);
-    }
-  };
-
-  // Publish single job
+  // Publish single job via autoPublishPending (garante notificações)
   const publishMutation = useMutation({
     mutationFn: async ({ job, isPremium, isFeatured }) => {
-      await base44.entities.Job.update(job.id, {
-        is_premium: isPremium,
-        is_featured: isFeatured,
-        published_at: new Date().toISOString(),
-        status: 'ativa'
-      });
-      await sendNotification(job);
+      let mode = 'geral';
+      if (isPremium && isFeatured) mode = 'premium_destaque';
+      else if (isPremium) mode = 'premium';
+      else if (isFeatured) mode = 'geral_destaque';
+      const res = await base44.functions.invoke('autoPublishPending', { mode, jobIds: [job.id] });
+      if (!res.data?.published) throw new Error('Falha ao publicar');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-ai-jobs'] });
