@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
+const CLEAR_TS_KEY = (email) => `notif_cleared_at_${email}`;
+
 export default function NotificationBell({ user, className }) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
