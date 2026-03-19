@@ -460,18 +460,16 @@ export default function NotificacoesAdmin() {
           </TabsContent>
         </Tabs>
 
-        {/* Botão salvar fixo */}
-        <div className="fixed bottom-16 md:bottom-4 left-4 right-4 z-50">
-          <div className="max-w-5xl mx-auto">
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full bg-blue-700 hover:bg-blue-800 h-12 text-base font-semibold shadow-xl rounded-2xl"
-            >
-              {saving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              Salvar Configurações
-            </Button>
-          </div>
+        {/* Botão salvar fixo no canto inferior direito */}
+        <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50">
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-blue-700 hover:bg-blue-800 shadow-xl rounded-xl px-4 h-10 text-sm font-semibold"
+          >
+            {saving ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Save className="w-4 h-4 mr-1.5" />}
+            Salvar
+          </Button>
         </div>
       </div>
     </div>
