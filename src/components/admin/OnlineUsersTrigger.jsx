@@ -10,9 +10,12 @@ export default function OnlineUsersTrigger({ user }) {
   const { data: sessions = [] } = useQuery({
     queryKey: ['online-sessions-trigger'],
     queryFn: async () => {
-      const fiveMin = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-      const data = await base44.entities.UserSession.filter({ is_active: true });
-      return Array.isArray(data) ? data.filter(s => (s.updated_date || s.session_start) >= fiveMin) : [];
+      const threeMin = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+      const data = await base44.entities.UserSession.filter({
+        is_active: true,
+        last_heartbeat: { $gte: threeMin }
+      });
+      return Array.isArray(data) ? data : [];
     },
     refetchInterval: 20000,
   });
