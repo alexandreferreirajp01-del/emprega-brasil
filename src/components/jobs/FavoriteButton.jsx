@@ -74,7 +74,7 @@ export default function FavoriteButton({ job, user, size = "default" }) {
       title={isFavorite ? 'Remover das vagas salvas' : 'Salvar vaga'}
       className={`${sizeClasses} rounded-full ${isFavorite ? 'text-[#1E6FB6] hover:text-[#0B2F5B]' : 'text-slate-400 hover:text-[#1E6FB6]'}`}
     >
-      <Bookmark className={`${iconSize} ${isFavorite ? 'fill-current' : ''}`} />
+      <Save className={`${iconSize} ${isFavorite ? 'fill-current' : ''}`} />
     </Button>
   );
 }
