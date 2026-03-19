@@ -7,12 +7,20 @@ import { Send, Loader2, MessageCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 
-export default function AdminSendMessageModal({ open, onOpenChange, targetUser, adminUser }) {
+export default function AdminSendMessageModal({ open, onOpenChange, targetUser, adminUser: adminUserProp }) {
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [currentUser, setCurrentUser] = React.useState(adminUserProp || null);
+
+  React.useEffect(() => {
+    if (adminUserProp) { setCurrentUser(adminUserProp); return; }
+    base44.auth.me().then(u => setCurrentUser(u)).catch(() => {});
+  }, [adminUserProp]);
+
+  const adminUser = currentUser;
 
   const handleSend = async () => {
-    if (!message.trim() || sending) return;
+    if (!message.trim() || sending || !adminUser) return;
     setSending(true);
     try {
       // Criar conversa_id ordenado alfabeticamente
