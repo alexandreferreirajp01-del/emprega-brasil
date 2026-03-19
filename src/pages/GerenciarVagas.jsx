@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { 
   Briefcase, Loader2, Search, Filter, MapPin, AlertCircle, 
   CheckCircle2, Eye, EyeOff, Edit, Trash2, RefreshCw, Copy,
-  Settings, ChevronDown, ChevronUp, Download, ArrowLeft
+  Settings, ChevronDown, ChevronUp, Download, ArrowLeft, Calendar
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
