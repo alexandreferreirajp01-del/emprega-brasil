@@ -51,27 +51,7 @@ const TAB_COMPONENTS = {
 };
 
 
-const vagasSubmenuItems = [
-  { id: 'gerenciar-vagas', name: 'Gerenciador de Vagas', icon: Briefcase, color: 'indigo', page: 'GerenciarVagas', description: 'Central única de controle e manutenção', roles: ['admin', 'dono'] },
-  { id: 'gerenciador-filtros', name: 'Gerenciador de Filtros', icon: Settings, color: 'slate', page: 'GerenciadorFiltros', description: 'Gerenciar categorias, funções, tipos de vaga e filtros', permissionId: 'gerenciador_filtros' },
-  { id: 'postar-vaga', name: 'Postar Vagas', icon: PlusCircle, color: 'blue', page: 'PostarVaga', description: 'Criar novas vagas de emprego', permissionId: 'postar_vagas' },
-  { id: 'posts-massa', name: 'Posts em Massa', icon: Sparkles, color: 'purple', page: 'PostsEmMassa', description: 'Upload múltiplas imagens e extraia vagas com IA', permissionId: 'posts_massa' },
-  { id: 'posts-massa-txt', name: 'Posts em Massa TXT', icon: FileText, color: 'indigo', page: 'PostsEmMassaTXT', description: 'Upload arquivos TXT/DOC/PDF e extraia até 50 vagas', permissionId: 'posts_massa_txt' },
-  { id: 'vagas-ia', name: 'Vagas por IA', icon: Sparkles, color: 'violet', page: 'VagasPorIA', description: 'Gerar vagas com inteligência artificial', permissionId: 'vagas_ia' },
-  { id: 'vagas-pendentes-ia', name: 'Vagas Pendentes IA', icon: Bot, color: 'purple', page: 'VagasPendentesIA', description: 'Revisar vagas capturadas pelo agente WhatsApp', roles: ['admin', 'dono'] },
-  { id: 'vagas-home', name: 'Vagas Home Office', icon: Home, color: 'teal', page: 'VagasHomeOffice', description: 'Publicar vagas remotas', permissionId: 'vagas_home_office' },
-  { id: 'gerenciar-grupos', name: 'Gerenciar Grupos', icon: UsersRound, color: 'green', page: 'GerenciarGrupos', description: 'Adicionar e editar grupos de WhatsApp/Telegram', roles: ['admin', 'dono'] },
-];
-
-const colorClasses = {
-  indigo: 'bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600',
-  slate: 'bg-gradient-to-br from-slate-50 to-slate-100 text-slate-600',
-  blue: 'bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600',
-  purple: 'bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600',
-  violet: 'bg-gradient-to-br from-violet-50 to-violet-100 text-violet-600',
-  teal: 'bg-gradient-to-br from-teal-50 to-teal-100 text-teal-600',
-  green: 'bg-gradient-to-br from-green-50 to-green-100 text-green-600',
-};
+// Atalhos movidos para AdminQuickAccessDrawer component
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
