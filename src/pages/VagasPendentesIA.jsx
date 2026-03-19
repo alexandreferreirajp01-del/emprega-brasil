@@ -9,7 +9,7 @@ import {
   ArrowLeft, Search, Rocket, Trash2, Crown, Star,
   Loader2, MapPin, Building2, Calendar, MessageCircle,
   CheckSquare, Square, ChevronDown, Zap, Bot, Key,
-  ToggleLeft, ToggleRight, Info
+  ToggleLeft, ToggleRight, Info, Send
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
