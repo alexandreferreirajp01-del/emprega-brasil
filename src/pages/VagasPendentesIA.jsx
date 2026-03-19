@@ -324,15 +324,14 @@ export default function VagasPendentesIA() {
               <p className="text-white/80 text-sm">Vagas recebidas via WhatsApp aguardando revisão</p>
             </div>
             <div className="flex items-center gap-2">
-              {autopostRunning && (
-                <Badge className="bg-emerald-400 text-white border-0 flex items-center gap-1">
-                  <Loader2 className="w-3 h-3 animate-spin" /> AutoPost rodando...
-                </Badge>
-              )}
-              <Badge className="bg-white/20 text-white border-0 text-lg px-4 py-2">
-                {pendingJobs.length} {pendingJobs.length === 1 ? 'vaga' : 'vagas'}
-              </Badge>
-            </div>
+               <Badge className="bg-emerald-500/90 text-white border-0 flex items-center gap-1 text-xs">
+                 <span className="inline-block w-2 h-2 bg-white rounded-full animate-pulse mr-1"></span>
+                 AutoPost 24/7 Ativo
+               </Badge>
+               <Badge className="bg-white/20 text-white border-0 text-lg px-4 py-2">
+                 {pendingJobs.length} {pendingJobs.length === 1 ? 'vaga' : 'vagas'}
+               </Badge>
+             </div>
           </div>
         </div>
       </div>
