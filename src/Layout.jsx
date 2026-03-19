@@ -448,8 +448,9 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Right side actions */}
         <div className="flex items-center gap-1 absolute right-0 lg:relative lg:ml-auto">
-          {/* Desktop: Notification Bell + Alerta Pendências + Settings + Users Button + Vagas Button + Theme */}
+          {/* Desktop: Notification Bell + System Health + Alerta Pendências + Settings + Users Button + Vagas Button + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
+          {(isAdmin || isDono) && <SystemHealthButton />}
           {showVagasButton && (
             <div className="hidden lg:block">
               <OnlineUsersTrigger user={user} />
