@@ -213,54 +213,51 @@ ${body.application_link ? `Link: ${body.application_link}` : ''}
   let processamentoIA = null;
   try {
     processamentoIA = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `Você é um ESPECIALISTA em EXTRAIR DADOS DE VAGAS DE EMPREGO.
+      prompt: `Você é um ESPECIALISTA em EXTRAIR E ENRIQUECER DADOS DE VAGAS.
 
-  TAREFA: Extrair TODOS os contatos da vaga (email, telefone, WhatsApp, site/link).
+  ⚠️ INSTRUÇÕES CRÍTICAS:
 
-  ⚠️ CRÍTICO — CONTATOS:
-  - Procure: email (@gmail, @hotmail, empresa.com), telefone (XX 9XXXX-XXXX), WhatsApp, links (http, www)
-  - Podem estar em: descrição, final do texto, "entre em contato", "candidato", "envie CV"
-  - NÃO INVENTE contatos! Mas PROCURE AGRESSIVAMENTE!
+  1️⃣ EXTRAÇÃO DE CONTATOS (MÁXIMA PRIORIDADE):
+  - Procure AGRESSIVAMENTE: links (http, www, capitalvagas.com.br, etc), emails, telefones, WhatsApp
+  - Locais: final do texto, "acesse", "saiba mais", "inscrições", "candidatar"
+  - NÃO INVENTE! Mas procure em TODA parte do texto!
 
-  PIPELINE:
-  1. EXTRAÇÃO DE CONTATOS: email, telefone, WhatsApp, site, endereço
-  2. NORMALIZAÇÃO: limpar, validar
-  3. EXTRAÇÃO: título, empresa, cidade, estado, modalidade, tipo contratação, salário, requisitos, atividades
-  4. CLASSIFICAÇÃO: cargo, área, nível
-  5. ENRIQUECIMENTO: resumo genérico (APENAS contexto da profissão, sem dados específicos da vaga)
+  2️⃣ DESCRIÇÃO COM VALOR (use dados REAIS do anúncio, não genéricos):
+  - O que a empresa busca (experiência, perfil, requisitos reais mencionados)
+  - Tipo de trabalho: "Home Office", "Remoto", "100% Remoto", etc
+  - Requisitos explícitos: "estudantes de", "profissionais", "sem experiência", "com experiência"
+  - Setor/área: tecnologia, RH, advocacia, atendimento, etc
+  - NUNCA deixe descrição genérica tipo "processo seletivo para quem deseja ingressar"
+
+  3️⃣ SE HOUVER MÚLTIPLAS VAGAS:
+  - Crie UMA entrada para CADA vaga (com seus dados específicos)
+  - Não junte tudo em uma só
 
   ANÚNCIO:
   ${vagaTexto}
 
-  RETORNE JSON:
+  RETORNE JSON com array (se múltiplas vagas):
+  [
   {
-  "vaga_extraida": {
-   "titulo": "...",
-   "empresa": "...",
-   "cidade": "...",
-   "estado": "...",
-   "modalidade": "Presencial|Híbrido|Remoto",
-   "tipo_contratacao": "CLT|PJ|...",
-   "salario": "...",
-   "contato": {
-     "email": "...",
-     "telefone": "...",
-     "whatsapp": "...",
-     "site": "..."
-   },
-   "requisitos": [],
-   "atividades": []
-  },
-  "classificacao_ia": {
-   "cargo_padronizado": "...",
-   "area_profissional": "..."
-  },
-  "enriquecimento_ia": {
-   "resumo_da_funcao": "..."
+   "vaga_extraida": {
+     "titulo": "...",
+     "empresa": "...",
+     "descricao_real": "Descrição com dados REAIS do anúncio, sem genéricos",
+     "modalidade": "Home Office|Remoto|100% Remoto|Presencial|Híbrido",
+     "tipo_contratacao": "Estágio|CLT|PJ|Trainee|etc",
+     "requisitos_reais": ["Estudante de Direito", "Profissional ou iniciante", "Sem experiência prévia"],
+     "contato": {
+       "site": "capitalvagas.com.br",
+       "email": "...",
+       "telefone": "...",
+       "whatsapp": "..."
+     }
+   }
   }
-  }
+  ]
 
-  Mantenha 100% fidelidade ao anúncio.`,
+  EXEMPLO RUIM: "Processo seletivo para quem deseja ingressar na área de inteligência de informações"
+  EXEMPLO BOM: "Sanchez & Sanchez procura Assistente de Dados para área de inteligência de informações. Vaga 100% remota. Aceita iniciantes em dados e BI."`,
       model: 'gpt_5',
     });
   } catch (e) {
