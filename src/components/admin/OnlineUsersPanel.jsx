@@ -126,7 +126,7 @@ export default function OnlineUsersPanel({ adminUser, open, onClose }) {
   const { data: allUsers = [] } = useQuery({
     queryKey: ['admin-all-users-panel'],
     queryFn: async () => {
-      const data = await base44.entities.User.list('-created_date', 500);
+      const data = await base44.entities.User.list('-created_date', 10000);
       return Array.isArray(data) ? data : [];
     },
     staleTime: 60000,
