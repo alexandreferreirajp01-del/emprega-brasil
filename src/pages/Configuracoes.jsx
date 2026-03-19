@@ -256,6 +256,7 @@ export default function Configuracoes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [migrating, setMigrating] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null); // submenuKey string
+  const [systemHealthOpen, setSystemHealthOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
