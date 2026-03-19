@@ -736,9 +736,10 @@ export default function Jobs() {
                             variant="ghost"
                             size="icon"
                             onClick={(e) => handleFavorite(job, e)}
-                            className={`h-8 w-8 rounded-full ${isFavorite ? 'text-red-500' : 'text-slate-400'}`}
+                            title={isFavorite ? 'Remover das vagas salvas' : 'Salvar vaga'}
+                            className={`h-8 w-8 rounded-full ${isFavorite ? 'text-[#1E6FB6]' : 'text-slate-300 hover:text-[#1E6FB6]'}`}
                           >
-                            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+                            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                           </Button>
                         )}
                         {canView && (
