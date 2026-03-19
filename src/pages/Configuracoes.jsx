@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import SystemHealthModal from "@/components/admin/SystemHealthModal";
 
 // ─── Submenus ─────────────────────────────────────────────────────────────────
 
