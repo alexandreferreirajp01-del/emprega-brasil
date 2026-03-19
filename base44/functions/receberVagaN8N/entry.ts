@@ -113,8 +113,66 @@ Deno.serve(async (req) => {
     return Response.json({ error: "Campo 'title' é obrigatório" }, { status: 400 });
   }
 
-  // ── Processar com pipeline IA avançado ──────────────────────
   const base44 = createClientFromRequest(req);
+
+  // ── Verificação de duplicata ANTECIPADA (antes de qualquer IA) ──
+  // Normaliza título+empresa+descrição para fingerprint robusto
+  const norm = (s) => (s || '').toLowerCase().trim().replace(/\s+/g, ' ');
+  const tituloNovo = norm(body.title);
+  const empresaNova = norm(body.company || '');
+  // Fingerprint baseado nos primeiros 100 chars da descrição tbm
+  const descFingerprint = norm(body.description || '').substring(0, 100);
+
+  // Janela de 6h para pegar duplicatas (N8N pode reenviar até horas depois)
+  const seisHorasAtras = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString();
+
+  try {
+    const vagasRecentes = await base44.asServiceRole.entities.Job.filter({
+      created_date: { $gte: seisHorasAtras }
+    });
+
+    const duplicata = vagasRecentes.find(v => {
+      const tituloIgual = norm(v.title) === tituloNovo;
+      const empresaIgual = empresaNova === '' || norm(v.company || '') === empresaNova;
+      // Se título E empresa batem, é duplicata. Ou se título + início da descrição batem.
+      const descIgual = descFingerprint.length > 30 && norm(v.description || '').substring(0, 100) === descFingerprint;
+      return tituloIgual && empresaIgual || (tituloIgual && descIgual);
+    });
+
+    if (duplicata) {
+      console.log(`Duplicata detectada: "${body.title}" — id existente: ${duplicata.id}`);
+      return Response.json({
+        success: true,
+        job_id: duplicata.id,
+        message: 'Vaga duplicada ignorada. Já existe uma vaga similar nas últimas 6h.',
+        duplicate: true,
+      }, { status: 200, headers: { 'Access-Control-Allow-Origin': '*' } });
+    }
+  } catch (e) {
+    console.warn('Erro ao verificar duplicatas:', e.message);
+  }
+
+  // ── Salvar IMEDIATAMENTE como rascunho (anti race-condition) ──
+  // Isso garante que requisições paralelas do mesmo envio não criem duplicatas
+  // enquanto a IA processa
+  let jobRascunho;
+  try {
+    jobRascunho = await base44.asServiceRole.entities.Job.create({
+      title: body.title.trim(),
+      company: body.company || '',
+      city: body.city || '',
+      state: body.state || 'PB',
+      description: body.description || '',
+      status: 'draft', // rascunho temporário para travar o slot
+      origem: body.origem || 'n8n_automatico',
+      needs_review: true,
+    });
+  } catch (e) {
+    console.error('Erro ao criar rascunho:', e.message);
+    return Response.json({ error: 'Erro interno ao salvar vaga' }, { status: 500 });
+  }
+
+  // ── Processar com pipeline IA avançado ──────────────────────
 
   // Montar prompt do pipeline avançado
   const vagaTexto = `
