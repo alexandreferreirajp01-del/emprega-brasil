@@ -110,27 +110,18 @@ export default function NotificationBell({ user, className }) {
     }
   };
 
-  const deleteAllNotifications = async () => {
-    if (notifications.length === 0) return;
-    
-    try {
-      // Salvar timestamp de limpeza para filtrar notificações globais (sent_to_all)
-      localStorage.setItem(CLEAR_TS_KEY(user.email), new Date().toISOString());
+  const deleteAllNotifications = () => {
+    if (!user?.email) return;
 
-      // Deletar notificações pessoais (user_email) do banco
-      const pessoais = notifications.filter(n => n.user_email === user.email);
-      if (pessoais.length > 0) {
-        await Promise.all(pessoais.map(n => base44.entities.Notification.delete(n.id)));
-      }
-      
-      // Limpar cache e forçar recarga
-      queryClient.removeQueries({ queryKey: ['user-notifications'] });
-      await refetchNotifications();
-      
-      setTimeout(() => setOpen(false), 300);
-    } catch (e) {
-      console.error('Erro ao deletar notificações:', e);
-    }
+    // 1. Salvar timestamp IMEDIATAMENTE — isso esconde as globais
+    localStorage.setItem(CLEAR_TS_KEY(user.email), new Date().toISOString());
+
+    // 2. Atualizar cache local para [] na hora (sem esperar refetch)
+    queryClient.setQueryData(['user-notifications', user.email], []);
+
+    // 3. Tentar deletar pessoais em background (pode falhar, sem problema)
+    const pessoais = notifications.filter(n => n.user_email === user.email);
+    pessoais.forEach(n => base44.entities.Notification.delete(n.id).catch(() => {}));
   };
 
   const deleteNotification = async (e, notificationId) => {
