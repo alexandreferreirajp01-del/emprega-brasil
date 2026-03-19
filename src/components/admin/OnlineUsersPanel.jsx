@@ -231,7 +231,7 @@ export default function OnlineUsersPanel({ adminUser, open, onClose }) {
             </div>
 
             {/* Search */}
-            <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-700">
+            <div className="px-3 pt-2 pb-1">
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                 <Input
@@ -240,6 +240,25 @@ export default function OnlineUsersPanel({ adminUser, open, onClose }) {
                   placeholder="Pesquisar usuário..."
                   className="pl-8 h-8 text-sm rounded-xl border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600"
                 />
+              </div>
+            </div>
+
+            {/* Filtros de plano */}
+            <div className="px-3 pb-2 border-b border-slate-100 dark:border-slate-700">
+              <div className="flex gap-1 flex-wrap">
+                {PLAN_FILTERS.map(f => (
+                  <button
+                    key={f.value}
+                    onClick={() => setPlanFilter(f.value)}
+                    className={`px-2 py-0.5 rounded-full text-[11px] font-medium border transition-colors ${
+                      planFilter === f.value
+                        ? 'bg-slate-800 text-white border-slate-800 dark:bg-white dark:text-slate-800'
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
               </div>
             </div>
 
