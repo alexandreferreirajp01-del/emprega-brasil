@@ -1,79 +1,21 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Activity } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 
 export default function OnlineUsersCounter() {
-  const sessionIdRef = useRef(null);
-
-  const { data: activeSessions = [], refetch } = useQuery({
+  const { data: activeSessions = [] } = useQuery({
     queryKey: ['active-sessions'],
     queryFn: async () => {
-      // Considera online quem teve heartbeat nos últimos 3 minutos
-      const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000).toISOString();
-      const sessions = await base44.entities.UserSession.filter({
+      const threeMin = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+      return await base44.entities.UserSession.filter({
         is_active: true,
-        last_heartbeat: { $gte: threeMinutesAgo }
+        last_heartbeat: { $gte: threeMin }
       });
-      return sessions;
     },
     refetchInterval: 15000,
   });
-
-  useEffect(() => {
-    const registerEntry = async () => {
-      try {
-        const user = await base44.auth.me();
-        const now = new Date().toISOString();
-        const session = await base44.entities.UserSession.create({
-          user_email: user.email,
-          session_start: now,
-          last_heartbeat: now,
-          is_active: true,
-          device_info: navigator.userAgent,
-        });
-        sessionIdRef.current = session.id;
-      } catch (err) {
-        console.error('Erro ao registrar sessão:', err);
-      }
-    };
-
-    registerEntry();
-
-    // Heartbeat a cada 30s — atualiza last_heartbeat
-    const keepAliveInterval = setInterval(async () => {
-      if (sessionIdRef.current) {
-        try {
-          await base44.entities.UserSession.update(sessionIdRef.current, {
-            last_heartbeat: new Date().toISOString(),
-          });
-        } catch (err) {
-          console.error('Erro no heartbeat:', err);
-        }
-      }
-      refetch();
-    }, 30000);
-
-    const handleBeforeUnload = async () => {
-      if (sessionIdRef.current) {
-        try {
-          await base44.entities.UserSession.update(sessionIdRef.current, {
-            session_end: new Date().toISOString(),
-            is_active: false,
-          });
-        } catch (err) {}
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      clearInterval(keepAliveInterval);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      handleBeforeUnload();
-    };
-  }, []);
 
   const onlineCount = activeSessions.length;
   const uniqueUsers = new Set(activeSessions.map(s => s.user_email)).size;
