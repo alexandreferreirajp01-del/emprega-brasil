@@ -68,6 +68,7 @@ const AuthenticatedApp = () => {
       <Route path="/AuditoriaLinks" element={<LayoutWrapper currentPageName="AuditoriaLinks"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/AuditoriaLinks')))}</React.Suspense></LayoutWrapper>} />
       <Route path="/VagasPendentesIA" element={<LayoutWrapper currentPageName="VagasPendentesIA"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/VagasPendentesIA')))}</React.Suspense></LayoutWrapper>} />
       <Route path="/TelegramConfig" element={<LayoutWrapper currentPageName="TelegramConfig"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/TelegramConfig')))}</React.Suspense></LayoutWrapper>} />
+      <Route path="/SaudeDoSistema" element={<LayoutWrapper currentPageName="SaudeDoSistema"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/SaudeDoSistema')))}</React.Suspense></LayoutWrapper>} />
       <Route path="/PostarNoticiasIA" element={<LayoutWrapper currentPageName="PostarNoticiasIA"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/PostarNoticiasIA')))}</React.Suspense></LayoutWrapper>} />
       <Route path="/GerenciarNoticias2" element={<LayoutWrapper currentPageName="GerenciarNoticias2"><React.Suspense fallback={null}>{React.createElement(React.lazy(() => import('@/pages/GerenciarNoticias2')))}</React.Suspense></LayoutWrapper>} />
       <Route path="/generarnoticiasia" element={<Navigate to="/GerenciarNoticias2" replace />} />
