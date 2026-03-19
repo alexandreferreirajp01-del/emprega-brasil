@@ -109,9 +109,9 @@ const BELL_FUNCTIONS = [
   {
     id: 'notify_user_registered',
     label: 'Novo Usuário',
-    description: 'Notifica admins quando um novo usuário se registra no app.',
-    function: 'notifyUserRegistered',
-    trigger: 'Automação: User CREATE',
+    description: 'Notifica admins quando um novo usuário se registra no app. A notificação é clicável e redireciona para o Gerenciador de Usuários.',
+    function: 'notifyNewUser',
+    trigger: 'Função: registerUser (ao criar conta)',
     icon: User,
     color: 'teal',
     target: 'Admins',
