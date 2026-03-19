@@ -12,7 +12,7 @@ export default function AdminSendMessageModal({ open, onOpenChange, targetUser, 
   const [sending, setSending] = useState(false);
   const [currentUser, setCurrentUser] = React.useState(adminUserProp || null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (adminUserProp) { setCurrentUser(adminUserProp); return; }
     base44.auth.me().then(u => setCurrentUser(u)).catch(() => {});
   }, [adminUserProp]);
