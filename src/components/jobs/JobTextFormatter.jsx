@@ -1,28 +1,52 @@
 import React from 'react';
 
 /**
- * Formata texto de vagas:
+ * Formata texto de vagas com:
  * - Alinhamento justificado
- * - Linhas que terminam com ":" viram título em negrito com quebra antes
- * - Ex: "Descrição:" → quebra de linha + <strong>Descrição:</strong>
+ * - Headings em NEGRITO E MAIÚSCULA
+ * - Espaçamento adequado entre seções
  */
 export default function JobTextFormatter({ text }) {
   if (!text) return null;
 
   const lines = text.split('\n');
+  const SECTION_HEADERS = [
+    'REQUISITOS',
+    'DESCRIÇÃO',
+    'DESCRIÇÃO DAS ATIVIDADES',
+    'LOCALIZAÇÃO',
+    'LOCAL',
+    'BENEFÍCIOS',
+    'BONIFICAÇÃO',
+    'VAGA DE EMPREGO',
+    'CARGO',
+    'COMO SE CANDIDATAR',
+    'ENVIO DE CURRÍCULOS',
+    'CONTATO',
+    'SALÁRIO',
+    'HORÁRIO',
+  ];
 
   return (
-    <div className="text-slate-600 leading-relaxed text-justify space-y-1">
+    <div className="space-y-3 text-justify text-sm leading-relaxed text-slate-700 dark:text-slate-300">
       {lines.map((line, i) => {
         const trimmed = line.trim();
+        const upperTrimmed = trimmed.toUpperCase();
 
-        // Linha que é um label (termina com ":" ou ":" seguido de espaço)
-        // Ex: "Descrição:", "Benefícios:", "Requisitos:"
-        if (/^[^:]{1,60}:\s*$/.test(trimmed)) {
+        // Linha vazia → espaçamento
+        if (trimmed === '') {
+          return <div key={i} className="h-2" />;
+        }
+
+        // Verificar se é um header de seção (termina com ":")
+        const isHeaderMatch = /^([^:]{1,60}):\s*$/.test(trimmed);
+        const isHeader = isHeaderMatch || SECTION_HEADERS.some(header => upperTrimmed.includes(header.toUpperCase()));
+
+        if (isHeaderMatch || isHeader) {
           return (
-            <div key={i} className={i > 0 ? 'mt-3' : ''}>
-              <strong className="text-slate-800 font-semibold">{trimmed}</strong>
-            </div>
+            <p key={i} className="font-bold text-slate-800 dark:text-white mt-4 mb-2 text-base uppercase">
+              {trimmed}
+            </p>
           );
         }
 
@@ -30,23 +54,20 @@ export default function JobTextFormatter({ text }) {
         const inlineLabelMatch = trimmed.match(/^([^:]{1,50}):\s+(.+)$/);
         if (inlineLabelMatch) {
           return (
-            <div key={i} className={i > 0 && lines[i - 1]?.trim() === '' ? 'mt-2' : ''}>
-              <strong className="text-slate-800 font-semibold">{inlineLabelMatch[1]}:</strong>{' '}
+            <p key={i} className="text-justify">
+              <strong className="text-slate-800 dark:text-white font-semibold">
+                {inlineLabelMatch[1].toUpperCase()}:
+              </strong>{' '}
               <span>{inlineLabelMatch[2]}</span>
-            </div>
+            </p>
           );
-        }
-
-        // Linha vazia → espaçamento
-        if (trimmed === '') {
-          return <div key={i} className="h-2" />;
         }
 
         // Linha normal
         return (
-          <div key={i}>
+          <p key={i} className="text-justify">
             {trimmed}
-          </div>
+          </p>
         );
       })}
     </div>
