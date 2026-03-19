@@ -11,6 +11,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
+const CLEAR_TS_KEY = (email) => `notif_cleared_at_${email}`;
+
 export default function Notifications() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
