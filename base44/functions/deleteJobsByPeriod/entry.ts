@@ -15,89 +15,76 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'dateStart e dateEnd são obrigatórios' }, { status: 400 });
     }
 
-    const start = new Date(dateStart + 'T00:00:00');
-    const end = new Date(dateEnd + 'T23:59:59');
+    const start = new Date(dateStart);
+    const end = new Date(dateEnd);
+    end.setHours(23, 59, 59, 999);
 
-    // Buscar vagas em páginas de 200 para não estourar memória
-    const PAGE_SIZE = 200;
-    let skip = 0;
-    const jobsToDelete = [];
-
-    while (true) {
-      const page = await base44.asServiceRole.entities.Job.list('-created_date', PAGE_SIZE, skip);
-      const pageArray = Array.isArray(page) ? page : (page?.data || page?.results || []);
-
-      if (!pageArray || pageArray.length === 0) break;
-
-      for (const job of pageArray) {
-        const jobDate = new Date(job.published_at || job.created_date);
-        if (jobDate >= start && jobDate <= end) {
-          jobsToDelete.push(job);
-        }
-      }
-
-      if (pageArray.length < PAGE_SIZE) break;
-      skip += PAGE_SIZE;
-    }
+    // Buscar todas as vagas no período pela data de publicação (published_at ou created_date)
+    const allJobs = await base44.asServiceRole.entities.Job.list('-created_date', 10000);
+    const jobsToDelete = allJobs.filter(job => {
+      const jobDate = new Date(job.published_at || job.created_date);
+      return jobDate >= start && jobDate <= end;
+    });
 
     if (jobsToDelete.length === 0) {
       return Response.json({ success: true, deleted: 0, message: 'Nenhuma vaga encontrada no período' });
     }
 
-    console.log(`Encontradas ${jobsToDelete.length} vagas para excluir no período ${dateStart} - ${dateEnd}`);
-
     let deleted = 0;
-    const BATCH_SIZE = 10; // processar 10 vagas por vez
+    const errors = [];
 
-    for (let i = 0; i < jobsToDelete.length; i += BATCH_SIZE) {
-      const batch = jobsToDelete.slice(i, i + BATCH_SIZE);
-
-      await Promise.all(batch.map(async (job) => {
+    for (const job of jobsToDelete) {
+      try {
         const jobId = job.id;
+
+        // Apagar FavoriteJob
         try {
-          // Apagar registros associados em paralelo
-          await Promise.all([
-            base44.asServiceRole.entities.FavoriteJob.filter({ job_id: jobId })
-              .then(items => Promise.all((Array.isArray(items) ? items : []).map(f => base44.asServiceRole.entities.FavoriteJob.delete(f.id))))
-              .catch(() => {}),
+          const favs = await base44.asServiceRole.entities.FavoriteJob.filter({ job_id: jobId });
+          await Promise.all(favs.map(f => base44.asServiceRole.entities.FavoriteJob.delete(f.id)));
+        } catch (e) { console.log('Aviso FavoriteJob:', e.message); }
 
-            base44.asServiceRole.entities.ViewHistory.filter({ job_id: jobId })
-              .then(items => Promise.all((Array.isArray(items) ? items : []).map(v => base44.asServiceRole.entities.ViewHistory.delete(v.id))))
-              .catch(() => {}),
+        // Apagar ViewHistory
+        try {
+          const views = await base44.asServiceRole.entities.ViewHistory.filter({ job_id: jobId });
+          await Promise.all(views.map(v => base44.asServiceRole.entities.ViewHistory.delete(v.id)));
+        } catch (e) { console.log('Aviso ViewHistory:', e.message); }
 
-            base44.asServiceRole.entities.JobView.filter({ job_id: jobId })
-              .then(items => Promise.all((Array.isArray(items) ? items : []).map(v => base44.asServiceRole.entities.JobView.delete(v.id))))
-              .catch(() => {}),
+        // Apagar JobView
+        try {
+          const jobViews = await base44.asServiceRole.entities.JobView.filter({ job_id: jobId });
+          await Promise.all(jobViews.map(v => base44.asServiceRole.entities.JobView.delete(v.id)));
+        } catch (e) { console.log('Aviso JobView:', e.message); }
 
-            base44.asServiceRole.entities.Notification.filter({ reference_id: jobId })
-              .then(items => Promise.all((Array.isArray(items) ? items : []).map(n => base44.asServiceRole.entities.Notification.delete(n.id))))
-              .catch(() => {}),
+        // Apagar Notifications referenciando a vaga
+        try {
+          const notifs = await base44.asServiceRole.entities.Notification.filter({ reference_id: jobId });
+          await Promise.all(notifs.map(n => base44.asServiceRole.entities.Notification.delete(n.id)));
+        } catch (e) { console.log('Aviso Notification:', e.message); }
 
-            base44.asServiceRole.entities.JobInteraction.filter({ job_id: jobId })
-              .then(items => Promise.all((Array.isArray(items) ? items : []).map(i => base44.asServiceRole.entities.JobInteraction.delete(i.id))))
-              .catch(() => {}),
-          ]);
+        // Apagar JobInteraction se existir
+        try {
+          const interactions = await base44.asServiceRole.entities.JobInteraction.filter({ job_id: jobId });
+          await Promise.all(interactions.map(i => base44.asServiceRole.entities.JobInteraction.delete(i.id)));
+        } catch (e) { /* ignora se não existir */ }
 
-          // Apagar a vaga
-          await base44.asServiceRole.entities.Job.delete(jobId);
-          deleted++;
-        } catch (err) {
-          console.error(`Erro ao excluir vaga ${jobId}:`, err.message);
-        }
-      }));
-
-      console.log(`Progresso: ${Math.min(i + BATCH_SIZE, jobsToDelete.length)}/${jobsToDelete.length} processadas, ${deleted} excluídas`);
+        // Apagar a vaga
+        await base44.asServiceRole.entities.Job.delete(jobId);
+        deleted++;
+      } catch (err) {
+        errors.push({ jobId: job.id, error: err.message });
+      }
     }
 
     return Response.json({
       success: true,
       deleted,
       total: jobsToDelete.length,
+      errors: errors.length > 0 ? errors : undefined,
       message: `${deleted} vaga(s) excluída(s) com sucesso`
     });
 
   } catch (error) {
-    console.error('Erro geral:', error);
+    console.error('Erro:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
