@@ -551,6 +551,9 @@ export default function Profile() {
 
 
 
+            {/* Vagas Salvas */}
+            <SavedJobsButton user={displayUser} />
+
             {/* Ferramentas para todos os usuários */}
             <Link to={createPageUrl('Utilidades')} className="block mb-3">
               <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">

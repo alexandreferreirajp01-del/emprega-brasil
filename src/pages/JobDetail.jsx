@@ -443,8 +443,17 @@ export default function JobDetail() {
         <Card className="shadow-xl rounded-2xl overflow-hidden mb-6">
           <CardContent className="p-6 md:p-8">
             {/* Title Section */}
-            <div className="mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2 leading-tight">
+            <div className="mb-6 relative">
+              {user && (
+                <button
+                  onClick={handleFavorite}
+                  title={isFavorite ? 'Remover das vagas salvas' : 'Salvar vaga'}
+                  className={`absolute top-0 right-0 p-2 rounded-full transition-colors ${isFavorite ? 'text-[#1E6FB6] bg-blue-50' : 'text-slate-300 hover:text-[#1E6FB6] hover:bg-blue-50'}`}
+                >
+                  <Save className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+                </button>
+              )}
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2 leading-tight pr-10">
                 {job.title || 'Não informado'}
               </h1>
               <p className="text-lg text-slate-500 flex items-center gap-2">
