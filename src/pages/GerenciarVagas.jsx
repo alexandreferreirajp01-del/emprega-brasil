@@ -45,6 +45,10 @@ export default function GerenciarVagas() {
   const [itemsPerPage] = useState(20);
   const [editingJob, setEditingJob] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [deleteByPeriod, setDeleteByPeriod] = useState({ dateStart: '', dateEnd: '' });
+  const [deleteByPeriodLoading, setDeleteByPeriodLoading] = useState(false);
+  const [deleteByPeriodPreview, setDeleteByPeriodPreview] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     const init = async () => {
