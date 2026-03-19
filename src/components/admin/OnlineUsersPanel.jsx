@@ -149,11 +149,19 @@ export default function OnlineUsersPanel({ adminUser, open, onClose }) {
   // Filtrar e ordenar: online primeiro, depois por nome
   const filtered = allUsers
     .filter(u => {
-      if (!search) return true;
-      const q = search.toLowerCase();
-      return (u.full_name || '').toLowerCase().includes(q) ||
-             (u.custom_full_name || '').toLowerCase().includes(q) ||
-             (u.email || '').toLowerCase().includes(q);
+      if (search) {
+        const q = search.toLowerCase();
+        const matchSearch = (u.full_name || '').toLowerCase().includes(q) ||
+               (u.custom_full_name || '').toLowerCase().includes(q) ||
+               (u.email || '').toLowerCase().includes(q);
+        if (!matchSearch) return false;
+      }
+      if (planFilter === 'online') return onlineEmails.has(u.email);
+      if (planFilter === 'premium') return u.subscription_type === 'premium';
+      if (planFilter === 'recruiter') return u.subscription_type === 'recruiter';
+      if (planFilter === 'admin') return u.subscription_type === 'admin' || u.role === 'admin';
+      if (planFilter === 'basic') return !['premium','recruiter','admin','dono'].includes(u.subscription_type) && u.role !== 'admin';
+      return true;
     })
     .sort((a, b) => {
       const aOnline = onlineEmails.has(a.email) ? 0 : 1;
