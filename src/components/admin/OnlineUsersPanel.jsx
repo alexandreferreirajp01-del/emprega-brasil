@@ -215,6 +215,38 @@ export default function OnlineUsersPanel({ adminUser, open, onClose, compact = f
     return () => document.removeEventListener('mousedown', handleClick);
   }, [open, onClose]);
 
+  // Versão compacta para o drawer
+  if (compact) {
+    return (
+      <>
+        <div className="space-y-2">
+          <div className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-2 px-1">
+            Online · {onlineEmails.size}/{allUsers.length}
+          </div>
+          <div className="space-y-1 max-h-48 overflow-y-auto">
+            {onlineUsers.slice(0, 10).map(user => (
+              <div key={user.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50">
+                <Avatar className="w-7 h-7">
+                  <AvatarImage src={user.profile_photo} />
+                  <AvatarFallback className="text-[10px]">{getInitials(user)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-slate-800 dark:text-white truncate">
+                    {user.custom_full_name || user.full_name}
+                  </p>
+                  <p className="text-[10px] text-emerald-600 font-medium">● Online</p>
+                </div>
+              </div>
+            ))}
+            {onlineUsers.length > 10 && (
+              <p className="text-xs text-slate-500 text-center py-2">+{onlineUsers.length - 10} online</p>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
+
   if (!open) return null;
 
   return (
