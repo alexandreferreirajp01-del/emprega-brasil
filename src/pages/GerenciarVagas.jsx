@@ -972,16 +972,6 @@ export default function GerenciarVagas() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 invisible" />
-                  <span className="invisible">placeholder</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 hidden">
-              </CardContent>
-            </Card>
           </TabsContent>
 
           {/* Saúde do Sistema */}
