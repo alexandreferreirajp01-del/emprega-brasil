@@ -117,12 +117,51 @@ export default function VagasPendentesIA() {
     checkAuth();
   }, []);
 
+  // Função para detectar e remover vagas duplicadas
+  const removeJobDuplicates = async (jobs) => {
+    const seen = {};
+    const duplicates = [];
+
+    for (const job of jobs) {
+      // Criar chave única: título + empresa + cidade
+      const key = `${job.title?.toLowerCase()}|${job.company?.toLowerCase()}|${job.city?.toLowerCase()}`;
+      
+      if (seen[key]) {
+        // É duplicata — marcar para deletar
+        duplicates.push(job.id);
+      } else {
+        // Primeira ocorrência
+        seen[key] = true;
+      }
+    }
+
+    // Deletar duplicatas
+    if (duplicates.length > 0) {
+      try {
+        for (const jobId of duplicates) {
+          await base44.entities.Job.delete(jobId);
+        }
+        queryClient.invalidateQueries({ queryKey: ['pending-ai-jobs'] });
+        toast.success(`🧹 Removidas ${duplicates.length} vaga(s) duplicada(s)!`);
+      } catch (e) {
+        console.error('Erro ao remover duplicatas:', e);
+      }
+    }
+
+    return duplicates.length > 0;
+  };
+
   // Fetch pending jobs via backend (service role para garantir acesso)
   const { data: pendingJobs = [], isLoading: loadingJobs, refetch } = useQuery({
     queryKey: ['pending-ai-jobs'],
     queryFn: async () => {
       const res = await base44.functions.invoke('getPendingJobs', {});
-      return res.data?.jobs || [];
+      const jobs = res.data?.jobs || [];
+      
+      // Verificar e remover duplicatas automaticamente
+      await removeJobDuplicates(jobs);
+      
+      return jobs;
     },
     enabled: !!user,
     refetchInterval: 30000, // auto-refresh a cada 30s
