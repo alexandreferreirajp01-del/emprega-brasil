@@ -6,7 +6,7 @@ import {
   ArrowLeft, Loader2, Key, Users, Database, BarChart3, 
   Globe, Plug, Code, Bot, FileText, Settings, ChevronRight, 
   ExternalLink, Lock, CreditCard, Briefcase, MessageSquare, Newspaper, ClipboardList,
-  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette, MapPin, Trash2, Image, AlertTriangle, Link as LinkIcon, TrendingUp, X, Filter, Send, Megaphone, Wrench, Bell, UsersRound, Activity
+  PlusCircle, Sparkles, Home, BookOpen, Heart, History, MessageCircle, Shield, Crown, AlertCircle, Search, Palette, MapPin, Trash2, Image, AlertTriangle, Link as LinkIcon, TrendingUp, X, Filter, Send, Megaphone, Wrench, Bell, UsersRound
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -17,7 +17,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import SystemHealthModal from "@/components/admin/SystemHealthModal";
 
 // ─── Submenus ─────────────────────────────────────────────────────────────────
 
@@ -26,7 +25,6 @@ const submenuConfigs = {
     title: 'Sistema & Aparência',
     icon: Settings,
     items: [
-      { id: 'saude-sistema', name: 'Saúde do Sistema', icon: Activity, color: 'emerald', component: 'SystemHealth', description: 'Créditos, consumo e status das funções', roles: ['admin', 'dono'] },
       { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', icon: Settings, color: 'purple', page: 'GerenciarFuncoes', description: 'Habilitar/desabilitar funções do app', roles: ['admin', 'dono'] },
       { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'purple', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'] },
       { id: 'cores', name: 'Gerenciar Cores', icon: Palette, color: 'pink', page: 'GerenciarCores', description: 'Personalizar cores da aplicação', roles: ['admin', 'dono'] },
@@ -176,7 +174,6 @@ const colorClasses = {
 
 // ─── Componente Submenu Dialog ────────────────────────────────────────────────
 function SubmenuDialog({ open, onClose, submenuKey, user }) {
-  const [systemHealthOpen, setSystemHealthOpen] = useState(false);
   const config = submenuConfigs[submenuKey];
   if (!config) return null;
 
@@ -203,49 +200,41 @@ function SubmenuDialog({ open, onClose, submenuKey, user }) {
   const TitleIcon = config.icon;
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <TitleIcon className="w-6 h-6" />
-              {config.title}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-4 space-y-1">
-            {visibleItems.map((item, index) => {
-              const Icon = item.icon;
-              const isLast = index === visibleItems.length - 1;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    if (item.component === 'SystemHealth') {
-                      setSystemHealthOpen(true);
-                    } else {
-                      onClose();
-                      window.location.href = createPageUrl(item.page);
-                    }
-                  }}
-                  className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left rounded-xl ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                </button>
-              );
-            })}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <SystemHealthModal open={systemHealthOpen} onOpenChange={setSystemHealthOpen} />
-    </>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold flex items-center gap-2">
+            <TitleIcon className="w-6 h-6" />
+            {config.title}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="mt-4 space-y-1">
+          {visibleItems.map((item, index) => {
+            const Icon = item.icon;
+            const isLast = index === visibleItems.length - 1;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onClose();
+                  window.location.href = createPageUrl(item.page);
+                }}
+                className={`w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left rounded-xl ${!isLast ? 'border-b border-slate-100 dark:border-slate-700' : ''}`}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClasses[item.color]}`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-slate-800 dark:text-white text-sm">{item.name}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+              </button>
+            );
+          })}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -256,7 +245,6 @@ export default function Configuracoes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [migrating, setMigrating] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null); // submenuKey string
-  const [systemHealthOpen, setSystemHealthOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
