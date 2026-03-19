@@ -160,13 +160,16 @@ Retorne APENAS JSON válido (sem markdown):
       work_mode: extractResponse.work_mode || 'Presencial',
       category: extractResponse.category || 'Geral',
       description: extractResponse.description || 'Vaga disponível',
+      additional_info: extractResponse.benefits ? `Benefícios:\n${extractResponse.benefits}\n\nRequisitos:\n${extractResponse.requirements}` : '',
       contact_phone: extractResponse.contact_phone || '',
       contact_whatsapp: extractResponse.contact_whatsapp || '',
       contact_email: extractResponse.contact_email || '',
+      application_link: extractResponse.contact_link || '',
       status: 'pending_review',
       origem: 'telegram_bot',
-      nivel_localizacao: 'pendente',
-      geocode_status: 'pending'
+      nivel_localizacao: extractResponse.city && extractResponse.city !== 'Não informada' ? 'cidade' : 'pendente',
+      geocode_status: 'pending',
+      contact_status: (extractResponse.contact_phone || extractResponse.contact_whatsapp || extractResponse.contact_email || extractResponse.contact_link) ? 'ok' : 'missing'
     });
 
     console.log('[Telegram] Vaga criada:', job.id);
