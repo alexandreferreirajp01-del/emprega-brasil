@@ -27,6 +27,7 @@ import PopupManager from "@/components/common/PopupManager";
 import ServiceWorkerManager from "@/components/push/ServiceWorkerManager";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import OnlineUsersTrigger from "@/components/admin/OnlineUsersTrigger";
+import SystemHealthButton from "@/components/admin/SystemHealthButton";
 import SessionHeartbeat from "@/components/common/SessionHeartbeat";
 import ApplyBasicPermissions from "@/components/common/ApplyBasicPermissions";
 import CookieConsent from "@/components/common/CookieConsent";
