@@ -92,9 +92,42 @@ IMPORTANTE:
 
     // Criar vagas pendentes no sistema
     const vagasCriadas = [];
+
+    // Buscar vagas criadas nas últimas 24h para checar duplicatas
+    const ontem = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    let vagasRecentes = [];
+    try {
+      vagasRecentes = await base44.asServiceRole.entities.Job.filter({ created_date: { $gte: ontem } });
+    } catch (e) {
+      console.warn('Erro ao buscar vagas recentes para dedup:', e.message);
+    }
+
+    const normalizar = (str) => (str || '').toLowerCase().trim().replace(/\s+/g, ' ');
+
+    const isDuplicata = (vaga) => {
+      const tituloNovo = normalizar(vaga.titulo);
+      const empresaNova = normalizar(vaga.empresa);
+      const cidadeNova = normalizar(vaga.cidade);
+      return vagasRecentes.some(v => {
+        const tituloExist = normalizar(v.title);
+        const empresaExist = normalizar(v.company);
+        const cidadeExist = normalizar(v.city);
+        // Considera duplicata se título E (empresa OU cidade) forem iguais
+        const tituloBate = tituloExist === tituloNovo || (tituloNovo.length > 5 && tituloExist.includes(tituloNovo));
+        const empresaBate = empresaNova && empresaExist && empresaExist === empresaNova;
+        const cidadeBate = cidadeNova && cidadeExist && cidadeExist === cidadeNova;
+        return tituloBate && (empresaBate || cidadeBate);
+      });
+    };
     
     for (const vaga of vagasExtraidas) {
       try {
+        // Verificar duplicata antes de criar
+        if (isDuplicata(vaga)) {
+          console.log(`[DEDUP] Vaga duplicada ignorada: ${vaga.titulo} - ${vaga.empresa}`);
+          continue;
+        }
+
         // Validar se tem contato
         // Normalizar link de WhatsApp se necessário
         if (!vaga.link_candidatura && (vaga.contact_whatsapp || vaga.contact_phone)) {
