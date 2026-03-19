@@ -40,7 +40,12 @@ export default function NotificationBell({ user, className }) {
           ).catch(() => []),
         ]);
         // Merge and deduplicate by id, ordenado por mais recente
-        const all = [...(personal || []), ...(global || [])];
+        // Filtrar notificações anteriores ao último "Limpar" do usuário
+        const clearedAt = localStorage.getItem(CLEAR_TS_KEY(user.email));
+        const all = [...(personal || []), ...(global || [])].filter(n => {
+          if (!clearedAt) return true;
+          return new Date(n.created_date) > new Date(clearedAt);
+        });
         all.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
         const seen = new Set();
         return all.filter(n => {
