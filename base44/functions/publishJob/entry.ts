@@ -172,8 +172,12 @@ IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas context
             title: notification.template.title,
             message: notification.template.message,
             type: 'job',
-            is_read: false,
-            link: `/jobs?id=${createdJob.id}`
+            reference_type: 'job',
+            reference_id: createdJob.id,
+            job_id: createdJob.id,
+            redirect_page: 'JobDetail',
+            redirect_params: { id: createdJob.id },
+            is_read: false
           })
         );
         await Promise.all(notificationPromises);

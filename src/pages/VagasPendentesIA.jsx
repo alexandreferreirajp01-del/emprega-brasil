@@ -173,7 +173,8 @@ export default function VagasPendentesIA() {
     });
   };
 
-  // Send notification after publishing
+  // Send notification after publishing — force=true garante que mesmo vagas
+  // que já tinham notificação de admin (ao chegar via bot) sejam notificadas para usuários
   const sendNotification = async (job) => {
     try {
       await base44.functions.invoke('notifyNewJob', {
@@ -182,6 +183,7 @@ export default function VagasPendentesIA() {
         jobCompany: job.company,
         jobCity: job.city,
         isHomeOffice: job.work_mode === 'Remoto' || job.is_remote === true,
+        force: true, // ignora check anti-duplicata: esta é a aprovação definitiva
       });
     } catch (e) {
       console.warn('Erro ao enviar notificação:', e);
