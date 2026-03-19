@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 import webpush from 'npm:web-push@3.6.7';
 import { Resend } from 'npm:resend@4.0.0';
 
@@ -9,196 +9,21 @@ const APP_URL = 'https://vagasabertasparaiba.info';
 
 webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
-// ============================================================
-// 30 TEMPLATES DE NOTIFICAÇÃO - escolhidos aleatoriamente
-// Variáveis disponíveis: {titulo}, {empresa}, {cidade}, {emoji}
-// ============================================================
 const TEMPLATES = [
-  {
-    subject: (v) => `🚨 Nova Vaga: ${v.titulo}${v.homeOffice ? ' 🏠' : ''}`,
-    title: (v) => `🚨 Nova vaga disponível!`,
-    body: (v) => `${v.titulo} em ${v.empresa || 'Empresa'}${v.cidade ? ` · ${v.cidade}` : ''}. Clique e candidate-se agora!`,
-    email: (v) => `<p>🚨 Uma nova vaga acabou de ser publicada!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `✅ Oportunidade: ${v.titulo} — Vagas Abertas PB`,
-    title: (v) => `✅ Oportunidade para você!`,
-    body: (v) => `${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}. Veja os detalhes e candidate-se!`,
-    email: (v) => `<p>✅ Encontramos uma oportunidade que pode ser sua!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `💼 Vaga Nova: ${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}`,
-    title: (v) => `💼 Nova vaga publicada`,
-    body: (v) => `${v.empresa || 'Empresa'} busca ${v.titulo}. Não perca!`,
-    email: (v) => `<p>💼 Uma empresa está contratando agora!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🔥 Corre! Vaga de ${v.titulo} acabou de sair`,
-    title: (v) => `🔥 Vaga quentinha!`,
-    body: (v) => `${v.titulo} — ${v.empresa || 'Confira'}. Candidate-se antes que feche!`,
-    email: (v) => `<p>🔥 Esta vaga acabou de ser publicada. Corra!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🎯 ${v.titulo} — Vaga nova no Vagas Abertas PB`,
-    title: (v) => `🎯 Vaga no seu perfil!`,
-    body: (v) => `${v.titulo} disponível${v.cidade ? ` em ${v.cidade}` : ''}. Veja os detalhes agora.`,
-    email: (v) => `<p>🎯 Uma nova vaga foi publicada para você!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `⭐ Vaga em Destaque: ${v.titulo}`,
-    title: (v) => `⭐ Vaga recém-publicada!`,
-    body: (v) => `${v.empresa || 'Empresa'} está contratando ${v.titulo}. Veja agora!`,
-    email: (v) => `<p>⭐ Nova vaga disponível para candidatura!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `📢 Novo anúncio: ${v.titulo}${v.homeOffice ? ' (Home Office)' : ''}`,
-    title: (v) => `📢 Novo anúncio de vaga`,
-    body: (v) => `${v.titulo} — ${v.empresa || 'Veja quem está contratando!'}`,
-    email: (v) => `<p>📢 Nova oportunidade publicada agora!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `👀 Ei! Tem vaga nova: ${v.titulo}`,
-    title: (v) => `👀 Olha essa vaga!`,
-    body: (v) => `${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''} — ${v.empresa || ''}. Acesse já!`,
-    email: (v) => `<p>👀 Ei! Apareceu uma vaga nova que pode te interessar.</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🌟 Sua próxima oportunidade: ${v.titulo}`,
-    title: (v) => `🌟 Pode ser a sua chance!`,
-    body: (v) => `${v.empresa || 'Uma empresa'} publicou a vaga de ${v.titulo}. Não deixe passar!`,
-    email: (v) => `<p>🌟 Sua próxima oportunidade pode ser esta!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🏃 Corra! Vaga aberta: ${v.titulo}`,
-    title: (v) => `🏃 Vaga recém-aberta!`,
-    body: (v) => `${v.titulo} em ${v.empresa || 'empresa'}${v.cidade ? ` (${v.cidade})` : ''}. Candidate-se!`,
-    email: (v) => `<p>🏃 Não perca tempo, uma nova vaga acabou de abrir!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `💡 Oportunidade de Emprego: ${v.titulo}`,
-    title: (v) => `💡 Nova oportunidade!`,
-    body: (v) => `Vaga de ${v.titulo} disponível${v.cidade ? ` em ${v.cidade}` : ''}. Veja e candidate-se!`,
-    email: (v) => `<p>💡 Uma nova oportunidade de emprego está disponível!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `📌 Vaga fixada: ${v.titulo} — Candidate-se agora`,
-    title: (v) => `📌 Não perca esta vaga!`,
-    body: (v) => `${v.titulo} — ${v.empresa || 'empresa'}${v.cidade ? ` · ${v.cidade}` : ''}`,
-    email: (v) => `<p>📌 Uma nova vaga foi publicada agora!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🆕 Acabou de sair: vaga de ${v.titulo}`,
-    title: (v) => `🆕 Vaga nova no ar!`,
-    body: (v) => `${v.empresa || 'Empresa'} está recrutando ${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}!`,
-    email: (v) => `<p>🆕 Acabou de ser publicada uma nova vaga!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🎉 Vagas Abertas: ${v.titulo}${v.homeOffice ? ' 🏠 Home Office' : ''}`,
-    title: (v) => `🎉 Novidade no Vagas Abertas PB`,
-    body: (v) => `${v.titulo} — ${v.empresa || ''}. Entre e veja os detalhes!`,
-    email: (v) => `<p>🎉 Novidade! Uma vaga acabou de ser publicada.</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `📣 Atenção! Nova vaga de ${v.titulo} publicada`,
-    title: (v) => `📣 Nova vaga publicada agora!`,
-    body: (v) => `${v.titulo} em ${v.empresa || 'empresa'}${v.cidade ? ` — ${v.cidade}` : ''}. Candidate-se!`,
-    email: (v) => `<p>📣 Atenção! Nova vaga publicada agora.</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🤝 ${v.empresa || 'Empresa'} está contratando: ${v.titulo}`,
-    title: (v) => `🤝 Empresa contratando agora!`,
-    body: (v) => `${v.empresa || 'Uma empresa'} busca ${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}. Veja!`,
-    email: (v) => `<p>🤝 Uma empresa está contratando agora!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `✨ Conquiste sua vaga de ${v.titulo}!`,
-    title: (v) => `✨ Esta vaga pode ser sua!`,
-    body: (v) => `${v.titulo} disponível${v.cidade ? ` em ${v.cidade}` : ''}. Candidate-se e conquiste!`,
-    email: (v) => `<p>✨ Uma nova vaga foi publicada. Conquiste essa oportunidade!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `⚡ Flash: Vaga de ${v.titulo} disponível agora!`,
-    title: (v) => `⚡ Vaga disponível agora!`,
-    body: (v) => `${v.titulo} — ${v.empresa || ''}${v.cidade ? ` (${v.cidade})` : ''}. Acesse já!`,
-    email: (v) => `<p>⚡ Flash! Vaga nova acabou de entrar no ar.</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🏆 Oportunidade top: ${v.titulo}`,
-    title: (v) => `🏆 Vaga top publicada!`,
-    body: (v) => `${v.titulo} em ${v.empresa || 'empresa'}${v.cidade ? ` — ${v.cidade}` : ''}. Não perca!`,
-    email: (v) => `<p>🏆 Nova vaga publicada no Vagas Abertas PB!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🔔 Alerta de vaga: ${v.titulo}${v.homeOffice ? ' — Home Office' : ''}`,
-    title: (v) => `🔔 Alerta de nova vaga!`,
-    body: (v) => `${v.empresa || 'Empresa'} publicou: ${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}`,
-    email: (v) => `<p>🔔 Alerta de nova vaga para você!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `💪 Vai encarar? Vaga de ${v.titulo} aberta!`,
-    title: (v) => `💪 Vaga aberta para você!`,
-    body: (v) => `${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''} — ${v.empresa || ''}. Candidature-se!`,
-    email: (v) => `<p>💪 Uma nova vaga foi aberta. Você vai encarar?</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🌈 Boa notícia: vaga de ${v.titulo} publicada!`,
-    title: (v) => `🌈 Boa notícia para você!`,
-    body: (v) => `${v.titulo} — ${v.empresa || 'empresa'}${v.cidade ? ` em ${v.cidade}` : ''}. Veja agora!`,
-    email: (v) => `<p>🌈 Boa notícia! Uma nova vaga foi publicada.</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🎁 Presente do dia: vaga de ${v.titulo}!`,
-    title: (v) => `🎁 Nova vaga para você!`,
-    body: (v) => `${v.titulo} disponível em ${v.empresa || 'empresa'}${v.cidade ? ` (${v.cidade})` : ''}!`,
-    email: (v) => `<p>🎁 Uma nova vaga foi publicada especialmente para você!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `📊 Novo processo seletivo: ${v.titulo}`,
-    title: (v) => `📊 Processo seletivo aberto!`,
-    body: (v) => `${v.empresa || 'Empresa'} abriu processo seletivo para ${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}`,
-    email: (v) => `<p>📊 Novo processo seletivo publicado!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🚀 Decole na carreira: vaga de ${v.titulo}`,
-    title: (v) => `🚀 Decole na sua carreira!`,
-    body: (v) => `${v.titulo} em ${v.empresa || 'empresa'}${v.cidade ? ` — ${v.cidade}` : ''}. Candidate-se já!`,
-    email: (v) => `<p>🚀 Uma nova vaga pode alavancar sua carreira!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🧲 Você pode ser a pessoa certa: ${v.titulo}`,
-    title: (v) => `🧲 Você pode ser o escolhido!`,
-    body: (v) => `${v.titulo} — ${v.empresa || ''}${v.cidade ? ` em ${v.cidade}` : ''}. Acesse e candidate-se!`,
-    email: (v) => `<p>🧲 Você pode ser exatamente quem essa empresa procura!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `📬 Chegou vaga nova: ${v.titulo}${v.homeOffice ? ' 🏠' : ''}`,
-    title: (v) => `📬 Chegou vaga nova!`,
-    body: (v) => `${v.titulo} — ${v.empresa || ''}${v.cidade ? ` (${v.cidade})` : ''}. Veja detalhes!`,
-    email: (v) => `<p>📬 Uma nova vaga chegou para você!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🌍 Oportunidade na ${v.cidade || 'Paraíba'}: ${v.titulo}`,
-    title: (v) => `🌍 Vaga na sua região!`,
-    body: (v) => `${v.titulo} em ${v.cidade || 'Paraíba'} — ${v.empresa || ''}. Candidate-se!`,
-    email: (v) => `<p>🌍 Vaga publicada na sua região!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `🏅 Destaque do dia: vaga de ${v.titulo}`,
-    title: (v) => `🏅 Vaga destaque publicada!`,
-    body: (v) => `${v.titulo} em ${v.empresa || 'empresa'}${v.cidade ? ` — ${v.cidade}` : ''}. Não perca!`,
-    email: (v) => `<p>🏅 Destaque do dia: nova vaga publicada!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  },
-  {
-    subject: (v) => `📝 Inscrições abertas: ${v.titulo}`,
-    title: (v) => `📝 Inscrições abertas!`,
-    body: (v) => `Inscrições abertas para ${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}. Candidate-se!`,
-    email: (v) => `<p>📝 Inscrições abertas para uma nova vaga!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>`
-  }
+  { subject: (v) => `🚨 Nova Vaga: ${v.titulo}${v.homeOffice ? ' 🏠' : ''}`, title: (v) => `🚨 Nova vaga disponível!`, body: (v) => `${v.titulo} em ${v.empresa || 'Empresa'}${v.cidade ? ` · ${v.cidade}` : ''}. Clique e candidate-se agora!`, email: (v) => `<p>🚨 Uma nova vaga acabou de ser publicada!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>` },
+  { subject: (v) => `✅ Oportunidade: ${v.titulo} — Vagas Abertas PB`, title: (v) => `✅ Oportunidade para você!`, body: (v) => `${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}. Veja os detalhes e candidate-se!`, email: (v) => `<p>✅ Encontramos uma oportunidade que pode ser sua!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>` },
+  { subject: (v) => `💼 Vaga Nova: ${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}`, title: (v) => `💼 Nova vaga publicada`, body: (v) => `${v.empresa || 'Empresa'} busca ${v.titulo}. Não perca!`, email: (v) => `<p>💼 Uma empresa está contratando agora!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>` },
+  { subject: (v) => `🔥 Corre! Vaga de ${v.titulo} acabou de sair`, title: (v) => `🔥 Vaga quentinha!`, body: (v) => `${v.titulo} — ${v.empresa || 'Confira'}. Candidate-se antes que feche!`, email: (v) => `<p>🔥 Esta vaga acabou de ser publicada. Corra!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>` },
+  { subject: (v) => `🎯 ${v.titulo} — Vaga nova no Vagas Abertas PB`, title: (v) => `🎯 Vaga no seu perfil!`, body: (v) => `${v.titulo} disponível${v.cidade ? ` em ${v.cidade}` : ''}. Veja os detalhes agora.`, email: (v) => `<p>🎯 Uma nova vaga foi publicada para você!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>` },
+  { subject: (v) => `📢 Novo anúncio: ${v.titulo}${v.homeOffice ? ' (Home Office)' : ''}`, title: (v) => `📢 Novo anúncio de vaga`, body: (v) => `${v.titulo} — ${v.empresa || 'Veja quem está contratando!'}`, email: (v) => `<p>📢 Nova oportunidade publicada agora!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>` },
+  { subject: (v) => `🆕 Acabou de sair: vaga de ${v.titulo}`, title: (v) => `🆕 Vaga nova no ar!`, body: (v) => `${v.empresa || 'Empresa'} está recrutando ${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}!`, email: (v) => `<p>🆕 Acabou de ser publicada uma nova vaga!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>` },
+  { subject: (v) => `🔔 Alerta de vaga: ${v.titulo}${v.homeOffice ? ' — Home Office' : ''}`, title: (v) => `🔔 Alerta de nova vaga!`, body: (v) => `${v.empresa || 'Empresa'} publicou: ${v.titulo}${v.cidade ? ` em ${v.cidade}` : ''}`, email: (v) => `<p>🔔 Alerta de nova vaga para você!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>` },
+  { subject: (v) => `🌍 Oportunidade na ${v.cidade || 'Paraíba'}: ${v.titulo}`, title: (v) => `🌍 Vaga na sua região!`, body: (v) => `${v.titulo} em ${v.cidade || 'Paraíba'} — ${v.empresa || ''}. Candidate-se!`, email: (v) => `<p>🌍 Vaga publicada na sua região!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>` },
+  { subject: (v) => `🚀 Decole na carreira: vaga de ${v.titulo}`, title: (v) => `🚀 Decole na sua carreira!`, body: (v) => `${v.titulo} em ${v.empresa || 'empresa'}${v.cidade ? ` — ${v.cidade}` : ''}. Candidate-se já!`, email: (v) => `<p>🚀 Uma nova vaga pode alavancar sua carreira!</p><h3 style="color:#0A66C2">${v.titulo}</h3><p>${v.empresa || ''}${v.cidade ? ` — ${v.cidade}` : ''}</p>` },
 ];
 
 function pickTemplate(seed) {
-  const idx = seed % TEMPLATES.length;
-  return TEMPLATES[idx];
+  return TEMPLATES[seed % TEMPLATES.length];
 }
 
 function buildEmailHtml(template, vars, jobUrl) {
@@ -233,38 +58,36 @@ Deno.serve(async (req) => {
 
     // Suporta chamada direta (jobId, jobTitle...) E automação de entidade (event + data)
     let jobId, jobTitle, jobCompany, jobCity, isHomeOffice;
+    // force=true ignora o check anti-duplicata (usado ao aprovar manualmente)
+    const force = body.force === true;
 
     if (body.event && body.data) {
       // Chamada via automação de entidade
       const job = body.data;
-      let oldJob = body.old_data;
+      const oldJob = body.old_data;
 
       // Se o status atual não é 'ativa', ignora sempre
       if (!job || job.status !== 'ativa') {
         return Response.json({ skipped: true, reason: 'Vaga não ativa, notificação ignorada' });
       }
 
-      // Para eventos de update:
-      // - Se old_data chegou, verifica se o status mudou para 'ativa'
-      // - Se old_data é null (payload_too_large), busca do banco para confirmar a transição
+      // Para eventos de update: só notifica se status MUDOU de não-ativa para ativa
       if (body.event.type === 'update') {
         if (oldJob) {
-          // Temos o old_data: só notifica se o status MUDOU de não-ativa para ativa
           if (oldJob.status === 'ativa') {
             return Response.json({ skipped: true, reason: 'Vaga já estava ativa, ignorado para evitar duplicata' });
           }
         } else {
-          // old_data é null (payload_too_large): buscar a vaga antes da alteração não é possível
-          // Estratégia: verificar se já existe notificação recente para essa vaga (últimas 2 horas)
+          // old_data é null: verifica notificação recente (últimas 30 minutos — janela menor)
           const recentNotifs = await base44.asServiceRole.entities.Notification.filter({
             reference_id: body.event.entity_id,
             type: 'job'
           }, '-created_date', 5);
           if (recentNotifs.length > 0) {
-            const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
-            const hasRecent = recentNotifs.some(n => new Date(n.created_date) > twoHoursAgo);
+            const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
+            const hasRecent = recentNotifs.some(n => new Date(n.created_date) > thirtyMinAgo);
             if (hasRecent) {
-              return Response.json({ skipped: true, reason: 'Notificação recente já existe para esta vaga' });
+              return Response.json({ skipped: true, reason: 'Notificação recente já existe para esta vaga (30min)' });
             }
           }
         }
@@ -276,7 +99,7 @@ Deno.serve(async (req) => {
       jobCity = job.city;
       isHomeOffice = (job.work_mode === 'Remoto' || job.is_remote === true);
     } else {
-      // Chamada direta
+      // Chamada direta (aprovação manual)
       jobId = body.jobId;
       jobTitle = body.jobTitle;
       jobCompany = body.jobCompany;
@@ -288,7 +111,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'jobId and jobTitle are required' }, { status: 400 });
     }
 
-    // Semente para seleção de template: usa parte do jobId
+    // Se não for force, verificar duplicata por 30 min (para chamadas diretas)
+    if (!force && !body.event) {
+      const recentNotifs = await base44.asServiceRole.entities.Notification.filter({
+        reference_id: jobId,
+        type: 'job'
+      }, '-created_date', 3);
+      if (recentNotifs.length > 0) {
+        const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
+        const hasRecent = recentNotifs.some(n => new Date(n.created_date) > thirtyMinAgo);
+        if (hasRecent) {
+          console.log('[notifyNewJob] Notificação recente encontrada, pulando (use force=true para forçar)');
+          return Response.json({ skipped: true, reason: 'Notificação recente já existe. Use force=true para forçar.' });
+        }
+      }
+    }
+
     const seed = parseInt(jobId.replace(/\D/g, '').slice(-4) || '0', 10) || Math.floor(Math.random() * TEMPLATES.length);
     const template = pickTemplate(seed);
 
@@ -301,7 +139,7 @@ Deno.serve(async (req) => {
 
     const jobUrl = `${APP_URL}/JobDetail?id=${jobId}`;
 
-    // 1. Criar notificação global no sininho (para TODOS os usuários)
+    // 1. Criar notificação global no sininho (sent_to_all = aparece para todos) — CLICÁVEL
     await base44.asServiceRole.entities.Notification.create({
       title: template.title(vars),
       message: template.body(vars),
@@ -315,8 +153,9 @@ Deno.serve(async (req) => {
       is_read: false
     });
 
-    // 2. Email — só envia se sendEmail=true for explicitamente passado na chamada
-    const users = [];
+    console.log(`[notifyNewJob] Notificação criada para vaga ${jobId} - ${jobTitle}`);
+
+    // 2. Email — só envia se sendEmail=true
     let emailsSent = 0, emailErrors = 0, pushSent = 0, pushErrors = 0;
 
     const sendEmail = body.sendEmail === true;
@@ -349,7 +188,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 4. Enviar push notification para todos os inscritos
+    // 3. Push notification para todos os inscritos
     const subscriptions = await base44.asServiceRole.entities.PushSubscription.filter({ is_active: true }, '-created_date', 10000);
     const pushPayload = JSON.stringify({
       title: template.title(vars),
@@ -372,32 +211,33 @@ Deno.serve(async (req) => {
               { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
               pushPayload
             );
-            return { ok: true, id: sub.id };
+            pushSent++;
+            return { ok: true };
           } catch (e) {
             if (e.statusCode === 404 || e.statusCode === 410) failedSubs.push(sub.id);
-            return { ok: false, id: sub.id };
+            pushErrors++;
+            return { ok: false };
           }
         })
       );
-      results.forEach(r => r.status === 'fulfilled' && r.value.ok ? pushSent++ : pushErrors++);
     }
 
-    // Limpar subscriptions inválidas
     await Promise.allSettled(failedSubs.map(id => base44.asServiceRole.entities.PushSubscription.delete(id)));
 
     return Response.json({
       success: true,
+      jobId,
+      jobTitle,
       templateUsed: seed % TEMPLATES.length,
       emailsSent,
       emailErrors,
       pushSent,
       pushErrors,
-      totalUsers: users.length,
       totalPushSubs: subscriptions.length
     });
 
   } catch (error) {
-    console.error('notifyNewJob error:', error);
+    console.error('[notifyNewJob] Erro:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
