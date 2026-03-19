@@ -50,7 +50,7 @@ export default function NotificationBell({ user, className }) {
       }
     },
     enabled: !!user?.email,
-    refetchInterval: 2000,
+    refetchInterval: 5000,
     refetchOnWindowFocus: true,
     staleTime: 0,
     cacheTime: 0,

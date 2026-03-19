@@ -136,23 +136,6 @@ IMPORTANTE: Não mencionar empresa ou informações específicas. Apenas context
 
     processedUUIDs.add(uuid);
 
-    // Notificar automaticamente sobre nova vaga
-    try {
-      await base44.asServiceRole.functions.invoke('createNotification', {
-        title: '✅ Vaga Publicada',
-        message: `"${createdJob.title}" foi publicada em ${createdJob.city || 'local não informado'}`,
-        type: 'job',
-        reference_type: 'job',
-        reference_id: createdJob.id,
-        job_id: createdJob.id,
-        sent_to_all: true,
-        redirect_page: 'JobDetail',
-        redirect_params: { id: createdJob.id }
-      });
-    } catch (e) {
-      console.error('[PublishJob] Erro ao criar notificação automática:', e);
-    }
-
     // ENVIAR NOTIFICAÇÕES
     if (notification?.enabled && notification?.template?.title && notification?.template?.message) {
       try {

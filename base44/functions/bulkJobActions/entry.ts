@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
             updateData = { status: 'hidden', exibir_no_mapa: false };
             break;
           case 'activate':
-            updateData = { status: 'ativa', exibir_no_mapa: true, published_at: new Date().toISOString() };
+            updateData = { status: 'ativa', exibir_no_mapa: true };
             break;
           case 'delete':
             // Apagar favoritos relacionados à vaga
@@ -85,33 +85,6 @@ Deno.serve(async (req) => {
         }
 
         await base44.asServiceRole.entities.Job.update(jobId, updateData);
-        
-        // Se foi ativada, criar notificações diretamente
-        if (action === 'activate') {
-          try {
-            const updatedJob = await base44.asServiceRole.entities.Job.get(jobId);
-            console.log(`[bulkJobActions] Criando notificação para vaga: ${updatedJob.title}`);
-            
-            // Criar notificação global
-            await base44.asServiceRole.entities.Notification.create({
-              title: '✨ Nova Vaga Aprovada!',
-              message: `${updatedJob.title} em ${updatedJob.city || 'local não informado'}`,
-              type: 'job',
-              reference_type: 'job',
-              reference_id: updatedJob.id,
-              job_id: updatedJob.id,
-              sent_to_all: true,
-              redirect_page: 'JobDetail',
-              redirect_params: { id: updatedJob.id },
-              is_read: false
-            });
-            
-            console.log(`[bulkJobActions] ✅ Notificação criada para vaga ${jobId}`);
-          } catch (notifyErr) {
-            console.error(`[bulkJobActions] Erro ao criar notificação: ${notifyErr.message}`);
-          }
-        }
-        
         updated++;
       } catch (err) {
         errors.push({ jobId, error: err.message });

@@ -12,43 +12,49 @@ Deno.serve(async (req) => {
 
     if (!job || !job.title) return Response.json({ ok: true });
 
-    // Notificar se vaga foi aprovada (status mudou para 'ativa')
+    // Notificar admins se vaga foi publicada
     if (oldJob?.status !== 'ativa' && job.status === 'ativa') {
-      // UMA notificação global (sent_to_all) — sem loop por usuário
-      await base44.asServiceRole.entities.Notification.create({
-        title: '🚨 Nova Vaga Disponível!',
-        message: `${job.title}${job.company ? ` · ${job.company}` : ''}${job.city ? ` em ${job.city}` : ''}`,
-        type: 'job',
-        reference_type: 'job',
-        reference_id: job.id,
-        job_id: job.id,
-        sent_to_all: true,
-        redirect_page: 'JobDetail',
-        redirect_params: { id: job.id },
-        is_read: false
-      });
+      const admins = await base44.asServiceRole.entities.User.filter(
+        { role: 'admin' }
+      ).catch(() => []);
 
-      console.log(`[notifyJobStatusChanged] ✅ Notificação global criada para vaga: ${job.title}`);
+      for (const admin of admins) {
+        await base44.asServiceRole.entities.Notification.create({
+          title: '✅ Vaga Publicada',
+          message: `"${job.title}" foi publicada`,
+          type: 'job',
+          reference_type: 'job',
+          reference_id: job.id,
+          job_id: job.id,
+          user_email: admin.email,
+          is_read: false
+        });
+      }
     }
 
-    // Notificar admins se vaga expirou
+    // Notificar se vaga foi expirada
     if (oldJob?.status !== 'expirada' && job.status === 'expirada') {
-      await base44.asServiceRole.entities.Notification.create({
-        title: '⏰ Vaga Expirada',
-        message: `"${job.title}" expirou automaticamente`,
-        type: 'system',
-        reference_type: 'job',
-        reference_id: job.id,
-        job_id: job.id,
-        sent_to_all: false,
-        user_email: 'alexandreferreirajp01@gmail.com',
-        is_read: false
-      });
+      const admins = await base44.asServiceRole.entities.User.filter(
+        { role: 'admin' }
+      ).catch(() => []);
+
+      for (const admin of admins) {
+        await base44.asServiceRole.entities.Notification.create({
+          title: '⏰ Vaga Expirada',
+          message: `"${job.title}" expirou`,
+          type: 'system',
+          reference_type: 'job',
+          reference_id: job.id,
+          job_id: job.id,
+          user_email: admin.email,
+          is_read: false
+        });
+      }
     }
 
     return Response.json({ ok: true });
   } catch (error) {
-    console.error('[notifyJobStatusChanged]', error.message);
+    console.error('[notifyJobStatusChanged]', error);
     return Response.json({ ok: true });
   }
 });
