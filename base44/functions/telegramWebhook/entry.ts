@@ -78,24 +78,44 @@ Deno.serve(async (req) => {
     console.log('[Telegram] Chat ID:', chatId, 'Conteúdo:', contentToProcess.substring(0, 100));
 
     const extractResponse = await base44.integrations.Core.InvokeLLM({
-      prompt: `Extraia os dados de uma vaga de emprego do seguinte texto em português:
+      prompt: `Você é um ESPECIALISTA em EXTRAIR DADOS COMPLETOS DE VAGAS.
 
+TEXTO DA VAGA:
 "${contentToProcess}"
 
-Retorne APENAS um JSON válido (sem markdown) com esses campos (deixe em branco se não encontrar):
+⚠️ INSTRUÇÕES CRÍTICAS:
+
+1️⃣ CONTATOS (MÁXIMA PRIORIDADE):
+   - Procure AGRESSIVAMENTE: links (http, www, .com.br, etc), emails (@), telefones, WhatsApp
+   - Locais: fim do texto, "acesse", "saiba mais", "candidate", "inscreva"
+   - NÃO INVENTE! Mas procure em TODA parte!
+
+2️⃣ BENEFÍCIOS E REQUISITOS:
+   - Extraia TODOS os benefícios mencionados (plano saúde, vale, auxílio, etc)
+   - Extraia TODOS os requisitos/qualificações (experiência, formação, habilidades)
+   - Inclua na descrição de forma estruturada
+
+3️⃣ DESCRIÇÃO COM VALOR:
+   - Descreva o cargo, responsabilidades, tipo de trabalho (remoto/presencial/híbrido)
+   - Inclua benefícios e requisitos extraídos
+   - NÃO genérico! Use dados REAIS da vaga
+
+Retorne APENAS JSON válido (sem markdown):
 {
-  "title": "Cargo/Função",
-  "company": "Nome da empresa",
-  "city": "Cidade",
-  "state": "UF (ex: PB)",
-  "salary_range": "Faixa salarial se houver",
-  "job_type": "CLT, PJ, Estágio, Freelancer, Home Office, Temporário ou Jovem Aprendiz",
-  "work_mode": "Presencial, Híbrido ou Remoto",
-  "description": "Descrição completa da vaga (resumo do que encontrar)",
-  "contact_phone": "Telefone se houver",
-  "contact_whatsapp": "WhatsApp se houver",
-  "contact_email": "Email se houver",
-  "category": "Categoria da vaga se identificar"
+  "title": "Cargo exato conforme mencionado",
+  "company": "Nome exato da empresa",
+  "city": "Cidade principal ou 'Não informada'",
+  "state": "UF ou vazio",
+  "salary_range": "Salário se houver, senão vazio",
+  "job_type": "CLT|PJ|Estágio|Freelancer|Trainee|etc",
+  "work_mode": "Presencial|Híbrido|Remoto|100% Remoto",
+  "description": "Descrição robusta com: cargo, empresa, tipo de trabalho, responsabilidades, benefícios e requisitos extraídos do texto. Mínimo 150 caracteres, máximo 500.",
+  "contact_phone": "Telefone exato ou vazio",
+  "contact_whatsapp": "WhatsApp exato ou vazio",
+  "contact_email": "Email exato ou vazio",
+  "contact_link": "URL completa do site/formulário ou vazio",
+  "benefits": "Lista: benefício1, benefício2, benefício3 (extraídos do texto)",
+  "requirements": "Lista: requisito1, requisito2, requisito3 (extraídos do texto)"
 }`,
       response_json_schema: {
         type: 'object',
@@ -111,7 +131,9 @@ Retorne APENAS um JSON válido (sem markdown) com esses campos (deixe em branco 
           contact_phone: { type: 'string' },
           contact_whatsapp: { type: 'string' },
           contact_email: { type: 'string' },
-          category: { type: 'string' }
+          contact_link: { type: 'string' },
+          benefits: { type: 'string' },
+          requirements: { type: 'string' }
         }
       }
     });
