@@ -854,6 +854,12 @@ export default function Jobs() {
         isOpen={!!reportJob}
         onClose={() => setReportJob(null)}
       />
+
+      <SavedJobsModal
+        open={showSavedModal}
+        onClose={() => setShowSavedModal(false)}
+        user={user}
+      />
     </div>
   );
 }
