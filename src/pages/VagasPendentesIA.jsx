@@ -176,13 +176,8 @@ export default function VagasPendentesIA() {
     job.city?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Verificar se alguma chave de autopost está ativa e executar
-  useEffect(() => {
-    if (!user || loadingJobs || pendingJobs.length === 0 || autopostRunning) return;
-    const activeKey = AUTOPOST_KEYS.find(k => autopostKeys[k.id]);
-    if (!activeKey) return;
-    runAutopost(activeKey.id);
-  }, [user, pendingJobs, loadingJobs]);
+  // Nota: O AutoPost agora roda em automação scheduled a cada 5 minutos (24/7)
+  // não precisa mais da lógica React aqui
 
   const runAutopost = async (mode) => {
     if (autopostRunning || pendingJobs.length === 0) return;
