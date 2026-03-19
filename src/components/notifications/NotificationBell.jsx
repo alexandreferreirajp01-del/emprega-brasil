@@ -58,10 +58,9 @@ export default function NotificationBell({ user, className }) {
       }
     },
     enabled: !!user?.email,
-    refetchInterval: 5000,
+    refetchInterval: 15000,
     refetchOnWindowFocus: true,
     staleTime: 0,
-    cacheTime: 0,
   });
 
   const uniqueNotifications = useMemo(() => {
