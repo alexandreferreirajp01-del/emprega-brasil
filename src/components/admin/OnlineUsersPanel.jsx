@@ -37,10 +37,23 @@ function getInitials(user) {
   return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
 }
 
+function formatLastSeen(dateStr) {
+  if (!dateStr) return null;
+  try {
+    const date = parseISO(dateStr);
+    if (isToday(date)) return `hoje às ${format(date, 'HH:mm')}`;
+    if (isYesterday(date)) return `ontem às ${format(date, 'HH:mm')}`;
+    return format(date, "dd/MM 'às' HH:mm", { locale: ptBR });
+  } catch {
+    return null;
+  }
+}
+
 function UserRow({ user, isOnline, onViewProfile, onSendMessage }) {
   const plan = getPlan(user);
   const cfg = PLAN_CONFIG[plan];
   const PlanIcon = cfg.icon;
+  const lastSeen = formatLastSeen(user.last_seen);
 
   return (
     <motion.div

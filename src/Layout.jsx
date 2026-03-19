@@ -385,6 +385,7 @@ export default function Layout({ children, currentPageName }) {
   <PopunderAd pageName={currentPageName} />
   <SocialBarAd pageName={currentPageName} />
 
+  <SessionHeartbeat />
   <NavigationFallback />
   <ServiceWorkerManager />
   <NativePermissionModal />
