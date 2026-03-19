@@ -25,6 +25,7 @@ const submenuConfigs = {
     title: 'Sistema & Aparência',
     icon: Settings,
     items: [
+      { id: 'saude-sistema', name: 'Saúde do Sistema', icon: Activity, color: 'emerald', component: 'SystemHealth', description: 'Créditos, consumo e status das funções', roles: ['admin', 'dono'] },
       { id: 'gerenciar-funcoes', name: 'Gerenciar Funções', icon: Settings, color: 'purple', page: 'GerenciarFuncoes', description: 'Habilitar/desabilitar funções do app', roles: ['admin', 'dono'] },
       { id: 'permissoes', name: 'Permissões de Acesso', icon: Shield, color: 'purple', page: 'Permissoes', description: 'Controlar acesso às funções do app', roles: ['admin', 'dono'] },
       { id: 'cores', name: 'Gerenciar Cores', icon: Palette, color: 'pink', page: 'GerenciarCores', description: 'Personalizar cores da aplicação', roles: ['admin', 'dono'] },
