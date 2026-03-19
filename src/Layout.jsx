@@ -447,6 +447,11 @@ export default function Layout({ children, currentPageName }) {
         <div className="flex items-center gap-1 absolute right-0 lg:relative lg:ml-auto">
           {/* Desktop: Notification Bell + Alerta Pendências + Settings + Users Button + Vagas Button + Theme */}
           {user && <NotificationBell user={user} className="hidden lg:block" />}
+          {showVagasButton && (
+            <div className="hidden lg:block">
+              <OnlineUsersTrigger user={user} />
+            </div>
+          )}
 
           {isDono && (
             <a href="https://vagasabertaspb.com.br/vagaspendentesia" title="Vagas Pendentes IA" className="hidden lg:inline-flex">
